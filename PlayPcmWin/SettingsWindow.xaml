@@ -10,7 +10,8 @@
             <RowDefinition x:Uid="RowDefinition_1" Height="515*" />
             <RowDefinition x:Uid="RowDefinition_2" Height="46*" />
         </Grid.RowDefinitions>
-        <Grid x:Uid="Grid_2" RenderTransformOrigin="0.0,0.0">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid x:Uid="Grid_2" RenderTransformOrigin="0.0,0.0">
             <Grid.LayoutTransform>
                 <TransformGroup x:Uid="TransformGroup_1">
                     <ScaleTransform 
@@ -18,40 +19,48 @@
                     ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
                 </TransformGroup>
             </Grid.LayoutTransform>
-            <GroupBox x:Uid="groupBox1" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="232" Margin="12,12,12,0" Name="groupBox1" VerticalAlignment="Top">
-                <Grid x:Uid="Grid_3">
-                    <RadioButton x:Uid="radioButtonBpsVariable" Content="Autoselect Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)" Height="16" Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
-                    <RadioButton x:Uid="radioButtonBpsVariableSint16Sint32V24" Content="Autoselect Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)" Height="16" IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsVariableSint16Sint24" Content="Autoselect Sint16,SInt24(Suitable for USB audio devices)" Height="16" IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsSint16" Content="Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)" Height="16" Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsSint24" Content="Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)" Height="16" Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonSint32V24" Content="Always use SInt32V24(SInt32, Valid bits=24bps)" Height="16" Margin="6,116,6,0" Name="radioButtonSint32V24" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsSint32" Content="Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)" Height="16" Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsSfloat32" Content="Always use SFloat32(IEEE754 single precision floating point format: Supported hardwares are very rare)" Height="16" Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
-                    <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)" Height="16" Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
-                </Grid>
-            </GroupBox>
-            <GroupBox x:Uid="groupBox2" Header="CUE sheet settings" Height="59" Margin="12,249,12,0" Name="groupBox2" VerticalAlignment="Top">
-                <Grid x:Uid="Grid_4">
-                    <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Height="16" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
-                </Grid>
-            </GroupBox>
-            <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,311,12,0" Name="groupBox3" VerticalAlignment="Top">
-                <Grid x:Uid="Grid_5">
-                    <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size" Height="16" Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup" Height="16" Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                    <CheckBox x:Uid="checkBoxCoverart" Content="Display coverart images" Height="16" Margin="280,6,0,0" Name="checkBoxCoverart" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
-                    <CheckBox x:Uid="checkBoxRefrainRedraw" Content="Minimize GUI redraw when playing" Height="16" Margin="280,28,0,0" Name="checkBoxRefrainRedraw" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
-                    <CheckBox x:Uid="checkBoxParallelRead" Content="Parallelize file read" Height="16" Margin="520,6,0,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" />
-                    <TextBox x:Uid="textBoxPlayingTimeSize" Height="28" Margin="328,50,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
-                    <Label x:Uid="label1" Content="Playing time font:" Height="28" Margin="5,50,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
-                    <Label x:Uid="label2" Content="pt" Height="28" HorizontalAlignment="Left" Margin="383,50,0,0" Name="label2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-                    <ComboBox x:Uid="comboBoxPlayingTimeFontNames" Height="24" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
-                    <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="153,82,0,0" Name="labelPlayingTime" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
-                    <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold" Height="16" HorizontalAlignment="Left" Margin="414,56,0,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
-                </Grid>
-            </GroupBox>
+                <GroupBox x:Uid="groupBox1" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="232" Margin="12,12,12,0" Name="groupBox1" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_3">
+                        <RadioButton x:Uid="radioButtonBpsVariable" Content="Autoselect Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)" Height="16" Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
+                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint32V24" Content="Autoselect Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)" Height="16" IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint24" Content="Autoselect Sint16,SInt24(Suitable for USB audio devices)" Height="16" IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint16" Content="Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)" Height="16" Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint24" Content="Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)" Height="16" Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonSint32V24" Content="Always use SInt32V24(SInt32, Valid bits=24bps)" Height="16" Margin="6,116,6,0" Name="radioButtonSint32V24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint32" Content="Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)" Height="16" Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSfloat32" Content="Always use SFloat32(IEEE754 single precision floating point format: Supported hardwares are very rare)" Height="16" Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)" Height="16" Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Uid="groupBox2" Header="CUE sheet settings" Height="59" Margin="12,249,12,0" Name="groupBox2" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_4">
+                        <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Height="16" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBox4" VerticalAlignment="Top">
+                    <Grid>
+                        <Label Content="Zero flush period on playback starts:" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelFlushZero" VerticalAlignment="Center" Width="300" />
+                        <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlush" VerticalAlignment="Center" Width="80" Text="0" />
+                        <Label Content="second(s)" Height="28" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelFlushZeroUnit" VerticalAlignment="Center" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,410,12,0" Name="groupBox3" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_5">
+                        <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size" Height="16" Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                        <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup" Height="16" Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                        <CheckBox x:Uid="checkBoxCoverart" Content="Display coverart images" Height="16" Margin="280,6,0,0" Name="checkBoxCoverart" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                        <CheckBox x:Uid="checkBoxRefrainRedraw" Content="Minimize GUI redraw when playing" Height="16" Margin="280,28,0,0" Name="checkBoxRefrainRedraw" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
+                        <CheckBox x:Uid="checkBoxParallelRead" Content="Parallelize file read" Height="16" Margin="520,6,0,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" />
+                        <TextBox x:Uid="textBoxPlayingTimeSize" Height="28" Margin="328,50,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
+                        <Label x:Uid="label1" Content="Playing time font:" Height="28" Margin="5,50,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
+                        <Label x:Uid="label2" Content="pt" Height="28" HorizontalAlignment="Left" Margin="383,50,0,0" Name="label2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                        <ComboBox x:Uid="comboBoxPlayingTimeFontNames" Height="24" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
+                        <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="153,82,0,0" Name="labelPlayingTime" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
+                        <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold" Height="16" HorizontalAlignment="Left" Margin="414,56,0,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
+                    </Grid>
+                </GroupBox>
         </Grid>
+        </ScrollViewer>
         <Slider x:Uid="sliderWindowScaling" Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />
         <Button x:Uid="buttonOK" Content="OK" Margin="0,0,137,12" Name="buttonOK" Height="23" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
         <Button x:Uid="buttonCancel" Content="Cancel" Name="buttonCancel" Height="23" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="119" Click="buttonCancel_Click" Grid.Row="1" Margin="0,0,12,12" />

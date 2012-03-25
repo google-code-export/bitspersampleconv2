@@ -20,6 +20,7 @@ namespace PlayPcmWin {
         public bool ReplaceGapWithKokomade { get; set; }
 
         public string PreferredDeviceName { get; set; }
+        public string PreferredDeviceIdString { get; set; }
 
         public double MainWindowLeft { get; set; }
         public double MainWindowTop { get; set; }
@@ -78,6 +79,7 @@ namespace PlayPcmWin {
             renderThreadTaskType = RenderThreadTaskType.ProAudio;
             bitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             PreferredDeviceName = "";
+            PreferredDeviceIdString = "";
             ReplaceGapWithKokomade = false;
             ManuallySetMainWindowDimension = true;
             ParallelRead = false;

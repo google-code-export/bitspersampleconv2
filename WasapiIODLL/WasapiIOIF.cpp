@@ -161,6 +161,14 @@ WasapiIO_GetDeviceName(int id, LPWSTR name, int nameBytes)
 
 extern "C" __declspec(dllexport)
 bool __stdcall
+WasapiIO_GetDeviceIdString(int id, LPWSTR idStr, int idStrBytes)
+{
+    assert(self);
+    return self->wasapi.GetDeviceIdString(id, idStr, idStrBytes);
+}
+
+extern "C" __declspec(dllexport)
+bool __stdcall
 WasapiIO_InspectDevice(int id, LPWSTR result, int resultBytes)
 {
     assert(self);
@@ -197,6 +205,14 @@ WasapiIO_GetUseDeviceName(LPWSTR name, int nameBytes)
 {
     assert(self);
     return self->wasapi.GetUseDeviceName(name, nameBytes);
+}
+
+extern "C" __declspec(dllexport)
+bool __stdcall
+WasapiIO_GetUseDeviceIdString(LPWSTR idStr, int idStrBytes)
+{
+    assert(self);
+    return self->wasapi.GetUseDeviceIdString(idStr, idStrBytes);
 }
 
 extern "C" __declspec(dllexport)

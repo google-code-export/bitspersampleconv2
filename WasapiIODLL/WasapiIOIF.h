@@ -45,6 +45,10 @@ WasapiIO_GetDeviceName(int id, LPWSTR name, int nameBytes);
 
 extern "C" __declspec(dllexport)
 bool __stdcall
+WasapiIO_GetDeviceIdString(int id, LPWSTR idStr, int idStrBytes);
+
+extern "C" __declspec(dllexport)
+bool __stdcall
 WasapiIO_InspectDevice(int id, LPWSTR result, int resultBytes);
 
 extern "C" __declspec(dllexport)
@@ -62,6 +66,10 @@ WasapiIO_GetUseDeviceId(void);
 extern "C" __declspec(dllexport)
 bool __stdcall
 WasapiIO_GetUseDeviceName(LPWSTR name, int nameBytes);
+
+extern "C" __declspec(dllexport)
+bool __stdcall
+WasapiIO_GetUseDeviceIdString(LPWSTR idStr, int idStrBytes);
 
 /// @param format WWPcmDataFormatType
 extern "C" __declspec(dllexport)

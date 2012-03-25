@@ -18,10 +18,11 @@
 // undef : 一旦スタック上にて再生データを作ってからレンダーバッファにコピーする
 #define CREATE_PLAYPCM_ON_RENDER_BUFFER
 
-WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name)
+WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
 {
     this->id = id;
     wcsncpy_s(this->name, name, WW_DEVICE_NAME_COUNT-1);
+    wcsncpy_s(this->idStr, idStr, WW_DEVICE_IDSTR_COUNT-1);
 }
 
 static wchar_t*
@@ -133,7 +134,10 @@ public:
         dprintf("%s %S %08x\n", __FUNCTION__,
             pwstrDeviceId, dwNewState);
 
-        m_pWasapiUser->DeviceStateChanged();
+        /* 再生中で、再生しているデバイスの状態が変わったときは
+         * 再生を停止しなければならないのではないだろうか
+         */
+        m_pWasapiUser->DeviceStateChanged(pwstrDeviceId);
 
         (void)pwstrDeviceId;
         (void)dwNewState;
@@ -195,10 +199,12 @@ WasapiUser::WasapiUser(void)
     m_deviceSampleRate     = 0;
 
     memset(m_useDeviceName, 0, sizeof m_useDeviceName);
+    memset(m_useDeviceIdStr, 0, sizeof m_useDeviceIdStr);
 
     m_stateChangedCallback = NULL;
     m_deviceEnumerator     = NULL;
     m_pNotificationClient  = NULL;
+	m_timePeriodMillisec   = 0;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -209,6 +215,7 @@ WasapiUser::~WasapiUser(void)
     assert(!m_deviceToUse);
     m_useDeviceId = -1;
     m_useDeviceName[0] = 0;
+    m_useDeviceIdStr[0] = 0;
 }
 
 HRESULT
@@ -254,6 +261,7 @@ WasapiUser::Term(void)
     SafeRelease(&m_deviceToUse);
     m_useDeviceId = -1;
     m_useDeviceName[0] = 0;
+    m_useDeviceIdStr[0] = 0;
 
     if (m_mutex) {
         CloseHandle(m_mutex);
@@ -313,37 +321,59 @@ WasapiUser::SetLatencyMillisec(DWORD millisec)
 
 static HRESULT
 DeviceNameGet(
-    IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
+        IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
 {
     HRESULT hr = 0;
 
     IMMDevice *device  = NULL;
-    LPWSTR deviceId    = NULL;
     IPropertyStore *ps = NULL;
     PROPVARIANT pv;
 
     assert(dc);
     assert(name);
+    assert(0 < nameBytes);
 
     name[0] = 0;
 
-    assert(0 < nameBytes);
-
     PropVariantInit(&pv);
 
-    HRR(dc->Item(id, &device));
-    HRR(device->GetId(&deviceId));
-    HRR(device->OpenPropertyStore(STGM_READ, &ps));
-
+    HRG(dc->Item(id, &device));
+    HRG(device->OpenPropertyStore(STGM_READ, &ps));
     HRG(ps->GetValue(PKEY_Device_FriendlyName, &pv));
-    SafeRelease(&ps);
 
-    wcsncpy_s(name, nameBytes/2, pv.pwszVal, nameBytes/sizeof name[0] -1);
+    wcsncpy_s(name, nameBytes/2, pv.pwszVal, nameBytes/2 -1);
 
 end:
     PropVariantClear(&pv);
-    CoTaskMemFree(deviceId);
     SafeRelease(&ps);
+    SafeRelease(&device);
+    return hr;
+}
+
+static HRESULT
+DeviceIdStringGet(
+        IMMDeviceCollection *dc, UINT id, wchar_t *deviceIdStr, size_t deviceIdStrBytes)
+{
+    HRESULT hr = 0;
+
+    IMMDevice *device  = NULL;
+    LPWSTR    s        = NULL;
+
+    assert(dc);
+    assert(deviceIdStr);
+    assert(0 < deviceIdStrBytes);
+
+    deviceIdStr[0] = 0;
+
+    HRG(dc->Item(id, &device));
+    HRG(device->GetId(&s));
+
+    wcsncpy_s(deviceIdStr, deviceIdStrBytes/2, s, deviceIdStrBytes/2 -1);
+
+end:
+    CoTaskMemFree(s);
+    s = NULL;
+    SafeRelease(&device);
     return hr;
 }
 
@@ -405,7 +435,9 @@ WasapiUser::DoDeviceEnumeration(WWDeviceType t)
 
     for (UINT i=0; i<nDevices; ++i) {
         wchar_t name[WW_DEVICE_NAME_COUNT];
+        wchar_t idStr[WW_DEVICE_IDSTR_COUNT];
         HRG(DeviceNameGet(m_deviceCollection, i, name, sizeof name));
+        HRG(DeviceIdStringGet(m_deviceCollection, i, idStr, sizeof idStr));
 
         /* CMDコンソールに出力する場合、文字化けして表示が乱れるので?に置換する。
         for (int j=0; j<wcslen(name); ++j) {
@@ -415,7 +447,7 @@ WasapiUser::DoDeviceEnumeration(WWDeviceType t)
         }
         */
 
-        m_deviceInfo.push_back(WWDeviceInfo(i, name));
+        m_deviceInfo.push_back(WWDeviceInfo(i, name, idStr));
     }
 
 end:
@@ -432,9 +464,22 @@ WasapiUser::GetDeviceCount(void)
 bool
 WasapiUser::GetDeviceName(int id, LPWSTR name, size_t nameBytes)
 {
-    assert(0 <= id && id < (int)m_deviceInfo.size());
+    if(id < 0 || (int)m_deviceInfo.size() <= id) {
+        return false;
+    }
 
-    wcsncpy_s(name, nameBytes/2, m_deviceInfo[id].name, nameBytes/sizeof name[0] -1);
+    wcsncpy_s(name, nameBytes/2, m_deviceInfo[id].name, nameBytes/2 -1);
+    return true;
+}
+
+bool
+WasapiUser::GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes)
+{
+    if(id < 0 || (int)m_deviceInfo.size() <= id) {
+        return false;
+    }
+
+    wcsncpy_s(idStr, idStrBytes/2, m_deviceInfo[id].idStr, idStrBytes/2 -1);
     return true;
 }
 
@@ -645,6 +690,7 @@ WasapiUser::ChooseDevice(int id)
     HRG(m_deviceCollection->Item(id, &m_deviceToUse));
     m_useDeviceId = id;
     wcscpy_s(m_useDeviceName, m_deviceInfo[id].name);
+    wcscpy_s(m_useDeviceIdStr, m_deviceInfo[id].idStr);
 
 end:
     SafeRelease(&m_deviceCollection);
@@ -659,6 +705,7 @@ WasapiUser::UnchooseDevice(void)
     SafeRelease(&m_deviceToUse);
     m_useDeviceId = -1;
     m_useDeviceName[0] = 0;
+    m_useDeviceIdStr[0] = 0;
 }
 
 int
@@ -672,6 +719,13 @@ bool
 WasapiUser::GetUseDeviceName(LPWSTR name, size_t nameBytes)
 {
     wcsncpy_s(name, nameBytes/2, m_useDeviceName, nameBytes/2 -1);
+    return true;
+}
+
+bool
+WasapiUser::GetUseDeviceIdString(LPWSTR idStr, size_t idStrBytes)
+{
+    wcsncpy_s(idStr, idStrBytes/2, m_useDeviceIdStr, idStrBytes/2 -1);
     return true;
 }
 
@@ -1551,7 +1605,10 @@ WasapiUser::RenderMain(void)
     
     HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-    timeBeginPeriod(1);
+	assert(0 <= m_timePeriodMillisec);
+	if (0 < m_timePeriodMillisec) {
+	    timeBeginPeriod(m_timePeriodMillisec);
+	}
 
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
     if (WWSTTNone != m_schedulerTaskType) {
@@ -1607,7 +1664,9 @@ end:
         mmcssHandle = NULL;
     }
 
-    timeEndPeriod(1);
+	if (0 < m_timePeriodMillisec) {
+	    timeEndPeriod(m_timePeriodMillisec);
+	}
 
     CoUninitialize();
     return hr;
@@ -1811,9 +1870,9 @@ WasapiUser::GetPcmDataFrameBytes(void)
 }
 
 void
-WasapiUser::DeviceStateChanged(void)
+WasapiUser::DeviceStateChanged(LPCWSTR deviceIdStr)
 {
     if (m_stateChangedCallback) {
-        m_stateChangedCallback();
+        m_stateChangedCallback(deviceIdStr);
     }
 }

@@ -47,6 +47,26 @@ namespace PlayPcmWin
 
         private Preference m_preference = new Preference();
 
+        class DeviceInfo
+        {
+            public int Idx { get; set; }
+            public string Name { get; set; }
+            public string DeviceIdStr { get; set; }
+
+            public DeviceInfo(int idx, string name, string deviceIdStr)
+            {
+                Idx = idx;
+                Name = name;
+                DeviceIdStr = deviceIdStr;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0}: {1}", Idx, Name);
+            }
+        }
+
+
         /// <summary>
         /// PcmDataの表示用リスト。
         /// </summary>
@@ -579,8 +599,6 @@ namespace PlayPcmWin
                 m_loadErrorMessages = null;
             }
 
-            UpdateWindowSettings();
-
             AddLogText(string.Format("PlayPcmWin {0} {1}\r\n",
                     AssemblyVersion,
                     IntPtr.Size == 8 ? "64bit" : "32bit"));
@@ -643,7 +661,8 @@ namespace PlayPcmWin
 
             SetupBackgroundWorkers();
 
-            CreateDeviceList();
+            UpdateDeviceList();
+            UpdateWindowSettings();
         }
 
         /// <summary>
@@ -1042,7 +1061,7 @@ namespace PlayPcmWin
         /// デバイス一覧を取得し、デバイス一覧リストを更新する。
         /// 同一デバイスのデバイス番号がずれるので注意。
         /// </summary>
-        private void CreateDeviceList() {
+        private void UpdateDeviceList() {
             int hr;
 
             int selectedIndex = -1;
@@ -1055,9 +1074,19 @@ namespace PlayPcmWin
             int nDevices = wasapi.GetDeviceCount();
             for (int i = 0; i < nDevices; ++i) {
                 string deviceName = wasapi.GetDeviceName(i);
-                listBoxDevices.Items.Add(deviceName);
+                string deviceIdStr = wasapi.GetDeviceIdString(i);
+
+                listBoxDevices.Items.Add(new DeviceInfo(i, deviceName, deviceIdStr));
+
                 if (0 < m_preference.PreferredDeviceName.Length
                     && 0 == m_preference.PreferredDeviceName.CompareTo(deviceName)) {
+                    // PreferredDeviceIdStringは3.0.60で追加されたので、存在しないことがある
+                    // 存在するときだけチェックする
+                    if (0 < m_preference.PreferredDeviceIdString.Length
+                            && 0 != m_preference.PreferredDeviceIdString.CompareTo(deviceIdStr)) {
+                        continue;
+                    }
+
                     // お気に入りデバイスを選択状態にする。
                     selectedIndex = i;
                 }
@@ -1090,7 +1119,7 @@ namespace PlayPcmWin
         /// 再生中の場合は、停止完了後にtaskAfterStopを実行する。
         /// </summary>
         /// <param name="taskAfterStop"></param>
-        void Stop(Task taskAfterStop) {
+        void StopAsync(Task taskAfterStop) {
             m_task = taskAfterStop;
 
             if (m_playWorker.IsBusy) {
@@ -1099,6 +1128,30 @@ namespace PlayPcmWin
             } else {
                 // 再生停止後イベントをここで、いますぐ開始。
                 PerformPlayCompletedTask();
+            }
+        }
+
+        void StopBlocking()
+        {
+            StopAsync(new Task(TaskType.None));
+            m_readFileWorker.CancelAsync();
+
+            // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
+            while (m_playWorker.IsBusy)
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Background,
+                    new System.Threading.ThreadStart(delegate { }));
+
+                System.Threading.Thread.Sleep(100);
+            }
+
+            while (m_readFileWorker.IsBusy)
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Background,
+                    new System.Threading.ThreadStart(delegate { }));
+                System.Threading.Thread.Sleep(100);
             }
         }
 
@@ -1123,28 +1176,10 @@ namespace PlayPcmWin
 
         private void Term() {
             if (wasapi != null) {
-                Stop(new Task(TaskType.None));
-                m_readFileWorker.CancelAsync();
-
-                // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
+                // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせするブロッキング版のStopを呼ぶ。
                 // そうしないと、バックグラウンドスレッドによって使用中のオブジェクトが
                 // この後のUnsetupの呼出によって開放されてしまい問題が起きる。
-
-                while (m_playWorker.IsBusy) {
-                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                        System.Windows.Threading.DispatcherPriority.Background,
-                        new System.Threading.ThreadStart(delegate { }));
-
-                    System.Threading.Thread.Sleep(100);
-                }
-
-                while (m_readFileWorker.IsBusy) {
-                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                        System.Windows.Threading.DispatcherPriority.Background,
-                        new System.Threading.ThreadStart(delegate { }));
-                    System.Threading.Thread.Sleep(100);
-                }
-
+                StopBlocking();
                 UnsetupDevice();
                 wasapi.Term();
                 wasapi = null;
@@ -2403,18 +2438,18 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// 使用デバイスを指定する(デバイスIdと名前指定)
+        /// 使用デバイスを指定する(デバイスId指定)
         /// 既に使用中の場合、空振りする。
         /// 別のデバイスを使用中の場合、そのデバイスを未使用にして、新しいデバイスを使用状態にする。
         /// </summary>
         /// <param name="id">デバイスId</param>
-        /// <param name="deviceName">デバイス名</param>
-        private bool UseDevice(int id, string deviceName) {
-            int chosenDeviceId      = wasapi.GetUseDeviceId();
-            string chosenDeviceName = wasapi.GetUseDeviceName();
+        private bool UseDevice(int id)
+        {
+            var di = listBoxDevices.SelectedItem as DeviceInfo;
+            int    chosenDeviceId    = wasapi.GetUseDeviceId();
+            string chosenDeviceIdStr = wasapi.GetUseDeviceIdString();
 
-            if (id == chosenDeviceId &&
-                0 == deviceName.CompareTo(chosenDeviceName)) {
+            if (0 == di.DeviceIdStr.CompareTo(chosenDeviceIdStr)) {
                 // このデバイスが既に指定されている場合は、空振りする。
                 return true;
             }
@@ -2427,16 +2462,16 @@ namespace PlayPcmWin
 
             // このデバイスを選択。
             int hr = wasapi.ChooseDevice(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format("wasapi.ChooseDevice({0}) {1:X8}\r\n",
-                deviceName, hr));
+            AddLogText(string.Format("wasapi.ChooseDevice({0}) {1:X8}\r\n", di.Name, hr));
             if (hr < 0) {
                 return false;
             }
 
             // 通常使用するデバイスとする。
-            string selectedItemName = (string)listBoxDevices.SelectedItem;
-            m_preference.PreferredDeviceName = selectedItemName;
+            m_preference.PreferredDeviceName     = di.Name;
+            m_preference.PreferredDeviceIdString = di.DeviceIdStr;
 
+#if false
             int loadGroupId = 0;
             if (0 <= dataGridPlayList.SelectedIndex) {
                 PcmDataLib.PcmData w = m_playListItems[dataGridPlayList.SelectedIndex].PcmData();
@@ -2444,6 +2479,7 @@ namespace PlayPcmWin
                     loadGroupId = w.GroupId;
                 }
             }
+#endif
             return true;
         }
 
@@ -2536,7 +2572,8 @@ namespace PlayPcmWin
         }
 
         private void buttonPlay_Click(object sender, RoutedEventArgs e) {
-            if (!UseDevice(listBoxDevices.SelectedIndex, (string)listBoxDevices.SelectedItem)) {
+            var di = listBoxDevices.SelectedItem as DeviceInfo;
+            if (!UseDevice(listBoxDevices.SelectedIndex)) {
                 return;
             }
 
@@ -2643,7 +2680,7 @@ namespace PlayPcmWin
                     ChangeState(State.ファイル読み込み完了);
 
                     DeviceDeselect();
-                    CreateDeviceList();
+                    UpdateDeviceList();
                     return false;
                 }
 
@@ -2662,7 +2699,7 @@ namespace PlayPcmWin
                 ChangeState(State.ファイル読み込み完了);
 
                 DeviceDeselect();
-                CreateDeviceList();
+                UpdateDeviceList();
                 return false;
             }
             StartPlay(wavDataId);
@@ -2864,7 +2901,7 @@ namespace PlayPcmWin
             // さらに、デバイスを選択解除し、デバイス一覧を更新する。
             // 停止後に再生リストの追加ができて便利。
             DeviceDeselect();
-            CreateDeviceList();
+            UpdateDeviceList();
         }
 
         /// <summary>
@@ -2883,7 +2920,7 @@ namespace PlayPcmWin
             UpdateUIStatus();
 
             // 停止ボタンで停止した場合は、停止後何もしない。
-            Stop(new Task(TaskType.None));
+            StopAsync(new Task(TaskType.None));
             AddLogText(string.Format("wasapi.Stop()\r\n"));
         }
 
@@ -2898,8 +2935,9 @@ namespace PlayPcmWin
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             string dn = wasapi.GetDeviceName(listBoxDevices.SelectedIndex);
+            string did = wasapi.GetDeviceIdString(listBoxDevices.SelectedIndex);
             string s = wasapi.InspectDevice(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format("wasapi.InspectDevice()\r\n{0}\r\n{1}\r\n", dn, s));
+            AddLogText(string.Format("wasapi.InspectDevice()\r\n{0}\r\n{1}\r\n{2}\r\n", dn, did, s));
         }
 
         /// <summary>
@@ -2985,7 +3023,7 @@ namespace PlayPcmWin
             var pcmData = FindPcmDataById(m_pcmDataListForPlay, wavDataId);
             if (null == pcmData) {
                 // 1曲再生の時起きる。
-                Stop(new Task(TaskType.PlaySpecifiedGroup, 0, wavDataId));
+                StopAsync(new Task(TaskType.PlaySpecifiedGroup, 0, wavDataId));
                 return;
             }
 
@@ -2999,7 +3037,7 @@ namespace PlayPcmWin
                     wavDataId));
             } else {
                 // ファイルグループが違う場合、再生を停止し、グループを読み直し、再生を再開する。
-                Stop(new Task(TaskType.PlaySpecifiedGroup, groupId, wavDataId));
+                StopAsync(new Task(TaskType.PlaySpecifiedGroup, groupId, wavDataId));
             }
         }
 
@@ -3312,19 +3350,39 @@ namespace PlayPcmWin
         /// <summary>
         /// デバイスが突然消えたとか、突然増えたとかのイベント。
         /// </summary>
-        private void WasapiStatusChanged() {
-            Console.WriteLine("WasapiStatusChanged");
+        private void WasapiStatusChanged(StringBuilder idStr) {
+            Console.WriteLine("WasapiStatusChanged {0}", idStr);
             Dispatcher.BeginInvoke(new Action(delegate() {
-
-                // お気に入りデバイス設定。
-                object selectedItem = listBoxDevices.SelectedItem;
-                if (null != selectedItem) {
-                    string selectedItemName = (string)selectedItem;
-                    m_preference.PreferredDeviceName = selectedItemName;
+                // AddLogText(string.Format(Properties.Resources.DeviceStateChanged + "\r\n", idStr));
+                switch (m_state)
+                {
+                    case State.未初期化:
+                        return;
+                    case State.初期化完了:
+                    case State.プレイリストあり:
+                        // 再生中ではない場合、デバイス一覧を更新する。
+                        // DeviceDeselect();
+                        UpdateDeviceList();
+                        break;
+                    case State.デバイスSetup完了:
+                    case State.ファイル読み込み完了:
+                    case State.再生グループ切り替え中:
+                    case State.再生一時停止中:
+                    case State.再生中:
+                    case State.再生停止開始:
+                        // 再生に使用しているデバイスの状態が変化した場合、再生停止する。
+                        // そうではない場合、ここでは何もしない。再生停止時に兎に角デバイス一覧が更新される。
+                        var useDeviceIdStr = wasapi.GetUseDeviceIdString();
+                        var useDeviceName  = wasapi.GetUseDeviceName();
+                        if (0 == useDeviceIdStr.CompareTo(idStr.ToString()))
+                        {
+                            AddLogText(string.Format(Properties.Resources.UsingDeviceStateChanged + "\r\n", useDeviceName, useDeviceIdStr));
+                            StopBlocking();
+                            DeviceDeselect();
+                            UpdateDeviceList();
+                        }
+                        break;
                 }
-
-                DeviceDeselect();
-                CreateDeviceList();
             }));
         }
         

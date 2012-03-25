@@ -269,4 +269,10 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="PlayModeShuffleRepeat" xml:space="preserve">
     <value>シャッフル繰り返し</value>
   </data>
+  <data name="UsingDeviceStateChanged" xml:space="preserve">
+    <value>使用中のデバイスの状態が変わりました。デバイス名={0} デバイスID={1}</value>
+  </data>
+  <data name="DeviceStateChanged" xml:space="preserve">
+    <value>デバイスの状態が変わりました。デバイスID={0}</value>
+  </data>
 </root>

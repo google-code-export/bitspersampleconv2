@@ -41,6 +41,10 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
         private extern static bool
+        WasapiIO_GetDeviceIdString(int id, System.Text.StringBuilder idStr, int idStrBytes);
+
+        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
+        private extern static bool
         WasapiIO_InspectDevice(int id, System.Text.StringBuilder result, int resultBytes);
 
         [DllImport("WasapiIODLL.dll")]
@@ -58,6 +62,10 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
         private extern static bool
         WasapiIO_GetUseDeviceName(System.Text.StringBuilder name, int nameBytes);
+
+        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
+        private extern static bool
+        WasapiIO_GetUseDeviceIdString(System.Text.StringBuilder idStr, int idStrBytes);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -167,7 +175,8 @@ namespace Wasapi {
         private extern static int
         WasapiIO_GetPcmDataNumChannels();
 
-        public delegate void StateChangedCallback();
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet=CharSet.Unicode)]
+        public delegate void StateChangedCallback(StringBuilder idStr);
 
         [DllImport("WasapiIODLL.dll")]
         public static extern void WasapiIO_RegisterCallback(StateChangedCallback callback);
@@ -241,6 +250,12 @@ namespace Wasapi {
             return buf.ToString();
         }
 
+        public string GetDeviceIdString(int id) {
+            StringBuilder buf = new StringBuilder(256);
+            WasapiIO_GetDeviceIdString(id, buf, buf.Capacity * 2);
+            return buf.ToString();
+        }
+
         public string InspectDevice(int id) {
             StringBuilder buf = new StringBuilder(65536);
             WasapiIO_InspectDevice(id, buf, buf.Capacity * 2);
@@ -262,6 +277,13 @@ namespace Wasapi {
         public string GetUseDeviceName() {
             StringBuilder buf = new StringBuilder(64);
             WasapiIO_GetUseDeviceName(buf, buf.Capacity * 2);
+            return buf.ToString();
+        }
+
+        public string GetUseDeviceIdString()
+        {
+            StringBuilder buf = new StringBuilder(256);
+            WasapiIO_GetUseDeviceIdString(buf, buf.Capacity * 2);
             return buf.ToString();
         }
 

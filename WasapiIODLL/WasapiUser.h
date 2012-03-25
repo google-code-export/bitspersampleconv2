@@ -10,19 +10,22 @@
 #include "WWPcmData.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
+#define WW_DEVICE_IDSTR_COUNT (256)
 
-typedef void (__stdcall WWStateChanged)();
+typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
 
 struct WWDeviceInfo {
     int id;
     wchar_t name[WW_DEVICE_NAME_COUNT];
+    wchar_t idStr[WW_DEVICE_IDSTR_COUNT];
 
     WWDeviceInfo(void) {
         id = -1;
         name[0] = 0;
+        idStr[0] = 0;
     }
 
-    WWDeviceInfo(int id, const wchar_t * name);
+    WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr);
 };
 
 enum WWDataFeedMode {
@@ -68,6 +71,7 @@ public:
     HRESULT DoDeviceEnumeration(WWDeviceType t);
     int GetDeviceCount(void);
     bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
+    bool GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes);
     bool InspectDevice(int id, LPWSTR result, size_t resultBytes);
 
     // set use device
@@ -75,6 +79,7 @@ public:
     void UnchooseDevice(void);
     int  GetUseDeviceId(void);
     bool GetUseDeviceName(LPWSTR name, size_t nameBytes);
+    bool GetUseDeviceIdString(LPWSTR idStr, size_t idStrBytes);
 
     // wasapi configuration parameters
     void SetSchedulerTaskType(WWSchedulerTaskType t);
@@ -145,7 +150,7 @@ public:
         m_stateChangedCallback = callback;
     }
 
-    void DeviceStateChanged(void);
+    void DeviceStateChanged(LPCWSTR deviceIdStr);
 
 private:
     std::vector<WWDeviceInfo> m_deviceInfo;
@@ -190,6 +195,7 @@ private:
 
     int          m_useDeviceId;
     wchar_t      m_useDeviceName[WW_DEVICE_NAME_COUNT];
+    wchar_t      m_useDeviceIdStr[WW_DEVICE_IDSTR_COUNT];
 
     WWPcmData    *m_capturedPcmData;
     WWPcmData    *m_nowPlayingPcmData;
@@ -202,6 +208,7 @@ private:
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
     IMMNotificationClient *m_pNotificationClient;
+	int          m_timePeriodMillisec;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);

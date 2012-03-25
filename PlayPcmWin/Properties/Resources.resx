@@ -269,4 +269,10 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="PlayModeShuffleRepeat" xml:space="preserve">
     <value>Shuffle repeat</value>
   </data>
+  <data name="UsingDeviceStateChanged" xml:space="preserve">
+    <value>Using device state change detected! DeviceName={0} DeviceId={1}</value>
+  </data>
+  <data name="DeviceStateChanged" xml:space="preserve">
+    <value>DeviceStateChanged. DeviceId={0}</value>
+  </data>
 </root>
