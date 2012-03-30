@@ -96,7 +96,7 @@ namespace PlayPcmWin {
             StorePlaylistContent = true;
             DispCoverart = true;
             RefrainRedraw = false;
-            ZeroFlushMillisec = 0;
+            ZeroFlushMillisec = 500;
 
             MainWindowLeft = -1;
             MainWindowTop = -1;

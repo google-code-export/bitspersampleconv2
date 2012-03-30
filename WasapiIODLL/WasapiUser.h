@@ -82,10 +82,12 @@ public:
     bool GetUseDeviceIdString(LPWSTR idStr, size_t idStrBytes);
 
     // wasapi configuration parameters
+    // call before Setup()
     void SetSchedulerTaskType(WWSchedulerTaskType t);
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
+    void SetZeroFlushMillisec(int zeroFlushMillisec);
 
     HRESULT Setup(
         int sampleRate, WWPcmDataFormatType format, int numChannels);
@@ -201,14 +203,16 @@ private:
     WWPcmData    *m_nowPlayingPcmData;
     WWPcmData    *m_pauseResumePcmData;
     WWPcmData    m_spliceBuffer;
-    WWPcmData    m_startSilenceBuffer;
+    WWPcmData    m_startSilenceBuffer0;
+    WWPcmData    m_startSilenceBuffer1;
     WWPcmData    m_endSilenceBuffer;
     WWPcmData    m_pauseBuffer;
 
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
     IMMNotificationClient *m_pNotificationClient;
-	int          m_timePeriodMillisec;
+    int          m_timePeriodMillisec;
+    int          m_zeroFlushMillisec;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);

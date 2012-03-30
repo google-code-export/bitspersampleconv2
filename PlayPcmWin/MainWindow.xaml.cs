@@ -264,6 +264,7 @@ namespace PlayPcmWin
             int samplingRate;
             WasapiCS.SampleFormatType sampleFormat;
             int latencyMillisec;
+            int zeroFlushMillisec;
             WasapiDataFeedMode dfm;
             WasapiSharedOrExclusive shareMode;
             RenderThreadTaskType threadTaskType;
@@ -272,6 +273,7 @@ namespace PlayPcmWin
             public WasapiCS.SampleFormatType SampleFormat { get { return sampleFormat; } }
             public int NumChannels { get; set; }
             public int LatencyMillisec { get { return latencyMillisec; } }
+            public int ZeroFlushMillisec { get { return zeroFlushMillisec; } }
             public WasapiDataFeedMode DataFeedMode { get { return dfm; } }
             public WasapiSharedOrExclusive SharedOrExclusive { get { return shareMode; } }
             public RenderThreadTaskType ThreadTaskType { get { return threadTaskType; } }
@@ -290,6 +292,7 @@ namespace PlayPcmWin
                     WasapiCS.SampleFormatType fmt,
                     int numChannels,
                     int latencyMillisec,
+                    int zeroFlushMillisec,
                     WasapiDataFeedMode dfm,
                     WasapiSharedOrExclusive shareMode,
                     RenderThreadTaskType threadTaskType) {
@@ -298,6 +301,7 @@ namespace PlayPcmWin
                     && this.sampleFormat == fmt
                     && this.NumChannels == numChannels
                     && this.latencyMillisec == latencyMillisec
+                    && this.zeroFlushMillisec == zeroFlushMillisec
                     && this.dfm == dfm
                     && this.shareMode == shareMode
                     && this.threadTaskType == threadTaskType);
@@ -308,6 +312,7 @@ namespace PlayPcmWin
                     WasapiCS.SampleFormatType fmt,
                     int numChannels,
                     int latencyMillisec,
+                    int zeroFlushMillisec,
                     WasapiDataFeedMode dfm,
                     WasapiSharedOrExclusive shareMode,
                     RenderThreadTaskType threadTaskType) {
@@ -316,6 +321,7 @@ namespace PlayPcmWin
                     && SampleFormatIsCompatible(this.sampleFormat, fmt)
                     && this.NumChannels == numChannels
                     && this.latencyMillisec == latencyMillisec
+                    && this.ZeroFlushMillisec == zeroFlushMillisec
                     && this.dfm == dfm
                     && this.shareMode == shareMode
                     && this.threadTaskType == threadTaskType);
@@ -338,6 +344,7 @@ namespace PlayPcmWin
                 WasapiCS.SampleFormatType fmt,
                 int numChannels,
                 int latencyMillisec,
+                int zeroFlushMillisec,
                 WasapiDataFeedMode dfm,
                 WasapiSharedOrExclusive shareMode,
                 RenderThreadTaskType threadTaskType) {
@@ -346,6 +353,7 @@ namespace PlayPcmWin
                 this.sampleFormat = fmt;
                 this.NumChannels = numChannels;
                 this.latencyMillisec = latencyMillisec;
+                this.zeroFlushMillisec = zeroFlushMillisec;
                 this.dfm = dfm;
                 this.shareMode = shareMode;
                 this.threadTaskType = threadTaskType;
@@ -1251,6 +1259,8 @@ namespace PlayPcmWin
             AddLogText(string.Format("wasapi.SetLatencyMillisec({0})\r\n",
                 m_deviceSetupInfo.LatencyMillisec));
 
+            wasapi.SetZeroFlushMillisec(m_deviceSetupInfo.ZeroFlushMillisec);
+
             int hr = wasapi.Setup(
                 m_deviceSetupInfo.SampleRate,
                 m_deviceSetupInfo.SampleFormat,
@@ -1323,6 +1333,7 @@ namespace PlayPcmWin
                     sf.GetSampleFormatType(),
                     PcmChannelsToSetupChannels(startPcmData.NumChannels),
                     latencyMillisec,
+                    m_preference.ZeroFlushMillisec,
                     m_preference.wasapiDataFeedMode,
                     m_preference.wasapiSharedOrExclusive,
                     m_preference.renderThreadTaskType)) {
@@ -1343,6 +1354,7 @@ namespace PlayPcmWin
                     sf.GetSampleFormatType(),
                     PcmChannelsToSetupChannels(startPcmData.NumChannels),
                     latencyMillisec,
+                    m_preference.ZeroFlushMillisec,
                     m_preference.wasapiDataFeedMode,
                     m_preference.wasapiSharedOrExclusive,
                     m_preference.renderThreadTaskType);

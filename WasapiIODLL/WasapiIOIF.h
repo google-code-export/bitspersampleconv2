@@ -175,3 +175,7 @@ WasapiIO_GetPcmDataNumChannels(void);
 extern "C" __declspec(dllexport)
 void __stdcall
 WasapiIO_RegisterCallback(WWStateChanged callback);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec);

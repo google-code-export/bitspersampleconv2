@@ -175,6 +175,10 @@ namespace Wasapi {
         private extern static int
         WasapiIO_GetPcmDataNumChannels();
 
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec);
+
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet=CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
 
@@ -442,6 +446,10 @@ namespace Wasapi {
             pf.numChannels = WasapiIO_GetPcmDataNumChannels();
             pf.frameBytes = WasapiIO_GetPcmDataFrameBytes();
             return pf;
+        }
+
+        public void SetZeroFlushMillisec(int zeroFlushMillisec) {
+            WasapiIO_SetZeroFlushMillisec(zeroFlushMillisec);
         }
     }
 }
