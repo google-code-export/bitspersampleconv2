@@ -476,6 +476,7 @@ namespace PlayPcmWin
         private static void RenumberPcmDataId(List<PcmData> pcmDataList) {
             for (int i = 0; i < pcmDataList.Count(); ++i) {
                 pcmDataList[i].Id = i;
+                pcmDataList[i].Ordinal = i;
             }
         }
 

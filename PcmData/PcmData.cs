@@ -124,17 +124,17 @@ namespace PcmDataLib {
         // ファイル管理情報 /////////////////////////////////////////////////
 
         /// <summary>
-        /// 識別番号
+        /// 識別番号 0から始まる番号
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// 連番(再生順)
+        /// 連番(再生順) 0から始まる番号
         /// </summary>
         public int Ordinal { get; set; }
 
         /// <summary>
-        /// ファイルグループ番号。
+        /// ファイルグループ番号。 0から始まる番号
         /// </summary>
         public int GroupId { get; set; }
 
