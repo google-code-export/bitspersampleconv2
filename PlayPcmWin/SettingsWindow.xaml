@@ -40,7 +40,7 @@
                 <GroupBox Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBox4" VerticalAlignment="Top">
                     <Grid>
                         <Label Content="Zero flush period on playback starts:" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelFlushZero" VerticalAlignment="Center" Width="300" />
-                        <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlush" VerticalAlignment="Center" Width="80" Text="0" />
+                        <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
                         <Label Content="second(s)" Height="28" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelFlushZeroUnit" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>

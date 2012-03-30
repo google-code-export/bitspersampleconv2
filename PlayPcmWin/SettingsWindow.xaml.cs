@@ -81,6 +81,9 @@ namespace PlayPcmWin {
             textBoxPlayingTimeSize.Text =
                 preference.PlayingTimeSize.ToString();
 
+            textBoxZeroFlushSeconds.Text =
+                string.Format("{0}", preference.ZeroFlushMillisec * 0.001);
+
             sliderWindowScaling.Value =
                 preference.WindowScale;
 
@@ -112,32 +115,42 @@ namespace PlayPcmWin {
             UpdateUIFromPreference(m_preference);
         }
 
-        private void buttonOK_Click(object sender, RoutedEventArgs e) {
-            if (true == radioButtonBpsVariable.IsChecked) {
+        private void buttonOK_Click(object sender, RoutedEventArgs e)
+        {
+            if (true == radioButtonBpsVariable.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Variable;
             }
-            if (true == radioButtonBpsVariableSint16Sint24.IsChecked) {
+            if (true == radioButtonBpsVariableSint16Sint24.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
             }
-            if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked) {
+            if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
             }
-            if (true == radioButtonBpsSint16.IsChecked) {
+            if (true == radioButtonBpsSint16.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint16;
             }
-            if (true == radioButtonBpsSint24.IsChecked) {
+            if (true == radioButtonBpsSint24.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint24;
             }
-            if (true == radioButtonBpsSint32.IsChecked) {
+            if (true == radioButtonBpsSint32.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32;
             }
-            if (true == radioButtonBpsSfloat32.IsChecked) {
+            if (true == radioButtonBpsSfloat32.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
             }
-            if (true == radioButtonSint32V24.IsChecked) {
+            if (true == radioButtonSint32V24.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
             }
-            if (true == radioButtonBpsAutoSelect.IsChecked) {
+            if (true == radioButtonBpsAutoSelect.IsChecked)
+            {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             }
 
@@ -161,19 +174,35 @@ namespace PlayPcmWin {
 
             m_preference.WindowScale = sliderWindowScaling.Value;
 
-            int playingTimeSize;
-            if (Int32.TryParse(textBoxPlayingTimeSize.Text, out playingTimeSize)) {
-                if (playingTimeSize <= 0 || 100 < playingTimeSize) {
-                    MessageBox.Show("再生時間表示文字の大きさは 1～100の範囲の数字を入力してください。");
-                    return;
+            {
+                int playingTimeSize;
+                if (Int32.TryParse(textBoxPlayingTimeSize.Text, out playingTimeSize))
+                {
+                    if (playingTimeSize <= 0 || 100 < playingTimeSize)
+                    {
+                        MessageBox.Show("再生時間表示文字の大きさは 1～100の範囲の数字を入力してください。");
+                        return;
+                    }
                 }
+                m_preference.PlayingTimeSize = playingTimeSize;
+            }
+            {
+                double zeroFlushSeconds;
+                if (Double.TryParse(textBoxZeroFlushSeconds.Text, out zeroFlushSeconds))
+                {
+                    if (zeroFlushSeconds <= 0 || 1000 < zeroFlushSeconds)
+                    {
+                        MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
+                        return;
+                    }
+                }
+                m_preference.ZeroFlushMillisec = (int)(zeroFlushSeconds * 1000);
             }
 
-            m_preference.PlayingTimeSize = playingTimeSize;
+            m_preference.PlayingTimeFontBold = (checkBoxPlayingTimeBold.IsChecked == true);
 
-            m_preference.PlayingTimeFontBold = (checkBoxPlayingTimeBold.IsChecked==true);
-
-            if (null != comboBoxPlayingTimeFontNames.SelectedItem) {
+            if (null != comboBoxPlayingTimeFontNames.SelectedItem)
+            {
                 ComboBoxItem item = (ComboBoxItem)comboBoxPlayingTimeFontNames.SelectedItem;
                 FontFamily ff = (FontFamily)item.Content;
                 m_preference.PlayingTimeFontName = ff.ToString();

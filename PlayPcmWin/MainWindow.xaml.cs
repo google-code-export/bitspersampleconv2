@@ -3181,6 +3181,7 @@ namespace PlayPcmWin
                 GC.Collect();
 
                 RenumberPcmDataId(m_pcmDataListForDisp);
+                dataGridPlayList.UpdateLayout();
 
                 progressBar1.Value = 0;
                 UpdateUIStatus();
