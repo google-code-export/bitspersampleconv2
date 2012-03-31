@@ -24,6 +24,9 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.Con
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.Controls.ContentControl.Content,Label,True,True,,倍
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.Controls.ContentControl.Content,Button,True,True,,1倍にする
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Controls.ContentControl.Content,Button,True,True,,すべてリセット(_R)
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,DACが安定するまで無音を送出する
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.ContentControl.Content,Label,True,True,,再生開始時無音送出秒数
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.Controls.ContentControl.Content,Label,True,True,,秒
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ファイル(_F)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_N)...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileOpen:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,開く(_O)...

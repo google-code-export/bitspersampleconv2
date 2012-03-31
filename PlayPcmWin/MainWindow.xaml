@@ -105,7 +105,7 @@
                         <Button x:Uid="buttonNext" Content="Next" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
                         <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
                         <Slider x:Uid="slider1" Margin="6,0,7,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" />
-                        <ComboBox HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
+                        <ComboBox x:Uid="comboBoxPlayMode" HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
             </StackPanel>

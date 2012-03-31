@@ -10,7 +10,7 @@
             <RowDefinition x:Uid="RowDefinition_1" Height="515*" />
             <RowDefinition x:Uid="RowDefinition_2" Height="46*" />
         </Grid.RowDefinitions>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Uid="ScrollViewer_1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Grid x:Uid="Grid_2" RenderTransformOrigin="0.0,0.0">
             <Grid.LayoutTransform>
                 <TransformGroup x:Uid="TransformGroup_1">
@@ -37,14 +37,14 @@
                         <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Height="16" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBox4" VerticalAlignment="Top">
-                    <Grid>
-                        <Label Content="Zero flush period on playback starts:" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelFlushZero" VerticalAlignment="Center" Width="300" />
-                        <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
-                        <Label Content="second(s)" Height="28" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelFlushZeroUnit" VerticalAlignment="Center" />
+                <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_6">
+                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlush" VerticalAlignment="Center" Width="300" />
+                        <TextBox x:Uid="textBoxZeroFlushSeconds" Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
+                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" Height="28" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,410,12,0" Name="groupBox3" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,373,12,0" Name="groupBox3" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
                         <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size" Height="16" Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup" Height="16" Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />

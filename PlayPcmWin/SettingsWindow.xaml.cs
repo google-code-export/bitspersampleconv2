@@ -176,27 +176,27 @@ namespace PlayPcmWin {
 
             {
                 int playingTimeSize;
-                if (Int32.TryParse(textBoxPlayingTimeSize.Text, out playingTimeSize))
-                {
-                    if (playingTimeSize <= 0 || 100 < playingTimeSize)
-                    {
+                if (Int32.TryParse(textBoxPlayingTimeSize.Text, out playingTimeSize)) {
+                    if (playingTimeSize <= 0 || 100 < playingTimeSize) {
                         MessageBox.Show("再生時間表示文字の大きさは 1～100の範囲の数字を入力してください。");
                         return;
                     }
+                    m_preference.PlayingTimeSize = playingTimeSize;
+                } else {
+                    MessageBox.Show("再生時間表示文字の大きさは 1～100の範囲の数字を入力してください。");
                 }
-                m_preference.PlayingTimeSize = playingTimeSize;
             }
             {
                 double zeroFlushSeconds;
-                if (Double.TryParse(textBoxZeroFlushSeconds.Text, out zeroFlushSeconds))
-                {
-                    if (zeroFlushSeconds <= 0 || 1000 < zeroFlushSeconds)
-                    {
+                if (Double.TryParse(textBoxZeroFlushSeconds.Text, out zeroFlushSeconds)) {
+                    if (zeroFlushSeconds <= 0 || 1000 < zeroFlushSeconds) {
                         MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
                         return;
                     }
+                    m_preference.ZeroFlushMillisec = (int)(zeroFlushSeconds * 1000);
+                } else {
+                    MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
                 }
-                m_preference.ZeroFlushMillisec = (int)(zeroFlushSeconds * 1000);
             }
 
             m_preference.PlayingTimeFontBold = (checkBoxPlayingTimeBold.IsChecked == true);
