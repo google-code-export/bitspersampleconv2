@@ -48,8 +48,8 @@ bool __stdcall
 WasapiIO_GetDeviceIdString(int id, LPWSTR idStr, int idStrBytes);
 
 extern "C" __declspec(dllexport)
-bool __stdcall
-WasapiIO_InspectDevice(int id, LPWSTR result, int resultBytes);
+int __stdcall
+WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
 extern "C" __declspec(dllexport)
 HRESULT __stdcall

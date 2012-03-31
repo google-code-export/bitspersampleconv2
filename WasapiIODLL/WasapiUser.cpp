@@ -135,8 +135,9 @@ public:
             pwstrDeviceId, dwNewState);
 
         /* 再生中で、再生しているデバイスの状態が変わったときは
-         * 再生を停止しなければならないのではないだろうか
+         * DeviceStateChanged()は再生を停止しなければならない
          */
+        assert(m_pWasapiUser);
         m_pWasapiUser->DeviceStateChanged(pwstrDeviceId);
 
         (void)pwstrDeviceId;
@@ -484,183 +485,61 @@ WasapiUser::GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes)
     return true;
 }
 
-struct TestCaseInfo {
-    int sampleRate;
-    int bitsPerSample;
-    int validBitsPerSample;
-    int bitFormat; // 0:Int, 1:Float
-};
-
-const int TEST_SAMPLE_RATE_NUM = 8;
-const int TEST_BIT_REPRESENTATION_NUM = 5;
-
-const static TestCaseInfo g_testCases[] = {
-    {44100, 16, 16, 0},
-    {48000, 16, 16, 0},
-    {88200, 16, 16, 0},
-    {96000, 16, 16, 0},
-    {176400, 16, 16, 0},
-    {192000, 16, 16, 0},
-    {352800, 16, 16, 0},
-    {384000, 16, 16, 0},
-
-    {44100, 24, 24, 0},
-    {48000, 24, 24, 0},
-    {88200, 24, 24, 0},
-    {96000, 24, 24, 0},
-    {176400, 24, 24, 0},
-    {192000, 24, 24, 0},
-    {352800, 24, 24, 0},
-    {384000, 24, 24, 0},
-
-    {44100, 32, 24, 0},
-    {48000, 32, 24, 0},
-    {88200, 32, 24, 0},
-    {96000, 32, 24, 0},
-    {176400, 32, 24, 0},
-    {192000, 32, 24, 0},
-    {352800, 32, 24, 0},
-    {384000, 32, 24, 0},
-
-    {44100, 32, 32, 0},
-    {48000, 32, 32, 0},
-    {88200, 32, 32, 0},
-    {96000, 32, 32, 0},
-    {176400, 32, 32, 0},
-    {192000, 32, 32, 0},
-    {352800, 32, 32, 0},
-    {384000, 32, 32, 0},
-
-    {44100, 32, 32, 1},
-    {48000, 32, 32, 1},
-    {88200, 32, 32, 1},
-    {96000, 32, 32, 1},
-    {176400, 32, 32, 1},
-    {192000, 32, 32, 1},
-    {352800, 32, 32, 1},
-    {384000, 32, 32, 1},
-};
-
-bool
-WasapiUser::InspectDevice(int id, LPWSTR result, size_t resultBytes)
+int
+WasapiUser::InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
 {
     HRESULT hr;
     WAVEFORMATEX *waveFormat = NULL;
-    REFERENCE_TIME hnsDefaultDevicePeriod;
-    REFERENCE_TIME hnsMinimumDevicePeriod;
 
     assert(0 <= id && id < (int)m_deviceInfo.size());
 
     assert(m_deviceCollection);
     assert(!m_deviceToUse);
-
-    result[0] = 0;
-
-    const wchar_t *bitFormatNameShortList[] = { L"i", L"f"};
-
-    HRESULT resultList[sizeof g_testCases/sizeof g_testCases[0]];
-    memset(resultList, 0xff, sizeof resultList);
+    assert(0 <= bitFormat && bitFormat <= 1);
 
     HRG(m_deviceCollection->Item(id, &m_deviceToUse));
 
     HRG(m_deviceToUse->Activate(
         __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
 
-    for (int i=0; i<sizeof g_testCases/sizeof g_testCases[0]; ++i) {
-        const TestCaseInfo *tci = &g_testCases[i];
+    assert(!waveFormat);
+    HRG(m_audioClient->GetMixFormat(&waveFormat));
+    assert(waveFormat);
 
-        assert(!waveFormat);
-        HRG(m_audioClient->GetMixFormat(&waveFormat));
-        assert(waveFormat);
+    WAVEFORMATEXTENSIBLE * wfex = (WAVEFORMATEXTENSIBLE*)waveFormat;
 
-        WAVEFORMATEXTENSIBLE * wfex = (WAVEFORMATEXTENSIBLE*)waveFormat;
+    dprintf("original Mix Format:\n");
+    WWWaveFormatDebug(waveFormat);
+    WWWFEXDebug(wfex);
 
-        dprintf("original Mix Format:\n");
-        WWWaveFormatDebug(waveFormat);
-        WWWFEXDebug(wfex);
-
-        if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-            dprintf("E: unsupported device ! mixformat == 0x%08x\n",
-                waveFormat->wFormatTag);
-            hr = E_FAIL;
-            goto end;
-        }
-
-        if (tci->bitFormat == 0) {
-            wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-        } else {
-            wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-        }
-
-        wfex->Format.wBitsPerSample = (WORD)tci->bitsPerSample;
-        wfex->Format.nSamplesPerSec = tci->sampleRate;
-        wfex->Format.nBlockAlign =
-            (WORD)((tci->bitsPerSample / 8) * waveFormat->nChannels);
-        wfex->Format.nAvgBytesPerSec =
-            wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
-        wfex->Samples.wValidBitsPerSample = (WORD)tci->validBitsPerSample;
-
-        dprintf("preferred Format:\n");
-        WWWaveFormatDebug(waveFormat);
-        WWWFEXDebug(wfex);
-
-        hr = m_audioClient->IsFormatSupported(
-            m_shareMode,waveFormat,NULL);
-        dprintf("IsFormatSupported=%08x\n", hr);
-
-        resultList[i] = hr;
-
-        if (waveFormat) {
-            CoTaskMemFree(waveFormat);
-            waveFormat = NULL;
-        }
+    if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
+        dprintf("E: unsupported device ! mixformat == 0x%08x\n",
+            waveFormat->wFormatTag);
+        hr = E_FAIL;
+        goto end;
     }
 
-    int count = 0;
-    for (int j=0; j<TEST_BIT_REPRESENTATION_NUM; ++j) {
-        wcsncat_s(result, resultBytes/2,
-            L"++-------------++-------------++-------------++-------------"
-            L"++-------------++-------------++-------------++-------------++\r\n",
-            resultBytes/2 - wcslen(result) -1);
-        for (int i=0; i<TEST_SAMPLE_RATE_NUM; ++i) {
-            const TestCaseInfo *tci = &g_testCases[count +i];
-            wchar_t s[256];
-            StringCbPrintfW(s, sizeof s-1,
-                L"||%3dkHz %s%dV%d",
-                tci->sampleRate/1000, bitFormatNameShortList[tci->bitFormat],
-                tci->bitsPerSample, tci->validBitsPerSample);
-            wcsncat_s(result, resultBytes/2, s, resultBytes/2 - wcslen(result) -1);
-        }
-        wcsncat_s(result, resultBytes/2, L"||\r\n", resultBytes/2 - wcslen(result) -1);
-        for (int i=0; i<TEST_SAMPLE_RATE_NUM; ++i) {
-            wchar_t s[256];
-            StringCbPrintfW(s, sizeof s-1,
-                L"|| %s %8x ",
-                (S_OK==resultList[count + i]) ? L"OK" : L"NA",
-                resultList[count + i]);
-            wcsncat_s(result, resultBytes/2, s, resultBytes/2 - wcslen(result) -1);
-        }
-        wcsncat_s(result, resultBytes/2, L"||\r\n", resultBytes/2 - wcslen(result) -1);
-
-        count += TEST_SAMPLE_RATE_NUM;
+    if (bitFormat == 0) {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+    } else {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
     }
-    wcsncat_s(result, resultBytes/2,
-        L"++-------------++-------------++-------------++-------------"
-        L"++-------------++-------------++-------------++-------------++\r\n",
-        resultBytes/2 - wcslen(result) -1);
 
-    {
-        wchar_t s[256];
+    wfex->Format.wBitsPerSample = (WORD)bitsPerSample;
+    wfex->Format.nSamplesPerSec = sampleRate;
+    wfex->Format.nBlockAlign =
+        (WORD)((bitsPerSample / 8) * waveFormat->nChannels);
+    wfex->Format.nAvgBytesPerSec =
+        wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
+    wfex->Samples.wValidBitsPerSample = (WORD)validBitsPerSample;
 
-        HRG(m_audioClient->GetDevicePeriod(
-            &hnsDefaultDevicePeriod, &hnsMinimumDevicePeriod));
-        StringCbPrintfW(s, sizeof s-1,
-            L"  Default scheduling period for a shared-mode stream:    %f ms\r\n"
-            L"  Minimum scheduling period for a exclusive-mode stream: %f ms\r\n",
-            ((double)hnsDefaultDevicePeriod)*0.0001,
-            ((double)hnsMinimumDevicePeriod)*0.0001);
-        wcsncat_s(result, resultBytes/2, s, resultBytes/2 - wcslen(result) -1);
-    }
+    dprintf("preferred Format:\n");
+    WWWaveFormatDebug(waveFormat);
+    WWWFEXDebug(wfex);
+
+    hr = m_audioClient->IsFormatSupported(
+        m_shareMode,waveFormat,NULL);
+    dprintf("IsFormatSupported=%08x\n", hr);
 
 end:
     SafeRelease(&m_deviceToUse);
@@ -671,7 +550,7 @@ end:
         waveFormat = NULL;
     }
 
-    return true;
+    return hr;
 }
 
 HRESULT

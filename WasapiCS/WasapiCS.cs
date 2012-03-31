@@ -43,9 +43,9 @@ namespace Wasapi {
         private extern static bool
         WasapiIO_GetDeviceIdString(int id, System.Text.StringBuilder idStr, int idStrBytes);
 
-        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
-        private extern static bool
-        WasapiIO_InspectDevice(int id, System.Text.StringBuilder result, int resultBytes);
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -260,10 +260,8 @@ namespace Wasapi {
             return buf.ToString();
         }
 
-        public string InspectDevice(int id) {
-            StringBuilder buf = new StringBuilder(65536);
-            WasapiIO_InspectDevice(id, buf, buf.Capacity * 2);
-            return buf.ToString();
+        public int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
+            return WasapiIO_InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
         }
 
         public int ChooseDevice(int id) {

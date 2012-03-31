@@ -168,11 +168,11 @@ WasapiIO_GetDeviceIdString(int id, LPWSTR idStr, int idStrBytes)
 }
 
 extern "C" __declspec(dllexport)
-bool __stdcall
-WasapiIO_InspectDevice(int id, LPWSTR result, int resultBytes)
+int __stdcall
+WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
 {
     assert(self);
-    return self->wasapi.InspectDevice(id, result, resultBytes);
+    return self->wasapi.InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
 }
 
 extern "C" __declspec(dllexport)

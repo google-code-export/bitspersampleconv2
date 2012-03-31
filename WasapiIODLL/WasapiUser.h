@@ -72,7 +72,10 @@ public:
     int GetDeviceCount(void);
     bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
     bool GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes);
-    bool InspectDevice(int id, LPWSTR result, size_t resultBytes);
+
+    /// @param bitFormat 0:Int, 1:Float
+    /// @return 0 this format is supported
+    int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
     // set use device
     HRESULT ChooseDevice(int id);

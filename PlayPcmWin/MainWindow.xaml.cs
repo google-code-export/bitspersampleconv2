@@ -2946,11 +2946,104 @@ namespace PlayPcmWin
             }
         }
 
+        struct InspectFormat {
+            public int sampleRate;
+            public int bitsPerSample;
+            public int validBitsPerSample;
+            public int bitFormat; // 0:Int, 1:Float
+            public InspectFormat(int sr, int bps, int vbps, int bf) {
+                sampleRate = sr;
+                bitsPerSample = bps;
+                validBitsPerSample = vbps;
+                bitFormat = bf;
+            }
+        };
+
+        const int TEST_SAMPLE_RATE_NUM = 8;
+        const int TEST_BIT_REPRESENTATION_NUM = 5;
+
+        static readonly InspectFormat [] gInspectFormats;
+
+        static MainWindow() {
+            gInspectFormats = new InspectFormat [] {
+                new InspectFormat(44100, 16, 16, 0),
+                new InspectFormat(48000, 16, 16, 0),
+                new InspectFormat(88200, 16, 16, 0),
+                new InspectFormat(96000, 16, 16, 0),
+                new InspectFormat(176400, 16, 16, 0),
+                new InspectFormat(192000, 16, 16, 0),
+                new InspectFormat(352800, 16, 16, 0),
+                new InspectFormat(384000, 16, 16, 0),
+
+                new InspectFormat(44100, 24, 24, 0),
+                new InspectFormat(48000, 24, 24, 0),
+                new InspectFormat(88200, 24, 24, 0),
+                new InspectFormat(96000, 24, 24, 0),
+                new InspectFormat(176400, 24, 24, 0),
+                new InspectFormat(192000, 24, 24, 0),
+                new InspectFormat(352800, 24, 24, 0),
+                new InspectFormat(384000, 24, 24, 0),
+
+                new InspectFormat(44100, 32, 24, 0),
+                new InspectFormat(48000, 32, 24, 0),
+                new InspectFormat(88200, 32, 24, 0),
+                new InspectFormat(96000, 32, 24, 0),
+                new InspectFormat(176400, 32, 24, 0),
+                new InspectFormat(192000, 32, 24, 0),
+                new InspectFormat(352800, 32, 24, 0),
+                new InspectFormat(384000, 32, 24, 0),
+
+                new InspectFormat(44100, 32, 32, 0),
+                new InspectFormat(48000, 32, 32, 0),
+                new InspectFormat(88200, 32, 32, 0),
+                new InspectFormat(96000, 32, 32, 0),
+                new InspectFormat(176400, 32, 32, 0),
+                new InspectFormat(192000, 32, 32, 0),
+                new InspectFormat(352800, 32, 32, 0),
+                new InspectFormat(384000, 32, 32, 0),
+
+                new InspectFormat(44100, 32, 32, 1),
+                new InspectFormat(48000, 32, 32, 1),
+                new InspectFormat(88200, 32, 32, 1),
+                new InspectFormat(96000, 32, 32, 1),
+                new InspectFormat(176400, 32, 32, 1),
+                new InspectFormat(192000, 32, 32, 1),
+                new InspectFormat(352800, 32, 32, 1),
+                new InspectFormat(384000, 32, 32, 1),
+            };
+        }
+
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             string dn = wasapi.GetDeviceName(listBoxDevices.SelectedIndex);
             string did = wasapi.GetDeviceIdString(listBoxDevices.SelectedIndex);
-            string s = wasapi.InspectDevice(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format("wasapi.InspectDevice()\r\n{0}\r\n{1}\r\n{2}\r\n", dn, did, s));
+
+            AddLogText(string.Format("wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", dn, did));
+            AddLogText("++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n");
+            for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
+                var sb = new StringBuilder();
+                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                    InspectFormat ifmt = gInspectFormats[idx];
+                    sb.Append(string.Format("||{0,3}kHz {1}{2}V{3}",
+                        ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
+                        ifmt.bitsPerSample, ifmt.validBitsPerSample));
+                }
+                sb.Append("||\r\n");
+                AddLogText(sb.ToString());
+
+                sb.Clear();
+                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                    InspectFormat ifmt = gInspectFormats[idx];
+                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat);
+                    sb.Append(string.Format("|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
+                }
+                sb.Append("||\r\n");
+                AddLogText(sb.ToString());
+                AddLogText("++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n");
+            }
         }
 
         /// <summary>
