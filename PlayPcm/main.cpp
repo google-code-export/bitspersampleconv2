@@ -1,14 +1,13 @@
-#ifdef _DEBUG
-# define _CRTDBG_MAP_ALLOC
-#endif
-
 #include "WasapiWrap.h"
 #include "WWUtil.h"
+#include "WWPcmData.h"
 
 #include <stdio.h>
 #include <Windows.h>
 #include <stdlib.h>
 #include <crtdbg.h>
+
+#define LATENCY_MILLISEC_DEFAULT (100)
 
 static HRESULT
 GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
@@ -42,7 +41,7 @@ GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
 }
 
 static HRESULT
-Run(int deviceId, WWPcmData &pcm)
+Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
 {
     HRESULT hr;
     WasapiWrap ww;
@@ -68,10 +67,10 @@ Run(int deviceId, WWPcmData &pcm)
     }
 
     WWSetupArg setupArg;
-    setupArg.bitsPerSample = pcm.bitsPerSample;
-    setupArg.latencyInMillisec = 100;
-    setupArg.nChannels = pcm.nChannels;
-    setupArg.nSamplesPerSec = pcm.nSamplesPerSec;
+    setupArg.bitsPerSample     = pcm.bitsPerSample;
+    setupArg.latencyInMillisec = latencyMillisec;
+    setupArg.nChannels         = pcm.nChannels;
+    setupArg.nSamplesPerSec    = pcm.nSamplesPerSec;
     HRG(ww.Setup(setupArg));
     ww.SetOutputData(pcm);
     ww.Start();
@@ -101,141 +100,12 @@ PrintUsage(void)
         );
 }
 
-struct WaveFormatInfo {
-    int bitsPerSample;
-    int nChannels;
-    int nSamplesPerSec;
-    int nFrames;
-    unsigned char *data;
-};
-
-static bool
-ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
-{
-    bool result = false;
-    unsigned char header[8];
-    UINT32 bytes;
-    
-    bytes = fread(header, 1, 8, fp);
-    if (bytes != 8) {
-        printf("E: wave read error\n");
-        return false;
-    }
-
-    UINT32 chunkSize = *((UINT32*)(&header[4]));
-    chunkSize = 0xfffffffe & (chunkSize+1);
-    if (chunkSize == 0) {
-        printf("E: wave chunkSize error\n");
-        return false;
-    }
-
-    unsigned char *buff = (unsigned char*)malloc(chunkSize);
-    if (NULL == buff) {
-        printf("E: malloc failed\n");
-        return false;
-    }
-    bytes = fread(buff, 1, chunkSize, fp);
-    if (bytes != chunkSize) {
-        printf("E: wave read error 2\n");
-        goto end;
-    }
-
-    if (0 == strncmp("fmt ", (const char *)header, 4)) {
-        if (chunkSize < 16) {
-            printf("E: fmt chunk exists while chunk size is too small\n");
-            goto end;
-        }
-
-        int wFormatTag = *((short*)(&buff[0]));
-        if (wFormatTag != 1) { /* PCM */
-            printf("E: wave fmt %d is not supported\n", wFormatTag);
-            goto end;
-        }
-        wfi.nChannels = *((short*)(&buff[2]));
-        wfi.nSamplesPerSec = *((int*)(&buff[4]));
-        wfi.bitsPerSample = *((short*)(&buff[14]));
-        if (wfi.nChannels != 2) {
-            printf("E: nChannels=%d is not supported\n", wfi.nChannels);
-            goto end;
-        }
-    } else if (0 == strncmp("data", (const char*)header, 4)) {
-        int bytesPerFrame = wfi.nChannels * (wfi.bitsPerSample/8);
-        if (bytesPerFrame == 0) {
-            printf("E: nChannels=%d is not supported\n", wfi.nChannels);
-            goto end;
-        }
-
-        wfi.data = buff;
-        wfi.nFrames = chunkSize / bytesPerFrame;
-        buff = NULL;
-    } else {
-        fseek(fp, chunkSize, SEEK_CUR);
-    }
-
-    result = true;
-
-end:
-    free(buff);
-    return result;
-}
-
-static WWPcmData *
-LoadAndCreatePcmData(const char *path)
-{
-    unsigned char buff[12];
-    WWPcmData *result = NULL;
-    WaveFormatInfo wfi;
-
-    memset(&wfi, 0, sizeof wfi);
-
-    FILE *fp = NULL;
-    fopen_s(&fp, path, "rb");
-    if (NULL == fp) {
-        return NULL;
-    }
-
-    int rv = fread(buff, 1, 12, fp);
-    if (rv != 12) {
-        printf("E: flie size is too small\n");
-        goto end;
-    }
-    if (0 != (strncmp("RIFF", (const char*)buff, 4))) {
-        printf("E: RIFF not found\n");
-        goto end;
-    }
-    if (0 != (strncmp("WAVE", (const char*)&buff[8], 4))) {
-        printf("E: WAVE not found\n");
-        goto end;
-    }
-
-    for (;;) {
-        if (!ReadWaveChunk(fp, wfi)) {
-            break;
-        }
-    }
-
-    if (wfi.data) {
-        result = new WWPcmData();
-        result->bitsPerSample  = wfi.bitsPerSample;
-        result->nChannels      = wfi.nChannels;
-        result->nSamplesPerSec = wfi.nSamplesPerSec;
-        result->nFrames        = wfi.nFrames;
-        result->posFrame = 0;
-
-        result->stream = wfi.data;
-    }
-    
-end:
-    fclose(fp);
-    return result;
-}
-
 int
 main(int argc, char *argv[])
 {
     WWPcmData *pcmData = NULL;
     int deviceId = -1;
-    int latencyInMillisec = 100;
+    int latencyInMillisec = LATENCY_MILLISEC_DEFAULT;
 
     if (argc == 4 || argc == 6) {
         char *filePath = 0;
@@ -257,7 +127,7 @@ main(int argc, char *argv[])
             filePath = argv[5];
         }
 
-        pcmData = LoadAndCreatePcmData(filePath);
+        pcmData = WWPcmDataWavFileLoad(filePath);
         if (NULL == pcmData) {
             printf("E: read error %s\n", argv[3]);
             return 1;
@@ -266,7 +136,7 @@ main(int argc, char *argv[])
         PrintUsage();
     }
 
-    HRESULT hr = Run(deviceId, *pcmData);
+    HRESULT hr = Run(deviceId, latencyInMillisec, *pcmData);
     if (FAILED(hr)) {
         printf("Run failed (%08x)\n", hr);
     }

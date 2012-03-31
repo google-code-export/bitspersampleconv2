@@ -5,6 +5,7 @@
 #include <AudioClient.h>
 #include <AudioPolicy.h>
 #include <vector>
+#include "WWPcmData.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 
@@ -18,21 +19,6 @@ struct WWDeviceInfo {
     }
 
     WWDeviceInfo(int id, const wchar_t * name);
-};
-
-struct WWPcmData {
-    int bitsPerSample;
-    int nSamplesPerSec;
-    int nChannels;
-    int  nFrames;
-    int  posFrame;
-
-    BYTE *stream;
-
-    void Init(int samples);
-    void Term(void);
-
-    ~WWPcmData(void);
 };
 
 struct WWSetupArg {

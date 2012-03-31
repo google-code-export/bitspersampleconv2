@@ -5,6 +5,10 @@
 void WWErrorDescription(HRESULT hr);
 
 #ifdef _DEBUG
+# define _CRTDBG_MAP_ALLOC
+#endif
+
+#ifdef _DEBUG
 #  include <stdio.h>
 #  define dprintf(x, ...) printf(x, __VA_ARGS__)
 #else

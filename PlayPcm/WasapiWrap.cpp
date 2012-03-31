@@ -321,7 +321,6 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_renderClient)));
 
 end:
-
     if (waveFormat) {
         CoTaskMemFree(waveFormat);
         waveFormat = NULL;
