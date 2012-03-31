@@ -4,9 +4,16 @@
 
 void WWErrorDescription(HRESULT hr);
 
+#ifdef _DEBUG
+#  include <stdio.h>
+#  define dprintf(x, ...) printf(x, __VA_ARGS__)
+#else
+#  define dprintf(x, ...)
+#endif
+
 #define HRG(x)                                   \
 {                                                \
-    printf("D: invoke %s\n", #x);            \
+    dprintf("D: invoke %s\n", #x);               \
     hr = x;                                      \
     if (FAILED(hr)) {                            \
         printf("E: %s failed (%08x)\n", #x, hr); \
@@ -17,7 +24,7 @@ void WWErrorDescription(HRESULT hr);
 
 #define HRR(x)                                   \
 {                                                \
-      printf("D: invoke %s\n", #x);            \
+      dprintf("D: invoke %s\n", #x);             \
     hr = x;                                      \
     if (FAILED(hr)) {                            \
         printf("E: %s failed (%08x)\n", #x, hr); \

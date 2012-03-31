@@ -8,7 +8,6 @@
 
 #define WW_DEVICE_NAME_COUNT (256)
 
-
 struct WWDeviceInfo {
     int id;
     wchar_t name[WW_DEVICE_NAME_COUNT];
@@ -22,19 +21,25 @@ struct WWDeviceInfo {
 };
 
 struct WWPcmData {
-    //int  bitsPerSample;
-    //int  nChannels;
-    //int  nSamplesPerSec;
+    int bitsPerSample;
+    int nSamplesPerSec;
+    int nChannels;
     int  nFrames;
     int  posFrame;
+
     BYTE *stream;
 
     void Init(int samples);
     void Term(void);
 
     ~WWPcmData(void);
+};
 
-    void CopyFrom(WWPcmData *rhs);
+struct WWSetupArg {
+    int bitsPerSample;
+    int nSamplesPerSec;
+    int nChannels;
+    int latencyInMillisec;
 };
 
 class WasapiWrap {
@@ -49,16 +54,14 @@ public:
     HRESULT DoDeviceEnumeration(void);
     int GetDeviceCount(void);
     bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
-    bool InspectDevice(int id, LPWSTR result, size_t resultBytes);
 
-    // if you choose no device, calll ChooseDevice(-1)
+    // if you want to unchoose device, call ChooseDevice(-1)
     HRESULT ChooseDevice(int id);
 
-    HRESULT Setup(int sampleRate, int bitsPerSample, int latencyMillisec);
+    HRESULT Setup(const WWSetupArg & arg);
     void Unsetup(void);
 
-    void SetOutputData(BYTE *data, int bytes);
-    void ClearOutputData(void);
+    void SetOutputData(WWPcmData &pcmData);
 
     HRESULT Start(void);
 
