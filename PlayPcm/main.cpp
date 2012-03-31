@@ -93,10 +93,10 @@ PrintUsage(void)
         "Usage:\n"
         "    PlayPcm\n"
         "        Enumerate all available devices\n"
-        "    PlayPcm -d [deviceId] (-l [latencyInMillisec]) input_wave_file_name\n"
+        "    PlayPcm -d deviceId [-l latencyInMillisec] input_wave_file_name\n"
         "        Play wav file on deviceId device\n"
         "        Example:\n"
-        "            PlayPcm -d 1 C:\\wav\\music.wav\n\n"
+        "            PlayPcm -d 1 C:\\audio\\music.wav\n\n"
         );
 }
 
@@ -116,24 +116,23 @@ main(int argc, char *argv[])
         }
         deviceId = atoi(argv[2]);
 
-        if (argc == 4) {
-            filePath = argv[3];
-        }
         if (argc == 6) {
             if (0 != strcmp("-l", argv[3])) {
+                PrintUsage();
                 return 1;
             }
             latencyInMillisec = atoi(argv[4]);
-            filePath = argv[5];
         }
 
+        filePath = argv[argc-1];
         pcmData = WWPcmDataWavFileLoad(filePath);
         if (NULL == pcmData) {
-            printf("E: read error %s\n", argv[3]);
+            printf("E: WWPcmDataWavFileLoad failed %s\n", argv[3]);
             return 1;
         }
     } else {
         PrintUsage();
+        // continue and display device list
     }
 
     HRESULT hr = Run(deviceId, latencyInMillisec, *pcmData);
@@ -144,6 +143,7 @@ main(int argc, char *argv[])
     if (NULL != pcmData) {
         pcmData->Term();
         delete pcmData;
+        pcmData = NULL;
     }
 
 #ifdef _DEBUG

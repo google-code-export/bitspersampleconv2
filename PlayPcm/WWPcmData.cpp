@@ -20,7 +20,7 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
     
     bytes = fread(header, 1, 8, fp);
     if (bytes != 8) {
-        printf("E: wave read error\n");
+        // end of file
         return false;
     }
 
