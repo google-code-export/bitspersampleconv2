@@ -44,25 +44,21 @@ class CMMNotificationClient : public IMMNotificationClient
 {
 public:
     CMMNotificationClient(WasapiUser *pWU):
-            m_cRef(1)
-    {
+            m_cRef(1) {
         m_pWasapiUser = pWU;
     }
 
-    ~CMMNotificationClient()
-    {
+    ~CMMNotificationClient(void) {
         m_pWasapiUser = NULL;
     }
 
     ULONG STDMETHODCALLTYPE
-    AddRef()
-    {
+    AddRef(void) {
         return InterlockedIncrement(&m_cRef);
     }
 
     ULONG STDMETHODCALLTYPE
-    Release()
-    {
+    Release(void) {
         ULONG ulRef = InterlockedDecrement(&m_cRef);
         if (0 == ulRef) {
             delete this;
@@ -71,9 +67,7 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE
-    QueryInterface(
-            REFIID riid, VOID **ppvInterface)
-    {
+    QueryInterface(REFIID riid, VOID **ppvInterface) {
         if (IID_IUnknown == riid) {
             AddRef();
             *ppvInterface = (IUnknown*)this;
@@ -92,10 +86,8 @@ public:
     OnDefaultDeviceChanged(
             EDataFlow flow,
             ERole role,
-            LPCWSTR pwstrDeviceId)
-    {
-        dprintf("%s %d %d %S\n",
-            __FUNCTION__, flow, role, pwstrDeviceId);
+            LPCWSTR pwstrDeviceId) {
+        dprintf("%s %d %d %S\n", __FUNCTION__, flow, role, pwstrDeviceId);
 
         (void)flow;
         (void)role;
@@ -105,10 +97,8 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE
-    OnDeviceAdded(LPCWSTR pwstrDeviceId)
-    {
-        dprintf("%s %S\n", __FUNCTION__,
-            pwstrDeviceId);
+    OnDeviceAdded(LPCWSTR pwstrDeviceId) {
+        dprintf("%s %S\n", __FUNCTION__, pwstrDeviceId);
 
         (void)pwstrDeviceId;
 
@@ -116,10 +106,8 @@ public:
     };
 
     HRESULT STDMETHODCALLTYPE
-    OnDeviceRemoved(LPCWSTR pwstrDeviceId)
-    {
-        dprintf("%s %S\n", __FUNCTION__,
-            pwstrDeviceId);
+    OnDeviceRemoved(LPCWSTR pwstrDeviceId) {
+        dprintf("%s %S\n", __FUNCTION__, pwstrDeviceId);
 
         (void)pwstrDeviceId;
 
@@ -129,14 +117,11 @@ public:
     HRESULT STDMETHODCALLTYPE
     OnDeviceStateChanged(
             LPCWSTR pwstrDeviceId,
-            DWORD dwNewState)
-    {
-        dprintf("%s %S %08x\n", __FUNCTION__,
-            pwstrDeviceId, dwNewState);
+            DWORD dwNewState) {
+        dprintf("%s %S %08x\n", __FUNCTION__, pwstrDeviceId, dwNewState);
 
-        /* 再生中で、再生しているデバイスの状態が変わったときは
-         * DeviceStateChanged()は再生を停止しなければならない
-         */
+        // 再生中で、再生しているデバイスの状態が変わったときは
+        // DeviceStateChanged()は再生を停止しなければならない
         assert(m_pWasapiUser);
         m_pWasapiUser->DeviceStateChanged(pwstrDeviceId);
 
@@ -149,8 +134,7 @@ public:
     HRESULT STDMETHODCALLTYPE
     OnPropertyValueChanged(
             LPCWSTR pwstrDeviceId,
-            const PROPERTYKEY key)
-    {
+            const PROPERTYKEY key) {
         /*
         dprintf("%s %S %08x:%08x:%08x:%08x = %08x\n", __FUNCTION__,
             pwstrDeviceId, key.fmtid.Data1, key.fmtid.Data2, key.fmtid.Data3, key.fmtid.Data4, key.pid);
@@ -440,15 +424,6 @@ WasapiUser::DoDeviceEnumeration(WWDeviceType t)
         wchar_t idStr[WW_DEVICE_IDSTR_COUNT];
         HRG(DeviceNameGet(m_deviceCollection, i, name, sizeof name));
         HRG(DeviceIdStringGet(m_deviceCollection, i, idStr, sizeof idStr));
-
-        /* CMDコンソールに出力する場合、文字化けして表示が乱れるので?に置換する。
-        for (int j=0; j<wcslen(name); ++j) {
-            if (name[j] < 0x20 || 127 <= name[j]) {
-                name[j] = L'?';
-            }
-        }
-        */
-
         m_deviceInfo.push_back(WWDeviceInfo(i, name, idStr));
     }
 
@@ -513,8 +488,7 @@ WasapiUser::InspectDevice(int id, int sampleRate, int bitsPerSample, int validBi
     WWWFEXDebug(wfex);
 
     if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        dprintf("E: unsupported device ! mixformat == 0x%08x\n",
-            waveFormat->wFormatTag);
+        dprintf("E: unsupported device ! mixformat == 0x%08x\n", waveFormat->wFormatTag);
         hr = E_FAIL;
         goto end;
     }
@@ -658,8 +632,6 @@ WasapiUser::Setup(
     m_format              = format;
     m_numChannels         = numChannels;
 
-    // WasapiUserクラスが備えていたサンプルフォーマット変換機能は、廃止した。
-    // 上のレイヤーでPCMデータを適切な形式に変換してから渡してください。
     if (WWSMShared == m_shareMode) {
         assert(WWPcmDataFormatTypeToBitsPerSample(m_format) == 32);
         assert(WWPcmDataFormatTypeIsFloat(m_format));
@@ -686,8 +658,7 @@ WasapiUser::Setup(
     WWWFEXDebug(wfex);
 
     if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
-        dprintf("E: unsupported device ! mixformat == 0x%08x\n",
-            waveFormat->wFormatTag);
+        dprintf("E: unsupported device ! mixformat == 0x%08x\n", waveFormat->wFormatTag);
         hr = E_FAIL;
         goto end;
     }
@@ -974,8 +945,7 @@ WasapiUser::Stop(void)
 {
     HRESULT hr;
 
-    dprintf("D: %s() AC=%p SE=%p T=%p\n", __FUNCTION__,
-        m_audioClient, m_shutdownEvent, m_thread);
+    dprintf("D: %s() AC=%p SE=%p T=%p\n", __FUNCTION__, m_audioClient, m_shutdownEvent, m_thread);
 
     // ポーズ中の場合、ポーズを解除。
     m_pauseResumePcmData = NULL;
@@ -1017,14 +987,14 @@ WasapiUser::Pause(void)
     {
         WWPcmData *nowPlaying = m_nowPlayingPcmData;
 
-        dprintf("%s nowPlaying=%p posFrame=%d splice=%p startSilence=%p %p endSilence=%p pause=%p\n", __FUNCTION__,
-            nowPlaying, (nowPlaying) ? nowPlaying->posFrame : -1, &m_spliceBuffer, &m_startSilenceBuffer0, &m_startSilenceBuffer1, &m_endSilenceBuffer, &m_pauseBuffer);
+        dprintf("%s nowPlaying=%p posFrame=%d splice=%p startSilence=%p %p endSilence=%p pause=%p\n",
+            __FUNCTION__, nowPlaying, (nowPlaying) ? nowPlaying->posFrame : -1, &m_spliceBuffer,
+            &m_startSilenceBuffer0, &m_startSilenceBuffer1, &m_endSilenceBuffer, &m_pauseBuffer);
         if (nowPlaying && nowPlaying->contentType == WWPcmDataContentPcmData) {
-            /* 通常データを再生中の場合ポーズが可能。
-             * m_nowPlayingPcmDataを
-             * pauseBuffer(フェードアウトするPCMデータ)に差し替え、
-             * 再生が終わるまでブロッキングで待つ。
-             */
+            // 通常データを再生中の場合ポーズが可能。
+            // m_nowPlayingPcmDataを
+            // pauseBuffer(フェードアウトするPCMデータ)に差し替え、
+            // 再生が終わるまでブロッキングで待つ。
 
             pauseDataSetSucceeded = true;
 
@@ -1076,13 +1046,11 @@ WasapiUser::Unpause(void)
 {
     //HRESULT hr = S_OK;
 
-    /* 再生するPCMデータへフェードインするPCMデータをpauseBufferにセットして
-     * 再生開始する。
-     */
+    // 再生するPCMデータへフェードインするPCMデータをpauseBufferにセットして
+    // 再生開始する。
     assert(m_pauseResumePcmData);
 
-    dprintf("%s resume=%p posFrame=%d\n", __FUNCTION__,
-        m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
+    dprintf("%s resume=%p posFrame=%d\n", __FUNCTION__, m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
 
     m_startSilenceBuffer1.posFrame = 0;
     m_startSilenceBuffer1.next = &m_pauseBuffer;
@@ -1221,7 +1189,6 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
 
         if (nowPlaying) {
             // m_nowPlayingPcmDataをpcmDataに移動する。
-#if 1
             // Issue3: いきなり移動するとブチッと言うので
             // splice bufferを経由してなめらかにつなげる。
             m_spliceBuffer.UpdateSpliceDataWithStraightLine(
@@ -1238,10 +1205,6 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             m_spliceBuffer.next = &pcmData;
 
             m_nowPlayingPcmData = &m_spliceBuffer;
-#else
-            m_nowPlayingPcmData->posFrame = 0;
-            m_nowPlayingPcmData = &pcmData;
-#endif
         }
     }
 
@@ -1293,14 +1256,12 @@ WasapiUser::SetPosFrame(int64_t v)
     {
         if (m_nowPlayingPcmData &&
             m_nowPlayingPcmData->contentType == WWPcmDataContentPcmData) {
-            /* nowPlaying->posFrameをvに移動する。
-             * Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
-             */
+            // nowPlaying->posFrameをvに移動する。
+            // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
             m_spliceBuffer.UpdateSpliceDataWithStraightLine(
                 m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame, m_nowPlayingPcmData, v);
             m_spliceBuffer.posFrame = 0;
             m_spliceBuffer.next = m_nowPlayingPcmData;
-            //m_spliceBuffer.id = m_nowPlayingPcmData->id;
 
             m_nowPlayingPcmData->posFrame = v;
             m_nowPlayingPcmData = &m_spliceBuffer;
@@ -1495,10 +1456,10 @@ WasapiUser::RenderMain(void)
     
     HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-	assert(0 <= m_timePeriodMillisec);
-	if (0 < m_timePeriodMillisec) {
-	    timeBeginPeriod(m_timePeriodMillisec);
-	}
+    assert(0 <= m_timePeriodMillisec);
+    if (0 < m_timePeriodMillisec) {
+        timeBeginPeriod(m_timePeriodMillisec);
+    }
 
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
     if (WWSTTNone != m_schedulerTaskType) {
@@ -1554,9 +1515,9 @@ end:
         mmcssHandle = NULL;
     }
 
-	if (0 < m_timePeriodMillisec) {
-	    timeEndPeriod(m_timePeriodMillisec);
-	}
+    if (0 < m_timePeriodMillisec) {
+        timeEndPeriod(m_timePeriodMillisec);
+    }
 
     CoUninitialize();
     return hr;
@@ -1589,15 +1550,13 @@ WasapiUser::CaptureMain(void)
     timeBeginPeriod(1);
 
     dprintf("D: %s AvSetMmThreadCharacteristics(%S)\n",
-        __FUNCTION__,
-        WWSchedulerTaskTypeToStr(m_schedulerTaskType));
+        __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
 
     mmcssHandle = AvSetMmThreadCharacteristics(
         WWSchedulerTaskTypeToStr(m_schedulerTaskType),
         &mmcssTaskIndex);
     if (NULL == mmcssHandle) {
-        dprintf("Unable to enable MMCSS on render thread: 0x%08x\n",
-            GetLastError());
+        dprintf("Unable to enable MMCSS on render thread: 0x%08x\n", GetLastError());
     }
 
     if (m_dataFeedMode == WWDFMTimerDriven) {
@@ -1686,9 +1645,7 @@ WasapiUser::AudioSamplesRecvProc(void)
             0, writeFrames * m_frameBytes);
     } else {
         dprintf("numFramesAvailable=%u fb=%d pos=%lld devPos=%llu nextPos=%lld te=%d\n",
-            numFramesAvailable, m_frameBytes,
-            m_capturedPcmData->posFrame,
-            devicePosition,
+            numFramesAvailable, m_frameBytes, m_capturedPcmData->posFrame, devicePosition,
             (m_capturedPcmData->posFrame + numFramesAvailable),
             !!(flags & AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR));
 
@@ -1716,29 +1673,7 @@ WasapiUser::GetPcmDataSampleRate(void)
 int
 WasapiUser::GetMixFormatSampleRate(void)
 {
-#if 1
     return m_deviceSampleRate;
-#else
-    HRESULT      hr          = 0;
-    WAVEFORMATEX *waveFormat = NULL;
-    int          sampleRate  = 0;
-
-    if (NULL == m_audioClient) {
-        return 0;
-    }
-
-    HRG(m_audioClient->GetMixFormat(&waveFormat));
-    assert(waveFormat);
-
-    sampleRate = (int)waveFormat->nSamplesPerSec;
-
-end:
-    if (waveFormat) {
-        CoTaskMemFree(waveFormat);
-        waveFormat = NULL;
-    }
-    return sampleRate;
-#endif
 }
 
 WWPcmDataFormatType
