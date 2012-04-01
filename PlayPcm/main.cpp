@@ -8,6 +8,7 @@
 #include <crtdbg.h>
 
 #define LATENCY_MILLISEC_DEFAULT (100)
+#define READ_LINE_BYTES          (256)
 
 static HRESULT
 GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
@@ -17,8 +18,8 @@ GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
     printf("%s (%d to %d) ? ", prompt, from, to);
     fflush(stdout);
 
-    char s[32];
-    char *result = fgets(s, 31, stdin);
+    char s[READ_LINE_BYTES];
+    char *result = fgets(s, READ_LINE_BYTES-1, stdin);
     if (NULL == result) {
         return E_INVALIDARG;
     }
@@ -37,11 +38,11 @@ GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
 
     *value_return = v;
 
-    return NOERROR;
+    return S_OK;
 }
 
 static HRESULT
-Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
+PrintDeviceList(void)
 {
     HRESULT hr;
     WasapiWrap ww;
@@ -61,10 +62,20 @@ Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
     }
     printf("\n");
 
-    ww.ChooseDevice(deviceId);
-    if (deviceId < 0) {
-        goto end;
-    }
+end:
+    ww.Term();
+    return hr;
+}
+
+static HRESULT
+Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
+{
+    HRESULT hr;
+    WasapiWrap ww;
+
+    HRR(ww.Init());
+    HRG(ww.DoDeviceEnumeration());
+    HRG(ww.ChooseDevice(deviceId));
 
     WWSetupArg setupArg;
     setupArg.bitsPerSample     = pcm.bitsPerSample;
@@ -78,12 +89,13 @@ Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
     while (!ww.Run(1000)) {
         printf("%d / %d\n", ww.GetPosFrame(), ww.GetTotalFrameNum());
     }
+    hr = S_OK;
 
 end:
     ww.Stop();
     ww.Unsetup();
     ww.Term();
-    return NOERROR;
+    return hr;
 }
 
 static void
@@ -106,38 +118,38 @@ main(int argc, char *argv[])
     WWPcmData *pcmData = NULL;
     int deviceId = -1;
     int latencyInMillisec = LATENCY_MILLISEC_DEFAULT;
+    char *filePath = 0;
 
-    if (argc == 4 || argc == 6) {
-        char *filePath = 0;
+    if (argc != 4 && argc != 6) {
+        PrintUsage();
+        PrintDeviceList();
+        return 0;
+    }
 
-        if (0 != strcmp("-d", argv[1])) {
+    if (0 != strcmp("-d", argv[1])) {
+        PrintUsage();
+        return 1;
+    }
+    deviceId = atoi(argv[2]);
+
+    if (argc == 6) {
+        if (0 != strcmp("-l", argv[3])) {
             PrintUsage();
             return 1;
         }
-        deviceId = atoi(argv[2]);
+        latencyInMillisec = atoi(argv[4]);
+    }
 
-        if (argc == 6) {
-            if (0 != strcmp("-l", argv[3])) {
-                PrintUsage();
-                return 1;
-            }
-            latencyInMillisec = atoi(argv[4]);
-        }
-
-        filePath = argv[argc-1];
-        pcmData = WWPcmDataWavFileLoad(filePath);
-        if (NULL == pcmData) {
-            printf("E: WWPcmDataWavFileLoad failed %s\n", argv[3]);
-            return 1;
-        }
-    } else {
-        PrintUsage();
-        // continue and display device list
+    filePath = argv[argc-1];
+    pcmData = WWPcmDataWavFileLoad(filePath);
+    if (NULL == pcmData) {
+        printf("E: WWPcmDataWavFileLoad failed %s\n", argv[3]);
+        return 1;
     }
 
     HRESULT hr = Run(deviceId, latencyInMillisec, *pcmData);
     if (FAILED(hr)) {
-        printf("Run failed (%08x)\n", hr);
+        printf("E: Run failed (%08x)\n", hr);
     }
 
     if (NULL != pcmData) {

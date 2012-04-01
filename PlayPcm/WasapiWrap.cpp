@@ -96,7 +96,7 @@ WasapiWrap::Init(void)
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
     } else {
-        printf("WasapiWrap::Init() CoInitializeEx() failed %08x\n", hr);
+        printf("E: WasapiWrap::Init() CoInitializeEx() failed %08x\n", hr);
         hr = S_OK;
     }
 
@@ -422,7 +422,7 @@ WasapiWrap::Run(int millisec)
         //printf(".\n");
         return false;
     }
-    printf("%s rv=%08x return true\n", __FUNCTION__, rv);
+    printf("%s WaitForSingleObject rv=%08x (ends successfully)\n", __FUNCTION__, rv);
     return true;
 }
 
