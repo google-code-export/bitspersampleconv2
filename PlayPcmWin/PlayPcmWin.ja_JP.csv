@@ -17,6 +17,7 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:Sy
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,カバーアート画像表示
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,再生中の再描画を最小限にする
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,ファイル読込並列化
+PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,timeBeginPeriod(1)を呼ぶ
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Controls.ContentControl.Content,Label,True,True,,再生時間表示フォント:
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,太字
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.Controls.ContentControl.Content,Button,True,True,,OK

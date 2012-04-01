@@ -305,6 +305,12 @@ WasapiUser::SetLatencyMillisec(DWORD millisec)
     m_latencyMillisec = millisec;
 }
 
+void
+WasapiUser::SetTimePeriodMillisec(int millisec)
+{
+    m_timePeriodMillisec = millisec;
+}
+
 static HRESULT
 DeviceNameGet(
         IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
@@ -880,8 +886,7 @@ WasapiUser::Start(void)
     HRG(m_audioClient->Reset());
 
     assert(!m_shutdownEvent);
-    m_shutdownEvent = CreateEventEx(NULL, NULL, 0,
-        EVENT_MODIFY_STATE | SYNCHRONIZE);
+    m_shutdownEvent = CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_shutdownEvent);
 
     switch (m_dataFlow) {
@@ -904,9 +909,7 @@ WasapiUser::Start(void)
         if (0 <= nFrames) {
             assert(m_renderClient);
             HRG(m_renderClient->GetBuffer(nFrames, &pData));
-
             memset(pData, 0, nFrames * m_frameBytes);
-
             HRG(m_renderClient->ReleaseBuffer(nFrames, 0));
         }
 
@@ -918,8 +921,7 @@ WasapiUser::Start(void)
         m_thread = CreateThread(NULL, 0, CaptureEntry, this, 0, NULL);
         assert(m_thread);
 
-        hr = m_captureClient->GetBuffer(
-            &pData, &nFrames, &flags, NULL, NULL);
+        hr = m_captureClient->GetBuffer(&pData, &nFrames, &flags, NULL, NULL);
         if (SUCCEEDED(hr)) {
             m_captureClient->ReleaseBuffer(nFrames);
         } else {

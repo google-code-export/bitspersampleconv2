@@ -177,7 +177,11 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec);
+        WasapiIO_SetZeroFlushMillisec(int millisec);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_SetTimePeriodMillisec(int millisec);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet=CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
@@ -446,8 +450,12 @@ namespace Wasapi {
             return pf;
         }
 
-        public void SetZeroFlushMillisec(int zeroFlushMillisec) {
-            WasapiIO_SetZeroFlushMillisec(zeroFlushMillisec);
+        public void SetZeroFlushMillisec(int millisec) {
+            WasapiIO_SetZeroFlushMillisec(millisec);
+        }
+
+        public void SetTimePeriodMillisec(int millisec) {
+            WasapiIO_SetTimePeriodMillisec(millisec);
         }
     }
 }

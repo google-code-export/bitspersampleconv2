@@ -78,6 +78,9 @@ namespace PlayPcmWin {
             checkBoxParallelRead.IsChecked =
                 preference.ParallelRead;
 
+            checkBoxTimePeriod1.IsChecked =
+                preference.TimePeriodMillisec == 0 ? false : true;
+
             textBoxPlayingTimeSize.Text =
                 preference.PlayingTimeSize.ToString();
 
@@ -171,6 +174,9 @@ namespace PlayPcmWin {
 
             m_preference.ParallelRead
                 = checkBoxParallelRead.IsChecked == true;
+
+            m_preference.TimePeriodMillisec
+                = checkBoxTimePeriod1.IsChecked == true ? 1 : 0;
 
             m_preference.WindowScale = sliderWindowScaling.Value;
 

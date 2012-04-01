@@ -57,6 +57,7 @@
                         <ComboBox x:Uid="comboBoxPlayingTimeFontNames" Height="24" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
                         <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="153,82,0,0" Name="labelPlayingTime" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
                         <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold" Height="16" HorizontalAlignment="Left" Margin="414,56,0,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
+                        <CheckBox x:Uid="checkBoxTimePeriod1" Content="invoke timeBeginPeriod(1)" Height="16" HorizontalAlignment="Left" IsChecked="False" Margin="520,30,0,0" Name="checkBoxTimePeriod1" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
         </Grid>

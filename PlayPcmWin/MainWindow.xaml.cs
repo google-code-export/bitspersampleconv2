@@ -1260,6 +1260,7 @@ namespace PlayPcmWin
                 m_deviceSetupInfo.LatencyMillisec));
 
             wasapi.SetZeroFlushMillisec(m_deviceSetupInfo.ZeroFlushMillisec);
+            wasapi.SetTimePeriodMillisec(m_preference.TimePeriodMillisec);
 
             int hr = wasapi.Setup(
                 m_deviceSetupInfo.SampleRate,

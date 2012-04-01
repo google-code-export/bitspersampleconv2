@@ -28,32 +28,20 @@ namespace PlayPcmWin {
         public double MainWindowHeight { get; set; }
 
         public bool ManuallySetMainWindowDimension { get; set; }
-
         public bool ParallelRead { get; set; }
-
         public bool PlayRepeat { get; set; }
-
         public bool PlayAllTracks { get; set; }
-
         public int PlayingTimeSize { get; set; }
-
         public bool PlayingTimeFontBold { get; set; }
-
         public string PlayingTimeFontName { get; set; }
-
         public double WindowScale { get; set; }
-
         public bool SettingsIsExpanded { get; set; }
-
         public bool StorePlaylistContent { get; set; }
-
         public bool DispCoverart { get; set; }
-
         public bool RefrainRedraw { get; set; }
-
         public bool Shuffle { get; set; }
-
         public int ZeroFlushMillisec { get; set; }
+        public int TimePeriodMillisec { get; set; }
 
         public enum PlayListDispModeType {
             /// <summary>
@@ -97,6 +85,7 @@ namespace PlayPcmWin {
             DispCoverart = true;
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
+            TimePeriodMillisec = 1;
 
             MainWindowLeft = -1;
             MainWindowTop = -1;

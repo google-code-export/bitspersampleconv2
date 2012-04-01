@@ -91,6 +91,7 @@ public:
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
     void SetZeroFlushMillisec(int zeroFlushMillisec);
+    void SetTimePeriodMillisec(int millisec);
 
     HRESULT Setup(
         int sampleRate, WWPcmDataFormatType format, int numChannels);

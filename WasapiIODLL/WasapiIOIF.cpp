@@ -475,8 +475,16 @@ WasapiIO_RegisterCallback(WWStateChanged callback)
 
 extern "C" __declspec(dllexport)
 void __stdcall
-WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec)
+WasapiIO_SetZeroFlushMillisec(int millisec)
 {
     assert(self);
-    self->wasapi.SetZeroFlushMillisec(zeroFlushMillisec);
+    self->wasapi.SetZeroFlushMillisec(millisec);
+}
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetTimePeriodMillisec(int millisec)
+{
+    assert(self);
+    self->wasapi.SetTimePeriodMillisec(millisec);
 }
