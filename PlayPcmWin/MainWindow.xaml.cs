@@ -3268,15 +3268,18 @@ namespace PlayPcmWin
         }
 
         private void buttonRemovePlayList_Click(object sender, RoutedEventArgs e) {
-            var selectedCells = dataGridPlayList.SelectedCells;
-            if (0 == selectedCells.Count) {
+            var selectedItemCount = dataGridPlayList.SelectedItems.Count;
+            if (0 == selectedItemCount) {
                 return;
             }
 
-            if (selectedCells.Count == m_playListItems.Count) {
+            if (selectedItemCount == m_playListItems.Count) {
                 // すべて消える。再生開始などが出来なくなるので別処理。
                 ClearPlayList(PlayListClearMode.ClearWithUpdateUI);
-            } else {
+                return;
+            }
+
+            {
                 // 再生リストの一部項目が消える。
                 int idx;
                 while (0 <= (idx = dataGridPlayList.SelectedIndex)) {
