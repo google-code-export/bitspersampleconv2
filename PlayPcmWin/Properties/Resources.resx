@@ -191,7 +191,7 @@
   </data>
   <data name="SetupFailAdvice" xml:space="preserve">
     <value>*Please confirm sample rate or quantization bit rate are supported on your device using "list supported format" feature. Press [Clear the playlist][List supported format]
-*RME Fireface400 and M-AUDIO ProFire2626 are both cannot override master sampling rate settings via WASAPI. Please use Fireface settings or M-Audio Profire control panel to change master sampling rate of those devices.
+*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use Fireface settings, M-Audio Profire control panel or equivallent tools on your system tray to change master sampling rate of those devices before playback.
 *44.1kHz and 88.2kHz sample rate of Creative X-Fi Titanium HD do work using timer driven mode.
 *Creative USB Sound Blaster HDs prefer event driven mode. Timer driven mode tends to more problematic on those devices.
 *Lynx AES16e WaveRT driver requires very low latency settings such as 29ms.

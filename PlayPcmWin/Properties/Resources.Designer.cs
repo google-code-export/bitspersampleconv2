@@ -417,9 +417,8 @@ namespace PlayPcmWin.Properties {
         
         /// <summary>
         ///   *Please confirm sample rate or quantization bit rate are supported on your device using &quot;list supported format&quot; feature. Press [Clear the playlist][List supported format]
-        ///*RME Fireface400 and M-AUDIO ProFire2626 are both cannot override master sampling rate settings via WASAPI. Please use Fireface settings or M-Audio Profire control panel to change master sampling rate of those devices.
-        ///*44.1kHz and 88.2kHz sample rate of Creative X-Fi Titanium HD do work using timer driven mode.
-        ///*Creative USB Sound Blas [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use Fireface settings, M-Audio Profire control panel or equivallent tools on your system tray to change master sampling rate of those devices before playback.
+        ///*44.1kHz and 88.2kHz sample [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SetupFailAdvice {
             get {

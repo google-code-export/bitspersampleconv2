@@ -481,13 +481,6 @@ namespace PlayPcmWin
             return count;
         }
 
-        private static void RenumberPcmDataId(List<PcmData> pcmDataList) {
-            for (int i = 0; i < pcmDataList.Count(); ++i) {
-                pcmDataList[i].Id = i;
-                pcmDataList[i].Ordinal = i;
-            }
-        }
-
         /// <summary>
         /// 指定されたWavDataIdの、プレイリスト位置番号(プレイリスト内のindex)を戻す。
         /// </summary>
@@ -3281,6 +3274,8 @@ namespace PlayPcmWin
 
             {
                 // 再生リストの一部項目が消える。
+                // PcmDataのIDが飛び飛びになるので番号を振り直す。
+                // PcmDataのGroupIdも飛び飛びになるが、特に問題にならないようなので付け直さない。
                 int idx;
                 while (0 <= (idx = dataGridPlayList.SelectedIndex)) {
                     m_pcmDataListForDisp.RemoveAt(idx);
@@ -3289,10 +3284,12 @@ namespace PlayPcmWin
                 }
                 GC.Collect();
 
-                RenumberPcmDataId(m_pcmDataListForDisp);
+                for (int i = 0; i < m_pcmDataListForDisp.Count(); ++i) {
+                    m_pcmDataListForDisp[i].Id = i;
+                    m_pcmDataListForDisp[i].Ordinal = i;
+                }
                 dataGridPlayList.UpdateLayout();
 
-                progressBar1.Value = 0;
                 UpdateUIStatus();
             }
         }

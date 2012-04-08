@@ -191,7 +191,7 @@
   </data>
   <data name="SetupFailAdvice" xml:space="preserve">
     <value>・再生リストの[一覧をクリア]し[対応フォーマット]ボタンを押すと再生可能なフォーマット一覧が出ます。
-・RME Fireface400やM-AUDIO ProFire2626等は、機器に設定されているマスターサンプリングレートをWASAPIから変更できないため手動で合わせる必要があります。
+・RME Fireface400やM-AUDIO ProFire2626、Echo AudioFire等は、機器に設定されているマスターサンプリングレートをWASAPIから変更できないため手動で合わせる必要があります。
 ・Creative X-Fi Titanium HDの44.1kHzと88.2kHzはタイマー駆動モードならば動作します。
 ・Creative USB Sound Blaster HDはイベント駆動モードのほうが安定動作します。
 ・Lynx AES16eのWaveRTドライバは、出力レイテンシーを29msなどの小さな値に設定すると再生できます。
