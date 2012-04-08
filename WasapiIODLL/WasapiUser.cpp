@@ -689,10 +689,7 @@ WasapiUser::Setup(
             = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
         wfex->Samples.wValidBitsPerSample
             = (WORD)WWPcmDataFormatTypeToValidBitsPerSample(m_format);
-
-        if (2 != m_numChannels) {
-            wfex->dwChannelMask = GetChannelMask(m_numChannels);
-        }
+        wfex->dwChannelMask = GetChannelMask(m_numChannels);
 
         dprintf("preferred Format:\n");
         WWWaveFormatDebug(waveFormat);
