@@ -61,7 +61,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Sorry... Please stop playing to add files to the playlist. に類似しているローカライズされた文字列を検索します。
+        ///   Sorry... Please stop playback to add files to the playlist. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CannotAddFile {
             get {
@@ -326,7 +326,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Add more files to the playlist or Press Play button to play. に類似しているローカライズされた文字列を検索します。
+        ///   Add more files to the playlist or Press play button に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string PressPlayButton {
             get {

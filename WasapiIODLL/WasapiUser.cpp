@@ -772,8 +772,8 @@ WasapiUser::Setup(
         bufferDuration = bufferPeriodicity * periodsPerBuffer;
 
         HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL,
-        (void**)&m_audioClient));
+            __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL,
+            (void**)&m_audioClient));
 
         hr = m_audioClient->Initialize(
             m_shareMode, streamFlags, 

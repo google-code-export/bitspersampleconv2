@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotAddFile" xml:space="preserve">
-    <value>Sorry... Please stop playing to add files to the playlist.</value>
+    <value>Sorry... Please stop playback to add files to the playlist.</value>
   </data>
   <data name="ChangingPlayGroup" xml:space="preserve">
     <value>Reading files...</value>
@@ -166,7 +166,7 @@
     <value>PPWPL files|*.ppwpl</value>
   </data>
   <data name="PressPlayButton" xml:space="preserve">
-    <value>Add more files to the playlist or Press Play button to play.</value>
+    <value>Add more files to the playlist or Press play button</value>
   </data>
   <data name="ReadCompleted" xml:space="preserve">
     <value>Read completed. ready to play.</value>
