@@ -114,7 +114,8 @@
         Margin="0,29,6,26"
         BorderBrush="#FFD5DFE5"
         IsExpanded="True"
-        Grid.Column="1" ExpandDirection="Right" Name="expanderSettings">
+        Grid.Column="1" ExpandDirection="Right" Name="expanderSettings"
+        Style="{DynamicResource OppositeExpanderStyle}">
             <Grid x:Uid="Grid_4">
                 <GroupBox x:Uid="groupBoxWasapiSettings" Header="WASAPI settings" Width="320" Height="224" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
