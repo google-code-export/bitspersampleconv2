@@ -948,7 +948,7 @@ namespace PcmDataLib {
             int toPos = 0;
             for (int i = 0; i < nSample; ++i) {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
-                if (SAMPLE_VALUE_MAX_FLOAT_TO_I16 < fv) {
+                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I16;
                     IncrementClippedCounter();
                 }
@@ -971,7 +971,7 @@ namespace PcmDataLib {
             int toPos   = 0;
             for (int i = 0; i < nSample; ++i) {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
-                if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
+                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
                     IncrementClippedCounter();
                 }
@@ -995,7 +995,7 @@ namespace PcmDataLib {
             int toPos   = 0;
             for (int i = 0; i < nSample; ++i) {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
-                if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
+                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
                     IncrementClippedCounter();
                 }
@@ -1090,7 +1090,7 @@ namespace PcmDataLib {
             int toPos = 0;
             for (int i = 0; i < nSample; ++i) {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
-                if (SAMPLE_VALUE_MAX_DOUBLE_TO_I16 < dv) {
+                if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
                     dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I16;
                     IncrementClippedCounter();
                 }
@@ -1113,7 +1113,7 @@ namespace PcmDataLib {
             int toPos   = 0;
             for (int i = 0; i < nSample; ++i) {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
-                if (SAMPLE_VALUE_MAX_DOUBLE_TO_I24 < dv) {
+                if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
                     dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I24;
                     IncrementClippedCounter();
                 }
@@ -1164,7 +1164,7 @@ namespace PcmDataLib {
             for (int i = 0; i < nSample; ++i) {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
                 float fv = (float)dv;
-                if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
+                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
                     IncrementClippedCounter();
                 }
