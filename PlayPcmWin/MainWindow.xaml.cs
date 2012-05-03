@@ -2018,9 +2018,19 @@ namespace PlayPcmWin
             }
         }
 
-        struct ReadFileRunWorkerCompletedArgs {
+        class ReadFileResultInfo {
+            public int pcmDataId;
+            public long clippedCount;
+            public ReadFileResultInfo(int pcmDataId, long clippedCount) {
+                this.pcmDataId = pcmDataId;
+                this.clippedCount = clippedCount;
+            }
+        }
+
+        class ReadFileRunWorkerCompletedArgs {
             public string message;
             public int hr;
+            public List<ReadFileResultInfo> individualResultList = new List<ReadFileResultInfo>();
         }
 
         struct ReadProgressInfo {
@@ -2092,6 +2102,8 @@ namespace PlayPcmWin
                     // 効果絶大である。
                     GC.Collect();
 
+                    PcmData.ClearClippedCounter();
+
                     long startFrame = (long)(pd.StartTick) * pd.SampleRate / 75;
                     long endFrame   = (long)(pd.EndTick) * pd.SampleRate / 75;
 
@@ -2102,6 +2114,13 @@ namespace PlayPcmWin
                         args.Result = r;
                         args.Cancel = true;
                         return;
+                    }
+
+                    {
+                        long clippedCount = PcmData.ReadClippedCounter();
+                        if (0 < clippedCount) {
+                            r.individualResultList.Add(new ReadFileResultInfo(pd.Id, clippedCount));
+                        }
                     }
 
                     if (!rv) {
@@ -2415,6 +2434,13 @@ namespace PlayPcmWin
                 MessageBox.Show(r.message);
                 Exit();
                 return;
+            }
+
+            if (0 < r.individualResultList.Count) {
+                foreach (var fileResult in r.individualResultList) {
+                    AddLogText(string.Format(Properties.Resources.ClippedSampleDetected,
+                        FindPcmDataById(m_pcmDataListForPlay, fileResult.pcmDataId).FileName, fileResult.clippedCount));
+                }
             }
 
             // WasapiCSのリピート設定。

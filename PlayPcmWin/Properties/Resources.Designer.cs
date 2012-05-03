@@ -79,6 +79,17 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Clipped sample value detected on floating point PCM data!
+        ///  Clipped sample value count={1}, FileName={0}
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ClippedSampleDetected {
+            get {
+                return ResourceManager.GetString("ClippedSampleDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   CUE files|*.cue に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CueFileFilter {

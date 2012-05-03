@@ -275,4 +275,9 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="DeviceStateChanged" xml:space="preserve">
     <value>DeviceStateChanged. DeviceId={0}</value>
   </data>
+  <data name="ClippedSampleDetected" xml:space="preserve">
+    <value>Clipped sample value detected on floating point PCM data!
+  Clipped sample value count={1}, FileName={0}
+</value>
+  </data>
 </root>

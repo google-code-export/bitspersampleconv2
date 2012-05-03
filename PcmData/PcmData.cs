@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace PcmDataLib {
 
@@ -911,6 +912,30 @@ namespace PcmDataLib {
         }
 
         ////////////////////////////////////////////////////////////////////
+        // Clipped counter used for float to int conversion
+
+        private static long mClippedCount;
+
+        private static void IncrementClippedCounter() {
+            Interlocked.Increment(ref mClippedCount);
+        }
+
+        /// <summary>
+        /// clear clipped counter. call before conv start
+        /// </summary>
+        public static void ClearClippedCounter() {
+            mClippedCount = 0;
+        }
+
+        /// <summary>
+        /// read latest clipped counter value
+        /// </summary>
+        /// <returns>clipped counter</returns>
+        public static long ReadClippedCounter() {
+            return Thread.VolatileRead(ref mClippedCount);
+        }
+
+        ////////////////////////////////////////////////////////////////////
         // F32
 
         private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I16 = 32767.0f / 32768.0f;
@@ -925,9 +950,11 @@ namespace PcmDataLib {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
                 if (SAMPLE_VALUE_MAX_FLOAT_TO_I16 < fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I16;
+                    IncrementClippedCounter();
                 }
                 if (fv < SAMPLE_VALUE_MIN_FLOAT) {
                     fv = SAMPLE_VALUE_MIN_FLOAT;
+                    IncrementClippedCounter();
                 }
                 int iv = (int)(fv * 32768.0f);
 
@@ -946,9 +973,11 @@ namespace PcmDataLib {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
                 if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
+                    IncrementClippedCounter();
                 }
                 if (fv < SAMPLE_VALUE_MIN_FLOAT) {
                     fv = SAMPLE_VALUE_MIN_FLOAT;
+                    IncrementClippedCounter();
                 }
                 int iv = (int)(fv * 8388608.0f);
 
@@ -968,9 +997,11 @@ namespace PcmDataLib {
                 float fv = System.BitConverter.ToSingle(from, fromPos);
                 if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
+                    IncrementClippedCounter();
                 }
                 if (fv < SAMPLE_VALUE_MIN_FLOAT) {
                     fv = SAMPLE_VALUE_MIN_FLOAT;
+                    IncrementClippedCounter();
                 }
                 int iv = (int)(fv * 8388608.0f);
 
@@ -1061,9 +1092,11 @@ namespace PcmDataLib {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
                 if (SAMPLE_VALUE_MAX_DOUBLE_TO_I16 < dv) {
                     dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I16;
+                    IncrementClippedCounter();
                 }
                 if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
                     dv = SAMPLE_VALUE_MIN_DOUBLE;
+                    IncrementClippedCounter();
                 }
                 int iv = (int)(dv * 32768.0);
 
@@ -1082,9 +1115,11 @@ namespace PcmDataLib {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
                 if (SAMPLE_VALUE_MAX_DOUBLE_TO_I24 < dv) {
                     dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I24;
+                    IncrementClippedCounter();
                 }
                 if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
                     dv = SAMPLE_VALUE_MIN_DOUBLE;
+                    IncrementClippedCounter();
                 }
                 int iv = (int)(dv * 8388608.0);
                 to[toPos++] = (byte)(iv & 0xff);
@@ -1103,10 +1138,12 @@ namespace PcmDataLib {
                 double dv = System.BitConverter.ToDouble(from, fromPos);
 
                 int iv = 0;
-                if ((long)Int32.MaxValue <= (long)(dv * Int32.MaxValue)) {
+                if ((long)Int32.MaxValue < (long)(dv * Int32.MaxValue)) {
                     iv = Int32.MaxValue;
-                } else if ((long)(-dv * Int32.MinValue) <= (long)Int32.MinValue) {
+                    IncrementClippedCounter();
+                } else if ((long)(-dv * Int32.MinValue) < (long)Int32.MinValue) {
                     iv = Int32.MinValue;
+                    IncrementClippedCounter();
                 } else {
                     iv = (int)(-dv * Int32.MinValue);
                 }
@@ -1129,9 +1166,11 @@ namespace PcmDataLib {
                 float fv = (float)dv;
                 if (SAMPLE_VALUE_MAX_FLOAT_TO_I24 < fv) {
                     fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
+                    IncrementClippedCounter();
                 }
                 if (fv < SAMPLE_VALUE_MIN_FLOAT) {
                     fv = SAMPLE_VALUE_MIN_FLOAT;
+                    IncrementClippedCounter();
                 }
                 byte [] b = System.BitConverter.GetBytes(fv);
                 to[toPos++] = b[0];

@@ -275,4 +275,9 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="DeviceStateChanged" xml:space="preserve">
     <value>デバイスの状態が変わりました。デバイスID={0}</value>
   </data>
+  <data name="ClippedSampleDetected" xml:space="preserve">
+    <value>範囲外のサンプル値がありました！
+  クリップしたサンプル値の数={1}個、ファイル名={0}
+</value>
+  </data>
 </root>
