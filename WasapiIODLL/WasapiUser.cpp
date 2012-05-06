@@ -1246,15 +1246,18 @@ WasapiUser::SetPosFrame(int64_t v)
         return false;
     }
 
-    if (v < 0 || GetTotalFrameNum() <= v) {
+    if (v < 0) {
         return false;
     }
+
+    bool result = false;
 
     assert(m_mutex);
     WaitForSingleObject(m_mutex, INFINITE);
     {
         if (m_nowPlayingPcmData &&
-            m_nowPlayingPcmData->contentType == WWPcmDataContentPcmData) {
+            m_nowPlayingPcmData->contentType == WWPcmDataContentPcmData && v < m_nowPlayingPcmData->nFrames) {
+            // 再生中。
             // nowPlaying->posFrameをvに移動する。
             // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
             m_spliceBuffer.UpdateSpliceDataWithStraightLine(
@@ -1264,11 +1267,16 @@ WasapiUser::SetPosFrame(int64_t v)
 
             m_nowPlayingPcmData->posFrame = v;
             m_nowPlayingPcmData = &m_spliceBuffer;
+            result = true;
+        } else if (m_pauseResumePcmData && v < m_pauseResumePcmData->nFrames) {
+            // pause中。
+            m_pauseResumePcmData->posFrame = v;
+            result = true;
         }
     }
     ReleaseMutex(m_mutex);
 
-    return true;
+    return result;
 }
 
 bool

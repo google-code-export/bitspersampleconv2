@@ -553,11 +553,23 @@ namespace PlayPcmWin
             }
         }
 
+        /// <summary>
+        /// true: slider is dragging
+        /// </summary>
+        private bool mSliderSliding = false;
+
+        /// ///////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MainWindow()
         {
             InitializeComponent();
 
             InitializePlaymodeComboBox();
+
+            this.AddHandler(Slider.MouseLeftButtonDownEvent,
+                new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
+            this.AddHandler(Slider.MouseLeftButtonUpEvent,
+                new MouseButtonEventHandler(slider1_MouseLeftButtonUp), true);
 
             // InitializeComponent()によって、チェックボックスのチェックイベントが発生し
             // m_preferenceの内容が変わるので、InitializeComponent()の後にロードする。
@@ -2873,11 +2885,12 @@ namespace PlayPcmWin
                 dataGridPlayList.SelectedIndex
                     = GetPlayListIndexOfWaveDataId(playingPcmDataId);
 
-                slider1.Value =wasapi.GetPosFrame();
                 PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, playingPcmDataId);
-                // textBoxFileName.Text = pcmData.FileName;
 
                 slider1.Maximum = pcmData.NumFrames;
+                if (!mSliderSliding || pcmData.NumFrames <= slider1.Value) {
+                    slider1.Value = wasapi.GetPosFrame();
+                }
 
                 labelPlayingTime.Content = string.Format("{0}/{1}",
                     SecondToHMSString((int)(slider1.Value / pcmData.SampleRate)),
@@ -2961,9 +2974,21 @@ namespace PlayPcmWin
             if (e.LeftButton == MouseButtonState.Pressed) {
                 Console.WriteLine("slider1_MouseMove {0}", slider1.Value);
                 if (!buttonPlay.IsEnabled) {
-                    wasapi.SetPosFrame((int)slider1.Value);
+                    wasapi.SetPosFrame((long)slider1.Value);
                 }
             }
+        }
+        private void slider1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            System.Console.WriteLine("slider1_MouseLeftButtonUp " + e);
+            mSliderSliding = false;
+            if (!buttonPlay.IsEnabled) {
+                wasapi.SetPosFrame((long)slider1.Value);
+            }
+        }
+
+        private void slider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            System.Console.WriteLine("slider1_MouseLeftButtonDown " + e);
+            mSliderSliding = true;
         }
 
         struct InspectFormat {
