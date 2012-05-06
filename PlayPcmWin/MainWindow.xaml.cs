@@ -822,7 +822,7 @@ namespace PlayPcmWin
                     // imageCoverArt.Visibility = System.Windows.Visibility.Visible;
                 }
             } catch (Exception ex) {
-                System.Console.WriteLine("E: DispCoverart {0}", ex);
+                Console.WriteLine("E: DispCoverart {0}", ex);
                 imageCoverArt.Source = null;
             }
         }
@@ -1451,7 +1451,7 @@ namespace PlayPcmWin
                         }
                     }
                 } catch (Exception ex) {
-                    System.Console.WriteLine(ex);
+                    Console.WriteLine(ex);
                     result = new byte[0];
                 }
             }
@@ -1859,10 +1859,12 @@ namespace PlayPcmWin
         private void MainWindowDragDrop(object sender, DragEventArgs e)
         {
             string[] paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            /*
             Console.WriteLine("D: Form1_DragDrop() {0}", paths.Length);
             for (int i = 0; i < paths.Length; ++i) {
                 Console.WriteLine("   {0}", paths[i]);
             }
+            */
 
             if (State.デバイスSetup完了 <= m_state) {
                 // 追加不可。
@@ -2089,7 +2091,7 @@ namespace PlayPcmWin
         private void ReadFileDoWork(object o, DoWorkEventArgs args) {
             BackgroundWorker bw = (BackgroundWorker)o;
             int readGroupId = (int)args.Argument;
-            Console.WriteLine("D: ReadFileSingleDoWork({0}) started", readGroupId);
+            // Console.WriteLine("D: ReadFileSingleDoWork({0}) started", readGroupId);
 
             ReadFileRunWorkerCompletedArgs r = new ReadFileRunWorkerCompletedArgs();
             try {
@@ -2155,7 +2157,7 @@ namespace PlayPcmWin
 
                 m_loadedGroupId = readGroupId;
 
-                Console.WriteLine("D: ReadFileSingleDoWork({0}) done", readGroupId);
+                // Console.WriteLine("D: ReadFileSingleDoWork({0}) done", readGroupId);
             } catch (Exception ex) {
                 r.message = ex.ToString();
                 r.hr = -1;
@@ -2198,7 +2200,7 @@ namespace PlayPcmWin
                 try {
                     result = mw.ReadOnePcmFileFragment(bw, pd, readStartFrame, readFrames, writeOffsFrame, ref message);
                 } catch (Exception ex) {
-                    System.Console.WriteLine(ex);
+                    Console.WriteLine(ex);
                     result = false;
                 }
                 doneEvent.Set();
@@ -2972,22 +2974,27 @@ namespace PlayPcmWin
 
         private void slider1_MouseMove(object sender, MouseEventArgs e) {
             if (e.LeftButton == MouseButtonState.Pressed) {
-                Console.WriteLine("slider1_MouseMove {0}", slider1.Value);
                 if (!buttonPlay.IsEnabled) {
                     wasapi.SetPosFrame((long)slider1.Value);
                 }
             }
         }
         private void slider1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-            System.Console.WriteLine("slider1_MouseLeftButtonUp " + e);
-            mSliderSliding = false;
+            if (e.Source != slider1) {
+                return;
+            }
+
             if (!buttonPlay.IsEnabled) {
                 wasapi.SetPosFrame((long)slider1.Value);
             }
+            mSliderSliding = false;
         }
 
         private void slider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            System.Console.WriteLine("slider1_MouseLeftButtonDown " + e);
+            if (e.Source != slider1) {
+                return;
+            }
+
             mSliderSliding = true;
         }
 
@@ -3118,7 +3125,7 @@ namespace PlayPcmWin
         /// </summary>
         /// <param name="s">追加するログ。行末に\r\nを入れる必要あり。</param>
         private void AddLogText(string s) {
-            System.Console.Write(s);
+            Console.Write(s);
 
             // ログを適当なエントリ数で流れるようにする。
             // sは複数行の文字列が入っていたり、改行が入っていなかったりするので、行数制限にはなっていない。
@@ -3616,7 +3623,7 @@ namespace PlayPcmWin
             DragDropEffects finalDropEffect = DragDrop.DoDragDrop(row, pli, DragDropEffects.Move);
             if (finalDropEffect == DragDropEffects.Move && m_dropTargetPlayListItem != null) {
                 // ドロップ操作実行。
-                Console.WriteLine("MouseMove do move");
+                // Console.WriteLine("MouseMove do move");
 
                 int oldIndex = m_playListItems.IndexOf(pli);
                 int newIndex = m_playListItems.IndexOf(m_dropTargetPlayListItem);

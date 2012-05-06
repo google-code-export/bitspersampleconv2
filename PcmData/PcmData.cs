@@ -45,9 +45,10 @@ namespace PcmDataLib {
                 return false;
             }
 
+            /*
             System.Console.WriteLine("D: b={0}{1}{2}{3} s={4}",
                 (char)b[0], (char)b[1], (char)b[2], (char)b[3], s);
-
+            */
 
             return s[0] == b[bPos]
                 && s[1] == b[bPos + 1]

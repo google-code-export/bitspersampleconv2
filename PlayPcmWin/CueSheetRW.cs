@@ -279,12 +279,14 @@ namespace PlayPcmWin {
                 return false;
             }
 
+            /*
             Console.WriteLine("after Pass1 =================================");
             Console.WriteLine("trackInfoList.Count={0}", m_trackInfoList.Count);
             for (int i = 0; i < m_trackInfoList.Count; ++i) {
                 Console.WriteLine("trackInfo {0}", i);
                 m_trackInfoList[i].Debug();
             }
+            */
 
             // Pass 2の処理
             for (int i = 0; i < m_trackInfoList.Count-1; ++i) {
@@ -305,12 +307,14 @@ namespace PlayPcmWin {
                 }
             }
 
+            /*
             Console.WriteLine("after Pass2 =================================");
             Console.WriteLine("trackInfoList.Count={0}", m_trackInfoList.Count);
             for (int i = 0; i < m_trackInfoList.Count; ++i) {
                 Console.WriteLine("trackInfo {0}", i);
                 m_trackInfoList[i].Debug();
             }
+            */
 
             return true;
         }
@@ -323,7 +327,6 @@ namespace PlayPcmWin {
             // 最後の文字がホワイトスペースではない場合の処理が面倒なので、
             // 最後にホワイトスペースをつける。
             line = line + " ";
-            Console.WriteLine("line=\"{0}\"", line);
 
             for (int i = 0; i < line.Length; ++i) {
                 if (0 <= quoteStartPos) {
@@ -360,10 +363,12 @@ namespace PlayPcmWin {
                 }
             }
 
+            /*
             Console.WriteLine("tokenList.Count={0}", tokenList.Count);
             for (int i = 0; i < tokenList.Count; ++i) {
                 Console.WriteLine("{0} : \"{1}\"", i, tokenList[i]);
             }
+            */
 
             return tokenList;
         }
@@ -385,7 +390,6 @@ namespace PlayPcmWin {
                     } else {
                         m_currentTrackInfo.performer = tokenList[1];
                     }
-                    Console.WriteLine("performer {0}", tokenList[1]);
                 }
 
                 break;
@@ -397,13 +401,10 @@ namespace PlayPcmWin {
                     } else {
                         m_currentTrackInfo.title = tokenList[1];
                     }
-                    Console.WriteLine("title {0}", tokenList[1]);
                 }
                 break;
             case "rem":
-                Console.WriteLine("rem tag has come");
                 if (2 <= tokenList.Count && 0 == tokenList[1].CompareTo("KOKOMADE")) {
-                    Console.WriteLine("rem kokomade");
                     m_currentTrackInfo.readSeparatorAfter = true;
                 }
                 break;
@@ -423,7 +424,6 @@ namespace PlayPcmWin {
                 }
 
                 // file tag has come; End album info.
-                Console.WriteLine("file tag has come");
                 m_bAlbumInfoParsing = false;
                 m_currentTrackInfo.Debug();
 
@@ -433,7 +433,6 @@ namespace PlayPcmWin {
                     Console.WriteLine("Error on line {0}: track number is not specified", lineno);
                     return true;
                 }
-                Console.WriteLine("track tag has come");
                 if (!int.TryParse(tokenList[1], out m_currentTrackInfo.trackId)) {
                     Console.WriteLine("Error on line {0}: track number TryParse failed", lineno);
                     return true;
@@ -459,7 +458,6 @@ namespace PlayPcmWin {
                     CueSheetTrackInfo newTrackInfo = new CueSheetTrackInfo();
                     newTrackInfo.CopyFrom(m_currentTrackInfo);
                     m_trackInfoList.Add(newTrackInfo);
-                    Console.WriteLine("index tag has come. add trackInfoList");
                     m_currentTrackInfo.Debug();
 
                     // 揮発要素はここでリセットする。
@@ -471,7 +469,7 @@ namespace PlayPcmWin {
                 break;
 
             default:
-                Console.WriteLine("skipped {0}", tokenList[0]);
+                Console.WriteLine("D: skipped {0}", tokenList[0]);
                 break;
             }
 

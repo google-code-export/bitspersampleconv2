@@ -293,9 +293,6 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportBitsPerSample;
             }
 
-            System.Console.WriteLine("nChannels={0} bitsPerSample={1} sampleRate={2} numFrames={3}",
-                NumChannels, BitsPerSample, SampleRate, NumFrames);
-
             pcmData.SetFormat(
                 NumChannels,
                 BitsPerSample,
