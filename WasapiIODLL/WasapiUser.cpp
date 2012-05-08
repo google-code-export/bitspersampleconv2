@@ -1148,15 +1148,35 @@ WasapiUser::UpdatePlayRepeat(bool repeat,
     m_endSilenceBuffer.next = NULL;
 }
 
-int
-WasapiUser::GetNowPlayingPcmDataId(void)
+WWPcmData *
+WasapiUser::GetPcmDataByUsageType(WWPcmDataUsageType t)
 {
-    WWPcmData *nowPlaying = m_nowPlayingPcmData;
+    WWPcmData *pcm = NULL;
 
-    if (!nowPlaying) {
+    switch (t) {
+    case WWPDUNowPlaying:
+        pcm = m_nowPlayingPcmData;
+        break;
+    case WWPDUPauseResumeToPlay:
+        pcm = m_pauseResumePcmData;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+
+    return pcm;
+}
+
+int
+WasapiUser::GetPcmDataId(WWPcmDataUsageType t)
+{
+    WWPcmData *pcm = GetPcmDataByUsageType(t);
+
+    if (!pcm) {
         return -1;
     }
-    return nowPlaying->id;
+    return pcm->id;
 }
 
 void
@@ -1222,16 +1242,16 @@ WasapiUser::GetTotalFrameNum(void)
 }
 
 int64_t
-WasapiUser::GetPosFrame(void)
+WasapiUser::GetPosFrame(WWPcmDataUsageType t)
 {
     int64_t result = 0;
 
-    WWPcmData *nowPlaying = m_nowPlayingPcmData;
+    WWPcmData *pcm = GetPcmDataByUsageType(t);
 
     // assert(m_mutex);
     // WaitForSingleObject(m_mutex, INFINITE);
-    if (nowPlaying) {
-        result = nowPlaying->posFrame;
+    if (pcm) {
+        result = pcm->posFrame;
     }
     //ReleaseMutex(m_mutex);
 

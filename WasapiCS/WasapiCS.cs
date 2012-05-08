@@ -105,7 +105,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetNowPlayingPcmDataId();
+        WasapiIO_GetPcmDataId(int usageType);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -145,7 +145,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static long
-        WasapiIO_GetPosFrame();
+        WasapiIO_GetPosFrame(int usageType);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static long
@@ -360,8 +360,13 @@ namespace Wasapi {
             WasapiIO_SetPlayRepeat(repeat);
         }
 
-        public int GetNowPlayingPcmDataId() {
-            return WasapiIO_GetNowPlayingPcmDataId();
+        public enum PcmDataUsageType {
+            NowPlaying,
+            PauseResumeToPlay,
+        };
+
+        public int GetPcmDataId(PcmDataUsageType t) {
+            return WasapiIO_GetPcmDataId((int)t);
         }
 
         /// <summary>
@@ -406,8 +411,8 @@ namespace Wasapi {
             return WasapiIO_Unpause();
         }
 
-        public long GetPosFrame() {
-            return WasapiIO_GetPosFrame();
+        public long GetPosFrame(PcmDataUsageType t) {
+            return WasapiIO_GetPosFrame((int)t);
         }
 
         public long GetTotalFrameNum() {

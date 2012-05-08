@@ -314,10 +314,10 @@ WasapiIO_SetPlayRepeat(bool b)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetNowPlayingPcmDataId(void)
+WasapiIO_GetPcmDataId(int usageType)
 {
     assert(self);
-    return self->wasapi.GetNowPlayingPcmDataId();
+    return self->wasapi.GetPcmDataId((WWPcmDataUsageType)usageType);
 }
 
 extern "C" __declspec(dllexport)
@@ -403,10 +403,10 @@ WasapiIO_Unpause(void)
 
 extern "C" __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetPosFrame(void)
+WasapiIO_GetPosFrame(int usageType)
 {
     assert(self);
-    return self->wasapi.GetPosFrame();
+    return self->wasapi.GetPosFrame((WWPcmDataUsageType)usageType);
 }
 
 extern "C" __declspec(dllexport)

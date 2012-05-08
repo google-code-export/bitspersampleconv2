@@ -46,7 +46,7 @@ enum WWSchedulerTaskType {
     WWSTTNone,
     WWSTTAudio,
     WWSTTProAudio,
-    WWSTTPlayback
+    WWSTTPlayback,
 };
 
 enum WWShareMode {
@@ -56,7 +56,12 @@ enum WWShareMode {
 
 enum WWBitFormatType {
     WWSInt,
-    WWSFloat
+    WWSFloat,
+};
+
+enum WWPcmDataUsageType {
+    WWPDUNowPlaying,
+    WWPDUPauseResumeToPlay,
 };
 
 class WasapiUser {
@@ -113,8 +118,8 @@ public:
     /// 再生データをpcmDataに切り替える。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 
-    /// -1: not playing
-    int GetNowPlayingPcmDataId(void);
+    /// -1: specified buffer is not used
+    int GetPcmDataId(WWPcmDataUsageType t);
 
     // recording buffer setup
     bool SetupCaptureBuffer(int64_t bytes);
@@ -140,7 +145,7 @@ public:
     HRESULT Unpause(void);
 
     /// negative number returns when playing pregap
-    int64_t GetPosFrame(void);
+    int64_t GetPosFrame(WWPcmDataUsageType t);
 
     /// return total frames without pregap frame num
     int64_t GetTotalFrameNum(void);
@@ -244,5 +249,7 @@ private:
     /// 再生中に再生するPcmDataをセットする。
     /// サンプル値をなめらかに補間する。
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
+
+    WWPcmData * GetPcmDataByUsageType(WWPcmDataUsageType t);
 };
 

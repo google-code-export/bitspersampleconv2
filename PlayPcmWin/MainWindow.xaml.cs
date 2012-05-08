@@ -2879,19 +2879,24 @@ namespace PlayPcmWin
                 return;
             }
 
-            int playingPcmDataId = wasapi.GetNowPlayingPcmDataId();
+            // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ)の再生位置情報を画面に表示する。
+            WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;
+            int pcmDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+            if (pcmDataId < 0) {
+                pcmDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
+                usageType = WasapiCS.PcmDataUsageType.PauseResumeToPlay;
+            }
 
-            if (playingPcmDataId < 0) {
+            if (pcmDataId < 0) {
                 labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
             } else {
-                dataGridPlayList.SelectedIndex
-                    = GetPlayListIndexOfWaveDataId(playingPcmDataId);
+                dataGridPlayList.SelectedIndex = GetPlayListIndexOfWaveDataId(pcmDataId);
 
-                PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, playingPcmDataId);
+                PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, pcmDataId);
 
                 slider1.Maximum = pcmData.NumFrames;
                 if (!mSliderSliding || pcmData.NumFrames <= slider1.Value) {
-                    slider1.Value = wasapi.GetPosFrame();
+                    slider1.Value = wasapi.GetPosFrame(usageType);
                 }
 
                 labelPlayingTime.Content = string.Format("{0}/{1}",
@@ -3161,7 +3166,7 @@ namespace PlayPcmWin
         private void ChangePlayWavDataById(int wavDataId) {
             System.Diagnostics.Debug.Assert(0 <= wavDataId);
 
-            int playingId = wasapi.GetNowPlayingPcmDataId();
+            int playingId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
             if (playingId < 0 && 0 <= m_loadingGroupId) {
                 // 再生中でなく、ロード中の場合。
                 // ロード完了後ReadFileRunWorkerCompleted()で再生する曲を切り替えるための
@@ -3355,7 +3360,7 @@ namespace PlayPcmWin
         private delegate int UpdateOrdinal(int v);
 
         private void buttonNextOrPrevClicked(UpdateOrdinal updateOrdinal) {
-            int wavDataId = wasapi.GetNowPlayingPcmDataId();
+            int wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
             var playingPcmData = FindPcmDataById(m_pcmDataListForPlay, wavDataId);
             if (null == playingPcmData) {
                 return;
@@ -3448,7 +3453,7 @@ namespace PlayPcmWin
 
             // 再生中の場合。
 
-            int playingId = wasapi.GetNowPlayingPcmDataId();
+            int playingId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
             if (playingId < 0) {
                 return;
             }
