@@ -2981,8 +2981,24 @@ namespace PlayPcmWin
             AddLogText(string.Format("wasapi.Stop()\r\n"));
         }
 
+        private long mLastSliderValue = 0;
+
+        private void slider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            if (e.Source != slider1) {
+                return;
+            }
+
+            mLastSliderValue = (long)slider1.Value;
+            mSliderSliding = true;
+        }
+
         private void slider1_MouseMove(object sender, MouseEventArgs e) {
+            if (e.Source != slider1) {
+                return;
+            }
+
             if (e.LeftButton == MouseButtonState.Pressed) {
+                mLastSliderValue = (long)slider1.Value;
                 if (!buttonPlay.IsEnabled) {
                     wasapi.SetPosFrame((long)slider1.Value);
                 }
@@ -2993,16 +3009,15 @@ namespace PlayPcmWin
                 return;
             }
 
+            if (!buttonPlay.IsEnabled &&
+                    mLastSliderValue != (long)slider1.Value) {
+                wasapi.SetPosFrame((long)slider1.Value);
+            }
+
+            mLastSliderValue = 0;
             mSliderSliding = false;
         }
 
-        private void slider1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            if (e.Source != slider1) {
-                return;
-            }
-
-            mSliderSliding = true;
-        }
 
         struct InspectFormat {
             public int sampleRate;
