@@ -2879,12 +2879,16 @@ namespace PlayPcmWin
                 return;
             }
 
-            // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ)の再生位置情報を画面に表示する。
+            // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ等)の再生位置情報を画面に表示する。
             WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;
             int pcmDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
             if (pcmDataId < 0) {
                 pcmDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
                 usageType = WasapiCS.PcmDataUsageType.PauseResumeToPlay;
+            }
+            if (pcmDataId < 0) {
+                pcmDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.SpliceNext);
+                usageType = WasapiCS.PcmDataUsageType.SpliceNext;
             }
 
             if (pcmDataId < 0) {

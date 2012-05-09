@@ -1160,6 +1160,9 @@ WasapiUser::GetPcmDataByUsageType(WWPcmDataUsageType t)
     case WWPDUPauseResumeToPlay:
         pcm = m_pauseResumePcmData;
         break;
+    case WWPDUSpliceNext:
+        pcm = m_spliceBuffer.next;
+        break;
     default:
         assert(0);
         break;

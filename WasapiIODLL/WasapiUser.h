@@ -62,6 +62,7 @@ enum WWBitFormatType {
 enum WWPcmDataUsageType {
     WWPDUNowPlaying,
     WWPDUPauseResumeToPlay,
+    WWPDUSpliceNext,
 };
 
 class WasapiUser {

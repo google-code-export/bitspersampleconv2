@@ -363,6 +363,7 @@ namespace Wasapi {
         public enum PcmDataUsageType {
             NowPlaying,
             PauseResumeToPlay,
+            SpliceNext,
         };
 
         public int GetPcmDataId(PcmDataUsageType t) {
