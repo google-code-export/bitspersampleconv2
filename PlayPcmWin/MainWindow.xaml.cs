@@ -2989,9 +2989,6 @@ namespace PlayPcmWin
                 return;
             }
 
-            if (!buttonPlay.IsEnabled) {
-                wasapi.SetPosFrame((long)slider1.Value);
-            }
             mSliderSliding = false;
         }
 
