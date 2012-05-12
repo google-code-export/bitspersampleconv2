@@ -20,6 +20,7 @@ using WasapiPcmUtil;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Threading;
+using System.Windows.Controls.Primitives;
 
 namespace PlayPcmWin
 {
@@ -677,6 +678,18 @@ namespace PlayPcmWin
 
             UpdateDeviceList();
             UpdateWindowSettings();
+
+            {
+                // slider1のTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
+                slider1.ApplyTemplate();
+                (slider1.Template.FindName("PART_Track", slider1) as Track).Thumb.MouseEnter += new MouseEventHandler((sender, e) => {
+                    if (e.LeftButton == MouseButtonState.Pressed && e.MouseDevice.Captured == null) {
+                        var args = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left);
+                        args.RoutedEvent = MouseLeftButtonDownEvent;
+                        (sender as Thumb).RaiseEvent(args);
+                    }
+                });
+            }
         }
 
         /// <summary>
