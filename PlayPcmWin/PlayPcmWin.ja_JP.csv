@@ -1,4 +1,4 @@
-PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.Window.Title,Title,True,True,,PlayPcmWin 詳細設定
+﻿PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.Window.Title,Title,True,True,,PlayPcmWin 詳細設定
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox1:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換します)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Sint16,SInt32V24,SInt32を自動選択(PCI、PCIe、1394オーディオデバイスに適する)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Sint16,SInt32V24を自動選択(32bps非対応のPCI、PCIe、1394オーディオデバイス用)"
@@ -28,14 +28,19 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Cont
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,DACが安定するまで無音を送出する
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.ContentControl.Content,Label,True,True,,再生開始時無音送出秒数
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.Controls.ContentControl.Content,Label,True,True,,秒
+PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_C)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リスト項目編集モード(_E)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ファイル(_F)
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_N)...
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_N)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileOpen:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,開く(_O)...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileSaveCueAs:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをCUEシートとして保存(_C)...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileSaveAs:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストを保存(_S)...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,MenuItem_1:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,終了(_X)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuTool:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ツール(_T)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuToolSettings:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,詳細設定(_S)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayList:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リスト(_L)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_C)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListItemEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リスト項目編集モード(_E)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuHelp:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ヘルプ(_H)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,MenuItem_2:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,バージョン情報(_V)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,MenuItem_3:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,PlayPcmWinのWebページ(_W)

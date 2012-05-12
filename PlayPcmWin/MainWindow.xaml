@@ -4,6 +4,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="PlayPcmWin" HorizontalContentAlignment="Right" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="640" Width="1000" AllowDrop="True" DragEnter="MainWindowDragEnter" Drop="MainWindowDragDrop" Closed="Window_Closed" Icon="/PlayPcmWin;component/PlayPcmWin64.ico" AllowsTransparency="False" WindowStyle="ThreeDBorderWindow" ResizeMode="CanResizeWithGrip" MouseWheel="Window_MouseWheel" >
+    <Window.ContextMenu>
+        <ContextMenu x:Uid="ContextMenu_1">
+            <MenuItem x:Uid="cmenuPlayListClear" Name="cmenuPlayListClear" Header="_Clear the playlist" Click="MenuItemFileNew_Click" />
+            <Separator x:Uid="Separator_2" />
+            <MenuItem x:Uid="cmenuPlayListEditMode" Name="cmenuPlayListEditMode" Header="PlayList item edit mode(_E)" IsCheckable="True" IsChecked="False" Click="buttonPlayListItemEditMode_Click" />
+        </ContextMenu>
+    </Window.ContextMenu>
     <Grid x:Uid="Grid_1" RenderTransformOrigin="0.0,0.0" Opacity="1" Background="{x:Null}">
         <Grid.LayoutTransform>
             <TransformGroup x:Uid="TransformGroup_1">
@@ -18,7 +25,7 @@
         </Grid.ColumnDefinitions>
         <Menu x:Uid="menu1" Height="23" Name="menu1" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem x:Uid="menuFile" Name="menuFile" Header="_File">
-                <MenuItem x:Uid="menuItemFileNew" Header="Clear the playlist(_N)..." Click="MenuItemFileNew_Click" Name="menuItemFileNew" />
+                <MenuItem x:Uid="menuItemFileNew" Header="Clear the playlist(_N)" Click="MenuItemFileNew_Click" Name="menuItemFileNew" />
                 <MenuItem x:Uid="menuItemFileOpen" Header="_Open..." Click="MenuItemFileOpen_Click" Name="menuItemFileOpen" />
                 <MenuItem x:Uid="menuItemFileSaveCueAs" Header="Save the playlist as a _CUE sheet..." Click="MenuItemFileSaveCueAs_Click" Name="menuItemFileSaveCueAs" />
                 <MenuItem x:Uid="menuItemFileSaveAs" Header="Save _As..." Click="MenuItemFileSaveAs_Click" Name="menuItemFileSaveAs" />
@@ -27,6 +34,11 @@
             </MenuItem>
             <MenuItem x:Uid="menuTool" Name="menuTool" Header="_Tools">
                 <MenuItem x:Uid="menuToolSettings" Name="menuToolSettings" Header="_Settings" Click="buttonSettings_Click" />
+            </MenuItem>
+            <MenuItem x:Uid="menuPlayList" Name="menuPlayList" Header="P_laylist">
+                <MenuItem x:Uid="menuItemPlayListClear" Name="menuItemPlayListClear" Header="_Clear the playlist" Click="MenuItemFileNew_Click" />
+                <Separator x:Uid="Separator_3" />
+                <MenuItem x:Uid="menuItemPlayListItemEditMode" Name="menuItemPlayListItemEditMode" Header="Playlist item edit mode(_E)" Click="buttonPlayListItemEditMode_Click" IsCheckable="True" />
             </MenuItem>
             <MenuItem x:Uid="menuHelp" Name="menuHelp" Header="_Help">
                 <MenuItem x:Uid="MenuItem_2" Header="About(_V)" Click="MenuItemHelpAbout_Click" />
@@ -56,8 +68,7 @@
                     DragLeave="dataGridPlayList_CheckDropTarget"
                     DragOver="dataGridPlayList_CheckDropTarget"
                     Drop="dataGridPlayList_Drop"
-                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged"
-                    >
+                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow">
                     
                     <DataGrid.RowHeaderStyle>
                         <Style x:Uid="Style_1" TargetType="{x:Type DataGridRowHeader}">

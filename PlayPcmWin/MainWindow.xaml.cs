@@ -864,6 +864,116 @@ namespace PlayPcmWin
             }
         }
 
+        // 初期状態。再生リストなし。
+        private void UpdateUIToInitialState() {
+            cmenuPlayListClear.IsEnabled     = false;
+            cmenuPlayListEditMode.IsEnabled  = true;
+            menuItemFileNew.IsEnabled        = false;
+            menuItemFileOpen.IsEnabled       = true;
+            menuItemFileSaveAs.IsEnabled     = false;
+            menuItemFileSaveCueAs.IsEnabled  = false;
+            menuItemPlayListClear.IsEnabled = false;
+            menuItemPlayListItemEditMode.IsEnabled = true;
+            
+            buttonPlay.IsEnabled             = false;
+            buttonStop.IsEnabled             = false;
+            buttonPause.IsEnabled            = false;
+            comboBoxPlayMode.IsEnabled       = true;
+
+            buttonNext.IsEnabled             = false;
+            buttonPrev.IsEnabled             = false;
+            groupBoxWasapiSettings.IsEnabled = true;
+
+            buttonClearPlayList.IsEnabled    = false;
+            buttonRemovePlayList.IsEnabled = false;
+            buttonInspectDevice.IsEnabled    = true;
+
+            buttonSettings.IsEnabled = true;
+            menuToolSettings.IsEnabled = true;
+        }
+
+        // 再生リストあり。再生していない状態。
+        private void UpdateUIToEditableState() {
+            cmenuPlayListClear.IsEnabled = true;
+            cmenuPlayListEditMode.IsEnabled = true;
+            menuItemFileNew.IsEnabled = true;
+            menuItemFileOpen.IsEnabled = true;
+            menuItemFileSaveAs.IsEnabled = true;
+            menuItemFileSaveCueAs.IsEnabled = true;
+            menuItemPlayListClear.IsEnabled = true;
+            menuItemPlayListItemEditMode.IsEnabled = true;
+            buttonPlay.IsEnabled = true;
+            buttonStop.IsEnabled = false;
+            buttonPause.IsEnabled = false;
+            comboBoxPlayMode.IsEnabled = true;
+
+            buttonNext.IsEnabled = false;
+            buttonPrev.IsEnabled = false;
+            groupBoxWasapiSettings.IsEnabled = true;
+
+            buttonClearPlayList.IsEnabled = true;
+            buttonRemovePlayList.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
+            buttonInspectDevice.IsEnabled = false;
+
+            buttonSettings.IsEnabled = true;
+            menuToolSettings.IsEnabled = true;
+        }
+
+        // 再生リストあり。再生開始処理中。
+        private void UpdateUIToNonEditableState() {
+            cmenuPlayListClear.IsEnabled = false;
+            cmenuPlayListEditMode.IsEnabled = false;
+            menuItemFileNew.IsEnabled = false;
+            menuItemFileOpen.IsEnabled = false;
+            menuItemFileSaveAs.IsEnabled = false;
+            menuItemFileSaveCueAs.IsEnabled = false;
+            menuItemPlayListClear.IsEnabled = false;
+            menuItemPlayListItemEditMode.IsEnabled = false;
+            buttonPlay.IsEnabled = false;
+            buttonStop.IsEnabled = false;
+            buttonPause.IsEnabled = false;
+            comboBoxPlayMode.IsEnabled = false;
+
+            buttonNext.IsEnabled = false;
+            buttonPrev.IsEnabled = false;
+            groupBoxWasapiSettings.IsEnabled = false;
+
+            buttonClearPlayList.IsEnabled = false;
+            buttonRemovePlayList.IsEnabled = false;
+            buttonInspectDevice.IsEnabled = false;
+
+            buttonSettings.IsEnabled = false;
+            menuToolSettings.IsEnabled = false;
+        }
+
+        // 再生中。
+        private void UpdateUIToPlayingState() {
+            cmenuPlayListClear.IsEnabled = false;
+            cmenuPlayListEditMode.IsEnabled = false;
+            menuItemFileNew.IsEnabled = false;
+            menuItemFileOpen.IsEnabled = false;
+            menuItemFileSaveAs.IsEnabled = false;
+            menuItemFileSaveCueAs.IsEnabled = false;
+            menuItemPlayListClear.IsEnabled = false;
+            menuItemPlayListItemEditMode.IsEnabled = false;
+            buttonPlay.IsEnabled = false;
+            buttonStop.IsEnabled = true;
+            buttonPause.IsEnabled = true;
+            buttonPause.Content = Properties.Resources.Pause;
+            comboBoxPlayMode.IsEnabled = false;
+
+            buttonNext.IsEnabled = true;
+            buttonPrev.IsEnabled = true;
+            groupBoxWasapiSettings.IsEnabled = false;
+
+            buttonClearPlayList.IsEnabled = false;
+            buttonRemovePlayList.IsEnabled = false;
+            buttonInspectDevice.IsEnabled = false;
+
+            buttonSettings.IsEnabled = false;
+            menuToolSettings.IsEnabled = false;
+        }
+
         private void UpdateUIStatus() {
             dataGridPlayList.UpdateLayout();
             UpdateCoverart();
@@ -879,25 +989,7 @@ namespace PlayPcmWin
 
             switch (m_state) {
             case State.初期化完了:
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = true;
-                menuItemFileSaveAs.IsEnabled     = false;
-                menuItemFileSaveCueAs.IsEnabled  = false;
-                buttonPlay.IsEnabled             = false;
-                buttonStop.IsEnabled             = false;
-                buttonPause.IsEnabled            = false;
-                comboBoxPlayMode.IsEnabled       = true;
-
-                buttonNext.IsEnabled             = false;
-                buttonPrev.IsEnabled             = false;
-                groupBoxWasapiSettings.IsEnabled = true;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled    = true;
-
-                buttonSettings.IsEnabled = true;
-                menuToolSettings.IsEnabled = true;
+                UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.PleaseCreatePlaylist;
                 break;
             case State.プレイリストあり:
@@ -907,70 +999,16 @@ namespace PlayPcmWin
                     dataGridPlayList.SelectedIndex = 0;
                 }
 
-                menuItemFileNew.IsEnabled        = true;
-                menuItemFileOpen.IsEnabled       = true;
-                menuItemFileSaveAs.IsEnabled     = true;
-                menuItemFileSaveCueAs.IsEnabled  = true;
-                buttonPlay.IsEnabled             = true;
-                buttonStop.IsEnabled             = false;
-                buttonPause.IsEnabled            = false;
-                comboBoxPlayMode.IsEnabled       = true;
-
-                buttonNext.IsEnabled             = false;
-                buttonPrev.IsEnabled             = false;
-                groupBoxWasapiSettings.IsEnabled = true;
-
-                buttonClearPlayList.IsEnabled = true;
-                buttonRemovePlayList.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
-                buttonInspectDevice.IsEnabled    = false;
-
-                buttonSettings.IsEnabled = true;
-                menuToolSettings.IsEnabled = true;
+                UpdateUIToEditableState();
                 statusBarText.Content = Properties.Resources.PressPlayButton;
                 break;
             case State.デバイスSetup完了:
                 // 一覧のクリアーとデバイスの選択、再生リストの作成関連を押せなくする。
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = false;
-                menuItemFileSaveAs.IsEnabled     = true;
-                menuItemFileSaveCueAs.IsEnabled  = true;
-                buttonPlay.IsEnabled             = false;
-                buttonStop.IsEnabled             = false;
-                buttonPause.IsEnabled            = false;
-                comboBoxPlayMode.IsEnabled       = false;
-
-                buttonNext.IsEnabled             = false;
-                buttonPrev.IsEnabled             = false;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled = false;
-                menuToolSettings.IsEnabled = false;
+                UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.ReadingFiles;
                 break;
             case State.ファイル読み込み完了:
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = false;
-                menuItemFileSaveAs.IsEnabled     = true;
-                menuItemFileSaveCueAs.IsEnabled  = true;
-                buttonPlay.IsEnabled             = true;
-                buttonStop.IsEnabled             = false;
-                buttonPause.IsEnabled            = false;
-                comboBoxPlayMode.IsEnabled       = false;
-
-                buttonNext.IsEnabled             = false;
-                buttonPrev.IsEnabled             = false;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled = false;
-                menuToolSettings.IsEnabled = false;
+                UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.ReadCompleted;
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -978,26 +1016,7 @@ namespace PlayPcmWin
                 labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
                 break;
             case State.再生中:
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = false;
-                menuItemFileSaveAs.IsEnabled     = false;
-                menuItemFileSaveCueAs.IsEnabled  = false;
-                buttonPlay.IsEnabled             = false;
-                buttonStop.IsEnabled             = true;
-                buttonPause.IsEnabled            = true;
-                buttonPause.Content = Properties.Resources.Pause;
-                comboBoxPlayMode.IsEnabled       = false;
-
-                buttonNext.IsEnabled             = true;
-                buttonPrev.IsEnabled             = true;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled = false;
-                menuToolSettings.IsEnabled = false;
+                UpdateUIToPlayingState();
                 statusBarText.Content =
                     string.Format("{0} WASAPI{1} {2}kHz {3} {4}ch",
                         Properties.Resources.Playing,
@@ -1010,77 +1029,36 @@ namespace PlayPcmWin
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 break;
             case State.再生一時停止中:
-                menuItemFileNew.IsEnabled    = false;
-                menuItemFileOpen.IsEnabled   = false;
-                menuItemFileSaveAs.IsEnabled = false;
-                menuItemFileSaveCueAs.IsEnabled  = false;
-                buttonPlay.IsEnabled         = false;
-                buttonStop.IsEnabled         = true;
-                buttonPause.IsEnabled        = true;
+                UpdateUIToPlayingState();
                 buttonPause.Content = Properties.Resources.Resume;
-                comboBoxPlayMode.IsEnabled   = false;
-
                 buttonNext.IsEnabled             = false;
                 buttonPrev.IsEnabled             = false;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled   = false;
-                menuToolSettings.IsEnabled = false;
                 statusBarText.Content = Properties.Resources.Paused;
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 break;
             case State.再生停止開始:
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = false;
-                menuItemFileSaveAs.IsEnabled     = false;
-                menuItemFileSaveCueAs.IsEnabled  = false;
-                buttonPlay.IsEnabled = false;
-                buttonStop.IsEnabled = false;
-                buttonPause.IsEnabled = false;
-                comboBoxPlayMode.IsEnabled = false;
-
-                buttonNext.IsEnabled = false;
-                buttonPrev.IsEnabled = false;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled = false;
-                menuToolSettings.IsEnabled = false;
+                UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.Stopping;
                 break;
             case State.再生グループ切り替え中:
-                menuItemFileNew.IsEnabled        = false;
-                menuItemFileOpen.IsEnabled       = false;
-                menuItemFileSaveAs.IsEnabled     = false;
-                menuItemFileSaveCueAs.IsEnabled  = false;
-                buttonPlay.IsEnabled = false;
-                buttonStop.IsEnabled = false;
-                buttonPause.IsEnabled = false;
-                comboBoxPlayMode.IsEnabled = false;
-
-                buttonNext.IsEnabled = false;
-                buttonPrev.IsEnabled = false;
-                groupBoxWasapiSettings.IsEnabled = false;
-
-                buttonClearPlayList.IsEnabled    = false;
-                buttonRemovePlayList.IsEnabled = false;
-                buttonInspectDevice.IsEnabled = false;
-
-                buttonSettings.IsEnabled = false;
-                menuToolSettings.IsEnabled = false;
+                UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.ChangingPlayGroup;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
+            }
+
+            // 再生リストモード更新
+            if (dataGridPlayList.IsReadOnly) {
+                // 再生モード
+                menuItemPlayListItemEditMode.IsChecked = false;
+                cmenuPlayListEditMode.IsChecked = false;
+            } else {
+                // 編集モード
+                menuItemPlayListItemEditMode.IsChecked = true;
+                cmenuPlayListEditMode.IsChecked = true;
             }
         }
 
@@ -3431,6 +3409,17 @@ namespace PlayPcmWin
             }
         }
 
+        private void dataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
+            e.Row.MouseDoubleClick += new MouseButtonEventHandler(dataGridPlayList_RowMouseDoubleClick);
+        }
+
+        private void dataGridPlayList_RowMouseDoubleClick(object sender, MouseButtonEventArgs e) {
+            if (m_state == State.プレイリストあり && e.ChangedButton == MouseButton.Left && dataGridPlayList.IsReadOnly) {
+                // 再生されていない状態で、再生リスト再生モードで項目左ボタンダブルクリックされたら再生開始する
+                buttonPlay_Click(sender, e);
+            }
+        }
+
         private void dataGridPlayList_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
             m_playListMouseDown = true;
 
@@ -3749,6 +3738,13 @@ namespace PlayPcmWin
 
         private void buttonClearPlayList_Click(object sender, RoutedEventArgs e) {
             ClearPlayList(PlayListClearMode.ClearWithUpdateUI);
+        }
+
+        private void buttonPlayListItemEditMode_Click(object sender, RoutedEventArgs e) {
+            dataGridPlayList.IsReadOnly = !dataGridPlayList.IsReadOnly;
+
+            // dataGridPlayList.IsReadOnlyを見て、他の関連メニュー項目状態が更新される
+            UpdateUIStatus();
         }
     }
 }
