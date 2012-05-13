@@ -262,16 +262,12 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Window.Icon
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Window.AllowsTransparency,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Window.WindowStyle,None,True,False,,ThreeDBorderWindow
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Window.ResizeMode,None,False,True,,CanResizeWithGrip
-PlayPcmWin.g.en-US.resources:mainwindow.baml,ContextMenu_1:System.Windows.Controls.ContextMenu.$Content,Menu,True,True,,#cmenuPlayListClear;#Separator_2;#cmenuPlayListPlayMode;#cmenuPlayListEditMode;
+PlayPcmWin.g.en-US.resources:mainwindow.baml,ContextMenu_1:System.Windows.Controls.ContextMenu.$Content,Menu,True,True,,#cmenuPlayListClear;#Separator_2;#cmenuPlayListEditMode;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListClear:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Clear the playlist
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Separator_2:System.Windows.Controls.Separator.$Content,None,False,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListPlayMode:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListPlayMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,PlayList = Play mode(_P)
-PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListPlayMode:System.Windows.Controls.MenuItem.IsCheckable,None,False,True,,True
-PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListPlayMode:System.Windows.Controls.MenuItem.IsChecked,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,PlayList = Edit mode(_E)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,PlayList item edit mode(_E)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.MenuItem.IsCheckable,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.MenuItem.IsChecked,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Grid_1:System.Windows.UIElement.Opacity,None,False,True,,1
@@ -298,18 +294,14 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,menuTool:System.Windows.Controls.Me
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuTool:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Tools
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuToolSettings:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuToolSettings:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Settings
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayList:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,#menuPlayListClear;#Separator_3;#menuPlayListPlayMode;#menuPlayListEditMode;
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayList:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,#menuItemPlayListClear;#Separator_3;#menuItemPlayListItemEditMode;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayList:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,P_laylist
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListClear:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Clear the playlist
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListClear:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Clear the playlist
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Separator_3:System.Windows.Controls.Separator.$Content,None,False,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListPlayMode:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListPlayMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Play mode
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListPlayMode:System.Windows.Controls.MenuItem.IsCheckable,None,False,True,,True
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListPlayMode:System.Windows.Controls.MenuItem.IsChecked,None,False,True,,True
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListEditMode:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Edit mode
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuPlayListEditMode:System.Windows.Controls.MenuItem.IsCheckable,None,False,True,,True
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListItemEditMode:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListItemEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,Playlist item edit mode(_E)
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemPlayListItemEditMode:System.Windows.Controls.MenuItem.IsCheckable,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuHelp:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,#MenuItem_2;#MenuItem_3;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuHelp:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Help
 PlayPcmWin.g.en-US.resources:mainwindow.baml,MenuItem_2:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
