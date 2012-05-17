@@ -1505,15 +1505,15 @@ namespace PlayPcmWin
                 progressBar1.Value = 0;
                 UpdateUIStatus();
 
-                /*
                 // 再生リスト列幅を初期値にリセットする。
-                // だが、なぜか効かない。要調査だな。
-                int i=0;
-                foreach (var item in dataGridPlayList.Columns) {
-                    item.Width = m_playlistColumnDefaults[i].Width;
-                    ++i;
+                {
+                    int i=0;
+                    foreach (var item in dataGridPlayList.Columns) {
+                        item.Width = DataGridLength.SizeToCells;
+                        item.Width = m_playlistColumnDefaults[i].Width;
+                        ++i;
+                    }
                 }
-                */
             }
         }
 
