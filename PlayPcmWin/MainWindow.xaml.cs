@@ -48,6 +48,31 @@ namespace PlayPcmWin
 
         private Preference m_preference = new Preference();
 
+        class PlayListColumnInfo {
+            public string Name { get; set; }
+            public DataGridLength Width { get; set; }
+            public PlayListColumnInfo(string name, DataGridLength width) {
+                Name = name;
+                Width = width;
+            }
+        };
+        private PlayListColumnInfo[] m_playlistColumnDefaults =
+        {
+            new PlayListColumnInfo("Title", DataGridLength.Auto),
+            new PlayListColumnInfo("Duration", DataGridLength.Auto),
+            new PlayListColumnInfo("Artist", DataGridLength.Auto),
+            new PlayListColumnInfo("AlbumTitle", DataGridLength.Auto),
+            new PlayListColumnInfo("SampleRate", DataGridLength.Auto),
+
+            new PlayListColumnInfo("QuantizationBitRate", DataGridLength.Auto),
+            new PlayListColumnInfo("NumChannels", DataGridLength.SizeToCells),
+            new PlayListColumnInfo("BitRate", DataGridLength.Auto),
+            new PlayListColumnInfo("IndexNr", DataGridLength.SizeToCells),
+            new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
+        };
+
+
+
         class DeviceInfo
         {
             public int Idx { get; set; }
@@ -614,6 +639,8 @@ namespace PlayPcmWin
                 m_loadErrorMessages = null;
             }
 
+            RestorePlaylistColumnOrderFromPreference();
+
             AddLogText(string.Format("PlayPcmWin {0} {1}\r\n",
                     AssemblyVersion,
                     IntPtr.Size == 8 ? "64bit" : "32bit"));
@@ -766,6 +793,56 @@ namespace PlayPcmWin
             m_preference.PlayAllTracks = IsPlayModeAllTracks();
             m_preference.PlayRepeat    = IsPlayModeRepeat();
             m_preference.Shuffle       = IsPlayModeShuffle();
+        }
+
+        // 再生リストの列の順番設定の保存
+        private void SavePlaylistColumnOrderToPreference() {
+            var idxNameTable = new Dictionary<int, string>();
+            int i=0;
+            foreach (var item in dataGridPlayList.Columns) {
+                idxNameTable.Add(item.DisplayIndex, m_playlistColumnDefaults[i].Name);
+                ++i;
+            }
+
+            m_preference.PlayListColumnsOrder.Clear();
+            foreach (var item in idxNameTable.OrderBy(x => x.Key)) {
+                m_preference.PlayListColumnsOrder.Add(item.Value);
+            }
+        }
+
+        // 再生リストの列の順番を設定から読み出し適用する
+        private bool RestorePlaylistColumnOrderFromPreference() {
+            var nameIdxTable = new Dictionary<string, int>();
+            {
+                int i=0;
+                foreach (var item in m_preference.PlayListColumnsOrder) {
+                    nameIdxTable.Add(item, i);
+                    ++i;
+                }
+            }
+            var columnIdxList = new List<int>();
+            foreach (var item in m_playlistColumnDefaults) {
+                int idx;
+                if (!nameIdxTable.TryGetValue(item.Name, out idx)) {
+                    Console.WriteLine("E: unknown playlist column name {0}", item);
+                    return false;
+                }
+                columnIdxList.Add(idx);
+            }
+
+            if (columnIdxList.Count != dataGridPlayList.Columns.Count) {
+                Console.WriteLine("E: playlist column count mismatch {0}", columnIdxList.Count);
+                return false;
+            }
+
+            {
+                int i=0;
+                foreach (var item in dataGridPlayList.Columns) {
+                    item.DisplayIndex = columnIdxList[i];
+                    ++i;
+                }
+            }
+            return true;
         }
 
         private void SetupBackgroundWorkers() {
@@ -1202,6 +1279,9 @@ namespace PlayPcmWin
                 // 設定画面の表示状態を保存
                 m_preference.SettingsIsExpanded = expanderSettings.IsExpanded;
 
+                // 再生リストの列の並び順を覚える
+                SavePlaylistColumnOrderToPreference();
+
                 // 設定ファイルを書き出す。
                 PreferenceStore.Save(m_preference);
 
@@ -1421,8 +1501,19 @@ namespace PlayPcmWin
 
             if (mode == PlayListClearMode.ClearWithUpdateUI) {
                 //m_playListView.RefreshCollection();
+
                 progressBar1.Value = 0;
                 UpdateUIStatus();
+
+                /*
+                // 再生リスト列幅を初期値にリセットする。
+                // だが、なぜか効かない。要調査だな。
+                int i=0;
+                foreach (var item in dataGridPlayList.Columns) {
+                    item.Width = m_playlistColumnDefaults[i].Width;
+                    ++i;
+                }
+                */
             }
         }
 

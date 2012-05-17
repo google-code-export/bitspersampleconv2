@@ -1,4 +1,5 @@
 ﻿using WasapiPcmUtil;
+using System.Collections.Generic;
 
 namespace PlayPcmWin {
     public class Preference : WWXmlRW.SaveLoadContents {
@@ -42,6 +43,7 @@ namespace PlayPcmWin {
         public bool Shuffle { get; set; }
         public int ZeroFlushMillisec { get; set; }
         public int TimePeriodMillisec { get; set; }
+        public List<string> PlayListColumnsOrder = new List<string>();
 
         public enum PlayListDispModeType {
             /// <summary>
@@ -91,6 +93,20 @@ namespace PlayPcmWin {
             MainWindowTop = -1;
             MainWindowWidth = 1000;
             MainWindowHeight = 640;
+
+            PlayListColumnsOrder.Clear();
+            PlayListColumnsOrder.Add("Title");
+            PlayListColumnsOrder.Add("Duration");
+            PlayListColumnsOrder.Add("Artist");
+            PlayListColumnsOrder.Add("AlbumTitle");
+            PlayListColumnsOrder.Add("SampleRate");
+
+            PlayListColumnsOrder.Add("QuantizationBitRate");
+            PlayListColumnsOrder.Add("NumChannels");
+            PlayListColumnsOrder.Add("BitRate");
+            PlayListColumnsOrder.Add("IndexNr");
+            PlayListColumnsOrder.Add("ReadSeparaterAfter");
+
         }
 
         /// <summary>
@@ -116,6 +132,17 @@ namespace PlayPcmWin {
             var xmlRW = new WWXmlRW.XmlRW<Preference>(m_fileName);
 
             Preference p = xmlRW.Load();
+
+            // postprocess playlist columns order info...
+            if (p.PlayListColumnsOrder.Count == 10) {
+                // OK: older format. no playlist column info.
+            } else if (p.PlayListColumnsOrder.Count == 20) {
+                // OK: load success. delete former 10 items inserted by Reset()
+                p.PlayListColumnsOrder.RemoveRange(0, 10);
+            } else {
+                System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
+                p.Reset();
+            }
 
             // (読み込んだ値が都合によりサポートされていない場合、このタイミングでロード後に強制的に上書き出来る)
 
