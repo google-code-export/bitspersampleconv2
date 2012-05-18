@@ -1137,6 +1137,14 @@ namespace PlayPcmWin
                 menuItemPlayListItemEditMode.IsChecked = true;
                 cmenuPlayListEditMode.IsChecked = true;
             }
+
+            if (m_preference.AlternatingRowBackground) {
+                dataGridPlayList.AlternatingRowBackground
+                    = new SolidColorBrush(Util.ColorFromArgb(
+                        m_preference.AlternatingRowBackgroundARGB));
+            } else {
+                dataGridPlayList.AlternatingRowBackground = null;
+            }
         }
 
         /// <summary>

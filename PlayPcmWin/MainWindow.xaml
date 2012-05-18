@@ -132,8 +132,8 @@
                     <Grid x:Uid="Grid_5">
                         <GroupBox x:Uid="groupBox5" Header="Operation mode" Height="79" HorizontalAlignment="Left" Name="groupBox5" VerticalAlignment="Top" Width="127" Margin="6,6,0,0">
                             <Grid x:Uid="Grid_6">
-                                <RadioButton x:Uid="radioButtonExclusive" Content="Exclusive" Height="16" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButtonExclusive" VerticalAlignment="Top" IsChecked="True" Checked="radioButtonExclusive_Checked" />
-                                <RadioButton x:Uid="radioButtonShared" Content="Shared" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonShared" VerticalAlignment="Top" Checked="radioButtonShared_Checked" />
+                                <RadioButton x:Uid="radioButtonExclusive" Content="Exclusive" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButtonExclusive" VerticalAlignment="Top" IsChecked="True" Checked="radioButtonExclusive_Checked" />
+                                <RadioButton x:Uid="radioButtonShared" Content="Shared" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonShared" VerticalAlignment="Top" Checked="radioButtonShared_Checked" />
                             </Grid>
                         </GroupBox>
                         <GroupBox x:Uid="groupBox3" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="138,135,0,0" Name="groupBox3" VerticalAlignment="Top" Width="164">
@@ -144,16 +144,16 @@
                         </GroupBox>
                         <GroupBox x:Uid="groupBox4" Header="Render thread task type" Height="123" HorizontalAlignment="Left" Margin="138,6,0,0" Name="groupBox4" VerticalAlignment="Top" Width="163">
                             <Grid x:Uid="Grid_8">
-                                <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" Height="16" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,0,0" Name="radioButtonTaskAudio" VerticalAlignment="Top" Checked="radioButtonTaskAudio_Checked" />
-                                <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTaskProAudio" VerticalAlignment="Top" Checked="radioButtonTaskProAudio_Checked" IsChecked="True" />
-                                <RadioButton x:Uid="radioButtonTaskNone" Content="Playback" Height="16" HorizontalAlignment="Left" IsChecked="False" Margin="6,50,0,0" Name="radioButtonTaskNone" VerticalAlignment="Top" Width="98" Checked="radioButtonTaskPlayback_Checked" />
-                                <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" Height="16" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" Checked="radioButtonTaskNone_Checked" />
+                                <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,0,0" Name="radioButtonTaskAudio" VerticalAlignment="Top" Checked="radioButtonTaskAudio_Checked" />
+                                <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTaskProAudio" VerticalAlignment="Top" Checked="radioButtonTaskProAudio_Checked" IsChecked="True" />
+                                <RadioButton x:Uid="radioButtonTaskNone" Content="Playback" HorizontalAlignment="Left" IsChecked="False" Margin="6,50,0,0" Name="radioButtonTaskNone" VerticalAlignment="Top" Width="98" Checked="radioButtonTaskPlayback_Checked" />
+                                <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" Checked="radioButtonTaskNone_Checked" />
                             </Grid>
                         </GroupBox>
                         <GroupBox x:Uid="groupBox6" Header="Data feed mode" Height="78" HorizontalAlignment="Left" Margin="6,85,0,0" Name="groupBox6" VerticalAlignment="Top" Width="127">
                             <Grid x:Uid="Grid_9">
-                                <RadioButton x:Uid="radioButtonEventDriven" Content="Event driven" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,6,0,0" Name="radioButtonEventDriven" VerticalAlignment="Top" Checked="radioButtonEventDriven_Checked" />
-                                <RadioButton x:Uid="radioButtonTimerDriven" Content="Timer driven" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Top"  Checked="radioButtonTimerDriven_Checked" />
+                                <RadioButton x:Uid="radioButtonEventDriven" Content="Event driven" HorizontalAlignment="Left" IsChecked="True" Margin="6,6,0,0" Name="radioButtonEventDriven" VerticalAlignment="Top" Checked="radioButtonEventDriven_Checked" />
+                                <RadioButton x:Uid="radioButtonTimerDriven" Content="Timer driven" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Top"  Checked="radioButtonTimerDriven_Checked" />
                             </Grid>
                         </GroupBox>
                     </Grid>

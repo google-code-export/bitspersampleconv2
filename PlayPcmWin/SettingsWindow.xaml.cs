@@ -26,6 +26,8 @@ namespace PlayPcmWin {
             m_preference = preference;
         }
 
+        private uint mPlaylistAlternateBackgroundArgb;
+
         private void UpdateUIFromPreference(Preference preference) {
             switch (preference.bitsPerSampleFixType) {
             case BitsPerSampleFixType.Variable:
@@ -110,6 +112,21 @@ namespace PlayPcmWin {
                     comboBoxPlayingTimeFontNames.SelectedItem = item;
                 }
             }
+
+            {
+                mPlaylistAlternateBackgroundArgb = preference.AlternatingRowBackgroundARGB;
+                rectangleColor.Fill = new SolidColorBrush(Util.ColorFromArgb(
+                        preference.AlternatingRowBackgroundARGB));
+                checkBoxAlternateBackground.IsChecked =
+                        preference.AlternatingRowBackground;
+                if (preference.AlternatingRowBackground) {
+                    rectangleColor.IsEnabled = true;
+                    buttonChangeColor.IsEnabled = true;
+                } else {
+                    rectangleColor.IsEnabled = false;
+                    buttonChangeColor.IsEnabled = false;
+                }
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -118,42 +135,32 @@ namespace PlayPcmWin {
             UpdateUIFromPreference(m_preference);
         }
 
-        private void buttonOK_Click(object sender, RoutedEventArgs e)
-        {
-            if (true == radioButtonBpsVariable.IsChecked)
-            {
+        private void buttonOK_Click(object sender, RoutedEventArgs e) {
+            if (true == radioButtonBpsVariable.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Variable;
             }
-            if (true == radioButtonBpsVariableSint16Sint24.IsChecked)
-            {
+            if (true == radioButtonBpsVariableSint16Sint24.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
             }
-            if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked)
-            {
+            if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
             }
-            if (true == radioButtonBpsSint16.IsChecked)
-            {
+            if (true == radioButtonBpsSint16.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint16;
             }
-            if (true == radioButtonBpsSint24.IsChecked)
-            {
+            if (true == radioButtonBpsSint24.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint24;
             }
-            if (true == radioButtonBpsSint32.IsChecked)
-            {
+            if (true == radioButtonBpsSint32.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32;
             }
-            if (true == radioButtonBpsSfloat32.IsChecked)
-            {
+            if (true == radioButtonBpsSfloat32.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
             }
-            if (true == radioButtonSint32V24.IsChecked)
-            {
+            if (true == radioButtonSint32V24.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
             }
-            if (true == radioButtonBpsAutoSelect.IsChecked)
-            {
+            if (true == radioButtonBpsAutoSelect.IsChecked) {
                 m_preference.bitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             }
 
@@ -207,11 +214,16 @@ namespace PlayPcmWin {
 
             m_preference.PlayingTimeFontBold = (checkBoxPlayingTimeBold.IsChecked == true);
 
-            if (null != comboBoxPlayingTimeFontNames.SelectedItem)
-            {
+            if (null != comboBoxPlayingTimeFontNames.SelectedItem) {
                 ComboBoxItem item = (ComboBoxItem)comboBoxPlayingTimeFontNames.SelectedItem;
                 FontFamily ff = (FontFamily)item.Content;
                 m_preference.PlayingTimeFontName = ff.ToString();
+            }
+            {
+                m_preference.AlternatingRowBackground
+                    = checkBoxAlternateBackground.IsChecked == true;
+                m_preference.AlternatingRowBackgroundARGB
+                    = mPlaylistAlternateBackgroundArgb;
             }
 
             Close();
@@ -293,6 +305,36 @@ namespace PlayPcmWin {
         private void buttonReset_Click(object sender, RoutedEventArgs e) {
             var preference = new Preference();
             UpdateUIFromPreference(preference);
+        }
+
+        private void buttonChangeColor_Click(object sender, RoutedEventArgs e) {
+            System.Windows.Forms.ColorDialog d = new System.Windows.Forms.ColorDialog();
+            d.Color = System.Drawing.Color.FromArgb((int)mPlaylistAlternateBackgroundArgb);
+            System.Windows.Forms.DialogResult result = d.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK) {
+                return;
+            }
+            mPlaylistAlternateBackgroundArgb =
+                ((uint)d.Color.A << 24) +
+                ((uint)d.Color.R << 16) +
+                ((uint)d.Color.G << 8) +
+                ((uint)d.Color.B << 0);
+            rectangleColor.Fill = new SolidColorBrush(
+                Util.ColorFromArgb(mPlaylistAlternateBackgroundArgb));
+        }
+
+        private void checkBoxAlternateBackground_Checked(object sender, RoutedEventArgs e) {
+            rectangleColor.IsEnabled = true;
+            buttonChangeColor.IsEnabled = true;
+        }
+
+        private void checkBoxAlternateBackground_Unchecked(object sender, RoutedEventArgs e) {
+            rectangleColor.IsEnabled = false;
+            buttonChangeColor.IsEnabled = false;
+        }
+
+        private void rectangleColor_MouseUp(object sender, MouseButtonEventArgs e) {
+            buttonChangeColor_Click(sender, e);
         }
     }
 }

@@ -44,6 +44,8 @@ namespace PlayPcmWin {
         public int ZeroFlushMillisec { get; set; }
         public int TimePeriodMillisec { get; set; }
         public List<string> PlayListColumnsOrder = new List<string>();
+        public bool AlternatingRowBackground { get; set; }
+        public uint AlternatingRowBackgroundARGB { get; set; }
 
         public enum PlayListDispModeType {
             /// <summary>
@@ -107,6 +109,8 @@ namespace PlayPcmWin {
             PlayListColumnsOrder.Add("IndexNr");
             PlayListColumnsOrder.Add("ReadSeparaterAfter");
 
+            AlternatingRowBackground = true;
+            AlternatingRowBackgroundARGB = 0xfff8fcfcU;
         }
 
         /// <summary>
