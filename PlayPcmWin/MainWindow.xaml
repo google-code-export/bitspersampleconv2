@@ -23,7 +23,7 @@
             <ColumnDefinition x:Uid="ColumnDefinition_1" Width="*" />
             <ColumnDefinition x:Uid="ColumnDefinition_2" Width="Auto" />
         </Grid.ColumnDefinitions>
-        <Menu x:Uid="menu1" Height="23" Name="menu1" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <Menu x:Uid="menu1" Name="menu1" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem x:Uid="menuFile" Name="menuFile" Header="_File">
                 <MenuItem x:Uid="menuItemFileNew" Header="Clear the playlist(_N)" Click="MenuItemFileNew_Click" Name="menuItemFileNew" />
                 <MenuItem x:Uid="menuItemFileOpen" Header="_Open..." Click="MenuItemFileOpen_Click" Name="menuItemFileOpen" />
@@ -47,8 +47,8 @@
         </Menu>
         <GroupBox x:Uid="groupBox2" Header="Playlist(Drop audio files from Explorer to add files)" Margin="6,26,6,136" Name="groupBox2">
             <Grid x:Uid="Grid_2">
-                <Button x:Uid="buttonClearPlayList" Content="_Clear the playlist" HorizontalAlignment="Left" Margin="6,0,0,8" Name="buttonClearPlayList" Width="156" Height="23" VerticalAlignment="Bottom" Click="buttonClearPlayList_Click" />
-                <Button x:Uid="buttonRemovePlayList" Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="buttonRemovePlayList" Width="179" Height="23" VerticalAlignment="Bottom" Click="buttonRemovePlayList_Click" />
+                <Button x:Uid="buttonClearPlayList" Content="_Clear the playlist" HorizontalAlignment="Left" Margin="6,0,0,8" Name="buttonClearPlayList" Width="156" VerticalAlignment="Bottom" Click="buttonClearPlayList_Click" />
+                <Button x:Uid="buttonRemovePlayList" Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="buttonRemovePlayList" Width="179" VerticalAlignment="Bottom" Click="buttonRemovePlayList_Click" />
                 <DataGrid
                     x:Uid="dataGridPlayList" Name="dataGridPlayList"
                     Margin="6,6,6,37"
@@ -109,11 +109,11 @@
                 <Image x:Uid="imageCoverArt" RenderOptions.BitmapScalingMode="Fant" HorizontalAlignment="Right" Name="imageCoverArt" Stretch="Uniform" Height="109" Width="109" />
                 <GroupBox x:Uid="groupBox7" Header="Playback control" Margin="6,0,6,0" Name="groupBox7" Height="109" Width="Auto" >
                     <Grid x:Uid="Grid_3" Width="380">
-                        <Button x:Uid="buttonPlay" Content="_Play" Height="23" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
-                        <Button x:Uid="buttonStop" Content="_Stop" Height="23" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
-                        <Button x:Uid="buttonPause" Content="Pa_use" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="buttonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
-                        <Button x:Uid="buttonPrev" Content="Prev" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
-                        <Button x:Uid="buttonNext" Content="Next" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
+                        <Button x:Uid="buttonPlay" Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
+                        <Button x:Uid="buttonStop" Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
+                        <Button x:Uid="buttonPause" Content="Pa_use" HorizontalAlignment="Left" IsEnabled="False" Margin="149,6,0,0" Name="buttonPause" VerticalAlignment="Top" Width="89" Click="buttonPause_Click" />
+                        <Button x:Uid="buttonPrev" Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
+                        <Button x:Uid="buttonNext" Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
                         <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
                         <Slider x:Uid="slider1" Margin="6,0,7,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
                         <ComboBox x:Uid="comboBoxPlayMode" HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
@@ -138,8 +138,8 @@
                         </GroupBox>
                         <GroupBox x:Uid="groupBox3" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="138,135,0,0" Name="groupBox3" VerticalAlignment="Top" Width="164">
                             <Grid x:Uid="Grid_7">
-                                <TextBox x:Uid="textBoxLatency" Height="24" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxLatency" VerticalAlignment="Center" Width="69" Text="latency" HorizontalContentAlignment="Right" />
-                                <Label x:Uid="label2" Content="ms" Height="24" HorizontalAlignment="Left" Margin="81,6,0,0" Name="label2" VerticalAlignment="Top" Width="55" VerticalContentAlignment="Center" />
+                                <TextBox x:Uid="textBoxLatency" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxLatency" VerticalAlignment="Center" Width="69" Text="latency" HorizontalContentAlignment="Right" />
+                                <Label x:Uid="label2" Content="ms" HorizontalAlignment="Left" Margin="81,6,0,0" Name="label2" VerticalAlignment="Top" Width="55" VerticalContentAlignment="Center" />
                             </Grid>
                         </GroupBox>
                         <GroupBox x:Uid="groupBox4" Header="Render thread task type" Height="123" HorizontalAlignment="Left" Margin="138,6,0,0" Name="groupBox4" VerticalAlignment="Top" Width="163">
@@ -161,8 +161,8 @@
                 <GroupBox x:Uid="groupBox1" Header="Output device" Width="320" Margin="6,233,6,106" Name="groupBox1">
                     <Grid x:Uid="Grid_10">
                         <ListBox x:Uid="listBoxDevices" Margin="6,6,6,37" Name="listBoxDevices" />
-                        <Button x:Uid="buttonSettings" Content="_Detailed settings..." Height="23" HorizontalAlignment="Left" Margin="6,0,0,6" Name="buttonSettings" VerticalAlignment="Bottom" Width="134" Click="buttonSettings_Click" />
-                        <Button x:Uid="buttonInspectDevice" Content="L_ist suppoted format" Height="23" HorizontalAlignment="Left" Margin="147,0,0,6" Name="buttonInspectDevice" VerticalAlignment="Bottom" Width="154" Click="buttonInspectDevice_Click" />
+                        <Button x:Uid="buttonSettings" Content="_Detailed settings..." HorizontalAlignment="Left" Margin="6,0,0,6" Name="buttonSettings" VerticalAlignment="Bottom" Width="134" Click="buttonSettings_Click" />
+                        <Button x:Uid="buttonInspectDevice" Content="L_ist suppoted format" HorizontalAlignment="Left" Margin="147,0,0,6" Name="buttonInspectDevice" VerticalAlignment="Bottom" Width="154" Click="buttonInspectDevice_Click" />
                     </Grid>
                 </GroupBox>
                 <GroupBox x:Uid="groupBoxLog" Header="Log" Name="groupBoxLog" Width="320" Height="100" VerticalAlignment="Bottom" Margin="6,0,6,6">
@@ -172,10 +172,10 @@
                 </GroupBox>
             </Grid>
         </Expander>
-        <StatusBar x:Uid="statusBar1" Height="23" Name="statusBar1" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+        <StatusBar x:Uid="statusBar1" Name="statusBar1" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <StatusBarItem x:Uid="statusBarText" Content="abcde" Name="statusBarText" />
         </StatusBar>
-        <ProgressBar x:Uid="progressBar1" Height="23" Name="progressBar1" VerticalAlignment="Bottom" Margin="200,0,0,0" HorizontalAlignment="Left" Width="200" Visibility="Hidden" />
-        <Slider x:Uid="sliderWindowScaling" Height="23" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="1.25" Minimum="0.8" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
+        <ProgressBar x:Uid="progressBar1" Name="progressBar1" VerticalAlignment="Bottom" Margin="200,0,0,0" HorizontalAlignment="Left" Width="200" Visibility="Hidden" />
+        <Slider x:Uid="sliderWindowScaling" Margin="0,0,1,1" Name="sliderWindowScaling" VerticalAlignment="Bottom" Maximum="1.25" Minimum="0.8" Value="1" Visibility="Hidden" Grid.Column="1" HorizontalAlignment="Right" Width="52" SmallChange="0.0048828125" LargeChange="0.0625" />
     </Grid>
 </Window>

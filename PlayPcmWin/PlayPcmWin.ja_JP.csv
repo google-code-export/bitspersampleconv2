@@ -28,6 +28,9 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Cont
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,DACが安定するまで無音を送出する
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.ContentControl.Content,Label,True,True,,再生開始時無音送出秒数
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.Controls.ContentControl.Content,Label,True,True,,秒
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,リスト表示設定
+PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxAlternateBackground:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,リストの背景色を縞々にする
+PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonChangeColor:System.Windows.Controls.ContentControl.Content,Button,True,True,,色を変更...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_C)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リスト項目編集モード(_E)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ファイル(_F)

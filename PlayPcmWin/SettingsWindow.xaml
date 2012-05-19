@@ -39,16 +39,16 @@
                 </GroupBox>
                 <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_6">
-                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlush" VerticalAlignment="Center" Width="300" />
-                        <TextBox x:Uid="textBoxZeroFlushSeconds" Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
-                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" Height="28" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" />
+                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlush" VerticalAlignment="Center" Width="300" />
+                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
+                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="List display settings" Height="59" Margin="12,373,12,0" Name="groupBox4" VerticalAlignment="Top">
-                    <Grid>
-                        <CheckBox Content="Alternating row background" Margin="6,6,6,0" Name="checkBoxAlternateBackground" VerticalAlignment="Top" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" />
-                        <Button Content="Change color..." Height="23" HorizontalAlignment="Left" Margin="369,5,0,0" Name="buttonChangeColor" VerticalAlignment="Top" Width="145" Click="buttonChangeColor_Click" />
-                        <Rectangle Height="24" HorizontalAlignment="Left" Margin="277,6,0,0" Name="rectangleColor" Stroke="Black" VerticalAlignment="Top" Width="72" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" />
+                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Height="59" Margin="12,373,12,0" Name="groupBoxListDisplay" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_7">
+                        <CheckBox x:Uid="checkBoxAlternateBackground" Content="Alternating row background" Margin="6,6,6,0" Name="checkBoxAlternateBackground" VerticalAlignment="Top" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" />
+                        <Button x:Uid="buttonChangeColor" Content="Change color..." HorizontalAlignment="Left" Margin="369,5,0,0" Name="buttonChangeColor" VerticalAlignment="Top" Width="145" Click="buttonChangeColor_Click" />
+                        <Rectangle x:Uid="rectangleColor" Height="22" HorizontalAlignment="Left" Margin="277,6,0,0" Name="rectangleColor" Stroke="Black" VerticalAlignment="Top" Width="72" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" />
                     </Grid>
                 </GroupBox>
                 <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,432,12,0" Name="groupBox3" VerticalAlignment="Top">
@@ -58,10 +58,10 @@
                         <CheckBox x:Uid="checkBoxCoverart" Content="Display coverart images"  Margin="280,6,0,0" Name="checkBoxCoverart" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxRefrainRedraw" Content="Minimize GUI redraw when playing"  Margin="280,28,0,0" Name="checkBoxRefrainRedraw" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxParallelRead" Content="Parallelize file read"  Margin="520,6,0,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" />
-                        <TextBox x:Uid="textBoxPlayingTimeSize" Height="28" Margin="328,50,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
-                        <Label x:Uid="label1" Content="Playing time font:" Height="28" Margin="5,50,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
-                        <Label x:Uid="label2" Content="pt" Height="28" HorizontalAlignment="Left" Margin="383,50,0,0" Name="label2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-                        <ComboBox x:Uid="comboBoxPlayingTimeFontNames" Height="24" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
+                        <TextBox x:Uid="textBoxPlayingTimeSize" Margin="328,50,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
+                        <Label x:Uid="label1" Content="Playing time font:" Margin="5,50,0,0" Name="label1" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="146" />
+                        <Label x:Uid="label2" Content="pt" HorizontalAlignment="Left" Margin="383,50,0,0" Name="label2" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+                        <ComboBox x:Uid="comboBoxPlayingTimeFontNames" HorizontalAlignment="Left" Margin="151,52,0,0" Name="comboBoxPlayingTimeFontNames" VerticalAlignment="Top" Width="171" SelectionChanged="comboBoxPlayingTimeFontNames_SelectionChanged"></ComboBox>
                         <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="153,82,0,0" Name="labelPlayingTime" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
                         <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold"  HorizontalAlignment="Left" Margin="414,56,0,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
                         <CheckBox x:Uid="checkBoxTimePeriod1" Content="invoke timeBeginPeriod(1)"  HorizontalAlignment="Left" IsChecked="False" Margin="520,30,0,0" Name="checkBoxTimePeriod1" VerticalAlignment="Top" />
@@ -70,11 +70,11 @@
         </Grid>
         </ScrollViewer>
         <Slider x:Uid="sliderWindowScaling" Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />
-        <Button x:Uid="buttonOK" Content="OK" Margin="0,0,137,12" Name="buttonOK" Height="23" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
-        <Button x:Uid="buttonCancel" Content="Cancel" Name="buttonCancel" Height="23" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="119" Click="buttonCancel_Click" Grid.Row="1" Margin="0,0,12,12" />
-        <Label x:Uid="labelWindowScaling" Content="1.00" Grid.Row="1" Margin="214,0,0,12" Name="labelWindowScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="53" />
-        <Label x:Uid="label3" Content="x" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="273,0,0,12" Name="label3" VerticalAlignment="Bottom" VerticalContentAlignment="Center" />
-        <Button x:Uid="button1" Content="1x" Grid.Row="1" Height="23" HorizontalAlignment="Left" Margin="301,0,0,15" Name="button1" VerticalAlignment="Bottom" Width="75" Click="buttonScale1X_Click" />
-        <Button x:Uid="buttonReset" Content="_Restore defaults" Height="23" HorizontalAlignment="Right" Margin="0,0,236,12" Name="buttonReset" VerticalAlignment="Bottom" Width="128" Grid.Row="1" Click="buttonReset_Click" />
+        <Button x:Uid="buttonOK" Content="OK" Margin="0,0,137,12" Name="buttonOK" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
+        <Button x:Uid="buttonCancel" Content="Cancel" Name="buttonCancel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="119" Click="buttonCancel_Click" Grid.Row="1" Margin="0,0,12,12" />
+        <Label x:Uid="labelWindowScaling" Content="1.00" Grid.Row="1" Margin="214,0,0,12" Name="labelWindowScaling" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="53" />
+        <Label x:Uid="label3" Content="x" Grid.Row="1" HorizontalAlignment="Left" Margin="273,0,0,12" Name="label3" VerticalAlignment="Bottom" VerticalContentAlignment="Center" />
+        <Button x:Uid="button1" Content="1x" Grid.Row="1" HorizontalAlignment="Left" Margin="301,0,0,15" Name="button1" VerticalAlignment="Bottom" Width="75" Click="buttonScale1X_Click" />
+        <Button x:Uid="buttonReset" Content="_Restore defaults" Margin="0,0,236,12" Name="buttonReset" VerticalAlignment="Bottom" Grid.Row="1" Click="buttonReset_Click" HorizontalAlignment="Right" Width="128" />
     </Grid>
 </Window>
