@@ -603,13 +603,30 @@ namespace PlayPcmWin
             m_preference = PreferenceStore.Load();
 
             if (m_preference.ManuallySetMainWindowDimension) {
-                Left = m_preference.MainWindowLeft;
-                Top  = m_preference.MainWindowTop;
-                if (100 <= m_preference.MainWindowWidth) {
-                    Width = m_preference.MainWindowWidth;
+                // 記録されているウィンドウ形状が、一部分でも画面に入っていたらOKとする
+                var rect = new System.Drawing.Rectangle(
+                    (int)m_preference.MainWindowLeft,
+                    (int)m_preference.MainWindowTop,
+                    (int)m_preference.MainWindowWidth,
+                    (int)m_preference.MainWindowHeight);
+
+                bool inScreen = false;
+                foreach (var screen in System.Windows.Forms.Screen.AllScreens) {
+                    rect = System.Drawing.Rectangle.Intersect(rect, screen.Bounds);
+                    if (!rect.IsEmpty) {
+                        inScreen = true;
+                        break;
+                    }
                 }
-                if (100 <= m_preference.MainWindowHeight) {
-                    Height = m_preference.MainWindowHeight;
+                if (inScreen) {
+                    Left   = m_preference.MainWindowLeft;
+                    Top    = m_preference.MainWindowTop;
+                    if (100 <= m_preference.MainWindowWidth) {
+                        Width = m_preference.MainWindowWidth;
+                    }
+                    if (100 <= m_preference.MainWindowHeight) {
+                        Height = m_preference.MainWindowHeight;
+                    }
                 }
             }
 
