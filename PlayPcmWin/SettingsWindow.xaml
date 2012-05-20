@@ -1,7 +1,7 @@
 ﻿<Window x:Uid="Window_1" x:Class="PlayPcmWin.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PlayPcmWin detailed settings" Height="600" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel">
+        Title="PlayPcmWin detailed settings" Height="671" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel">
     <Window.Resources>
         <FontWeight x:Uid="FontWeight_1" x:Key="FontWeight1">Bold</FontWeight>
     </Window.Resources>

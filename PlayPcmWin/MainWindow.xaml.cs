@@ -603,12 +603,8 @@ namespace PlayPcmWin
             m_preference = PreferenceStore.Load();
 
             if (m_preference.ManuallySetMainWindowDimension) {
-                if (0 <= m_preference.MainWindowLeft) {
-                    Left = m_preference.MainWindowLeft;
-                }
-                if (0 <= m_preference.MainWindowTop) {
-                    Top = m_preference.MainWindowTop;
-                }
+                Left = m_preference.MainWindowLeft;
+                Top  = m_preference.MainWindowTop;
                 if (100 <= m_preference.MainWindowWidth) {
                     Width = m_preference.MainWindowWidth;
                 }

@@ -91,9 +91,9 @@ namespace PlayPcmWin {
             ZeroFlushMillisec = 500;
             TimePeriodMillisec = 1;
 
-            MainWindowLeft = -1;
-            MainWindowTop = -1;
-            MainWindowWidth = 1000;
+            MainWindowLeft   = 100;
+            MainWindowTop    = 100;
+            MainWindowWidth  = 1000;
             MainWindowHeight = 640;
 
             PlayListColumnsOrder.Clear();
