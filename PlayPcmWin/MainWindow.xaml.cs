@@ -604,7 +604,7 @@ namespace PlayPcmWin
 
             if (m_preference.ManuallySetMainWindowDimension) {
                 // 記録されているウィンドウ形状が、一部分でも画面に入っていたらOKとする
-                var rect = new System.Drawing.Rectangle(
+                var windowRect = new System.Drawing.Rectangle(
                     (int)m_preference.MainWindowLeft,
                     (int)m_preference.MainWindowTop,
                     (int)m_preference.MainWindowWidth,
@@ -612,8 +612,8 @@ namespace PlayPcmWin
 
                 bool inScreen = false;
                 foreach (var screen in System.Windows.Forms.Screen.AllScreens) {
-                    rect = System.Drawing.Rectangle.Intersect(rect, screen.Bounds);
-                    if (!rect.IsEmpty) {
+                    var intersection = System.Drawing.Rectangle.Intersect(windowRect, screen.Bounds);
+                    if (!intersection.IsEmpty) {
                         inScreen = true;
                         break;
                     }
