@@ -612,8 +612,7 @@ namespace PlayPcmWin
 
                 bool inScreen = false;
                 foreach (var screen in System.Windows.Forms.Screen.AllScreens) {
-                    var intersection = System.Drawing.Rectangle.Intersect(windowRect, screen.Bounds);
-                    if (!intersection.IsEmpty) {
+                    if (!System.Drawing.Rectangle.Intersect(windowRect, screen.Bounds).IsEmpty) {
                         inScreen = true;
                         break;
                     }
