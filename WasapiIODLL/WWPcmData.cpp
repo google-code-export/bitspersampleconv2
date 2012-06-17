@@ -479,28 +479,30 @@ WWPcmData::CreateCrossfadeData(
     assert(0 < nFrames && nFrames <= 0x7fffffff);
 
     for (int ch=0; ch<nChannels; ++ch) {
-        WWPcmData *from = fromPcmData;
-        int64_t fromPos = fromPosFrame;
+        WWPcmData *pcm0 = fromPcmData;
+        int64_t pcm0Pos = fromPosFrame;
 
-        WWPcmData *to = toPcmData;
-        int64_t toPos = toPosFrame;
+        WWPcmData *pcm1 = toPcmData;
+        int64_t pcm1Pos = toPosFrame;
 
         for (int x=0; x<nFrames; ++x) {
             float ratio = (float)x / nFrames;
 
-            float y0 = from->GetSampleValueAsFloat(ch, fromPos);
-            float y1 = to->GetSampleValueAsFloat(ch, toPos);
+            float y0 = pcm0->GetSampleValueAsFloat(ch, pcm0Pos);
+            float y1 = pcm1->GetSampleValueAsFloat(ch, pcm1Pos);
 
-            SetSampleValueAsFloat(ch, x, y0 * (1-ratio) + y1 * ratio);
+            SetSampleValueAsFloat(ch, x, y0 * (1.0f - ratio) + y1 * ratio);
 
-            ++fromPos;
-            if (from->nFrames <= fromPos && NULL != from->next) {
-                from = from->next;
+            ++pcm0Pos;
+            if (pcm0->nFrames <= pcm0Pos && NULL != pcm0->next) {
+                pcm0 = pcm0->next;
+                pcm0Pos = 0;
             }
 
-            ++toPos;
-            if (to->nFrames <= toPos && NULL != to->next) {
-                to = to->next;
+            ++pcm1Pos;
+            if (pcm1->nFrames <= pcm1Pos && NULL != pcm1->next) {
+                pcm1 = pcm1->next;
+                pcm1Pos = 0;
             }
         }
     }
