@@ -53,7 +53,6 @@
                     x:Uid="dataGridPlayList" Name="dataGridPlayList"
                     Margin="6,6,6,37"
                     GridLinesVisibility="None"
-                    Background="White"
                     AutoGenerateColumns="False"
                     CanUserSortColumns="False"
                     CanUserReorderColumns="True"
@@ -68,7 +67,7 @@
                     DragLeave="dataGridPlayList_CheckDropTarget"
                     DragOver="dataGridPlayList_CheckDropTarget"
                     Drop="dataGridPlayList_Drop"
-                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow">
+                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow" Background="{x:Null}">
                     
                     <DataGrid.RowHeaderStyle>
                         <Style x:Uid="Style_1" TargetType="{x:Type DataGridRowHeader}">
