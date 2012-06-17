@@ -261,6 +261,32 @@ WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame)
     return *p;
 }
 
+float
+WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame)
+{
+    float result = 0.0f;
+
+    switch (format) {
+    case WWPcmDataFormatSint16:
+        result = GetSampleValueInt(ch, posFrame) * (1.0f / 32768.0f);
+        break;
+    case WWPcmDataFormatSint24:
+    case WWPcmDataFormatSint32V24:
+        result = GetSampleValueInt(ch, posFrame) * (1.0f / 8388608.0f);
+        break;
+    case WWPcmDataFormatSint32:
+        result = GetSampleValueInt(ch, posFrame) * (1.0f / 2147483648.0f);
+        break;
+    case WWPcmDataFormatSfloat:
+        result = GetSampleValueFloat(ch, posFrame);
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    return result;
+}
+
 bool
 WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
 {
@@ -331,6 +357,32 @@ WWPcmData::SetSampleValueFloat(int ch, int64_t posFrame, float value)
     return true;
 }
 
+bool
+WWPcmData::SetSampleValueAsFloat(int ch, int64_t posFrame, float value)
+{
+    bool result = false;
+
+    switch (format) {
+    case WWPcmDataFormatSint16:
+        result = SetSampleValueInt(ch, posFrame, (int)(value * 32768.0f));
+        break;
+    case WWPcmDataFormatSint24:
+    case WWPcmDataFormatSint32V24:
+        result = SetSampleValueInt(ch, posFrame, (int)(value * 8388608.0f));
+        break;
+    case WWPcmDataFormatSint32:
+        result = SetSampleValueInt(ch, posFrame, (int)(value * 2147483648.0f));
+        break;
+    case WWPcmDataFormatSfloat:
+        result = SetSampleValueFloat(ch, posFrame, value);
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    return result;
+}
+
 struct PcmSpliceInfoFloat {
     float dydx;
     float y;
@@ -345,7 +397,7 @@ struct PcmSpliceInfoInt {
     int y;
 };
 
-void
+int
 WWPcmData::UpdateSpliceDataWithStraightLine(
         WWPcmData *fromPcmData, int64_t fromPosFrame,
         WWPcmData *toPcmData,   int64_t toPosFrame)
@@ -415,5 +467,44 @@ WWPcmData::UpdateSpliceDataWithStraightLine(
         }
         break;
     }
+
+    return 0;
 }
 
+int
+WWPcmData::CreateCrossfadeData(
+        WWPcmData *fromPcmData, int64_t fromPosFrame,
+        WWPcmData *toPcmData,   int64_t toPosFrame)
+{
+    assert(0 < nFrames && nFrames <= 0x7fffffff);
+
+    for (int ch=0; ch<nChannels; ++ch) {
+        WWPcmData *from = fromPcmData;
+        int64_t fromPos = fromPosFrame;
+
+        WWPcmData *to = toPcmData;
+        int64_t toPos = toPosFrame;
+
+        for (int x=0; x<nFrames; ++x) {
+            float ratio = (float)x / nFrames;
+
+            float y0 = from->GetSampleValueAsFloat(ch, fromPos);
+            float y1 = to->GetSampleValueAsFloat(ch, toPos);
+
+            SetSampleValueAsFloat(ch, x, y0 * (1-ratio) + y1 * ratio);
+
+            ++fromPos;
+            if (from->nFrames <= fromPos && NULL != from->next) {
+                from = from->next;
+            }
+
+            ++toPos;
+            if (to->nFrames <= toPos && NULL != to->next) {
+                to = to->next;
+            }
+        }
+    }
+
+    // クロスフェードのPCMデータは2GBもない(assertでチェックしている)。intにキャストする。
+    return (int)nFrames; 
+}

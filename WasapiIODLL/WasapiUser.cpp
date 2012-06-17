@@ -1199,6 +1199,29 @@ WasapiUser::UpdatePlayPcmDataWhenNotPlaying(WWPcmData &playPcmData)
     m_nowPlayingPcmData->next = &playPcmData;
 }
 
+static
+WWPcmData *SkipFrames(WWPcmData *pcmData, int64_t skipFrames)
+{
+    while (0 < skipFrames) {
+        int64_t advance = skipFrames;
+        if (pcmData->AvailableFrames() <= advance) {
+            advance = pcmData->AvailableFrames();
+
+            // 頭出ししておく。
+            pcmData->posFrame = 0;
+
+            pcmData = pcmData->next;
+
+            pcmData->posFrame = 0;
+        } else {
+            pcmData->posFrame += advance;
+        }
+
+        skipFrames -= advance;
+    }
+    return pcmData;
+}
+
 void
 WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
 {
@@ -1213,7 +1236,7 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             // m_nowPlayingPcmDataをpcmDataに移動する。
             // Issue3: いきなり移動するとブチッと言うので
             // splice bufferを経由してなめらかにつなげる。
-            m_spliceBuffer.UpdateSpliceDataWithStraightLine(
+            int advance = m_spliceBuffer.CreateCrossfadeData(
                 m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
                 &pcmData, pcmData.posFrame);
 
@@ -1224,7 +1247,7 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             }
 
             m_spliceBuffer.posFrame = 0;
-            m_spliceBuffer.next = &pcmData;
+            m_spliceBuffer.next = SkipFrames(&pcmData, advance);
 
             m_nowPlayingPcmData = &m_spliceBuffer;
         }
@@ -1283,12 +1306,14 @@ WasapiUser::SetPosFrame(int64_t v)
             // 再生中。
             // nowPlaying->posFrameをvに移動する。
             // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
-            m_spliceBuffer.UpdateSpliceDataWithStraightLine(
+            int advance = m_spliceBuffer.CreateCrossfadeData(
                 m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame, m_nowPlayingPcmData, v);
-            m_spliceBuffer.posFrame = 0;
-            m_spliceBuffer.next = m_nowPlayingPcmData;
 
             m_nowPlayingPcmData->posFrame = v;
+
+            m_spliceBuffer.posFrame = 0;
+            m_spliceBuffer.next = SkipFrames(m_nowPlayingPcmData, advance);
+
             m_nowPlayingPcmData = &m_spliceBuffer;
             result = true;
         } else if (m_pauseResumePcmData && v < m_pauseResumePcmData->nFrames) {

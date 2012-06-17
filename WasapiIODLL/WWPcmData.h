@@ -83,9 +83,18 @@ struct WWPcmData {
     void CopyFrom(WWPcmData *rhs);
 
     /** create splice data from the two adjacent sample data */
-    void UpdateSpliceDataWithStraightLine(
+    int UpdateSpliceDataWithStraightLine(
         WWPcmData *fromPcmData, int64_t fromPosFrame,
         WWPcmData *toPcmData,   int64_t toPosFrame);
+
+    /** @return sample count need to advance */
+    int CreateCrossfadeData(
+        WWPcmData *fromPcmData, int64_t fromPosFrame,
+        WWPcmData *toPcmData,   int64_t toPosFrame);
+
+    int64_t AvailableFrames(void) const {
+        return nFrames - posFrame;
+    }
 
 private:
     /** get sample value on posFrame.
@@ -96,5 +105,8 @@ private:
 
     bool SetSampleValueInt(int ch, int64_t posFrame, int value);
     bool SetSampleValueFloat(int ch, int64_t posFrame, float value);
+
+    float GetSampleValueAsFloat(int ch, int64_t posFrame);
+    bool SetSampleValueAsFloat(int ch, int64_t posFrame, float value);
 };
 
