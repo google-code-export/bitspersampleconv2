@@ -2996,8 +2996,10 @@ namespace PlayPcmWin
             if (pcmDataId < 0) {
                 labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
             } else {
-                dataGridPlayList.SelectedIndex = GetPlayListIndexOfWaveDataId(pcmDataId);
-                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+                if (dataGridPlayList.SelectedIndex != GetPlayListIndexOfWaveDataId(pcmDataId)) {
+                    dataGridPlayList.SelectedIndex = GetPlayListIndexOfWaveDataId(pcmDataId);
+                    dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+                }
 
                 PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, pcmDataId);
 
