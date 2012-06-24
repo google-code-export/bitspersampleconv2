@@ -639,16 +639,9 @@ namespace PlayPcmWin
             m_groupIdNextAdd = 0;
 
             if (m_preference.StorePlaylistContent) {
-                // エラーメッセージを貯めて出す。作りがいまいちだが。
+                // display error MessageBox on Window_Loaded()
                 m_loadErrorMessages = new StringBuilder();
-
                 ReadPlaylist(string.Empty);
-
-                if (0 < m_loadErrorMessages.Length) {
-                    MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-
-                m_loadErrorMessages = null;
             }
 
             RestorePlaylistColumnOrderFromPreference();
@@ -711,6 +704,14 @@ namespace PlayPcmWin
                     }
                 });
             }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
+            if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
+                MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            m_loadErrorMessages = null;
         }
 
         /// <summary>
