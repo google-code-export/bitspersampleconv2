@@ -1,6 +1,6 @@
 ﻿PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:PlayPcmWin.SettingsWindow.$Content,None,True,True,,#Grid_1;
 PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.Window.Title,Title,True,True,,PlayPcmWin detailed settings
-PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.FrameworkElement.Height,None,False,True,,600
+PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.FrameworkElement.Height,None,False,True,,671
 PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.FrameworkElement.Width,None,False,True,,800
 PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,Window_1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
@@ -16,92 +16,85 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.W
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Autoselect Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariable:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Autoselect Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint32V24:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Autoselect Sint16,SInt24(Suitable for USB audio devices)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.FrameworkElement.Margin,None,False,True,,"6,50,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsVariableSint16Sint24:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint16:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint16:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint16:System.Windows.FrameworkElement.Margin,None,False,True,,"6,72,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint16:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint16:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint24:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint24:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint24:System.Windows.FrameworkElement.Margin,None,False,True,,"6,94,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint24:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint24:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonSint32V24:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonSint32V24:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Always use SInt32V24(SInt32, Valid bits=24bps)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonSint32V24:System.Windows.FrameworkElement.Margin,None,False,True,,"6,116,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonSint32V24:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonSint32V24:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint32:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint32:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,"Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint32:System.Windows.FrameworkElement.Margin,None,False,True,,"6,138,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint32:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSint32:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSfloat32:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSfloat32:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Always use SFloat32(IEEE754 single precision floating point format: Supported hardwares are very rare)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSfloat32:System.Windows.FrameworkElement.Margin,None,False,True,,"6,160,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSfloat32:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsSfloat32:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsAutoSelect:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsAutoSelect:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsAutoSelect:System.Windows.FrameworkElement.Margin,None,False,True,,"6,182,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsAutoSelect:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonBpsAutoSelect:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_4;
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,CUE sheet settings
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.Height,None,False,True,,59
-PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.Margin,None,False,True,,"12,249,12,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.Margin,None,False,True,,"12,249,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox2:System.Windows.FrameworkElement.Width,None,False,True,,536
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlaceKokomadeAfterIndex00:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlaceKokomadeAfterIndex00:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Set [Batch read endpoint] flag after INDEX00
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlaceKokomadeAfterIndex00:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlaceKokomadeAfterIndex00:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlaceKokomadeAfterIndex00:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_6;
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Device buffer flush settings
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.Height,None,False,True,,59
-PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.Margin,None,False,True,,"12,310,12,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.Margin,None,False,True,,"12,310,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxDeviceBufferFlush:System.Windows.FrameworkElement.Width,None,False,True,,536
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.ContentControl.Content,Label,True,True,,Zero flush period on playback starts:
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.Margin,None,False,True,,"0,3"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Center
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.Height,None,False,True,,28
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.Width,None,False,True,,300
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlush:System.Windows.FrameworkElement.Width,None,False,True,,260
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.Controls.TextBox.$Content,Text,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
-PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.Margin,None,False,True,,"304,0,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.Margin,None,False,True,,"262,5,0,5"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.Width,None,False,True,,80
-PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.FrameworkElement.Height,None,False,True,,24
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxZeroFlushSeconds:System.Windows.Controls.TextBox.Text,Text,True,True,,0
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.Controls.ContentControl.Content,Label,True,True,,second(s)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.FrameworkElement.Margin,None,False,True,,"388,0,0,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.FrameworkElement.Height,None,False,True,,28
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.FrameworkElement.Margin,None,False,True,,"348,3,0,3"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_7;
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,List display settings
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.Height,None,False,True,,59
-PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.Margin,None,False,True,,"12,373,12,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.Margin,None,False,True,,"12,373,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.FrameworkElement.Width,None,False,True,,536
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxAlternateBackground:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxAlternateBackground:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Alternating row background
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxAlternateBackground:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,0"
@@ -123,40 +116,35 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,rectangleColor:System.Windows.S
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_5;
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Other settings
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.FrameworkElement.Height,None,False,True,,140
-PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"12,373,12,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"12,432,12,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox3:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Remember Window position and size
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxManuallySetMainWindowDimension:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Restore the playlist on program startup
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxStorePlaylistContent:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Display coverart images
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.FrameworkElement.Margin,None,False,True,,"280,6,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxCoverart:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Minimize GUI redraw when playing
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.FrameworkElement.Margin,None,False,True,,"280,28,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxRefrainRedraw:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Parallelize file read
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.FrameworkElement.Margin,None,False,True,,"520,6,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxParallelRead:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.Controls.TextBox.$Content,Text,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.FrameworkElement.Margin,None,False,True,,"328,50,0,0"
@@ -165,7 +153,6 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.W
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.FrameworkElement.Width,None,False,True,,53
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.Controls.TextBox.Text,Text,True,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
-PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.FrameworkElement.Height,None,False,True,,28
 PlayPcmWin.g.en-US.resources:settingswindow.baml,textBoxPlayingTimeSize:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Controls.ContentControl.Content,Label,True,True,,Playing time font:
@@ -174,20 +161,17 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Framework
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.FrameworkElement.Height,None,False,True,,28
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label1:System.Windows.FrameworkElement.Width,None,False,True,,146
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.Controls.ContentControl.Content,Label,True,True,,pt
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.FrameworkElement.Margin,None,False,True,,"383,50,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.FrameworkElement.Height,None,False,True,,28
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label2:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.Controls.ComboBox.$Content,ComboBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.FrameworkElement.Margin,None,False,True,,"151,52,0,0"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.FrameworkElement.Height,None,False,True,,24
 PlayPcmWin.g.en-US.resources:settingswindow.baml,comboBoxPlayingTimeFontNames:System.Windows.FrameworkElement.Width,None,False,True,,171
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelPlayingTime:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelPlayingTime:System.Windows.Controls.ContentControl.Content,Label,True,True,,00:00:00/00:00:00
@@ -204,15 +188,44 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,Bold
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.FrameworkElement.Margin,None,False,True,,"414,56,0,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxPlayingTimeBold:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.Controls.CheckBox.$Content,CheckBox,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,invoke timeBeginPeriod(1)
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.FrameworkElement.Margin,None,False,True,,"520,30,0,0"
-PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxTimePeriod1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_8;
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Render thread task type
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.FrameworkElement.Height,None,False,True,,120
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.FrameworkElement.Margin,None,False,True,,"554,249,12,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Audio
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Pro Audio
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Playback
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.Margin,None,False,True,,"6,50,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.Width,None,False,True,,98
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,None
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.Margin,None,False,True,,"6,72,0,0"
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.Width,None,False,True,,98
 PlayPcmWin.g.en-US.resources:settingswindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.Margin,None,False,True,,"12,0,0,12"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.Width,None,False,True,,182
@@ -231,7 +244,6 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.Framewo
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.Controls.Grid.Row,None,False,True,,1
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Right
-PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonOK:System.Windows.FrameworkElement.Width,None,False,True,,93
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.Controls.ContentControl.Content,Button,True,True,,Cancel
@@ -239,7 +251,6 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.Fra
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.FrameworkElement.Width,None,False,True,,119
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.Controls.Grid.Row,None,False,True,,1
-PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonCancel:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,12,12"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.Controls.ContentControl.Content,Label,True,True,,1.00
@@ -249,7 +260,6 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windo
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.FrameworkElement.Height,None,False,True,,28
 PlayPcmWin.g.en-US.resources:settingswindow.baml,labelWindowScaling:System.Windows.FrameworkElement.Width,None,False,True,,53
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.Controls.ContentControl.Content,Label,True,True,,x
@@ -257,7 +267,6 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.Controls.
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.FrameworkElement.Margin,None,False,True,,"273,0,0,12"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.FrameworkElement.Height,None,False,True,,28
 PlayPcmWin.g.en-US.resources:settingswindow.baml,label3:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.Controls.ContentControl.Content,Button,True,True,,1x
@@ -265,16 +274,14 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.Controls
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.FrameworkElement.Margin,None,False,True,,"301,0,0,15"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:settingswindow.baml,button1:System.Windows.FrameworkElement.Width,None,False,True,,75
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Controls.ContentControl.Content,Button,True,True,,_Restore defaults
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,236,12"
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.FrameworkElement.Height,None,False,True,,23
+PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Controls.Grid.Row,None,False,True,,1
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.FrameworkElement.Width,None,False,True,,128
-PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonReset:System.Windows.Controls.Grid.Row,None,False,True,,1
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:PlayPcmWin.MainWindow.$Content,None,True,True,,#Grid_1;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Window.Title,Title,True,True,,PlayPcmWin
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Window_1:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
@@ -298,12 +305,11 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,TransformGroup_1:System.Windows.Med
 PlayPcmWin.g.en-US.resources:mainwindow.baml,ScaleTransform_1:System.Windows.Media.ScaleTransform.$Content,None,False,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menu1:System.Windows.Controls.Menu.$Content,Menu,True,True,,#menuFile;#menuTool;#menuPlayList;#menuHelp;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menu1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menu1:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menu1:System.Windows.Controls.Grid.ColumnSpan,None,False,True,,2
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,#menuItemFileNew;#menuItemFileOpen;#menuItemFileSaveCueAs;#menuItemFileSaveAs;#Separator_1;#MenuItem_1;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_File
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,Clear the playlist(_N)...
+PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileNew:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,Clear the playlist(_N)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileOpen:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileOpen:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,_Open...
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuItemFileSaveCueAs:System.Windows.Controls.MenuItem.$Content,Menu,True,True,,
@@ -339,19 +345,16 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,0,8"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.FrameworkElement.Width,None,False,True,,156
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonClearPlayList:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.Controls.ContentControl.Content,Button,True,True,,Delist the selected file(_R)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.FrameworkElement.Margin,None,False,True,,"170,0,0,8"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.FrameworkElement.Width,None,False,True,,179
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonRemovePlayList:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.DataGrid.$Content,None,False,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,37"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.DataGrid.GridLinesVisibility,None,True,False,,None
-PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.Control.Background,None,False,True,,\#FFFFFFFF
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.DataGrid.AutoGenerateColumns,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.DataGrid.CanUserSortColumns,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,dataGridPlayList:System.Windows.Controls.DataGrid.CanUserReorderColumns,None,False,True,,True
@@ -416,7 +419,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.Framework
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.FrameworkElement.Width,None,False,True,,67
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.UIElement.IsEnabled,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.Controls.ContentControl.Content,Button,True,True,,_Stop
@@ -424,7 +426,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.Framework
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.FrameworkElement.Margin,None,False,True,,"78,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.FrameworkElement.Width,None,False,True,,66
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonStop:System.Windows.UIElement.IsEnabled,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.Controls.ContentControl.Content,Button,True,True,,Pa_use
@@ -432,7 +433,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.Framewor
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.UIElement.IsEnabled,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.FrameworkElement.Margin,None,False,True,,"149,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPause:System.Windows.FrameworkElement.Width,None,False,True,,89
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.Controls.ContentControl.Content,Button,True,True,,Prev
@@ -440,7 +440,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.Framework
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.UIElement.IsEnabled,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.FrameworkElement.Margin,None,False,True,,"256,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPrev:System.Windows.FrameworkElement.Width,None,False,True,,50
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.Controls.ContentControl.Content,Button,True,True,,Next
@@ -448,7 +447,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.Framework
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.UIElement.IsEnabled,None,False,True,,False
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.FrameworkElement.Margin,None,False,True,,"311,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonNext:System.Windows.FrameworkElement.Width,None,False,True,,50
 PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Controls.ContentControl.Content,Label,True,True,,00:00:00/00:00:00
@@ -478,7 +476,7 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,expanderSettings:System.Windows.Con
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_5;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,WASAPI settings
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.FrameworkElement.Width,None,False,True,,320
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.FrameworkElement.Height,None,False,True,,224
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.FrameworkElement.Height,None,False,True,,174
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxWasapiSettings:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_6;
@@ -486,26 +484,42 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.Controls.H
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.Height,None,False,True,,79
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.Width,None,False,True,,127
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.Width,None,False,True,,140
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox5:System.Windows.FrameworkElement.Margin,None,False,True,,"6,4,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Exclusive
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Shared
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.FrameworkElement.Height,None,False,True,,16
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_9;
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Data feed mode
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Height,None,False,True,,78
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Margin,None,False,True,,"160,4,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Width,None,False,True,,140
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Event driven
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Timer driven
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_7;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Output latency
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Height,None,False,True,,59
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"138,135,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"5,87,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Width,None,False,True,,164
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.TextBox.$Content,Text,True,True,,
@@ -514,7 +528,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Frame
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Center
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.Width,None,False,True,,69
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.TextBox.Text,Text,True,True,,latency
-PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.Height,None,False,True,,24
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.Controls.Label.$Content,Label,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.Controls.ContentControl.Content,Label,True,True,,ms
@@ -522,69 +535,11 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.FrameworkElem
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.FrameworkElement.Margin,None,False,True,,"81,6,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.FrameworkElement.Width,None,False,True,,55
-PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.FrameworkElement.Height,None,False,True,,24
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.Controls.Control.VerticalContentAlignment,None,False,True,,Center
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_8;
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Render thread task type
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.FrameworkElement.Height,None,False,True,,123
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.FrameworkElement.Margin,None,False,True,,"138,6,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.FrameworkElement.Width,None,False,True,,163
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Audio
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Pro Audio
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Playback
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.Margin,None,False,True,,"6,50,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.FrameworkElement.Width,None,False,True,,98
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,None
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,False
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.Margin,None,False,True,,"6,72,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.FrameworkElement.Width,None,False,True,,98
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_9;
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Data feed mode
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Height,None,False,True,,78
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Margin,None,False,True,,"6,85,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.FrameworkElement.Width,None,False,True,,127
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Event driven
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.Primitives.ToggleButton.IsChecked,None,False,True,,True
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.Controls.RadioButton.$Content,RadioButton,True,True,,
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Timer driven
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.Margin,None,False,True,,"6,28,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.Height,None,False,True,,16
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox1:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_10;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox1:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Output device
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox1:System.Windows.FrameworkElement.Width,None,False,True,,320
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox1:System.Windows.FrameworkElement.Margin,None,False,True,,"6,233,6,106"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox1:System.Windows.FrameworkElement.Margin,None,False,True,,"6,180,6,106"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,listBoxDevices:System.Windows.Controls.ListBox.$Content,ListBox,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,listBoxDevices:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,6,37"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.Controls.Button.$Content,Button,True,True,,
@@ -592,14 +547,12 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.Contr
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,0,6"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonSettings:System.Windows.FrameworkElement.Width,None,False,True,,134
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.Controls.ContentControl.Content,Button,True,True,,L_ist suppoted format
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.Margin,None,False,True,,"147,0,0,6"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.Width,None,False,True,,154
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxLog:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_11;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxLog:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Log
@@ -616,8 +569,8 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLog:System.Windows.Controls.
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLog:System.Windows.Controls.Primitives.TextBoxBase.HorizontalScrollBarVisibility,Text,True,False,,Auto
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLog:System.Windows.Controls.Control.FontFamily,Font,True,True,,Courier New
 PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBar1:System.Windows.Controls.Primitives.StatusBar.$Content,None,False,True,,#statusBarText;
-PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBar1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBar1:System.Windows.FrameworkElement.Height,None,False,True,,23
+PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBar1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
 PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBar1:System.Windows.Controls.Grid.ColumnSpan,None,False,True,,2
 PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBarText:System.Windows.Controls.Primitives.StatusBarItem.$Content,None,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,statusBarText:System.Windows.Controls.ContentControl.Content,None,True,True,,abcde
@@ -626,7 +579,7 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.Framewo
 PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.FrameworkElement.Margin,None,False,True,,"200,0,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.FrameworkElement.Width,None,False,True,,200
-PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.FrameworkElement.Height,None,False,True,,23
+PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.FrameworkElement.Height,None,False,True,,22
 PlayPcmWin.g.en-US.resources:mainwindow.baml,progressBar1:System.Windows.UIElement.Visibility,None,False,True,,Hidden
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,1,1"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
@@ -638,7 +591,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.Width,None,False,True,,52
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.Controls.Primitives.RangeBase.SmallChange,None,False,True,,0.0048828125
-PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.FrameworkElement.Height,None,False,True,,23
 PlayPcmWin.g.en-US.resources:mainwindow.baml,sliderWindowScaling:System.Windows.Controls.Primitives.RangeBase.LargeChange,None,False,True,,0.0625
 PlayPcmWin.g.en-US.resources:app.baml,Application_1:PcmPlayWin.App.$Content,None,True,True,,
 PlayPcmWin.g.en-US.resources:app.baml,Setter_1:System.Windows.Setter.Property,None,False,False,,Control.Template

@@ -279,7 +279,7 @@ del PlayPcmWin.Properties.Resources.en-US.resources
 echo "create ja-JP resources ############################################"
 cd $(ProjectDir)
 
-echo "resgen generatesja-JP.resources"
+echo "resgen generates ja-JP.resources"
 resgen .\Properties\Resources.ja-JP.resx
 
 echo "move generated resources to ja-JP dir"
