@@ -693,24 +693,6 @@ namespace PlayPcmWin
                 break;
             }
 
-            switch (m_preference.renderThreadTaskType) {
-            case RenderThreadTaskType.None:
-                radioButtonTaskNone.IsChecked = true;
-                break;
-            case RenderThreadTaskType.Audio:
-                radioButtonTaskAudio.IsChecked = true;
-                break;
-            case RenderThreadTaskType.ProAudio:
-                radioButtonTaskProAudio.IsChecked = true;
-                break;
-            case RenderThreadTaskType.Playback:
-                radioButtonTaskPlayback.IsChecked = true;
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-
             UpdatePlaymodeComboBoxFromPreference();
 
             SetupBackgroundWorkers();
@@ -3410,22 +3392,6 @@ namespace PlayPcmWin
             sw.ShowDialog();
 
             UpdateWindowSettings();
-        }
-
-        private void radioButtonTaskAudio_Checked(object sender, RoutedEventArgs e) {
-            m_preference.renderThreadTaskType = RenderThreadTaskType.Audio;
-        }
-
-        private void radioButtonTaskProAudio_Checked(object sender, RoutedEventArgs e) {
-            m_preference.renderThreadTaskType = RenderThreadTaskType.ProAudio;
-        }
-
-        private void radioButtonTaskPlayback_Checked(object sender, RoutedEventArgs e) {
-            m_preference.renderThreadTaskType = RenderThreadTaskType.Playback;
-        }
-
-        private void radioButtonTaskNone_Checked(object sender, RoutedEventArgs e) {
-            m_preference.renderThreadTaskType = RenderThreadTaskType.None;
         }
 
         private void radioButtonExclusive_Checked(object sender, RoutedEventArgs e) {

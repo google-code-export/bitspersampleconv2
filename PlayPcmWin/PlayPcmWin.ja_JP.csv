@@ -31,6 +31,11 @@ PlayPcmWin.g.en-US.resources:settingswindow.baml,labelZeroFlushUnit:System.Windo
 PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBoxListDisplay:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,リスト表示設定
 PlayPcmWin.g.en-US.resources:settingswindow.baml,checkBoxAlternateBackground:System.Windows.Controls.ContentControl.Content,CheckBox,True,True,,リストの背景色を縞々にする
 PlayPcmWin.g.en-US.resources:settingswindow.baml,buttonChangeColor:System.Windows.Controls.ContentControl.Content,Button,True,True,,色を変更...
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox4:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,再生スレッドタスクタイプ
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Audio
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskProAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Pro Audio
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskNone:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Playback
+PlayPcmWin.g.en-US.resources:settingswindow.baml,radioButtonTaskPlayback:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,設定なし
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListClear:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リストをクリアー(_C)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,cmenuPlayListEditMode:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,再生リスト項目編集モード(_E)
 PlayPcmWin.g.en-US.resources:mainwindow.baml,menuFile:System.Windows.Controls.HeaderedItemsControl.Header,Menu,True,True,,ファイル(_F)
@@ -76,11 +81,6 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonExclusive:System.Windows
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonShared:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,共有モード
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,出力レイテンシー
 PlayPcmWin.g.en-US.resources:mainwindow.baml,label2:System.Windows.Controls.ContentControl.Content,Label,True,True,,ミリ秒
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox4:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,再生スレッドタスクタイプ
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Audio
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskProAudio:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Pro Audio
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskNone:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,Playback
-PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTaskPlayback:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,設定なし
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox6:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,データ供給モード
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonEventDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,イベント駆動
 PlayPcmWin.g.en-US.resources:mainwindow.baml,radioButtonTimerDriven:System.Windows.Controls.ContentControl.Content,RadioButton,True,True,,タイマー駆動

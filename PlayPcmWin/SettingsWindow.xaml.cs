@@ -127,6 +127,21 @@ namespace PlayPcmWin {
                     buttonChangeColor.IsEnabled = false;
                 }
             }
+
+            switch (preference.renderThreadTaskType) {
+            case RenderThreadTaskType.Audio:
+                radioButtonTaskAudio.IsChecked = true;
+                break;
+            case RenderThreadTaskType.None:
+                radioButtonTaskNone.IsChecked = true;
+                break;
+            case RenderThreadTaskType.Playback:
+                radioButtonTaskPlayback.IsChecked = true;
+                break;
+            case RenderThreadTaskType.ProAudio:
+                radioButtonTaskProAudio.IsChecked = true;
+                break;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -224,6 +239,19 @@ namespace PlayPcmWin {
                     = checkBoxAlternateBackground.IsChecked == true;
                 m_preference.AlternatingRowBackgroundARGB
                     = mPlaylistAlternateBackgroundArgb;
+            }
+
+            if (true == radioButtonTaskAudio.IsChecked) {
+                m_preference.renderThreadTaskType = RenderThreadTaskType.Audio;
+            }
+            if (true == radioButtonTaskNone.IsChecked) {
+                m_preference.renderThreadTaskType = RenderThreadTaskType.None;
+            }
+            if (true == radioButtonTaskPlayback.IsChecked) {
+                m_preference.renderThreadTaskType = RenderThreadTaskType.Playback;
+            }
+            if (true == radioButtonTaskProAudio.IsChecked) {
+                m_preference.renderThreadTaskType = RenderThreadTaskType.ProAudio;
             }
 
             Close();

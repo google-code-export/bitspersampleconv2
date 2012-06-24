@@ -32,19 +32,19 @@
                         <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)"  Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox2" Header="CUE sheet settings" Height="59" Margin="12,249,12,0" Name="groupBox2" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBox2" Header="CUE sheet settings" Height="59" Margin="12,249,0,0" Name="groupBox2" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">
                     <Grid x:Uid="Grid_4">
                         <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,310,12,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,310,0,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">
                     <Grid x:Uid="Grid_6">
-                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlush" VerticalAlignment="Center" Width="300" />
-                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="304,0,0,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
-                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="388,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" />
+                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,3" Name="labelZeroFlush" VerticalAlignment="Center" Width="260" />
+                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="262,5,0,5" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Width="80" Text="0" />
+                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="348,3,0,3" Name="labelZeroFlushUnit" VerticalAlignment="Center" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Height="59" Margin="12,373,12,0" Name="groupBoxListDisplay" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Height="59" Margin="12,373,0,0" Name="groupBoxListDisplay" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">
                     <Grid x:Uid="Grid_7">
                         <CheckBox x:Uid="checkBoxAlternateBackground" Content="Alternating row background" Margin="6,6,6,0" Name="checkBoxAlternateBackground" VerticalAlignment="Top" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" />
                         <Button x:Uid="buttonChangeColor" Content="Change color..." HorizontalAlignment="Left" Margin="369,5,0,0" Name="buttonChangeColor" VerticalAlignment="Top" Width="145" Click="buttonChangeColor_Click" />
@@ -67,7 +67,15 @@
                         <CheckBox x:Uid="checkBoxTimePeriod1" Content="invoke timeBeginPeriod(1)"  HorizontalAlignment="Left" IsChecked="False" Margin="520,30,0,0" Name="checkBoxTimePeriod1" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-        </Grid>
+                <GroupBox x:Uid="groupBox4" Header="Render thread task type" Height="120" Margin="554,249,12,0" Name="groupBox4" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_8">
+                        <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,0,0" Name="radioButtonTaskAudio" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTaskProAudio" VerticalAlignment="Top" IsChecked="True" />
+                        <RadioButton x:Uid="radioButtonTaskNone" Content="Playback" HorizontalAlignment="Left" IsChecked="False" Margin="6,50,0,0" Name="radioButtonTaskNone" VerticalAlignment="Top" Width="98" />
+                        <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
         </ScrollViewer>
         <Slider x:Uid="sliderWindowScaling" Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />
         <Button x:Uid="buttonOK" Content="OK" Margin="0,0,137,12" Name="buttonOK" VerticalAlignment="Bottom" Click="buttonOK_Click" Grid.Row="1" HorizontalAlignment="Right" Width="93" />
