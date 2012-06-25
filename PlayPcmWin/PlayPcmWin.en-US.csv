@@ -519,13 +519,13 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.G
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Output latency
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Height,None,False,True,,59
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"5,87,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"6,87,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Width,None,False,True,,164
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.TextBox.$Content,Text,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.Margin,None,False,True,,"6,6,0,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Center
+PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.FrameworkElement.Width,None,False,True,,69
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.TextBox.Text,Text,True,True,,latency
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.Control.HorizontalContentAlignment,None,False,True,,Right
