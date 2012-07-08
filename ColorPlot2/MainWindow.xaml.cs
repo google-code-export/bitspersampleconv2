@@ -346,9 +346,9 @@ namespace ColorPlot {
 
                 for (int i=0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cp = colors[segment].ElementAt(i);
-                    Console.WriteLine("    {0} -> {1} [style=bold, len=1, weight=100, color=white];", cp.id, cp.neighbor.id);
-                    Console.WriteLine("    {0} -> {1} [weight=1, len=2, color=white];", cp.id, cp.neighbor2.id);
-                    Console.WriteLine("    {0} -> {1} [style=dotted, len=3, weight=0, color=white];", cp.id, cp.neighbor3.id);
+                    Console.WriteLine("    {0} -> {1} [style=bold,   color=white];", cp.id, cp.neighbor.id);
+                    Console.WriteLine("    {0} -> {1} [              color=white];", cp.id, cp.neighbor2.id);
+                    Console.WriteLine("    {0} -> {1} [style=dotted, color=white];", cp.id, cp.neighbor3.id);
                 }
             }
 
