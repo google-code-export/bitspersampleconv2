@@ -331,7 +331,7 @@ namespace ColorPlot {
 
             System.Console.WriteLine("digraph a {");
             System.Console.WriteLine("    graph [bgcolor=\"#484848\"]");
-            System.Console.WriteLine("    node [fontsize=24, fontcolor=white]");
+            System.Console.WriteLine("    node [fontsize=32, fontcolor=white]");
             System.Console.WriteLine("    rankdir=LR;");
 
             for (int segment=0; segment < SEGMENT_NUM; ++segment) {
