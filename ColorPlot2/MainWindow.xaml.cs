@@ -331,16 +331,23 @@ namespace ColorPlot {
 
             System.Console.WriteLine("digraph a {");
             System.Console.WriteLine("    graph [bgcolor=\"#484848\"]");
-            System.Console.WriteLine("    node [fontsize=24, fontcolor=white, color=\"#484848\"]");
+            System.Console.WriteLine("    node [fontsize=24, fontcolor=white]");
             System.Console.WriteLine("    rankdir=LR;");
 
             for (int segment=0; segment < SEGMENT_NUM; ++segment) {
                 for (int i=0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cp = colors[segment].ElementAt(i);
-                    Console.WriteLine("    node [style=filled fillcolor=\"#{0:x2}{1:x2}{2:x2}\"]; {3}",
+
+                    string shape = "color=\"#484848\", shape=ellipse";
+                    if (i == 0 || i == COLOR_NUM_PER_SEGMENT - 1) {
+                        shape = ", color=white, shape=doublecircle";
+                    }
+
+                    Console.WriteLine("    node [style=filled fillcolor=\"#{0:x2}{1:x2}{2:x2}\"{3}]; {4}",
                         (int)(cp.rgb.r),
                         (int)(cp.rgb.g),
                         (int)(cp.rgb.b),
+                        shape,
                         cp.id);
                 }
 
