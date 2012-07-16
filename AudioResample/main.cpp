@@ -1,3 +1,4 @@
+// æ—¥æœ¬èªUTF-8
 #pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
 
 #define WINVER _WIN32_WINNT_WIN7
@@ -36,9 +37,9 @@ template <class T> void SafeRelease(T **ppT)
     }                                             \
 }                                                 \
 
-/** ƒtƒ@ƒCƒ‹ƒpƒX‚©‚çƒƒfƒBƒAƒ\[ƒX‚ğì¬‚·‚éB
- * @param sURL ƒtƒ@ƒCƒ‹ƒpƒX
- * @param ppSource [out] ì¬‚³‚ê‚½ƒƒfƒBƒAƒ\[ƒX‚ª–ß‚éB¸”s‚Ì‚Æ‚«‚ÍNULL‚ª“ü‚éB
+/** ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ã‹ã‚‰ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param sURL ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
+ * @param ppSource [out] ä½œæˆã•ã‚ŒãŸãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ãŒæˆ»ã‚‹ã€‚å¤±æ•—ã®ã¨ãã¯NULLãŒå…¥ã‚‹ã€‚
  */
 static HRESULT
 CreateMediaSourceFromURL(const WCHAR *sURL, IMFMediaSource **ppSource)
@@ -60,9 +61,9 @@ end:
     return hr;
 }
 
-/** pSource‚ªƒ\[ƒX‚ÌSource Node IMFTopologyNode‚ğì¬‚·‚éB
- * @param pSource ‚±‚Ìƒm[ƒh‚ÌƒƒfƒBƒAƒ\[ƒXB
- * @param ppNode [out] IMFTopologyNode‚ª–ß‚éB¸”s‚ÌNULL‚ª“ü‚éB
+/** pSourceãŒã‚½ãƒ¼ã‚¹ã®Source Node IMFTopologyNodeã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param pSource ã“ã®ãƒãƒ¼ãƒ‰ã®ãƒ¡ãƒ‡ã‚£ã‚¢ã‚½ãƒ¼ã‚¹ã€‚
+ * @param ppNode [out] IMFTopologyNodeãŒæˆ»ã‚‹ã€‚å¤±æ•—ã®æ™‚NULLãŒå…¥ã‚‹ã€‚
  */
 static HRESULT
 CreateTopologyNodeFromMediaSource(
@@ -81,7 +82,7 @@ CreateTopologyNodeFromMediaSource(
     HRG(pNode->SetUnknown(MF_TOPONODE_STREAM_DESCRIPTOR, pSourceSD));
 
     *ppNode = pNode;
-    pNode = NULL; //< end:‚ÅRelease‚³‚ê‚é‚Ì‚ğ–h‚®B
+    pNode = NULL; //< end:ã§Releaseã•ã‚Œã‚‹ã®ã‚’é˜²ãã€‚
 
 end:
     SafeRelease(&pNode);
@@ -89,8 +90,8 @@ end:
 }
 
 /**
- * clsidTransform‚ÌTransform‚ğì¬‚µA
- * SourceNode ¨ TransformNode ¨ OutputNode ‚Æ‚¢‚¤Ú‘±‚ğì‚éB
+ * clsidTransformã®Transformã‚’ä½œæˆã—ã€
+ * SourceNode â†’ TransformNode â†’ OutputNode ã¨ã„ã†æ¥ç¶šã‚’ä½œã‚‹ã€‚
  */
 static HRESULT
 ConnectSourceToOutput(
@@ -124,8 +125,8 @@ end:
 }
 
 /**
- * SAR(Streaming Audio Renderer) Topology Node‚ğì¬‚·‚éB
- * @param ppSARTopologyNode [out] SAR Topology NodeBì¬¸”s‚ÌNULL‚ª“ü‚éB
+ * SAR(Streaming Audio Renderer) Topology Nodeã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param ppSARTopologyNode [out] SAR Topology Nodeã€‚ä½œæˆå¤±æ•—ã®æ™‚NULLãŒå…¥ã‚‹ã€‚
  */
 static HRESULT
 CreateSARTopologyNode(IMFTopologyNode **ppSARTopologyNode)
@@ -140,7 +141,7 @@ CreateSARTopologyNode(IMFTopologyNode **ppSARTopologyNode)
     HRG(pOutputNode->SetObject(pRendererActivate));
 
     *ppSARTopologyNode = pOutputNode;
-    pOutputNode = NULL; //< end:‚ÅÁ‚³‚ê‚é‚Ì‚ğ–h~B
+    pOutputNode = NULL; //< end:ã§æ¶ˆã•ã‚Œã‚‹ã®ã‚’é˜²æ­¢ã€‚
 
 end:
     SafeRelease(&pOutputNode);
@@ -184,8 +185,8 @@ end:
     return hr;
 }
 
-/** IMFMediaSource‚©‚çIMFTopology‚ğì¬‚·‚éB
- * @param ppTopology [out]ì¬‚µ‚½Topology‚ª–ß‚éB¸”s‚Ì‚Æ‚«‚ÍNULL‚ª“ü‚éB
+/** IMFMediaSourceã‹ã‚‰IMFTopologyã‚’ä½œæˆã™ã‚‹ã€‚
+ * @param ppTopology [out]ä½œæˆã—ãŸTopologyãŒæˆ»ã‚‹ã€‚å¤±æ•—ã®ã¨ãã¯NULLãŒå…¥ã‚‹ã€‚
  */
 static HRESULT
 CreateTopologyFromSource(IMFMediaSource *pSource, IMFTopology **ppTopology)
@@ -205,7 +206,7 @@ CreateTopologyFromSource(IMFMediaSource *pSource, IMFTopology **ppTopology)
     }
 
     *ppTopology = pTopology;
-    pTopology = NULL; //< end:‚ÅÁ‚³‚ê‚é‚Ì‚ğ–h~B
+    pTopology = NULL; //< end:ã§æ¶ˆã•ã‚Œã‚‹ã®ã‚’é˜²æ­¢ã€‚
 
 end:
     SafeRelease(&pSourcePD);
@@ -225,7 +226,7 @@ OnTopoStatus(IMFMediaSession *pSession, IMFMediaEvent *pMediaEvent)
     HRG(pMediaEvent->GetUINT32(MF_EVENT_TOPOLOGY_STATUS, (UINT32*)&topoStatus));
     switch (topoStatus) {
     case MF_TOPOSTATUS_READY:
-        // ‚±‚±‚ÅÄ¶‚ğŠJn‚·‚éB
+        // ã“ã“ã§å†ç”Ÿã‚’é–‹å§‹ã™ã‚‹ã€‚
         HRG(pSession->Start(&GUID_NULL, &varStart));
         PropVariantClear(&varStart);
         break;
@@ -277,14 +278,14 @@ Test(void)
         dprintf("%d\n", meType);
         switch (meType) {
         case MESessionTopologyStatus:
-            // Topology‚ªReady‚É‚È‚Á‚½‚çÄ¶ŠJn‚·‚éB
+            // TopologyãŒReadyã«ãªã£ãŸã‚‰å†ç”Ÿé–‹å§‹ã™ã‚‹ã€‚
             HRG(OnTopoStatus(pSession, pMediaEvent));
             break;
         case MESessionStarted:
             dprintf("session started.\n");
             break;
         case MEEndOfPresentation:
-            // Session‚Í©“®“I‚É’â~ó‘Ô‚É‚È‚èA‚±‚±‚É—ˆ‚éB
+            // Sessionã¯è‡ªå‹•çš„ã«åœæ­¢çŠ¶æ…‹ã«ãªã‚Šã€ã“ã“ã«æ¥ã‚‹ã€‚
             HRG(OnEndOfPresentation(pSession));
             break;
         case MESessionClosed:
