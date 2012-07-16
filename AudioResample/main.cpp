@@ -10,6 +10,14 @@
 #include <stdio.h>
 #include <mferror.h>
 #include <assert.h>
+#include <new>
+#include <Shlwapi.h>
+
+#pragma comment(lib, "mfplat")
+#pragma comment(lib, "mf")
+#pragma comment(lib, "mfreadwrite")
+#pragma comment(lib, "mfuuid")
+#pragma comment(lib, "Shlwapi")
 
 template <class T> void SafeRelease(T **ppT) {
     if (*ppT) {
@@ -132,6 +140,123 @@ end:
     return hr;
 }
 
+class SampleGrabberCB : public IMFSampleGrabberSinkCallback 
+{
+    long m_cRef;
+
+    SampleGrabberCB() : m_cRef(1) {}
+
+public:
+    static HRESULT CreateInstance(SampleGrabberCB **ppCB) {
+        *ppCB = new (std::nothrow) SampleGrabberCB();
+        if (ppCB == NULL) {
+            return E_OUTOFMEMORY;
+        }
+        return S_OK;
+    }
+
+    // IUnknown methods
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) {
+        static const QITAB qit[] = 
+        {
+            QITABENT(SampleGrabberCB, IMFSampleGrabberSinkCallback),
+            QITABENT(SampleGrabberCB, IMFClockStateSink),
+            { 0 }
+        };
+        return QISearch(this, qit, riid, ppv);
+    }
+    STDMETHODIMP_(ULONG) AddRef(void) {
+        return InterlockedIncrement(&m_cRef);
+    }
+    STDMETHODIMP_(ULONG) Release(void) {
+        ULONG cRef = InterlockedDecrement(&m_cRef);
+        if (cRef == 0) {
+            delete this;
+        }
+        return cRef;
+    }
+
+    // IMFClockStateSink methods
+    STDMETHODIMP OnClockStart(MFTIME hnsSystemTime, LONGLONG llClockStartOffset) {
+        hnsSystemTime;
+        llClockStartOffset;
+        return S_OK;
+    }
+    STDMETHODIMP OnClockStop(MFTIME hnsSystemTime) {
+        hnsSystemTime;
+        return S_OK;
+    }
+    STDMETHODIMP OnClockPause(MFTIME hnsSystemTime) {
+        hnsSystemTime;
+        return S_OK;
+    }
+    STDMETHODIMP OnClockRestart(MFTIME hnsSystemTime) {
+        hnsSystemTime;
+        return S_OK;
+    }
+    STDMETHODIMP OnClockSetRate(MFTIME hnsSystemTime, float flRate) {
+        hnsSystemTime;
+        flRate;
+        return S_OK;
+    }
+
+    // IMFSampleGrabberSinkCallback methods
+    STDMETHODIMP OnSetPresentationClock(IMFPresentationClock* pClock) {
+        pClock;
+        return S_OK;
+    }
+    STDMETHODIMP OnProcessSample(REFGUID guidMajorMediaType, DWORD dwSampleFlags,
+        LONGLONG llSampleTime, LONGLONG llSampleDuration, const BYTE * pSampleBuffer,
+        DWORD dwSampleSize) {
+            pSampleBuffer;
+            dwSampleFlags;
+            guidMajorMediaType;
+        // Display information about the sample.
+        printf("Sample: start = %I64d, duration = %I64d, bytes = %d\n", llSampleTime, llSampleDuration, dwSampleSize); 
+        return S_OK;
+    }
+    STDMETHODIMP OnShutdown(void) {
+        return S_OK;
+    }
+};
+
+/**
+ * Sample Grabber Sink Topology nodeを作成する。
+ */
+static HRESULT
+CreateSampleGrabberTopologyNode(IMFTopologyNode **ppTopologyNode)
+{
+    HRESULT hr = S_OK;
+    IMFMediaType *pMediaType = NULL;
+    IMFTopologyNode *pOutputNode = NULL;
+    SampleGrabberCB *pCallback = NULL;
+    IMFActivate *pActivate = NULL;
+    assert(ppTopologyNode);
+    *ppTopologyNode = NULL;
+
+    HRG(MFCreateMediaType(&pMediaType));
+    HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
+    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
+    HRG(SampleGrabberCB::CreateInstance(&pCallback));
+    HRG(MFCreateSampleGrabberSinkActivate(pMediaType, pCallback, &pActivate));
+
+    HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
+    HRG(pActivate->SetUINT32(MF_SAMPLEGRABBERSINK_IGNORE_CLOCK, TRUE));
+    HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
+    HRG(pOutputNode->SetObject(pActivate));
+
+    *ppTopologyNode = pOutputNode;
+    pOutputNode = NULL;
+
+end:
+    SafeRelease(&pMediaType);
+    SafeRelease(&pOutputNode);
+    SafeRelease(&pCallback);
+    SafeRelease(&pActivate);
+    return hr;
+}
+
+#if 0
 /**
  * SAR(Streaming Audio Renderer) Topology Nodeを作成する。
  * @param ppSARTopologyNode [out] SAR Topology Node。作成失敗の時NULLが入る。
@@ -157,6 +282,7 @@ end:
     SafeRelease(&pRendererActivate);
     return hr;
 }
+#endif /* 0 */
 
 static HRESULT
 AddSinkToPartialTopology(
@@ -188,6 +314,8 @@ AddSinkToPartialTopology(
     HRG(pTopology->AddNode(pSourceNode));
 
     HRG(pTopology->AddNode(pSinkNode));
+    HRG(pSinkNode->SetUINT32(MF_TOPONODE_STREAMID, idx));
+    HRG(pSinkNode->SetUINT32(MF_TOPONODE_NOSHUTDOWN_ON_REMOVE, FALSE));
 
     HRG(ConnectSourceToOutput(pTopology, pSourceNode, pSinkNode, GUID_NULL));
 
@@ -281,7 +409,8 @@ Test(void)
 
     HRG(MFCreateMediaSession(NULL, &pSession));
     HRG(CreateMediaSourceFromURL(L"C:/tmp/a.wav", &pSource));
-    HRG(CreateSARTopologyNode(&pSinkNode));
+    //HRG(CreateSARTopologyNode(&pSinkNode));
+    HRG(CreateSampleGrabberTopologyNode(&pSinkNode));
     HRG(CreateTopology(pSource, pSinkNode, &pTopology));
     HRG(pSession->SetTopology(0, pTopology));
     while (!bDone) {
