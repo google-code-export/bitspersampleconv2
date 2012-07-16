@@ -237,12 +237,11 @@ OnTopoStatus(IMFMediaSession *pSession, IMFMediaEvent *pMediaEvent)
     MF_TOPOSTATUS topoStatus = MF_TOPOSTATUS_INVALID;
     PROPVARIANT varStart;
 
-    PropVariantInit(&varStart);
-
     HRG(pMediaEvent->GetUINT32(MF_EVENT_TOPOLOGY_STATUS, (UINT32*)&topoStatus));
     switch (topoStatus) {
     case MF_TOPOSTATUS_READY:
         // ここで再生を開始する。
+        PropVariantInit(&varStart);
         HRG(pSession->Start(&GUID_NULL, &varStart));
         PropVariantClear(&varStart);
         break;
