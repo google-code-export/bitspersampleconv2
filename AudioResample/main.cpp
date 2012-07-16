@@ -409,8 +409,11 @@ Test(void)
 
     HRG(MFCreateMediaSession(NULL, &pSession));
     HRG(CreateMediaSourceFromURL(L"C:/tmp/a.wav", &pSource));
-    //HRG(CreateSARTopologyNode(&pSinkNode));
+#if 0
+    HRG(CreateSARTopologyNode(&pSinkNode));
+#else
     HRG(CreateSampleGrabberTopologyNode(&pSinkNode));
+#endif
     HRG(CreateTopology(pSource, pSinkNode, &pTopology));
     HRG(pSession->SetTopology(0, pTopology));
     while (!bDone) {
