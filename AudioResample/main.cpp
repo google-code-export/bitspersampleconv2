@@ -73,8 +73,8 @@ CreateTopologyNodeFromMediaSource(
         IMFStreamDescriptor *pSourceSD,
         IMFTopologyNode **ppNode)
 {
-    IMFTopologyNode *pNode = NULL;
     HRESULT hr = S_OK;
+    IMFTopologyNode *pNode = NULL;
     assert(pSource);
     assert(pSourcePD);
     assert(pSourceSD);
@@ -166,10 +166,10 @@ AddSinkToPartialTopology(
         IMFPresentationDescriptor *pSourcePD, 
         DWORD idx)
 {
+    HRESULT hr = S_OK;
     IMFStreamDescriptor* pSourceSD = NULL;
     IMFTopologyNode* pSourceNode = NULL;
     BOOL fSelected = FALSE;
-    HRESULT hr = S_OK;
     assert(pTopology);
     assert(pSource);
     assert(pSinkNode);
@@ -270,12 +270,12 @@ OnEndOfPresentation(IMFMediaSession *pSession)
 static HRESULT
 Test(void)
 {
-    HRESULT hr;
+    HRESULT hr = S_OK;
     IMFMediaSource * pSource = NULL;
     IMFMediaSession *pSession = NULL;
     IMFTopology     *pTopology = NULL;
     IMFMediaEvent   *pMediaEvent = NULL;
-    IMFTopologyNode* pSinkNode = NULL;
+    IMFTopologyNode *pSinkNode = NULL;
     HRESULT         hrStatus = S_OK;
     MediaEventType  meType;
     bool            bDone = false;
@@ -333,7 +333,7 @@ extern "C" __declspec(dllexport)
 HRESULT __stdcall
 WWResampler_test(void)
 {
-    HRESULT hr;
+    HRESULT hr = S_OK;
     IMFSourceReader *pReader = NULL;
     HANDLE hFile = INVALID_HANDLE_VALUE;
 
@@ -350,8 +350,8 @@ WWResampler_test(void)
 end:
     if (hFile != INVALID_HANDLE_VALUE) {
         CloseHandle(hFile);
+        hFile = INVALID_HANDLE_VALUE;
     }
-
     SafeRelease(&pReader);
     MFShutdown();
     return hr;
@@ -359,10 +359,10 @@ end:
 
 int wmain(int argc, wchar_t* argv[])
 {
+    HRESULT hr = S_OK;
+    bool bCoInitialize = false;
     argc;
     argv;
-    bool bCoInitialize = false;
-    HRESULT hr = S_OK;
     
     HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
     bCoInitialize = true;
