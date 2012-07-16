@@ -330,7 +330,7 @@ end:
 }
 
 extern "C" __declspec(dllexport)
-int __stdcall
+HRESULT __stdcall
 WWResampler_test(void)
 {
     HRESULT hr;
@@ -354,7 +354,6 @@ end:
 
     SafeRelease(&pReader);
     MFShutdown();
-
     return hr;
 }
 
@@ -362,14 +361,17 @@ int wmain(int argc, wchar_t* argv[])
 {
     argc;
     argv;
+    bool bCoInitialize = false;
+    HRESULT hr = S_OK;
+    
+    HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
+    HRG(WWResampler_test());
 
-    // Initialize the COM library.
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-
-    WWResampler_test();
-
-    CoUninitialize();
-
+end:
+    if (bCoInitialize) {
+        CoUninitialize();
+        bCoInitialize = false;
+    }
     return SUCCEEDED(hr) ? 0 : 1;
 };
 
