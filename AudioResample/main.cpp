@@ -11,10 +11,8 @@
 #include <mferror.h>
 #include <assert.h>
 
-template <class T> void SafeRelease(T **ppT)
-{
-    if (*ppT)
-    {
+template <class T> void SafeRelease(T **ppT) {
+    if (*ppT) {
         (*ppT)->Release();
         *ppT = NULL;
     }
@@ -199,7 +197,7 @@ end:
     return hr;
 }
 
-/** IMFMediaSourceからIMFTopologyを作成する。
+/** pSource、pSinkNodeからIMFTopologyを作成する。
  * @param ppTopology [out]作成したTopologyが戻る。失敗のときはNULLが入る。
  */
 static HRESULT
@@ -260,7 +258,7 @@ end:
     return hr;
 }
 
-/** end of presentation eventの処理。
+/** Topology end of presentation eventの処理。
  */
 static HRESULT
 OnEndOfPresentation(IMFMediaSession *pSession)
@@ -350,7 +348,6 @@ WWResampler_test(void)
     HRG(Test());
 
 end:
-
     if (hFile != INVALID_HANDLE_VALUE) {
         CloseHandle(hFile);
     }
