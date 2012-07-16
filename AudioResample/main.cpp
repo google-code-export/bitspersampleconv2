@@ -9,6 +9,7 @@
 #include <mfreadwrite.h>
 #include <stdio.h>
 #include <mferror.h>
+#include <assert.h>
 
 template <class T> void SafeRelease(T **ppT)
 {
@@ -48,6 +49,8 @@ CreateMediaSourceFromURL(const WCHAR *sURL, IMFMediaSource **ppSource)
     IMFSourceResolver* pSourceResolver = NULL;
     IUnknown* pSource = NULL;
     MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
+    assert(sURL);
+    assert(ppSource);
     *ppSource = NULL;
 
     HRG(MFCreateSourceResolver(&pSourceResolver));
@@ -74,6 +77,10 @@ CreateTopologyNodeFromMediaSource(
 {
     IMFTopologyNode *pNode = NULL;
     HRESULT hr = S_OK;
+    assert(pSource);
+    assert(pSourcePD);
+    assert(pSourceSD);
+    assert(ppNode);
     *ppNode = NULL;
 
     HRG(MFCreateTopologyNode(MF_TOPOLOGY_SOURCESTREAM_NODE, &pNode));
@@ -103,6 +110,9 @@ ConnectSourceToOutput(
     HRESULT hr = S_OK;
     IMFTopologyNode *pTransformNode = NULL;
     IUnknown *pTransformUnk = NULL;
+    assert(pTopology);
+    assert(pSourceNode);
+    assert(pOutputNode);
 
     if (clsidTransform == GUID_NULL) {
         hr = pSourceNode->ConnectOutput(0, pOutputNode, 0);
@@ -134,6 +144,7 @@ CreateSARTopologyNode(IMFTopologyNode **ppSARTopologyNode)
     HRESULT hr = S_OK;
     IMFActivate *pRendererActivate = NULL;
     IMFTopologyNode *pOutputNode = NULL;
+    assert(ppSARTopologyNode);
     *ppSARTopologyNode = NULL;
 
     HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
@@ -153,19 +164,24 @@ static HRESULT
 AddSinkToPartialTopology(
         IMFTopology *pTopology,
         IMFMediaSource *pSource,
+        IMFTopologyNode *pSinkNode,
         IMFPresentationDescriptor *pSourcePD, 
         DWORD idx)
 {
     IMFStreamDescriptor* pSourceSD = NULL;
     IMFTopologyNode* pSourceNode = NULL;
-    IMFTopologyNode* pSinkNode = NULL;
     BOOL fSelected = FALSE;
     HRESULT hr = S_OK;
+    assert(pTopology);
+    assert(pSource);
+    assert(pSinkNode);
+    assert(pSourcePD);
 
     HRG(pSourcePD->GetStreamDescriptorByIndex(idx, &fSelected, &pSourceSD));
 
     if (!fSelected) {
         // We don't want to render this stream. Exit now.
+        dprintf("GetStreamDescriptorByIndex fSelected==false.\n");
         pSourceSD->Release();
         return S_OK;
     }
@@ -173,7 +189,6 @@ AddSinkToPartialTopology(
     HRG(CreateTopologyNodeFromMediaSource(pSource, pSourcePD, pSourceSD, &pSourceNode));
     HRG(pTopology->AddNode(pSourceNode));
 
-    HRG(CreateSARTopologyNode(&pSinkNode));
     HRG(pTopology->AddNode(pSinkNode));
 
     HRG(ConnectSourceToOutput(pTopology, pSourceNode, pSinkNode, GUID_NULL));
@@ -181,7 +196,6 @@ AddSinkToPartialTopology(
 end:
     SafeRelease(&pSourceSD);
     SafeRelease(&pSourceNode);
-    SafeRelease(&pSinkNode);
     return hr;
 }
 
@@ -189,7 +203,7 @@ end:
  * @param ppTopology [out]作成したTopologyが戻る。失敗のときはNULLが入る。
  */
 static HRESULT
-CreateTopologyFromSource(IMFMediaSource *pSource, IMFTopology **ppTopology)
+CreateTopology(IMFMediaSource *pSource, IMFTopologyNode *pSinkNode, IMFTopology **ppTopology)
 {
     HRESULT hr = S_OK;
     IMFTopology *pTopology = NULL;
@@ -200,10 +214,12 @@ CreateTopologyFromSource(IMFMediaSource *pSource, IMFTopology **ppTopology)
     HRG(MFCreateTopology(&pTopology));
     HRG(pSource->CreatePresentationDescriptor(&pSourcePD));
     HRG(pSourcePD->GetStreamDescriptorCount(&cSourceStreams));
-
-    for (DWORD i = 0; i < cSourceStreams; ++i) {
-        HRG(AddSinkToPartialTopology(pTopology, pSource, pSourcePD, i));
+    if (cSourceStreams != 1) {
+        dprintf("source stream is not 1 !\n");
+        hr = E_FAIL;
+        goto end;
     }
+    HRG(AddSinkToPartialTopology(pTopology, pSource, pSinkNode, pSourcePD, 0));
 
     *ppTopology = pTopology;
     pTopology = NULL; //< end:で消されるのを防止。
@@ -214,6 +230,8 @@ end:
     return hr;
 }
 
+/** Topology status eventの処理。
+ */
 static HRESULT
 OnTopoStatus(IMFMediaSession *pSession, IMFMediaEvent *pMediaEvent)
 {
@@ -242,6 +260,8 @@ end:
     return hr;
 }
 
+/** end of presentation eventの処理。
+ */
 static HRESULT
 OnEndOfPresentation(IMFMediaSession *pSession)
 {
@@ -257,13 +277,15 @@ Test(void)
     IMFMediaSession *pSession = NULL;
     IMFTopology     *pTopology = NULL;
     IMFMediaEvent   *pMediaEvent = NULL;
+    IMFTopologyNode* pSinkNode = NULL;
     HRESULT         hrStatus = S_OK;
     MediaEventType  meType;
     bool            bDone = false;
 
     HRG(MFCreateMediaSession(NULL, &pSession));
     HRG(CreateMediaSourceFromURL(L"C:/tmp/a.wav", &pSource));
-    HRG(CreateTopologyFromSource(pSource, &pTopology));
+    HRG(CreateSARTopologyNode(&pSinkNode));
+    HRG(CreateTopology(pSource, pSinkNode, &pTopology));
     HRG(pSession->SetTopology(0, pTopology));
     while (!bDone) {
         HRG(pSession->GetEvent(0, &pMediaEvent));
@@ -301,6 +323,7 @@ Test(void)
     }
 
 end:
+    SafeRelease(&pSinkNode);
     SafeRelease(&pMediaEvent);
     SafeRelease(&pTopology);
     SafeRelease(&pSource);
