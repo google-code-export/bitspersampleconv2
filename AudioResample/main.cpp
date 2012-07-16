@@ -365,6 +365,8 @@ int wmain(int argc, wchar_t* argv[])
     HRESULT hr = S_OK;
     
     HRG(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE));
+    bCoInitialize = true;
+
     HRG(WWResampler_test());
 
 end:
