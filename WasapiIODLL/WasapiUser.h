@@ -116,7 +116,7 @@ public:
     /// (WASAPI共有の場合、PcmDataSampleRateとは異なる値になることがある)
     int GetMixFormatSampleRate(void);
 
-    /// 再生データをpcmDataに切り替える。
+    /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 
     /// -1: specified buffer is not used
@@ -243,11 +243,11 @@ private:
     void SetupPlayPcmDataLinklist(
         bool repeat, WWPcmData *startPcmData, WWPcmData *endPcmData);
 
-    /// 停止中に再生するpcmDataをセットする。
+    /// 再生スレッド停止中に再生するpcmDataをセットする。
     /// 1フレームの無音の後にpcmDataを再生する。
     void UpdatePlayPcmDataWhenNotPlaying(WWPcmData &playPcmData);
 
-    /// 再生中に再生するPcmDataをセットする。
+    /// 再生中(か一時停止中)に再生するPcmDataをセットする。
     /// サンプル値をなめらかに補間する。
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
 

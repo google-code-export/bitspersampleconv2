@@ -1231,7 +1231,6 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
     WaitForSingleObject(m_mutex, INFINITE);
     {
         WWPcmData *nowPlaying = m_nowPlayingPcmData;
-
         if (nowPlaying) {
             // m_nowPlayingPcmDataをpcmDataに移動する。
             // Issue3: いきなり移動するとブチッと言うので
@@ -1250,6 +1249,14 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             m_spliceBuffer.next = SkipFrames(&pcmData, advance);
 
             m_nowPlayingPcmData = &m_spliceBuffer;
+        } else {
+            // 一時停止中。
+            if (m_pauseResumePcmData != &pcmData) {
+                // 別の再生曲に移動した場合、
+                // それまで再生していた曲は頭出ししておく。
+                m_pauseResumePcmData->posFrame = 0;
+                m_pauseResumePcmData = &pcmData;
+            }
         }
     }
 

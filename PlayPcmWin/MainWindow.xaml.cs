@@ -3271,7 +3271,8 @@ namespace PlayPcmWin
             System.Diagnostics.Debug.Assert(0 <= wavDataId);
 
             int playingId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
-            if (playingId < 0 && 0 <= m_loadingGroupId) {
+            int pauseResumeId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
+            if (playingId < 0 && pauseResumeId < 0 && 0 <= m_loadingGroupId) {
                 // 再生中でなく、ロード中の場合。
                 // ロード完了後ReadFileRunWorkerCompleted()で再生する曲を切り替えるための
                 // 情報をセットする。
@@ -3280,6 +3281,10 @@ namespace PlayPcmWin
                 return;
             }
 
+            if (0 <= pauseResumeId) {
+                // 再生一時停止中の場合。
+                wasapi.UpdatePlayPcmDataById(wavDataId);
+            }
             if (playingId < 0) {
                 // 再生中でなく、ロード中でもない場合。
                 wasapi.UpdatePlayPcmDataById(wavDataId);
