@@ -1015,7 +1015,7 @@ WasapiUser::Pause(void)
     ReleaseMutex(m_mutex);
 
     if (pauseDataSetSucceeded) {
-        // ここで再生停止までブロックする。
+        // ここで再生一時停止までブロックする。
 
         WWPcmData *nowPlayingPcmData = NULL;
 
@@ -1256,6 +1256,10 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
                 // それまで再生していた曲は頭出ししておく。
                 m_pauseResumePcmData->posFrame = 0;
                 m_pauseResumePcmData = &pcmData;
+
+                // 再生シークをしたあと再生一時停止し再生曲を変更し再生再開すると
+                // 一瞬再生曲表示が再生シークした曲になる問題の修正ｗ
+                m_spliceBuffer.next = NULL;
             }
         }
     }
