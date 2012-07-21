@@ -395,23 +395,24 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,IndexNrColumn:System.Windows.Contro
 PlayPcmWin.g.en-US.resources:mainwindow.baml,ReadSeparaterAfterColumn:System.Windows.Controls.DataGridCheckBoxColumn.$Content,None,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,ReadSeparaterAfterColumn:System.Windows.Controls.DataGridColumn.Width,None,True,False,,SizeToCells
 PlayPcmWin.g.en-US.resources:mainwindow.baml,ReadSeparaterAfterColumn:System.Windows.Controls.DataGridColumn.Header,Label,True,True,,Batch read endpoint
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_1:System.Windows.FrameworkElement.Height,None,False,True,,109
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_1:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,0,26"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Center
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_2:System.Windows.Controls.StackPanel.Orientation,None,False,True,,Horizontal
-PlayPcmWin.g.en-US.resources:mainwindow.baml,StackPanel_2:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
+PlayPcmWin.g.en-US.resources:mainwindow.baml,DockPanel_1:System.Windows.FrameworkElement.Height,None,False,True,,109
+PlayPcmWin.g.en-US.resources:mainwindow.baml,DockPanel_1:System.Windows.FrameworkElement.Margin,None,False,True,,"0,0,0,26"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,DockPanel_1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
+PlayPcmWin.g.en-US.resources:mainwindow.baml,DockPanel_1:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Stretch
 PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.Controls.Image.$Content,None,False,True,,
+PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.Controls.DockPanel.Dock,None,True,False,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.Media.RenderOptions.BitmapScalingMode,None,True,False,,Fant
-PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Right
 PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.Controls.Image.Stretch,None,True,False,,Uniform
 PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.FrameworkElement.Height,None,False,True,,109
 PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.FrameworkElement.Width,None,False,True,,109
+PlayPcmWin.g.en-US.resources:mainwindow.baml,imageCoverArt:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,Grid_12:System.Windows.FrameworkElement.Width,None,False,True,,Auto
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.Controls.GroupBox.$Content,None,False,True,,#Grid_3;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Playback control
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,6,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.Height,None,False,True,,109
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.Width,None,False,True,,Auto
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.Height,None,False,True,,86
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox7:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,Grid_3:System.Windows.FrameworkElement.Width,None,False,True,,380
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.Controls.Button.$Content,Button,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonPlay:System.Windows.Controls.ContentControl.Content,Button,True,True,,_Play
@@ -458,14 +459,14 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Con
 PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Controls.Control.FontWeight,None,True,True,,Bold
 PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Controls.Control.FontSize,None,True,True,,16
 PlayPcmWin.g.en-US.resources:mainwindow.baml,labelPlayingTime:System.Windows.Controls.Control.FontFamily,Font,True,True,,Courier New
-PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,7,0"
-PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.Height,None,False,True,,23
-PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
-PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.Controls.Slider.IsMoveToPointEnabled,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,comboBoxPlayMode:System.Windows.Controls.ComboBox.$Content,ComboBox,True,True,,
 PlayPcmWin.g.en-US.resources:mainwindow.baml,comboBoxPlayMode:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
 PlayPcmWin.g.en-US.resources:mainwindow.baml,comboBoxPlayMode:System.Windows.FrameworkElement.Margin,None,False,True,,"6,33,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,comboBoxPlayMode:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
+PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.Margin,None,False,True,,"6,0,6,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.Height,None,False,True,,23
+PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Bottom
+PlayPcmWin.g.en-US.resources:mainwindow.baml,slider1:System.Windows.Controls.Slider.IsMoveToPointEnabled,None,False,True,,True
 PlayPcmWin.g.en-US.resources:mainwindow.baml,expanderSettings:System.Windows.Controls.Expander.$Content,None,False,True,,#Grid_4;
 PlayPcmWin.g.en-US.resources:mainwindow.baml,expanderSettings:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Settings
 PlayPcmWin.g.en-US.resources:mainwindow.baml,expanderSettings:System.Windows.FrameworkElement.Margin,None,False,True,,"0,29,6,26"
@@ -519,7 +520,7 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.G
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Output latency
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Height,None,False,True,,59
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.HorizontalAlignment,None,False,True,,Left
-PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"6,87,0,0"
+PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Margin,None,False,True,,"5,87,0,0"
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.VerticalAlignment,None,False,True,,Top
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBox3:System.Windows.FrameworkElement.Width,None,False,True,,164
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLatency:System.Windows.Controls.TextBox.$Content,Text,True,True,,

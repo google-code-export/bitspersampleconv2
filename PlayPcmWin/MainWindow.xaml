@@ -103,10 +103,10 @@
                 </DataGrid>
             </Grid>
         </GroupBox>
-        <StackPanel x:Uid="StackPanel_1" Height="109" Margin="0,0,0,26" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-            <StackPanel x:Uid="StackPanel_2" Orientation="Horizontal" HorizontalAlignment="Left">
-                <Image x:Uid="imageCoverArt" RenderOptions.BitmapScalingMode="Fant" HorizontalAlignment="Right" Name="imageCoverArt" Stretch="Uniform" Height="109" Width="109" />
-                <GroupBox x:Uid="groupBox7" Header="Playback control" Margin="6,0,6,0" Name="groupBox7" Height="109" Width="Auto" >
+        <DockPanel x:Uid="DockPanel_1" Height="109" Margin="0,0,0,26" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
+            <Image x:Uid="imageCoverArt" DockPanel.Dock="Left" RenderOptions.BitmapScalingMode="Fant" Name="imageCoverArt" Stretch="Uniform" Height="109" Width="109" Margin="6,0,0,0" />
+            <Grid x:Uid="Grid_12" DockPanel.Dock="Right" Width="Auto" >
+                <GroupBox x:Uid="groupBox7" Header="Playback control" Margin="6,0,6,0" Name="groupBox7" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <Grid x:Uid="Grid_3" Width="380">
                         <Button x:Uid="buttonPlay" Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
                         <Button x:Uid="buttonStop" Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
@@ -114,12 +114,12 @@
                         <Button x:Uid="buttonPrev" Content="Prev" HorizontalAlignment="Left" IsEnabled="False" Margin="256,6,0,0" Name="buttonPrev" VerticalAlignment="Top" Width="50" Click="buttonPrev_Click" />
                         <Button x:Uid="buttonNext" Content="Next" HorizontalAlignment="Left" IsEnabled="False" Margin="311,6,0,0" Name="buttonNext" VerticalAlignment="Top" Width="50" Click="buttonNext_Click" />
                         <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" Margin="148,30,6,0" Name="labelPlayingTime" Height="29" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" FontSize="16" FontFamily="Courier New" />
-                        <Slider x:Uid="slider1" Margin="6,0,7,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
                         <ComboBox x:Uid="comboBoxPlayMode" HorizontalAlignment="Left" Margin="6,33,0,0" Name="comboBoxPlayMode" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-            </StackPanel>
-        </StackPanel>
+                <Slider x:Uid="slider1" Margin="6,0,6,0" Name="slider1" MouseMove="slider1_MouseMove" Height="23" VerticalAlignment="Bottom" IsMoveToPointEnabled="True" />
+            </Grid>
+        </DockPanel>
         <Expander x:Uid="expanderSettings" Header="Settings"
         Margin="0,29,6,26"
         BorderBrush="#FFD5DFE5"
