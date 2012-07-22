@@ -12,12 +12,21 @@
 #include <assert.h>
 #include <new>
 #include <Shlwapi.h>
+#include <wmcodecdsp.h>
+#include <stdint.h>
 
 #pragma comment(lib, "mfplat")
 #pragma comment(lib, "mf")
 #pragma comment(lib, "mfreadwrite")
 #pragma comment(lib, "mfuuid")
 #pragma comment(lib, "Shlwapi")
+#pragma comment(lib, "wmcodecdspuuid")
+
+// スピーカーから音が出る
+// #define WW_USE_SAR
+
+// Sample grabber sinkのテスト
+#define WW_USE_SAMPLE_GRABBER
 
 template <class T> void SafeRelease(T **ppT) {
     if (*ppT) {
@@ -61,7 +70,9 @@ CreateMediaSourceFromURL(const WCHAR *sURL, IMFMediaSource **ppSource)
 
     HRG(MFCreateSourceResolver(&pSourceResolver));
     HRG(pSourceResolver->CreateObjectFromURL(
-            sURL, MF_RESOLUTION_MEDIASOURCE, NULL, &ObjectType, &pSource));
+            sURL,
+            MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE,
+            NULL, &ObjectType, &pSource));
     HRG(pSource->QueryInterface(IID_PPV_ARGS(ppSource)));
 
 end:
@@ -102,49 +113,75 @@ end:
     return hr;
 }
 
-/**
- * clsidTransformのTransformを作成し、
- * SourceNode → TransformNode → OutputNode という接続を作る。
+#if 1
+/** Resampler MFTを作成する
  */
 static HRESULT
-ConnectSourceToOutput(
-        IMFTopology     *pTopology,
-        IMFTopologyNode *pSourceNode,
-        IMFTopologyNode *pOutputNode,
-        GUID            clsidTransform)
+CreateResamplerMFT(IMFMediaType *pOutputMediaType, IMFTopologyNode **ppTransformNode)
 {
     HRESULT hr = S_OK;
     IMFTopologyNode *pTransformNode = NULL;
     IUnknown *pTransformUnk = NULL;
-    assert(pTopology);
-    assert(pSourceNode);
-    assert(pOutputNode);
-
-    if (clsidTransform == GUID_NULL) {
-        hr = pSourceNode->ConnectOutput(0, pOutputNode, 0);
-        goto end;
-    }
+    IWMResamplerProps *pResamplerProps = NULL;
+    assert(ppTransformNode);
+    *ppTransformNode = NULL;
 
     HRG(MFCreateTopologyNode(MF_TOPOLOGY_TRANSFORM_NODE, &pTransformNode));
-
-    HRG(CoCreateInstance(clsidTransform, NULL, CLSCTX_INPROC_SERVER,
+    HRG(CoCreateInstance(CLSID_CResamplerMediaObject, NULL, CLSCTX_INPROC_SERVER,
             IID_IUnknown, (void**)&pTransformUnk));
+
+    // 効かない
+    HRG(pTransformNode->SetOutputPrefType(0, pOutputMediaType));
+
     HRG(pTransformNode->SetObject(pTransformUnk));
-    HRG(pTopology->AddNode(pTransformNode));
-    HRG(pSourceNode->ConnectOutput(0, pTransformNode, 0));
-    HRG(pTransformNode->ConnectOutput(0, pOutputNode, 0));
+    HRG(pTransformUnk->QueryInterface(IID_PPV_ARGS(&pResamplerProps)));
+    
+    *ppTransformNode = pTransformNode;
+    pTransformNode = NULL; //< 消されるの防止。
 
 end:
-    SafeRelease(&pTransformNode);
     SafeRelease(&pTransformUnk);
+    SafeRelease(&pResamplerProps);
+    SafeRelease(&pTransformNode);
     return hr;
 }
+#endif
 
+#ifdef WW_USE_SAR
+/**
+ * SAR(Streaming Audio Renderer) Topology Nodeを作成する。
+ * @param ppSARTopologyNode [out] SAR Topology Node。作成失敗の時NULLが入る。
+ */
+static HRESULT
+CreateSARTopologyNode(IMFTopologyNode **ppSARTopologyNode)
+{
+    HRESULT hr = S_OK;
+    IMFActivate *pRendererActivate = NULL;
+    IMFTopologyNode *pOutputNode = NULL;
+    assert(ppSARTopologyNode);
+    *ppSARTopologyNode = NULL;
+
+    HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
+    HRG(MFCreateAudioRendererActivate(&pRendererActivate));
+    HRG(pOutputNode->SetObject(pRendererActivate));
+
+    *ppSARTopologyNode = pOutputNode;
+    pOutputNode = NULL; //< end:で消されるのを防止。
+
+end:
+    SafeRelease(&pOutputNode);
+    SafeRelease(&pRendererActivate);
+    return hr;
+}
+#endif /* WW_USE_SAR */
+
+#ifdef WW_USE_SAMPLE_GRABBER
 class SampleGrabberCB : public IMFSampleGrabberSinkCallback 
 {
     long m_cRef;
+    int64_t m_accumBytes;
 
-    SampleGrabberCB() : m_cRef(1) {}
+    SampleGrabberCB() : m_cRef(1), m_accumBytes(0) {}
 
 public:
     static HRESULT CreateInstance(SampleGrabberCB **ppCB) {
@@ -211,8 +248,11 @@ public:
             pSampleBuffer;
             dwSampleFlags;
             guidMajorMediaType;
+        m_accumBytes += dwSampleSize;
+
         // Display information about the sample.
-        printf("Sample: start = %I64d, duration = %I64d, bytes = %d\n", llSampleTime, llSampleDuration, dwSampleSize); 
+        printf("Sample: start = %I64d ms, duration = %I64d, bytes = %d acc=%d bytes\n",
+            llSampleTime/10000, llSampleDuration, dwSampleSize, m_accumBytes);
         return S_OK;
     }
     STDMETHODIMP OnShutdown(void) {
@@ -224,70 +264,111 @@ public:
  * Sample Grabber Sink Topology nodeを作成する。
  */
 static HRESULT
-CreateSampleGrabberTopologyNode(IMFTopologyNode **ppTopologyNode)
+CreateSampleGrabberTopologyNode(IMFMediaType *pMediaType, IMFTopologyNode **ppTopologyNode)
 {
     HRESULT hr = S_OK;
-    IMFMediaType *pMediaType = NULL;
     IMFTopologyNode *pOutputNode = NULL;
     SampleGrabberCB *pCallback = NULL;
     IMFActivate *pActivate = NULL;
     assert(ppTopologyNode);
     *ppTopologyNode = NULL;
 
-    HRG(MFCreateMediaType(&pMediaType));
-    HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
-    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
     HRG(SampleGrabberCB::CreateInstance(&pCallback));
     HRG(MFCreateSampleGrabberSinkActivate(pMediaType, pCallback, &pActivate));
 
     HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
     HRG(pActivate->SetUINT32(MF_SAMPLEGRABBERSINK_IGNORE_CLOCK, TRUE));
-    HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
     HRG(pOutputNode->SetObject(pActivate));
 
     *ppTopologyNode = pOutputNode;
     pOutputNode = NULL;
 
 end:
-    SafeRelease(&pMediaType);
     SafeRelease(&pOutputNode);
     SafeRelease(&pCallback);
     SafeRelease(&pActivate);
     return hr;
 }
 
-#if 0
-/**
- * SAR(Streaming Audio Renderer) Topology Nodeを作成する。
- * @param ppSARTopologyNode [out] SAR Topology Node。作成失敗の時NULLが入る。
+#endif /* WW_USE_SAMPLE_GRABBER */
+
+/** Audio Floatフォーマット
  */
 static HRESULT
-CreateSARTopologyNode(IMFTopologyNode **ppSARTopologyNode)
+CreateAudioFloatMediaType(IMFMediaType **ppMediaType)
 {
     HRESULT hr = S_OK;
-    IMFActivate *pRendererActivate = NULL;
-    IMFTopologyNode *pOutputNode = NULL;
-    assert(ppSARTopologyNode);
-    *ppSARTopologyNode = NULL;
+    IMFMediaType *pMediaType = NULL;
+    *ppMediaType = NULL;
 
-    HRG(MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pOutputNode));
-    HRG(MFCreateAudioRendererActivate(&pRendererActivate));
-    HRG(pOutputNode->SetObject(pRendererActivate));
+    HRG(MFCreateMediaType(&pMediaType));
+    HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
+    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_Float));
 
-    *ppSARTopologyNode = pOutputNode;
-    pOutputNode = NULL; //< end:で消されるのを防止。
+    *ppMediaType = pMediaType;
+    pMediaType = NULL;
 
 end:
-    SafeRelease(&pOutputNode);
-    SafeRelease(&pRendererActivate);
+    SafeRelease(&pMediaType);
     return hr;
 }
-#endif /* 0 */
+
+/** 出力フォーマットを決める
+ */
+static HRESULT
+CreateOutputMediaType(WORD nChannels, WORD bits, int sampleRate, IMFMediaType **ppMediaType)
+{
+    HRESULT hr = S_OK;
+    IMFMediaType *pMediaType = NULL;
+    *ppMediaType = NULL;
+    WAVEFORMATEX wfex;
+    HRG(MFCreateMediaType(&pMediaType));
+#if 1
+    //HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
+    //HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
+    memset(&wfex, 0, sizeof wfex);
+    wfex.wFormatTag = WAVE_FORMAT_PCM;
+    wfex.nChannels = nChannels;
+    wfex.nSamplesPerSec = sampleRate;
+    wfex.wBitsPerSample = bits;
+    wfex.nBlockAlign = (nChannels * bits)/8;
+    //wfex.nAvgBytesPerSec = (sampleRate * bits * nChannels) / 8;
+    //wfex.cbSize = sizeof wfex;
+    HRG(MFInitMediaTypeFromWaveFormatEx(pMediaType, &wfex, sizeof wfex));
+#else
+    wfex;
+    nChannels;
+    bits;
+    sampleRate;
+    HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
+#if 1
+    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM));
+#else
+    // 駄目だった
+    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_Float));
+#endif
+
+    // 駄目だった
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS, nChannels));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND, sampleRate));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT, nChannels * bits/8));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_AVG_BYTES_PER_SECOND, sampleRate * nChannels * bits/8));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BITS_PER_SAMPLE, bits));
+    HRG(pMediaType->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, 1));
+#endif
+    *ppMediaType = pMediaType;
+    pMediaType = NULL;
+
+end:
+    SafeRelease(&pMediaType);
+    return hr;
+}
 
 static HRESULT
 AddSinkToPartialTopology(
         IMFTopology *pTopology,
         IMFMediaSource *pSource,
+        IMFTopologyNode *pTransformNode,
         IMFTopologyNode *pSinkNode,
         IMFPresentationDescriptor *pSourcePD, 
         DWORD idx)
@@ -317,7 +398,14 @@ AddSinkToPartialTopology(
     HRG(pSinkNode->SetUINT32(MF_TOPONODE_STREAMID, idx));
     HRG(pSinkNode->SetUINT32(MF_TOPONODE_NOSHUTDOWN_ON_REMOVE, FALSE));
 
-    HRG(ConnectSourceToOutput(pTopology, pSourceNode, pSinkNode, GUID_NULL));
+    if (NULL == pTransformNode) {
+        hr = pSourceNode->ConnectOutput(0, pSinkNode, 0);
+        goto end;
+    }
+
+    HRG(pTopology->AddNode(pTransformNode));
+    HRG(pSourceNode->ConnectOutput(0, pTransformNode, 0));
+    HRG(pTransformNode->ConnectOutput(0, pSinkNode, 0));
 
 end:
     SafeRelease(&pSourceSD);
@@ -329,7 +417,11 @@ end:
  * @param ppTopology [out]作成したTopologyが戻る。失敗のときはNULLが入る。
  */
 static HRESULT
-CreateTopology(IMFMediaSource *pSource, IMFTopologyNode *pSinkNode, IMFTopology **ppTopology)
+CreateTopology(
+        IMFMediaSource *pSource,
+        IMFTopologyNode *pTransformNode,
+        IMFTopologyNode *pSinkNode,
+        IMFTopology **ppTopology)
 {
     HRESULT hr = S_OK;
     IMFTopology *pTopology = NULL;
@@ -345,7 +437,7 @@ CreateTopology(IMFMediaSource *pSource, IMFTopologyNode *pSinkNode, IMFTopology 
         hr = E_FAIL;
         goto end;
     }
-    HRG(AddSinkToPartialTopology(pTopology, pSource, pSinkNode, pSourcePD, 0));
+    HRG(AddSinkToPartialTopology(pTopology, pSource, pTransformNode, pSinkNode, pSourcePD, 0));
 
     *ppTopology = pTopology;
     pTopology = NULL; //< end:で消されるのを防止。
@@ -385,36 +477,47 @@ end:
     return hr;
 }
 
-/** Topology end of presentation eventの処理。
+/** Topology session end eventの処理。
  */
 static HRESULT
-OnEndOfPresentation(IMFMediaSession *pSession)
+OnSessionEnd(IMFMediaSession *pSession)
 {
     dprintf("D: session close!\n");
     return pSession->Close();
 }
 
-static HRESULT
-Test(void)
+extern "C" __declspec(dllexport)
+HRESULT __stdcall
+WWResampler_test(void)
 {
     HRESULT hr = S_OK;
     IMFMediaSource * pSource = NULL;
     IMFMediaSession *pSession = NULL;
     IMFTopology     *pTopology = NULL;
     IMFMediaEvent   *pMediaEvent = NULL;
+    IMFTopologyNode *pTransformNode = NULL;
     IMFTopologyNode *pSinkNode = NULL;
+    IMFMediaType    *pAudioMediaType = NULL;
+    IMFMediaType    *pOutputMediaType = NULL;
     HRESULT         hrStatus = S_OK;
     MediaEventType  meType;
     bool            bDone = false;
 
+    HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
     HRG(MFCreateMediaSession(NULL, &pSession));
     HRG(CreateMediaSourceFromURL(L"C:/tmp/a.wav", &pSource));
-#if 0
+
+#ifdef WW_USE_SAR
     HRG(CreateSARTopologyNode(&pSinkNode));
-#else
-    HRG(CreateSampleGrabberTopologyNode(&pSinkNode));
-#endif
-    HRG(CreateTopology(pSource, pSinkNode, &pTopology));
+#endif /* WW_USE_SAR */
+#ifdef WW_USE_SAMPLE_GRABBER
+    HRG(CreateAudioFloatMediaType(&pAudioMediaType));
+    HRG(CreateOutputMediaType(2, 16, 96000, &pOutputMediaType));
+    HRG(CreateSampleGrabberTopologyNode(pAudioMediaType, &pSinkNode));
+#endif /* WW_USE_SAMPLE_GRABBER */
+    HRG(CreateResamplerMFT(pOutputMediaType, &pTransformNode));
+    //HRG(pSinkNode->SetInputPrefType(0, pOutputMediaType));
+    HRG(CreateTopology(pSource, pTransformNode, pSinkNode, &pTopology));
     HRG(pSession->SetTopology(0, pTopology));
     while (!bDone) {
         HRG(pSession->GetEvent(0, &pMediaEvent));
@@ -436,8 +539,12 @@ Test(void)
             dprintf("session started.\n");
             break;
         case MEEndOfPresentation:
+            dprintf("end of presentation.\n");
+            break;
+        case MESessionEnded:
+            dprintf("session ended.\n");
             // Sessionは自動的に停止状態になり、ここに来る。
-            HRG(OnEndOfPresentation(pSession));
+            HRG(OnSessionEnd(pSession));
             break;
         case MESessionClosed:
             dprintf("session closed.\n");
@@ -452,38 +559,14 @@ Test(void)
     }
 
 end:
+    // pAudioPcmMediaType
+    // pOutputMediaType
     SafeRelease(&pSinkNode);
+    SafeRelease(&pTransformNode);
     SafeRelease(&pMediaEvent);
     SafeRelease(&pTopology);
     SafeRelease(&pSource);
     SafeRelease(&pSession);
-    return hr;
-}
-
-extern "C" __declspec(dllexport)
-HRESULT __stdcall
-WWResampler_test(void)
-{
-    HRESULT hr = S_OK;
-    IMFSourceReader *pReader = NULL;
-    HANDLE hFile = INVALID_HANDLE_VALUE;
-
-    HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
-    HRG(MFCreateSourceReaderFromURL(L"C:/tmp/test.wav", NULL, &pReader));
-    hFile = CreateFile(L"C:/tmp/output.wav", GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
-    if (hFile == INVALID_HANDLE_VALUE) {
-        printf("could not open output file");
-        goto end;
-    }
-
-    HRG(Test());
-
-end:
-    if (hFile != INVALID_HANDLE_VALUE) {
-        CloseHandle(hFile);
-        hFile = INVALID_HANDLE_VALUE;
-    }
-    SafeRelease(&pReader);
     MFShutdown();
     return hr;
 }
