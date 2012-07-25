@@ -83,7 +83,8 @@ CreateAudioMediaType(WWMediaFormat &fmt, IMFMediaType** ppMediaType)
 
     HRG(MFCreateMediaType(&pMediaType) );
     HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
-    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE, (fmt.sampleFormat==WWSampleFormatInt)?MFAudioFormat_PCM:MFAudioFormat_Float));
+    HRG(pMediaType->SetGUID(MF_MT_SUBTYPE,
+            (fmt.sampleFormat == WWSampleFormatInt) ? MFAudioFormat_PCM : MFAudioFormat_Float));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS, fmt.nChannels));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND, fmt.sampleRate));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT, fmt.nChannels * fmt.bits/8));
