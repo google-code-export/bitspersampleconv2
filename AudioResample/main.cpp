@@ -63,7 +63,8 @@ struct WWMediaFormat {
     int dwChannelMask;
     int validBitsPerSample;
 
-    WWMediaFormat(WWSampleFormatType aSampleFormat, WORD aNChannels, WORD aBits, int aSampleRate, int aDwChannelMask, int aValidBitsPerSample) {
+    WWMediaFormat(WWSampleFormatType aSampleFormat, WORD aNChannels, WORD aBits,
+            int aSampleRate, int aDwChannelMask, int aValidBitsPerSample) {
         sampleFormat       = aSampleFormat;
         nChannels          = aNChannels;
         bits               = aBits;
@@ -97,7 +98,7 @@ CreateAudioMediaType(WWMediaFormat &fmt, IMFMediaType** ppMediaType)
     }
 
     *ppMediaType = pMediaType;
-    pMediaType = NULL;
+    pMediaType = NULL; //< prevent release
 
 end:
     SafeRelease(&pMediaType);
@@ -114,8 +115,8 @@ CreateResamplerMFT(
     CComPtr<IMFMediaType> spInputType;
     CComPtr<IMFMediaType> spOutputType;
     CComPtr<IUnknown> spTransformUnk;
+    CComPtr<IWMResamplerProps> spResamplerProps;
     IMFTransform *pTransform = NULL;
-    IWMResamplerProps *pResamplerProps = NULL;
     assert(ppTransform);
     *ppTransform = NULL;
 
@@ -130,21 +131,21 @@ CreateResamplerMFT(
     HRG(CreateAudioMediaType(fmtOut, &spOutputType));
     HRG(pTransform->SetOutputType(0, spOutputType, 0));
 
-    HRG(spTransformUnk->QueryInterface(IID_PPV_ARGS(&pResamplerProps)));
+    HRG(spTransformUnk->QueryInterface(IID_PPV_ARGS(&spResamplerProps)));
     // Resampler max conversion quality == 60
-    HRG(pResamplerProps->SetHalfFilterLength(60));
+    HRG(spResamplerProps->SetHalfFilterLength(60));
 
     *ppTransform = pTransform;
     pTransform = NULL; //< prevent release
 
 end:
-    SafeRelease(&pResamplerProps);
     SafeRelease(&pTransform);
     return hr;
 }
 
 static HRESULT
-GenerateFloatSourceSamples(LONGLONG hnsSampleTime, int sampleRate, int nChannels, int cbBytes, IMFSample **ppSample)
+GenerateFloatSourceSamples(LONGLONG hnsSampleTime, int sampleRate,
+        int nChannels, int cbBytes, IMFSample **ppSample)
 {
     HRESULT hr = S_OK;
     IMFSample *pSample = NULL;
@@ -187,7 +188,7 @@ GenerateFloatSourceSamples(LONGLONG hnsSampleTime, int sampleRate, int nChannels
     HRG(pSample->SetSampleTime(hnsSampleTime));
 
     *ppSample = pSample;
-    pSample = NULL;
+    pSample = NULL; //< prevent release
 
 end:
     SafeRelease(&pBuffer);
