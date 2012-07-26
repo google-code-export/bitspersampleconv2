@@ -213,7 +213,7 @@ DumpOutputSamples(IMFSample *pSample)
     HRG(pBuffer->Lock(&pByteBuffer, NULL, NULL));
     pFloat = (float *)pByteBuffer;
     for (DWORD i=0; i<cbBytes/4; ++i) {
-        dprintf("%u %f\n", i, pFloat[i]);
+       dprintf("%u %f\n", i, pFloat[i]);
     }
     
     pByteBuffer = NULL;
@@ -314,6 +314,7 @@ end:
 int wmain(void)
 {
     // _CrtSetBreakAlloc(35);
+    // COM leak cannot be detected by debug heap manager ...
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
     HRESULT hr = S_OK;
