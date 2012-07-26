@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <math.h>
+#include <crtdbg.h>
 
 #pragma comment(lib, "mfplat")
 #pragma comment(lib, "mf")
@@ -312,6 +313,9 @@ end:
 
 int wmain(void)
 {
+    // _CrtSetBreakAlloc(35);
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
     HRESULT hr = S_OK;
     bool bCoInitialize = false;
 
