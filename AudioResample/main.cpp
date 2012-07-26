@@ -281,7 +281,6 @@ ApplyTransform(IMFTransform *pTransform, IMFSample *pInputSample,
             HRG(pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
             bDrained = true;
         }
-
     } while (true);
 
 end:
