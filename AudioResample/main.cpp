@@ -227,7 +227,7 @@ end:
 
 static HRESULT
 ApplyTransform(IMFTransform *pTransform, IMFSample *pInputSample,
-        DWORD cbOutSamples, bool bEnd)
+        DWORD cbOutBytes, bool bEnd)
 {
     HRESULT hr = S_OK;
     IMFMediaBuffer *pBuffer = NULL;
@@ -250,13 +250,13 @@ ApplyTransform(IMFTransform *pTransform, IMFSample *pInputSample,
     HRG(pTransform->ProcessInput(0, pInputSample, 0));
 
     HRG(pTransform->GetOutputStreamInfo(0, &StreamInfo));
-    if (cbOutSamples < StreamInfo.cbSize) {
-        cbOutSamples = StreamInfo.cbSize;
+    if (cbOutBytes < StreamInfo.cbSize) {
+        cbOutBytes = StreamInfo.cbSize;
     }
 
     do {
         HRG(MFCreateSample(&(outputDataBuffer.pSample)));
-        HRG(MFCreateMemoryBuffer(cbOutSamples, &pBuffer));
+        HRG(MFCreateMemoryBuffer(cbOutBytes, &pBuffer));
         HRG(outputDataBuffer.pSample->AddBuffer(pBuffer));
         outputDataBuffer.dwStreamID = 0;
         outputDataBuffer.dwStatus = 0;
