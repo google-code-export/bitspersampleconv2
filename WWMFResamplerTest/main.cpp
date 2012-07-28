@@ -346,7 +346,7 @@ static void
 PrintUsage(const wchar_t *name)
 {
     printf(
-            "Usage: %s inputWavFile outputWavFile outputSampleRate outputBitdepth conversionQuality\n"
+            "Usage: %S inputWavFile outputWavFile outputSampleRate outputBitdepth conversionQuality\n"
             "outputBitDepth: 16, 24 or 32. If 32 is specified, output format becomes float, otherwise int.\n"
             "conversionQuality: 1 to 60. 1 is worst quality. 60 is best quality.", name);
 }
