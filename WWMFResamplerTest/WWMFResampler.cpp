@@ -120,6 +120,27 @@ end:
 }
 
 HRESULT
+WWMFResampler::Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength)
+{
+    HRESULT hr = S_OK;
+    m_inputFormat  = inputFormat;
+    m_outputFormat = outputFormat;
+    assert(m_pTransform == NULL);
+
+    HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
+    m_isMFStartuped = true;
+
+    HRG(CreateResamplerMFT(m_inputFormat, m_outputFormat, halfFilterLength, &m_pTransform));
+
+    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_FLUSH, NULL));
+    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, NULL));
+    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_START_OF_STREAM, NULL));
+
+end:
+    return hr;
+}
+
+HRESULT
 WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSample **ppSample)
 {
     HRESULT hr = S_OK;
@@ -162,6 +183,9 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
     assert(pSample);
     DWORD cbBytes = 0;
 
+    assert(sampleData_return);
+    assert(NULL == sampleData_return->data);
+
     HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
     HRG(pBuffer->GetCurrentLength(&cbBytes));
     if (0 == cbBytes) {
@@ -170,10 +194,7 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
         hr = S_OK;
         goto end;
     }
-    if (sampleData_return->bytes < cbBytes) {
-        printf("unexpected sample size %d\n", cbBytes);
-        goto end;
-    }
+
     HRG(pBuffer->Lock(&pByteBuffer, NULL, NULL));
 
     assert(NULL == sampleData_return->data);
@@ -194,27 +215,6 @@ end:
 }
 
 HRESULT
-WWMFResampler::Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength)
-{
-    HRESULT hr = S_OK;
-    m_inputFormat  = inputFormat;
-    m_outputFormat = outputFormat;
-    assert(m_pTransform == NULL);
-
-    HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
-    m_isMFStartuped = true;
-
-    HRG(CreateResamplerMFT(m_inputFormat, m_outputFormat, halfFilterLength, &m_pTransform));
-
-    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_FLUSH, NULL));
-    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, NULL));
-    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_START_OF_STREAM, NULL));
-
-end:
-    return hr;
-}
-
-HRESULT
 WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
@@ -225,6 +225,9 @@ WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
     memset(&streamInfo, 0, sizeof streamInfo);
     memset(&outputDataBuffer, 0, sizeof outputDataBuffer);
 
+    assert(sampleData_return);
+    assert(NULL == sampleData_return->data);
+
     HRG(MFCreateSample(&(outputDataBuffer.pSample)));
     HRG(MFCreateMemoryBuffer(sampleData_return->bytes, &pBuffer));
     HRG(outputDataBuffer.pSample->AddBuffer(pBuffer));
@@ -233,9 +236,6 @@ WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
     outputDataBuffer.pEvents = NULL;
 
     hr = m_pTransform->ProcessOutput(0, 1, &outputDataBuffer, &dwStatus);
-    if (MF_E_TRANSFORM_NEED_MORE_INPUT == hr) {
-        hr = S_OK;
-    }
     if (FAILED(hr)) {
         goto end;
     }
@@ -258,7 +258,10 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
     DWORD cbOutputBytes = (DWORD)((int64_t)bytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
+    // add extra receive size
+    cbOutputBytes += 16 * m_outputFormat.FrameBytes();
 
+    assert(sampleData_return);
     assert(NULL == sampleData_return->data);
 
     HRG(ConvertWWSampleDataToMFSample(inputData, &pSample));
@@ -285,19 +288,36 @@ HRESULT
 WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
+    WWMFSampleData tmpData;
     DWORD cbOutputBytes = (DWORD)((int64_t)resampleInputBytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
+    assert(sampleData_return);
+    assert(NULL == sampleData_return->data);
+
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_OF_STREAM, NULL));
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
 
-    sampleData_return->bytes = cbOutputBytes;
-    HRG(GetSampleDataFromMFTransform(sampleData_return));
-
-    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
+    // set sampleData_return->bytes = 0
+    sampleData_return->Forget();
+    for (;;) {
+        tmpData.bytes = cbOutputBytes;
+        hr = GetSampleDataFromMFTransform(&tmpData);
+        if (MF_E_TRANSFORM_NEED_MORE_INPUT == hr) {
+            // 終わり。
+            HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
+            goto end;
+        }
+        if (FAILED(hr)) {
+            goto end;
+        }
+        sampleData_return->Add(tmpData);
+        tmpData.Release();
+    }
 
 end:
+    tmpData.Release();
     return hr;
 }
 

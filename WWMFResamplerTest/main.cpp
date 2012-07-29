@@ -245,7 +245,7 @@ static HRESULT
 WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
 {
     HRESULT hr = E_FAIL;
-    int dataChunkSize = (dataBytes + 4 + 1) & (~1);
+    int dataChunkSize = ((dataBytes+1)&(~1)) + 4;
 
     HRG(WriteBytes(fpw, "RIFF", 4U));
     HRG(WriteInt32(fpw, dataChunkSize + 0x24));
@@ -292,7 +292,7 @@ static HRESULT
 FixWavHeader(FILE *fpw, DWORD writeDataTotalBytes)
 {
     HRESULT hr = E_FAIL;
-    int dataChunkSize = (writeDataTotalBytes + 4 + 1) & (~1);
+    int dataChunkSize = writeDataTotalBytes + 4;
 
     fseek(fpw, 4, SEEK_SET);
     HRG(WriteInt32(fpw, dataChunkSize + 0x24));
@@ -347,6 +347,7 @@ int wmain(int argc, wchar_t *argv[])
 
     ercd = _wfopen_s(&fpr, argv[1], L"rb");
     if (0 != ercd) {
+        printf("file open error %S\n", argv[1]);
         PrintUsage(argv[0]);
         hr = E_FAIL;
         goto end;
@@ -354,6 +355,7 @@ int wmain(int argc, wchar_t *argv[])
 
     ercd = _wfopen_s(&fpw, argv[2], L"wb");
     if (0 != ercd) {
+        printf("file open error %S\n", argv[2]);
         PrintUsage(argv[0]);
         hr = E_FAIL;
         goto end;

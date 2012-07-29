@@ -101,7 +101,8 @@ public:
 
     HRESULT Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleData_return);
 
-    /// @param resampleInputBytes input buffer bytes of Resample(). this param is used to calculate expected output buffer size
+    /// @param resampleInputBytes input buffer bytes of Resample(). this arg is used to calculate expected output buffer size
+    /// @param sampleData_return [out] set fresh (its data shold not be allocated yet) WWMFSampleData instance as this arg
     HRESULT Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return);
 
     /// Finalize must be called even when Initialize() is failed
