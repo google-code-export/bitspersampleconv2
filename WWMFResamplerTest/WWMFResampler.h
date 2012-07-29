@@ -15,7 +15,7 @@ enum WWMFSampleFormatType {
     WWMFSampleFormatNUM
 };
 
-struct WWMFMediaFormat {
+struct WWMFPcmFormat {
     WWMFSampleFormatType sampleFormat;
     short nChannels;
     short bits;
@@ -23,7 +23,7 @@ struct WWMFMediaFormat {
     DWORD   dwChannelMask;
     int   validBitsPerSample;
 
-    WWMFMediaFormat(void) {
+    WWMFPcmFormat(void) {
         sampleFormat       = WWMFSampleFormatUnknown;
         nChannels          = 0;
         bits               = 0;
@@ -32,7 +32,7 @@ struct WWMFMediaFormat {
         validBitsPerSample = 0;
     }
 
-    WWMFMediaFormat(WWMFSampleFormatType aSampleFormat, short aNChannels, short aBits,
+    WWMFPcmFormat(WWMFSampleFormatType aSampleFormat, short aNChannels, short aBits,
             int aSampleRate, DWORD aDwChannelMask, int aValidBitsPerSample) {
         sampleFormat       = aSampleFormat;
         nChannels          = aNChannels;
@@ -97,7 +97,7 @@ public:
     ~WWMFResampler(void);
 
     /// @param halfFilterLength conversion quality. 1(min) to 60 (max)
-    HRESULT Initialize(WWMFMediaFormat &inputFormat, WWMFMediaFormat &outputFormat, int halfFilterLength);
+    HRESULT Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength);
 
     HRESULT Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_return);
 
@@ -109,8 +109,8 @@ public:
 
 private:
     IMFTransform *m_pTransform;
-    WWMFMediaFormat m_inputFormat;
-    WWMFMediaFormat m_outputFormat;
+    WWMFPcmFormat m_inputFormat;
+    WWMFPcmFormat m_outputFormat;
     bool          m_isMFStartuped;
 
     HRESULT CreateMFSampleFromByteBuffer(WWMFSampleData &sampleData, IMFSample **ppSample);

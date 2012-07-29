@@ -50,7 +50,7 @@ enum WWAvailableType {
 };
 
 static HRESULT
-CreateAudioMediaType(WWMFMediaFormat &fmt, IMFMediaType** ppMediaType)
+CreateAudioMediaType(WWMFPcmFormat &fmt, IMFMediaType** ppMediaType)
 {
     HRESULT hr;
     IMFMediaType *pMediaType = NULL;
@@ -83,8 +83,8 @@ end:
 
 static HRESULT
 CreateResamplerMFT(
-        WWMFMediaFormat &fmtIn,
-        WWMFMediaFormat &fmtOut,
+        WWMFPcmFormat &fmtIn,
+        WWMFPcmFormat &fmtOut,
         int halfFilterLength,
         IMFTransform **ppTransform)
 {
@@ -194,7 +194,7 @@ end:
 }
 
 HRESULT
-WWMFResampler::Initialize(WWMFMediaFormat &inputFormat, WWMFMediaFormat &outputFormat, int halfFilterLength)
+WWMFResampler::Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength)
 {
     HRESULT hr = S_OK;
     m_inputFormat  = inputFormat;

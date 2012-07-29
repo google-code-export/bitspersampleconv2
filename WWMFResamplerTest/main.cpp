@@ -119,7 +119,7 @@ WriteStr(FILE *fpw, const char *s, int bytes)
 }
 
 static HRESULT
-ReadWavHeader(FILE *fpr, WWMFMediaFormat *format_return, int *dataBytes_return)
+ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, int *dataBytes_return)
 {
     HRESULT hr = E_FAIL;
     BYTE buff[16];
@@ -253,7 +253,7 @@ end:
 }
 
 static HRESULT
-WriteWavHeader(FILE *fpw, WWMFMediaFormat &format, int dataBytes)
+WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, int dataBytes)
 {
     HRESULT hr = E_FAIL;
     int dataChunkSize = (dataBytes + 4 + 1) & (~1);
@@ -345,8 +345,8 @@ int wmain(int argc, wchar_t *argv[])
     int writeDataTotalBytes = 0;
     int conversionQuality = 60;
     WWMFResampler resampler;
-    WWMFMediaFormat inputFormat;
-    WWMFMediaFormat outputFormat;
+    WWMFPcmFormat inputFormat;
+    WWMFPcmFormat outputFormat;
     WWMFSampleData sampleData;
 
     if (argc != 6) {
