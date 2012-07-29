@@ -113,7 +113,7 @@ private:
     WWMFPcmFormat m_outputFormat;
     bool          m_isMFStartuped;
 
-    HRESULT CreateMFSampleFromByteBuffer(WWMFSampleData &sampleData, IMFSample **ppSample);
+    HRESULT ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSample **ppSample);
     HRESULT ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return);
-    HRESULT GetOutputFromTransform(WWMFSampleData *sampleData_return);
+    HRESULT GetSampleDataFromTransform(WWMFSampleData *sampleData_return);
 };
