@@ -271,6 +271,7 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
 {
     HRESULT hr = E_FAIL;
     IMFSample *pSample = NULL;
+    WWMFSampleData tmpData;
     WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
     DWORD cbOutputBytes = (DWORD)((int64_t)bytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
@@ -293,10 +294,24 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
 
     HRG(m_pTransform->ProcessInput(0, pSample, 0));
 
-    sampleData_return->bytes = cbOutputBytes;
-    HRG(GetSampleDataFromMFTransform(sampleData_return));
+    // set sampleData_return->bytes = 0
+    sampleData_return->Forget();
+    for (;;) {
+        tmpData.bytes = cbOutputBytes;
+        hr = GetSampleDataFromMFTransform(&tmpData);
+        if (MF_E_TRANSFORM_NEED_MORE_INPUT == hr) {
+            hr = S_OK;
+            goto end;
+        }
+        if (FAILED(hr)) {
+            goto end;
+        }
+        sampleData_return->Add(tmpData);
+        tmpData.Release();
+    }
 
 end:
+    tmpData.Release();
     inputData.Forget();
     SafeRelease(&pSample);
     return hr;

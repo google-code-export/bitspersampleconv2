@@ -400,7 +400,7 @@ int wmain(int argc, wchar_t *argv[])
 
     HRG(resampler.Initialize(inputFormat, outputFormat, conversionQuality));
 
-    buffBytes = 1024 * 1024 * inputFormat.nChannels * inputFormat.bits / 8;
+    buffBytes = 128 * 1024 * inputFormat.FrameBytes();
     buff = new BYTE[buffBytes];
 
     for (;;) {

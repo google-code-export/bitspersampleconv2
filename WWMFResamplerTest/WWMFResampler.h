@@ -52,8 +52,8 @@ struct WWMFPcmFormat {
 };
 
 struct WWMFSampleData {
-    BYTE  *data;
     DWORD  bytes;
+    BYTE  *data;
 
     WWMFSampleData(void) : data(NULL), bytes(0) {}
     WWMFSampleData(BYTE *aData, int aBytes) {
@@ -99,6 +99,7 @@ public:
     /// @param halfFilterLength conversion quality. 1(min) to 60 (max)
     HRESULT Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength);
 
+    /// @bytes buffer bytes. must be smaller than approx. 512KB to convert 44100Hz to 192000Hz
     HRESULT Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleData_return);
 
     /// @param resampleInputBytes input buffer bytes of Resample(). this arg is used to calculate expected output buffer size
