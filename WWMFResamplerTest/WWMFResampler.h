@@ -99,10 +99,10 @@ public:
     /// @param halfFilterLength conversion quality. 1(min) to 60 (max)
     HRESULT Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputFormat, int halfFilterLength);
 
-    HRESULT Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_return);
+    HRESULT Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleData_return);
 
     /// @param resampleInputBytes input buffer bytes of Resample(). this param is used to calculate expected output buffer size
-    HRESULT Drain(int resampleInputBytes, WWMFSampleData *sampleData_return);
+    HRESULT Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return);
 
     /// Finalize must be called even when Initialize() is failed
     void Finalize(void);

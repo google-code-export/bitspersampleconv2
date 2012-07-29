@@ -249,13 +249,13 @@ end:
 }
 
 HRESULT
-WWMFResampler::Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_return)
+WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
     IMFSample *pSample = NULL;
     WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
-    int cbOutputBytes = (int)((int64_t)bytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
+    DWORD cbOutputBytes = (DWORD)((int64_t)bytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
@@ -282,10 +282,10 @@ end:
 }
 
 HRESULT
-WWMFResampler::Drain(int resampleInputBytes, WWMFSampleData *sampleData_return)
+WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
-    int cbOutputBytes = (int)((int64_t)resampleInputBytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
+    DWORD cbOutputBytes = (DWORD)((int64_t)resampleInputBytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 

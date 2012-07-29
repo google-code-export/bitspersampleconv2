@@ -117,7 +117,7 @@ WriteBytes(FILE *fpw, const char *s, int bytes)
 }
 
 static HRESULT
-ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, int *dataBytes_return)
+ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
 {
     HRESULT hr = E_FAIL;
     BYTE buff[16];
@@ -228,7 +228,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, int *dataBytes_return)
 
         } else if (0 == memcmp(buff, "data", 4)) {
             // data chunk
-            HRG(ReadInt32(fpr, dataBytes_return));
+            HRG(ReadInt32(fpr, (int*)dataBytes_return));
             break;
         } else {
             // skip this chunk
@@ -251,7 +251,7 @@ end:
 }
 
 static HRESULT
-WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, int dataBytes)
+WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
 {
     HRESULT hr = E_FAIL;
     int dataChunkSize = (dataBytes + 4 + 1) & (~1);
@@ -298,7 +298,7 @@ end:
 }
 
 static HRESULT
-FixWavHeader(FILE *fpw, int writeDataTotalBytes)
+FixWavHeader(FILE *fpw, DWORD writeDataTotalBytes)
 {
     HRESULT hr = E_FAIL;
     int dataChunkSize = (writeDataTotalBytes + 4 + 1) & (~1);
@@ -334,13 +334,12 @@ int wmain(int argc, wchar_t *argv[])
     FILE *fpw = NULL;
     errno_t ercd;
     BYTE *buff = NULL;
-    int buffBytes = 0;
-    int readBytes = 0;
-    int remainBytes = 0;
-    int outputDataBytes = 0;
-    int result = 0;
-    DWORD writeBytes = 0;
-    int writeDataTotalBytes = 0;
+    DWORD buffBytes = 0;
+    DWORD readBytes = 0;
+    DWORD remainBytes = 0;
+    DWORD expectedOutputDataBytes = 0;
+    DWORD result = 0;
+    DWORD writeDataTotalBytes = 0;
     int conversionQuality = 60;
     WWMFResampler resampler;
     WWMFPcmFormat inputFormat;
@@ -400,11 +399,11 @@ int wmain(int argc, wchar_t *argv[])
         goto end;
     }
 
-    outputDataBytes = (int64_t)remainBytes
+    expectedOutputDataBytes = (int64_t)remainBytes
         * (outputFormat.Bitrate()/8)
         / (inputFormat .Bitrate()/8);
 
-    HRG(WriteWavHeader(fpw, outputFormat, outputDataBytes));
+    HRG(WriteWavHeader(fpw, outputFormat, expectedOutputDataBytes));
 
     HRG(resampler.Initialize(inputFormat, outputFormat, conversionQuality));
 
@@ -430,8 +429,8 @@ int wmain(int argc, wchar_t *argv[])
         HRG(resampler.Resample(buff, readBytes, &sampleData));
 
         // 書き込む。
-        writeBytes = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
-        if (writeBytes != sampleData.bytes) {
+        result = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
+        if (result != sampleData.bytes) {
             printf("file write error\n");
             hr = E_FAIL;
             goto end;
@@ -444,8 +443,8 @@ int wmain(int argc, wchar_t *argv[])
             HRG(resampler.Drain(buffBytes, &sampleData));
 
             // 書き込む。
-            writeBytes = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
-            if (writeBytes != sampleData.bytes) {
+            result = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
+            if (result != sampleData.bytes) {
                 printf("file write error\n");
                 hr = E_FAIL;
                 goto end;
