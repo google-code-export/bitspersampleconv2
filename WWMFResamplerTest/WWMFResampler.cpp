@@ -50,7 +50,7 @@ enum WWAvailableType {
 };
 
 static HRESULT
-CreateAudioMediaType(WWMediaFormat &fmt, IMFMediaType** ppMediaType)
+CreateAudioMediaType(WWMFMediaFormat &fmt, IMFMediaType** ppMediaType)
 {
     HRESULT hr;
     IMFMediaType *pMediaType = NULL;
@@ -59,7 +59,7 @@ CreateAudioMediaType(WWMediaFormat &fmt, IMFMediaType** ppMediaType)
     HRG(MFCreateMediaType(&pMediaType) );
     HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
     HRG(pMediaType->SetGUID(MF_MT_SUBTYPE,
-            (fmt.sampleFormat == WWSampleFormatInt) ? MFAudioFormat_PCM : MFAudioFormat_Float));
+            (fmt.sampleFormat == WWMFSampleFormatInt) ? MFAudioFormat_PCM : MFAudioFormat_Float));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS, fmt.nChannels));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND, fmt.sampleRate));
     HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT, fmt.nChannels * fmt.bits/8));
@@ -83,8 +83,8 @@ end:
 
 static HRESULT
 CreateResamplerMFT(
-        WWMediaFormat &fmtIn,
-        WWMediaFormat &fmtOut,
+        WWMFMediaFormat &fmtIn,
+        WWMFMediaFormat &fmtOut,
         int halfFilterLength,
         IMFTransform **ppTransform)
 {
@@ -120,16 +120,12 @@ end:
 }
 
 HRESULT
-WWMFResampler::CreateMFSampleFromByteBuffer(WWSampleData &sampleData, IMFSample **ppSample)
+WWMFResampler::CreateMFSampleFromByteBuffer(WWMFSampleData &sampleData, IMFSample **ppSample)
 {
     HRESULT hr = S_OK;
     IMFSample *pSample = NULL;
     IMFMediaBuffer *pBuffer = NULL;
     BYTE  *pByteBufferTo = NULL;
-    float *pFloat = NULL;
-    LONGLONG hnsSampleDuration;
-    LONGLONG hnsSampleTime;
-    int frameCount;
 
     assert(ppSample);
     *ppSample = NULL;
@@ -146,16 +142,7 @@ WWMFResampler::CreateMFSampleFromByteBuffer(WWSampleData &sampleData, IMFSample 
     HRG(MFCreateSample(&pSample));
     HRG(pSample->AddBuffer(pBuffer));
 
-    frameCount = sampleData.bytes / m_inputFormat.FrameBytes();
-    hnsSampleDuration = (LONGLONG)(10.0 * 1000 * 1000 * frameCount        / m_inputFormat.sampleRate);
-    hnsSampleTime     = (LONGLONG)(10.0 * 1000 * 1000 * m_inputFrameTotal / m_inputFormat.sampleRate);
-
-    //HRG(pSample->SetSampleDuration(hnsSampleDuration));
-    //HRG(pSample->SetSampleTime(hnsSampleTime));
-
     // succeeded.
-
-    m_inputFrameTotal += frameCount;
 
     *ppSample = pSample;
     pSample = NULL; //< prevent release
@@ -167,7 +154,7 @@ end:
 }
 
 HRESULT
-WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWSampleData *sampleData_return)
+WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
     IMFMediaBuffer *pBuffer = NULL;
@@ -201,23 +188,18 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWSampleData *s
     pByteBuffer = NULL;
     HRG(pBuffer->Unlock());
 
-    m_outputFrameTotal = cbBytes / m_outputFormat.FrameBytes();
-
 end:
     SafeRelease(&pBuffer);
     return hr;
 }
 
 HRESULT
-WWMFResampler::Initialize(WWMediaFormat &inputFormat, WWMediaFormat &outputFormat, int halfFilterLength)
+WWMFResampler::Initialize(WWMFMediaFormat &inputFormat, WWMFMediaFormat &outputFormat, int halfFilterLength)
 {
     HRESULT hr = S_OK;
     m_inputFormat  = inputFormat;
     m_outputFormat = outputFormat;
     assert(m_pTransform == NULL);
-
-    m_inputFrameTotal  = 0;
-    m_outputFrameTotal = 0;
 
     HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
     m_isMFStartuped = true;
@@ -233,7 +215,7 @@ end:
 }
 
 HRESULT
-WWMFResampler::GetOutputFromTransform(WWSampleData *sampleData_return)
+WWMFResampler::GetOutputFromTransform(WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
     IMFMediaBuffer *pBuffer = NULL;
@@ -267,11 +249,11 @@ end:
 }
 
 HRESULT
-WWMFResampler::Resample(const BYTE *buff, int bytes, WWSampleData *sampleData_return)
+WWMFResampler::Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
     IMFSample *pSample = NULL;
-    WWSampleData inputData((BYTE*)buff, bytes);
+    WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
     int cbOutputBytes = (int)((int64_t)bytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
     // cbOutputBytes must be product of frambytes
@@ -300,7 +282,7 @@ end:
 }
 
 HRESULT
-WWMFResampler::Drain(int resampleInputBytes, WWSampleData *sampleData_return)
+WWMFResampler::Drain(int resampleInputBytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
     int cbOutputBytes = (int)((int64_t)resampleInputBytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
@@ -322,8 +304,6 @@ end:
 void
 WWMFResampler::Finalize(void)
 {
-    HRESULT hr = S_OK;
-
     // Initialize()が中で失敗してm_pTransform==NULLのままここに来ても
     // 正常にFinalizeが終了するようにする。
 

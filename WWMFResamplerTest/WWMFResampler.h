@@ -8,23 +8,23 @@
 #include <mfidl.h>
 #include <assert.h>
 
-enum WWSampleFormatType {
-    WWSampleFormatUnknown = -1,
-    WWSampleFormatInt,
-    WWSampleFormatFloat,
-    WWSampleFormatNUM
+enum WWMFSampleFormatType {
+    WWMFSampleFormatUnknown = -1,
+    WWMFSampleFormatInt,
+    WWMFSampleFormatFloat,
+    WWMFSampleFormatNUM
 };
 
-struct WWMediaFormat {
-    WWSampleFormatType sampleFormat;
-    int nChannels;
-    int bits;
-    int sampleRate;
-    int dwChannelMask;
-    int validBitsPerSample;
+struct WWMFMediaFormat {
+    WWMFSampleFormatType sampleFormat;
+    short nChannels;
+    short bits;
+    int   sampleRate;
+    DWORD   dwChannelMask;
+    int   validBitsPerSample;
 
-    WWMediaFormat(void) {
-        sampleFormat       = WWSampleFormatUnknown;
+    WWMFMediaFormat(void) {
+        sampleFormat       = WWMFSampleFormatUnknown;
         nChannels          = 0;
         bits               = 0;
         sampleRate         = 0;
@@ -32,8 +32,8 @@ struct WWMediaFormat {
         validBitsPerSample = 0;
     }
 
-    WWMediaFormat(WWSampleFormatType aSampleFormat, int aNChannels, int aBits,
-            int aSampleRate, int aDwChannelMask, int aValidBitsPerSample) {
+    WWMFMediaFormat(WWMFSampleFormatType aSampleFormat, short aNChannels, short aBits,
+            int aSampleRate, DWORD aDwChannelMask, int aValidBitsPerSample) {
         sampleFormat       = aSampleFormat;
         nChannels          = aNChannels;
         bits               = aBits;
@@ -51,17 +51,17 @@ struct WWMediaFormat {
     }
 };
 
-struct WWSampleData {
+struct WWMFSampleData {
     BYTE  *data;
     DWORD  bytes;
 
-    WWSampleData(void) : data(NULL), bytes(0) {}
-    WWSampleData(BYTE *aData, int aBytes) {
+    WWMFSampleData(void) : data(NULL), bytes(0) {}
+    WWMFSampleData(BYTE *aData, int aBytes) {
         data  = aData;
         bytes = aBytes;
     }
 
-    ~WWSampleData(void) {
+    ~WWMFSampleData(void) {
         assert(data == NULL);
     }
 
@@ -75,7 +75,7 @@ struct WWSampleData {
         bytes = 0;
     }
 
-    HRESULT Add(WWSampleData &rhs) {
+    HRESULT Add(WWMFSampleData &rhs) {
         BYTE *buff = new BYTE[bytes + rhs.bytes];
         if (NULL == buff) {
             return E_FAIL;
@@ -96,23 +96,24 @@ public:
     WWMFResampler(void) : m_pTransform(NULL), m_isMFStartuped(false) { }
     ~WWMFResampler(void);
 
-    /// @param halfFilterLength: conversion quality. 1(min) to 60 (max)
-    HRESULT Initialize(WWMediaFormat &inputFormat, WWMediaFormat &outputFormat, int halfFilterLength);
+    /// @param halfFilterLength conversion quality. 1(min) to 60 (max)
+    HRESULT Initialize(WWMFMediaFormat &inputFormat, WWMFMediaFormat &outputFormat, int halfFilterLength);
 
-    HRESULT Resample(const BYTE *buff, int bytes, WWSampleData *sampleData_return);
-    HRESULT Drain(int resampleInputBytes, WWSampleData *sampleData_return);
+    HRESULT Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_return);
 
+    /// @param resampleInputBytes input buffer bytes of Resample(). this param is used to calculate expected output buffer size
+    HRESULT Drain(int resampleInputBytes, WWMFSampleData *sampleData_return);
+
+    /// Finalize must be called even when Initialize() is failed
     void Finalize(void);
 
 private:
     IMFTransform *m_pTransform;
-    WWMediaFormat m_inputFormat;
-    WWMediaFormat m_outputFormat;
-    LONGLONG      m_inputFrameTotal;
-    LONGLONG      m_outputFrameTotal;
+    WWMFMediaFormat m_inputFormat;
+    WWMFMediaFormat m_outputFormat;
     bool          m_isMFStartuped;
 
-    HRESULT CreateMFSampleFromByteBuffer(WWSampleData &sampleData, IMFSample **ppSample);
-    HRESULT ConvertMFSampleToWWSampleData(IMFSample *pSample, WWSampleData *sampleData_return);
-    HRESULT GetOutputFromTransform(WWSampleData *sampleData_return);
+    HRESULT CreateMFSampleFromByteBuffer(WWMFSampleData &sampleData, IMFSample **ppSample);
+    HRESULT ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return);
+    HRESULT GetOutputFromTransform(WWMFSampleData *sampleData_return);
 };

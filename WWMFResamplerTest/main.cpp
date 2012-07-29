@@ -37,33 +37,6 @@ template <class T> void SafeRelease(T **ppT) {
 }                                                 \
 
 static HRESULT
-DumpOutputSamples(IMFSample *pSample)
-{
-    HRESULT hr = S_OK;
-    IMFMediaBuffer *pBuffer = NULL;
-    BYTE  *pByteBuffer = NULL;
-    float *pFloat = NULL;
-    assert(pSample);
-    DWORD cbBytes = 0;
-
-    HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
-    HRG(pBuffer->GetCurrentLength(&cbBytes));
-    HRG(pBuffer->Lock(&pByteBuffer, NULL, NULL));
-    pFloat = (float *)pByteBuffer;
-    for (DWORD i=0; i<cbBytes/4; ++i) {
-       printf("%u %f\n", i, pFloat[i]);
-    }
-    
-    pByteBuffer = NULL;
-    pFloat = NULL;
-    HRG(pBuffer->Unlock());
-
-end:
-    SafeRelease(&pBuffer);
-    return hr;
-}
-
-static HRESULT
 ReadInt16(FILE *fpr, short *value_return)
 {
     HRESULT hr = E_FAIL;
@@ -146,7 +119,7 @@ WriteStr(FILE *fpw, const char *s, int bytes)
 }
 
 static HRESULT
-ReadWavHeader(FILE *fpr, WWMediaFormat *format_return, int *dataBytes_return)
+ReadWavHeader(FILE *fpr, WWMFMediaFormat *format_return, int *dataBytes_return)
 {
     HRESULT hr = E_FAIL;
     BYTE buff[16];
@@ -187,12 +160,12 @@ ReadWavHeader(FILE *fpr, WWMediaFormat *format_return, int *dataBytes_return)
             // audioFormat size==2
             HRG(ReadInt16(fpr, &shortValue));
             if (1 == shortValue) {
-                format_return->sampleFormat = WWSampleFormatInt;
+                format_return->sampleFormat = WWMFSampleFormatInt;
             } else if (3 == shortValue) {
-                format_return->sampleFormat = WWSampleFormatFloat;
+                format_return->sampleFormat = WWMFSampleFormatFloat;
             } else if (0xfffe == (unsigned short)shortValue) {
                 // WAVEFORMATEXTENSIBLEに書いてある。
-                format_return->sampleFormat = WWSampleFormatUnknown;
+                format_return->sampleFormat = WWMFSampleFormatUnknown;
             } else {
                 printf("unrecognized format");
                 goto end;
@@ -229,7 +202,7 @@ ReadWavHeader(FILE *fpr, WWMediaFormat *format_return, int *dataBytes_return)
                     format_return->validBitsPerSample = shortValue;
 
                     // dwChannelMask
-                    HRG(ReadInt32(fpr, &format_return->dwChannelMask));
+                    HRG(ReadInt32(fpr, (int*)&format_return->dwChannelMask));
 
                     // format GUID
                     readBytes = fread(buff, 1, 16, fpr);
@@ -239,9 +212,9 @@ ReadWavHeader(FILE *fpr, WWMediaFormat *format_return, int *dataBytes_return)
                     }
 
                     if (0 == memcmp(buff, &MFAudioFormat_Float, 16)) {
-                        format_return->sampleFormat = WWSampleFormatFloat;
+                        format_return->sampleFormat = WWMFSampleFormatFloat;
                     } else if (0 == memcmp(buff, &MFAudioFormat_PCM, 16)) {
-                        format_return->sampleFormat = WWSampleFormatInt;
+                        format_return->sampleFormat = WWMFSampleFormatInt;
                     } else {
                         printf("unrecognized format guid");
                         goto end;
@@ -271,7 +244,7 @@ ReadWavHeader(FILE *fpr, WWMediaFormat *format_return, int *dataBytes_return)
 
     }
 end:
-    if (S_OK == hr && format_return->sampleFormat == WWSampleFormatUnknown) {
+    if (S_OK == hr && format_return->sampleFormat == WWMFSampleFormatUnknown) {
         printf("unrecognized format");
         hr = E_FAIL;
     }
@@ -280,7 +253,7 @@ end:
 }
 
 static HRESULT
-WriteWavHeader(FILE *fpw, WWMediaFormat &format, int dataBytes)
+WriteWavHeader(FILE *fpw, WWMFMediaFormat &format, int dataBytes)
 {
     HRESULT hr = E_FAIL;
     int dataChunkSize = (dataBytes + 4 + 1) & (~1);
@@ -294,10 +267,10 @@ WriteWavHeader(FILE *fpw, WWMediaFormat &format, int dataBytes)
 
     // fmt audioFormat size==2 1==int 3==float
     switch (format.sampleFormat) {
-    case WWSampleFormatInt:
+    case WWMFSampleFormatInt:
         HRG(WriteInt16(fpw, 1));
         break;
-    case WWSampleFormatFloat:
+    case WWMFSampleFormatFloat:
         HRG(WriteInt16(fpw, 3));
         break;
     default:
@@ -314,7 +287,7 @@ WriteWavHeader(FILE *fpw, WWMediaFormat &format, int dataBytes)
     HRG(WriteInt32(fpw, format.sampleRate * format.nChannels * format.bits / 8));
 
     // fmt blockAlign size==2
-    HRG(WriteInt16(fpw, format.nChannels * format.bits / 8));
+    HRG(WriteInt16(fpw, (short)format.FrameBytes()));
 
     // fmt bitspersample size==2
     HRG(WriteInt16(fpw, format.bits));
@@ -359,7 +332,6 @@ int wmain(int argc, wchar_t *argv[])
 
     HRESULT hr = S_OK;
     bool bCoInitialize = false;
-    bool bResamplerInitialize = false;
     FILE *fpr = NULL;
     FILE *fpw = NULL;
     errno_t ercd;
@@ -369,13 +341,13 @@ int wmain(int argc, wchar_t *argv[])
     int remainBytes = 0;
     int outputDataBytes = 0;
     int result = 0;
-    int writeBytes = 0;
+    DWORD writeBytes = 0;
     int writeDataTotalBytes = 0;
     int conversionQuality = 60;
     WWMFResampler resampler;
-    WWMediaFormat inputFormat;
-    WWMediaFormat outputFormat;
-    WWSampleData sampleData;
+    WWMFMediaFormat inputFormat;
+    WWMFMediaFormat outputFormat;
+    WWMFSampleData sampleData;
 
     if (argc != 6) {
         PrintUsage(argv[0]);
@@ -403,7 +375,7 @@ int wmain(int argc, wchar_t *argv[])
 
     outputFormat = inputFormat;
     outputFormat.sampleRate = _wtoi(argv[3]);
-    outputFormat.bits = _wtoi(argv[4]);
+    outputFormat.bits = (short)_wtoi(argv[4]);
 
     conversionQuality = _wtoi(argv[5]);
 
@@ -419,10 +391,10 @@ int wmain(int argc, wchar_t *argv[])
     switch (outputFormat.bits) {
     case 16:
     case 24:
-        outputFormat.sampleFormat = WWSampleFormatInt;
+        outputFormat.sampleFormat = WWMFSampleFormatInt;
         break;
     case 32:
-        outputFormat.sampleFormat = WWSampleFormatFloat;
+        outputFormat.sampleFormat = WWMFSampleFormatFloat;
         break;
     default:
         PrintUsage(argv[0]);
