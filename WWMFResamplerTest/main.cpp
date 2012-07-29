@@ -37,83 +37,71 @@ template <class T> void SafeRelease(T **ppT) {
 static HRESULT
 ReadInt16(FILE *fpr, short *value_return)
 {
-    HRESULT hr = E_FAIL;
-    int readBytes = 0;
-    assert(fpr);
-    assert(value_return);
+    DWORD readBytes = 0;
 
     readBytes = fread(value_return, 1, 2, fpr);
-    if (readBytes != 2) {
+    if (2U != readBytes) {
         printf("read error\n");
-        goto end;
+        return E_FAIL;
     }
 
-    hr = S_OK;
-
-end:
-    return hr;
+    return S_OK;
 }
 
 static HRESULT
 ReadInt32(FILE *fpr, int *value_return)
 {
-    HRESULT hr = E_FAIL;
-    int readBytes = 0;
-    assert(fpr);
-    assert(value_return);
+    DWORD readBytes = 0;
 
     readBytes = fread(value_return, 1, 4, fpr);
-    if (readBytes != 4) {
+    if (4U != readBytes) {
         printf("read error\n");
-        goto end;
+        return E_FAIL;
     }
 
-    hr = S_OK;
-
-end:
-    return hr;
-}
-
-static HRESULT
-WriteInt32(FILE *fpw, int value)
-{
-    HRESULT hr = E_FAIL;
-    int writeBytes = 0;
-
-    writeBytes = fwrite(&value, 1, 4, fpw);
-    if (4 == writeBytes) {
-        hr = S_OK;
-    }
-
-    return hr;
+    return S_OK;
 }
 
 static HRESULT
 WriteInt16(FILE *fpw, short value)
 {
-    HRESULT hr = E_FAIL;
-    int writeBytes = 0;
+    DWORD writeBytes = 0;
 
     writeBytes = fwrite(&value, 1, 2, fpw);
-    if (2 == writeBytes) {
-        hr = S_OK;
+    if (2U != writeBytes) {
+        printf("write error\n");
+        return E_FAIL;
     }
 
-    return hr;
+    return S_OK;
 }
 
 static HRESULT
-WriteBytes(FILE *fpw, const char *s, int bytes)
+WriteInt32(FILE *fpw, int value)
 {
-    HRESULT hr = E_FAIL;
-    int writeBytes = 0;
+    DWORD writeBytes = 0;
 
-    writeBytes = fwrite(s, 1, bytes, fpw);
-    if (bytes == writeBytes) {
-        hr = S_OK;
+    writeBytes = fwrite(&value, 1, 4, fpw);
+    if (4U != writeBytes) {
+        printf("write error\n");
+        return E_FAIL;
     }
 
-    return hr;
+    return S_OK;
+}
+
+static HRESULT
+WriteBytes(FILE *fpw, const char *s, DWORD bytes)
+{
+    DWORD writeBytes = 0;
+
+    writeBytes = fwrite(s, 1, bytes, fpw);
+    if (bytes != writeBytes) {
+        printf("write error\n");
+        return E_FAIL;
+    }
+
+    return S_OK;
 }
 
 static HRESULT
@@ -121,14 +109,17 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
 {
     HRESULT hr = E_FAIL;
     BYTE buff[16];
-    int readBytes = 0;
+    DWORD readBytes = 0;
     int chunkBytes = 0;
     int fmtChunkSize = 0;
     short shortValue;
     int intValue;
 
     readBytes = fread(buff, 1, 12, fpr);
-    if (readBytes != 12) { goto end; }
+    if (12U != readBytes) {
+        printf("file read error\n");
+        goto end;
+    }
 
     if (0 != memcmp(buff, "RIFF", 4)) {
         printf("file is not riff wave file\n");
@@ -141,7 +132,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
 
     for (;;) {
         readBytes = fread(buff, 1, 4, fpr);
-        if (readBytes != 4) {
+        if (4U != readBytes) {
             printf("read error");
             goto end;
         }
@@ -256,11 +247,11 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
     HRESULT hr = E_FAIL;
     int dataChunkSize = (dataBytes + 4 + 1) & (~1);
 
-    HRG(WriteBytes(fpw, "RIFF", 4));
+    HRG(WriteBytes(fpw, "RIFF", 4U));
     HRG(WriteInt32(fpw, dataChunkSize + 0x24));
-    HRG(WriteBytes(fpw, "WAVE", 4));
+    HRG(WriteBytes(fpw, "WAVE", 4U));
 
-    HRG(WriteBytes(fpw, "fmt ", 4));
+    HRG(WriteBytes(fpw, "fmt ", 4U));
     HRG(WriteInt32(fpw, 16));
 
     // fmt audioFormat size==2 1==int 3==float
@@ -282,7 +273,7 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
     HRG(WriteInt32(fpw, format.sampleRate));
 
     // fmt byteRate size==4
-    HRG(WriteInt32(fpw, format.sampleRate * format.nChannels * format.bits / 8));
+    HRG(WriteInt32(fpw, format.BytesPerSec()));
 
     // fmt blockAlign size==2
     HRG(WriteInt16(fpw, format.FrameBytes()));
@@ -290,7 +281,7 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
     // fmt bitspersample size==2
     HRG(WriteInt16(fpw, format.bits));
 
-    HRG(WriteBytes(fpw, "data", 4));
+    HRG(WriteBytes(fpw, "data", 4U));
     HRG(WriteInt32(fpw, dataChunkSize));
 
 end:
