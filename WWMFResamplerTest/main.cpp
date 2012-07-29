@@ -63,6 +63,20 @@ ReadInt32(FILE *fpr, int *value_return)
 }
 
 static HRESULT
+ReadBytes(FILE *fpr, DWORD bytes, BYTE *s_return)
+{
+    DWORD readBytes = 0;
+
+    readBytes = fread(s_return, 1, bytes, fpr);
+    if (bytes != readBytes) {
+        printf("read error\n");
+        return E_FAIL;
+    }
+
+    return S_OK;
+}
+
+static HRESULT
 WriteInt16(FILE *fpw, short value)
 {
     DWORD writeBytes = 0;
@@ -109,17 +123,12 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
 {
     HRESULT hr = E_FAIL;
     BYTE buff[16];
-    DWORD readBytes = 0;
     int chunkBytes = 0;
     int fmtChunkSize = 0;
     short shortValue;
     int intValue;
 
-    readBytes = fread(buff, 1, 12, fpr);
-    if (12U != readBytes) {
-        printf("file read error\n");
-        goto end;
-    }
+    HRG(ReadBytes(fpr, 12U, buff));
 
     if (0 != memcmp(buff, "RIFF", 4)) {
         printf("file is not riff wave file\n");
@@ -131,11 +140,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
     }
 
     for (;;) {
-        readBytes = fread(buff, 1, 4, fpr);
-        if (4U != readBytes) {
-            printf("read error");
-            goto end;
-        }
+        HRG(ReadBytes(fpr, 4U, buff));
 
         if (0 == memcmp(buff, "fmt ", 4)) {
             // fmt chunk
@@ -194,12 +199,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
                     HRG(ReadInt32(fpr, (int*)&format_return->dwChannelMask));
 
                     // format GUID
-                    readBytes = fread(buff, 1, 16, fpr);
-                    if (readBytes != 16) {
-                        printf("read error");
-                        goto end;
-                    }
-
+                    HRG(ReadBytes(fpr, 16U, buff));
                     if (0 == memcmp(buff, &MFAudioFormat_Float, 16)) {
                         format_return->sampleFormat = WWMFSampleFormatFloat;
                     } else if (0 == memcmp(buff, &MFAudioFormat_PCM, 16)) {
