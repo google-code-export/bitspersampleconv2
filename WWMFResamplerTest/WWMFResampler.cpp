@@ -127,6 +127,9 @@ WWMFResampler::Initialize(WWMFPcmFormat &inputFormat, WWMFPcmFormat &outputForma
     m_outputFormat = outputFormat;
     assert(m_pTransform == NULL);
 
+    m_inputFrameTotal  = 0;
+    m_outputFrameTotal = 0;
+
     HRG(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET));
     m_isMFStartuped = true;
 
@@ -147,6 +150,9 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     IMFSample *pSample = NULL;
     IMFMediaBuffer *pBuffer = NULL;
     BYTE  *pByteBufferTo = NULL;
+    //LONGLONG hnsSampleDuration;
+    //LONGLONG hnsSampleTime;
+    int frameCount;
 
     assert(ppSample);
     *ppSample = NULL;
@@ -162,6 +168,16 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
 
     HRG(MFCreateSample(&pSample));
     HRG(pSample->AddBuffer(pBuffer));
+
+    frameCount = sampleData.bytes / m_inputFormat.FrameBytes();
+    /*
+    hnsSampleDuration = (LONGLONG)(10.0 * 1000 * 1000 * frameCount        / m_inputFormat.sampleRate);
+    hnsSampleTime     = (LONGLONG)(10.0 * 1000 * 1000 * m_inputFrameTotal / m_inputFormat.sampleRate);
+    HRG(pSample->SetSampleDuration(hnsSampleDuration));
+    HRG(pSample->SetSampleTime(hnsSampleTime));
+    */
+
+    m_inputFrameTotal += frameCount;
 
     // succeeded.
 
@@ -205,7 +221,9 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
     }
     memcpy(sampleData_return->data, pByteBuffer, cbBytes);
     sampleData_return->bytes = cbBytes;
-    
+
+    m_outputFrameTotal += cbBytes / m_outputFormat.FrameBytes();
+
     pByteBuffer = NULL;
     HRG(pBuffer->Unlock());
 

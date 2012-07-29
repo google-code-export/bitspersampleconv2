@@ -108,11 +108,22 @@ public:
     /// Finalize must be called even when Initialize() is failed
     void Finalize(void);
 
+    LONGLONG GetOutputFrameTotal(void) const {
+        return m_outputFrameTotal;
+    }
+
+    LONGLONG GetInputFrameTotal(void) const {
+        return m_inputFrameTotal;
+    }
+
 private:
     IMFTransform *m_pTransform;
     WWMFPcmFormat m_inputFormat;
     WWMFPcmFormat m_outputFormat;
     bool          m_isMFStartuped;
+    LONGLONG      m_inputFrameTotal;
+    LONGLONG      m_outputFrameTotal;
+
 
     HRESULT ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSample **ppSample);
     HRESULT ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return);
