@@ -400,8 +400,8 @@ int wmain(int argc, wchar_t *argv[])
     }
 
     expectedOutputDataBytes = (int64_t)remainBytes
-        * (outputFormat.Bitrate()/8)
-        / (inputFormat .Bitrate()/8);
+        * outputFormat.BytesPerSec()
+        / inputFormat .BytesPerSec();
 
     HRG(WriteWavHeader(fpw, outputFormat, expectedOutputDataBytes));
 

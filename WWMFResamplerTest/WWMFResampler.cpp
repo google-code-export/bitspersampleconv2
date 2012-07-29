@@ -60,12 +60,12 @@ CreateAudioMediaType(WWMFPcmFormat &fmt, IMFMediaType** ppMediaType)
     HRG(pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio));
     HRG(pMediaType->SetGUID(MF_MT_SUBTYPE,
             (fmt.sampleFormat == WWMFSampleFormatInt) ? MFAudioFormat_PCM : MFAudioFormat_Float));
-    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS, fmt.nChannels));
-    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND, fmt.sampleRate));
-    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT, fmt.nChannels * fmt.bits/8));
-    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_AVG_BYTES_PER_SECOND, fmt.nChannels * fmt.sampleRate * fmt.bits / 8));
-    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BITS_PER_SAMPLE, fmt.bits));
-    HRG(pMediaType->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS,         fmt.nChannels));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND,   fmt.sampleRate));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT,      fmt.FrameBytes()));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_AVG_BYTES_PER_SECOND, fmt.BytesPerSec()));
+    HRG(pMediaType->SetUINT32(MF_MT_AUDIO_BITS_PER_SAMPLE,      fmt.bits));
+    HRG(pMediaType->SetUINT32(MF_MT_ALL_SAMPLES_INDEPENDENT,    TRUE));
     if (0 != fmt.dwChannelMask) {
         HRG(pMediaType->SetUINT32(MF_MT_AUDIO_CHANNEL_MASK, fmt.dwChannelMask));
     }
@@ -255,7 +255,7 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
     IMFSample *pSample = NULL;
     WWMFSampleData inputData((BYTE*)buff, bytes);
     DWORD dwStatus;
-    DWORD cbOutputBytes = (DWORD)((int64_t)bytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
+    DWORD cbOutputBytes = (DWORD)((int64_t)bytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
@@ -285,7 +285,7 @@ HRESULT
 WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
-    DWORD cbOutputBytes = (DWORD)((int64_t)resampleInputBytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
+    DWORD cbOutputBytes = (DWORD)((int64_t)resampleInputBytes * m_outputFormat.BytesPerSec() / m_inputFormat.BytesPerSec());
     // cbOutputBytes must be product of frambytes
     cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 

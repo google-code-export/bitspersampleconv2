@@ -42,12 +42,12 @@ struct WWMFPcmFormat {
         validBitsPerSample = aValidBitsPerSample;
     }
 
-    DWORD Bitrate(void) {
-        return sampleRate * nChannels * (bits/8);
+    WORD FrameBytes(void) {
+        return (WORD)(nChannels * bits /8U);
     }
 
-    WORD FrameBytes(void) {
-        return (WORD)(nChannels * bits /8);
+    DWORD BytesPerSec(void) {
+        return sampleRate * FrameBytes();
     }
 };
 
