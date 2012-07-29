@@ -442,27 +442,22 @@ int wmain(int argc, wchar_t *argv[])
     buff = new BYTE[buffBytes];
 
     for (;;) {
-        if (remainBytes == 0) {
-            // 最後。
-            HRG(resampler.Drain(&sampleData));
-        } else {
-            // ファイルからPCMデータを読み込んで変換する。
-            readBytes = buffBytes;
-            if (remainBytes < readBytes) {
-                readBytes = remainBytes;
-            }
-            remainBytes -= readBytes;
-
-            result = fread(buff, 1, readBytes, fpr);
-            if (result != readBytes) {
-                printf("file read error\n");
-                hr = E_FAIL;
-                goto end;
-            }
-
-            // 変換する
-            HRG(resampler.Resample(buff, readBytes, &sampleData));
+        // ファイルからPCMデータを読み込む。
+        readBytes = buffBytes;
+        if (remainBytes < readBytes) {
+            readBytes = remainBytes;
         }
+        remainBytes -= readBytes;
+
+        result = fread(buff, 1, readBytes, fpr);
+        if (result != readBytes) {
+            printf("file read error\n");
+            hr = E_FAIL;
+            goto end;
+        }
+
+        // 変換する
+        HRG(resampler.Resample(buff, readBytes, &sampleData));
 
         // 書き込む。
         writeBytes = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
@@ -475,6 +470,18 @@ int wmain(int argc, wchar_t *argv[])
         sampleData.Release();
 
         if (remainBytes == 0) {
+            // 最後。
+            HRG(resampler.Drain(buffBytes, &sampleData));
+
+            // 書き込む。
+            writeBytes = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
+            if (writeBytes != sampleData.bytes) {
+                printf("file write error\n");
+                hr = E_FAIL;
+                goto end;
+            }
+            writeDataTotalBytes += sampleData.bytes;
+            sampleData.Release();
             break;
         }
     }

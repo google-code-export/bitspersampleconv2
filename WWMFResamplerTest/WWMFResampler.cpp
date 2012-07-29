@@ -300,29 +300,19 @@ end:
 }
 
 HRESULT
-WWMFResampler::Drain(WWSampleData *sampleData_return)
+WWMFResampler::Drain(int resampleInputBytes, WWSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
-    IMFMediaBuffer *pBuffer = NULL;
-    MFT_OUTPUT_STREAM_INFO streamInfo;
-    MFT_OUTPUT_DATA_BUFFER outputDataBuffer;
-    DWORD cbOutBytes = 1;
-    bool bDrained = false;
-    memset(&streamInfo, 0, sizeof streamInfo);
-    memset(&outputDataBuffer, 0, sizeof outputDataBuffer);
-
-    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
-
-    HRG(m_pTransform->GetOutputStreamInfo(0, &streamInfo));
-    if (cbOutBytes < streamInfo.cbSize) {
-        cbOutBytes = streamInfo.cbSize;
-    }
-
-    HRG(GetOutputFromTransform(sampleData_return));
-
-    HRG(ConvertMFSampleToWWSampleData(outputDataBuffer.pSample, sampleData_return));
+    int cbOutputBytes = (int)((int64_t)resampleInputBytes * (m_outputFormat.Bitrate()/8) / (m_inputFormat.Bitrate()/8));
+    // cbOutputBytes must be product of frambytes
+    cbOutputBytes = (cbOutputBytes + (m_outputFormat.FrameBytes()-1)) / m_outputFormat.FrameBytes() * m_outputFormat.FrameBytes();
 
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_OF_STREAM, NULL));
+    HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
+
+    sampleData_return->bytes = cbOutputBytes;
+    HRG(GetOutputFromTransform(sampleData_return));
+
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
 
 end:

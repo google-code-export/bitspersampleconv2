@@ -74,6 +74,21 @@ struct WWSampleData {
         data  = NULL;
         bytes = 0;
     }
+
+    HRESULT Add(WWSampleData &rhs) {
+        BYTE *buff = new BYTE[bytes + rhs.bytes];
+        if (NULL == buff) {
+            return E_FAIL;
+        }
+
+        memcpy(buff, data, bytes);
+        memcpy(&buff[bytes], rhs.data, rhs.bytes);
+
+        delete[] data;
+        data = buff;
+        bytes += rhs.bytes;
+        return S_OK;
+    }
 };
 
 class WWMFResampler {
@@ -85,7 +100,7 @@ public:
     HRESULT Initialize(WWMediaFormat &inputFormat, WWMediaFormat &outputFormat, int halfFilterLength);
 
     HRESULT Resample(const BYTE *buff, int bytes, WWSampleData *sampleData_return);
-    HRESULT Drain(WWSampleData *sampleData_return);
+    HRESULT Drain(int resampleInputBytes, WWSampleData *sampleData_return);
 
     void Finalize(void);
 
