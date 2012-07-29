@@ -215,7 +215,7 @@ end:
 }
 
 HRESULT
-WWMFResampler::GetSampleDataFromTransform(WWMFSampleData *sampleData_return)
+WWMFResampler::GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return)
 {
     HRESULT hr = S_OK;
     IMFMediaBuffer *pBuffer = NULL;
@@ -273,7 +273,7 @@ WWMFResampler::Resample(const BYTE *buff, int bytes, WWMFSampleData *sampleData_
     HRG(m_pTransform->ProcessInput(0, pSample, 0));
 
     sampleData_return->bytes = cbOutputBytes;
-    HRG(GetSampleDataFromTransform(sampleData_return));
+    HRG(GetSampleDataFromMFTransform(sampleData_return));
 
 end:
     inputData.Forget();
@@ -293,7 +293,7 @@ WWMFResampler::Drain(int resampleInputBytes, WWMFSampleData *sampleData_return)
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_DRAIN, NULL));
 
     sampleData_return->bytes = cbOutputBytes;
-    HRG(GetSampleDataFromTransform(sampleData_return));
+    HRG(GetSampleDataFromMFTransform(sampleData_return));
 
     HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
 

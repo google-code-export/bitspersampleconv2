@@ -115,5 +115,5 @@ private:
 
     HRESULT ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSample **ppSample);
     HRESULT ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return);
-    HRESULT GetSampleDataFromTransform(WWMFSampleData *sampleData_return);
+    HRESULT GetSampleDataFromMFTransform(WWMFSampleData *sampleData_return);
 };
