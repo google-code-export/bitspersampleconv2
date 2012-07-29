@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define WW_PIF       3.14159265358979323846f
-
 template <class T> void SafeRelease(T **ppT) {
     if (*ppT) {
         (*ppT)->Release();
