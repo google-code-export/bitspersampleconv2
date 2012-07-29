@@ -17,11 +17,11 @@ enum WWMFSampleFormatType {
 
 struct WWMFPcmFormat {
     WWMFSampleFormatType sampleFormat;
-    short nChannels;
-    short bits;
-    int   sampleRate;
-    DWORD   dwChannelMask;
-    int   validBitsPerSample;
+    WORD  nChannels;
+    WORD  bits;
+    DWORD sampleRate;
+    DWORD dwChannelMask;
+    WORD  validBitsPerSample;
 
     WWMFPcmFormat(void) {
         sampleFormat       = WWMFSampleFormatUnknown;
@@ -32,8 +32,8 @@ struct WWMFPcmFormat {
         validBitsPerSample = 0;
     }
 
-    WWMFPcmFormat(WWMFSampleFormatType aSampleFormat, short aNChannels, short aBits,
-            int aSampleRate, DWORD aDwChannelMask, int aValidBitsPerSample) {
+    WWMFPcmFormat(WWMFSampleFormatType aSampleFormat, WORD aNChannels, WORD aBits,
+            DWORD aSampleRate, DWORD aDwChannelMask, WORD aValidBitsPerSample) {
         sampleFormat       = aSampleFormat;
         nChannels          = aNChannels;
         bits               = aBits;
@@ -42,12 +42,12 @@ struct WWMFPcmFormat {
         validBitsPerSample = aValidBitsPerSample;
     }
 
-    int Bitrate(void) {
+    DWORD Bitrate(void) {
         return sampleRate * nChannels * (bits/8);
     }
 
-    int FrameBytes(void) {
-        return nChannels * bits /8;
+    WORD FrameBytes(void) {
+        return (WORD)(nChannels * bits /8);
     }
 };
 

@@ -285,7 +285,7 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
     HRG(WriteInt32(fpw, format.sampleRate * format.nChannels * format.bits / 8));
 
     // fmt blockAlign size==2
-    HRG(WriteInt16(fpw, (short)format.FrameBytes()));
+    HRG(WriteInt16(fpw, format.FrameBytes()));
 
     // fmt bitspersample size==2
     HRG(WriteInt16(fpw, format.bits));
