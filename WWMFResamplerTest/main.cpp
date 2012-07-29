@@ -105,7 +105,7 @@ WriteInt16(FILE *fpw, short value)
 }
 
 static HRESULT
-WriteStr(FILE *fpw, const char *s, int bytes)
+WriteBytes(FILE *fpw, const char *s, int bytes)
 {
     HRESULT hr = E_FAIL;
     int writeBytes = 0;
@@ -258,11 +258,11 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, int dataBytes)
     HRESULT hr = E_FAIL;
     int dataChunkSize = (dataBytes + 4 + 1) & (~1);
 
-    HRG(WriteStr(fpw, "RIFF", 4));
+    HRG(WriteBytes(fpw, "RIFF", 4));
     HRG(WriteInt32(fpw, dataChunkSize + 0x24));
-    HRG(WriteStr(fpw, "WAVE", 4));
+    HRG(WriteBytes(fpw, "WAVE", 4));
 
-    HRG(WriteStr(fpw, "fmt ", 4));
+    HRG(WriteBytes(fpw, "fmt ", 4));
     HRG(WriteInt32(fpw, 16));
 
     // fmt audioFormat size==2 1==int 3==float
@@ -292,7 +292,7 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, int dataBytes)
     // fmt bitspersample size==2
     HRG(WriteInt16(fpw, format.bits));
 
-    HRG(WriteStr(fpw, "data", 4));
+    HRG(WriteBytes(fpw, "data", 4));
     HRG(WriteInt32(fpw, dataChunkSize));
 
 end:
