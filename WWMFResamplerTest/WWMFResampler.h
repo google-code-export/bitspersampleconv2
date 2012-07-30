@@ -104,7 +104,7 @@ struct WWMFSampleData {
         }
 
         assert(NULL == data);
-        *this = rhs;
+        *this = rhs; //< Just copy 8 bytes. It's way faster than Add()
         rhs.Forget();
 
         return S_OK;
