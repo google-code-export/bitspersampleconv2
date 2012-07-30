@@ -62,7 +62,7 @@ struct WWMFSampleData {
     }
 
     ~WWMFSampleData(void) {
-        assert(data == NULL);
+        assert(NULL == data);
     }
 
     void Release(void) {
@@ -87,6 +87,24 @@ struct WWMFSampleData {
         delete[] data;
         data = buff;
         bytes += rhs.bytes;
+        return S_OK;
+    }
+
+    /**
+     * if this instance is not empty, rhs contents is concatenated to this instance. rhs remains untouched.
+     * if this instance is empty, rhs content moves to this instance. rhs becomes empty.
+     * rhs.Release() must be called to release either way
+     */
+    HRESULT MoveAdd(WWMFSampleData &rhs) {
+        if (bytes != 0) {
+            return Add(rhs);
+        }
+
+        assert(NULL == data);
+        data = rhs.data;
+        bytes = rhs.bytes;
+        rhs.data = NULL;
+        rhs.bytes = 0;
         return S_OK;
     }
 };

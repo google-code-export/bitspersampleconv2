@@ -306,7 +306,7 @@ WWMFResampler::Resample(const BYTE *buff, DWORD bytes, WWMFSampleData *sampleDat
         if (FAILED(hr)) {
             goto end;
         }
-        sampleData_return->Add(tmpData);
+        sampleData_return->MoveAdd(tmpData);
         tmpData.Release();
     }
 
@@ -345,7 +345,7 @@ WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return
         if (FAILED(hr)) {
             goto end;
         }
-        sampleData_return->Add(tmpData);
+        sampleData_return->MoveAdd(tmpData);
         tmpData.Release();
     }
 
