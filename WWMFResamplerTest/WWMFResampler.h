@@ -52,7 +52,6 @@ struct WWMFPcmFormat {
 };
 
 /** WWMFSampleData contains new[] ed byte buffer pointer(data) and buffer size(bytes).
- * WWMFSampleData must be POD type!
  */
 struct WWMFSampleData {
     DWORD  bytes;
