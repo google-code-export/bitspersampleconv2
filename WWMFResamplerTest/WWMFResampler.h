@@ -51,16 +51,14 @@ struct WWMFPcmFormat {
     }
 };
 
-/** WWMFSampleData contains new[] ed byte buffer pointer(data) and buffer size(bytes).
- */
+/// WWMFSampleData contains new[] ed byte buffer pointer(data) and buffer size(bytes).
 struct WWMFSampleData {
     DWORD  bytes;
     BYTE  *data;
 
     WWMFSampleData(void) : bytes(0), data(NULL) { }
 
-    /** @param aData must point new[] ed memory address
-     */
+    /// @param aData must point new[] ed memory address
     WWMFSampleData(BYTE *aData, int aBytes) {
         data  = aData;
         bytes = aBytes;
