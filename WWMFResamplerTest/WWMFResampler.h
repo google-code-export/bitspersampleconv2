@@ -51,14 +51,17 @@ struct WWMFPcmFormat {
     }
 };
 
-/** WWMFSampleData contains byte buffer pointer(data) and buffer size(bytes).
+/** WWMFSampleData contains new[] ed byte buffer pointer(data) and buffer size(bytes).
  * WWMFSampleData must be POD type!
  */
 struct WWMFSampleData {
     DWORD  bytes;
     BYTE  *data;
 
-    WWMFSampleData(void) : data(NULL), bytes(0) {}
+    WWMFSampleData(void) : bytes(0), data(NULL) { }
+
+    /** @param aData must point new[] ed memory address
+     */
     WWMFSampleData(BYTE *aData, int aBytes) {
         data  = aData;
         bytes = aBytes;
