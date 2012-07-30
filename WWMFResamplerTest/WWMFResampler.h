@@ -51,6 +51,9 @@ struct WWMFPcmFormat {
     }
 };
 
+/** WWMFSampleData contains byte buffer pointer(data) and buffer size(bytes).
+ * WWMFSampleData must be POD type!
+ */
 struct WWMFSampleData {
     DWORD  bytes;
     BYTE  *data;
@@ -91,9 +94,9 @@ struct WWMFSampleData {
     }
 
     /**
-     * if this instance is not empty, rhs contents is concatenated to this instance. rhs remains untouched.
-     * if this instance is empty, rhs content moves to this instance. rhs becomes empty.
-     * rhs.Release() must be called to release either way
+     * If this instance is not empty, rhs content is concatenated to this instance. rhs remains untouched.
+     * If this instance is empty, rhs content moves to this instance. rhs becomes empty.
+     * rhs.Release() must be called to release memory either way!
      */
     HRESULT MoveAdd(WWMFSampleData &rhs) {
         if (bytes != 0) {
@@ -101,10 +104,9 @@ struct WWMFSampleData {
         }
 
         assert(NULL == data);
-        data = rhs.data;
-        bytes = rhs.bytes;
-        rhs.data = NULL;
-        rhs.bytes = 0;
+        *this = rhs;
+        rhs.Forget();
+
         return S_OK;
     }
 };
