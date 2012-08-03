@@ -47,6 +47,8 @@ namespace PlayPcmWin {
         public bool AlternatingRowBackground { get; set; }
         public uint AlternatingRowBackgroundARGB { get; set; }
 
+        public int ResamplerConversionQuality { get; set; }
+
         public enum PlayListDispModeType {
             /// <summary>
             /// 選択モード
@@ -111,6 +113,7 @@ namespace PlayPcmWin {
 
             AlternatingRowBackground = true;
             AlternatingRowBackgroundARGB = 0xfff8fcfcU;
+            ResamplerConversionQuality = 60;
         }
 
         /// <summary>

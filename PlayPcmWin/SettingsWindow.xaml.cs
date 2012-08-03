@@ -89,6 +89,9 @@ namespace PlayPcmWin {
             textBoxZeroFlushSeconds.Text =
                 string.Format("{0}", preference.ZeroFlushMillisec * 0.001);
 
+            textBoxConversionQuality.Text =
+                string.Format("{0}", preference.ResamplerConversionQuality);
+
             sliderWindowScaling.Value =
                 preference.WindowScale;
 
@@ -224,6 +227,18 @@ namespace PlayPcmWin {
                     m_preference.ZeroFlushMillisec = (int)(zeroFlushSeconds * 1000);
                 } else {
                     MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
+                }
+            }
+            {
+                int v;
+                if (Int32.TryParse(textBoxConversionQuality.Text, out v)) {
+                    if (v <= 0 || 60 < v) {
+                        MessageBox.Show("Wasapi Shared Resampler Qualityの大きさは 1～60の範囲の数字を入力してください。");
+                        return;
+                    }
+                    m_preference.ResamplerConversionQuality = v;
+                } else {
+                    MessageBox.Show("Wasapi Shared Resampler Qualityの大きさは 1～60の範囲の数字を入力してください。");
                 }
             }
 

@@ -303,6 +303,7 @@ namespace PlayPcmWin
             public WasapiDataFeedMode DataFeedMode { get { return dfm; } }
             public WasapiSharedOrExclusive SharedOrExclusive { get { return shareMode; } }
             public RenderThreadTaskType ThreadTaskType { get { return threadTaskType; } }
+            public int ResamplerConversionQuality { get; set; }
 
             /// <summary>
             /// 1フレーム(1サンプル全ch)のデータがメモリ上を占める領域(バイト)
@@ -321,7 +322,8 @@ namespace PlayPcmWin
                     int zeroFlushMillisec,
                     WasapiDataFeedMode dfm,
                     WasapiSharedOrExclusive shareMode,
-                    RenderThreadTaskType threadTaskType) {
+                    RenderThreadTaskType threadTaskType,
+                    int resamplerConversionQuality) {
                 return (this.setuped
                     && this.samplingRate == samplingRate
                     && this.sampleFormat == fmt
@@ -330,7 +332,8 @@ namespace PlayPcmWin
                     && this.zeroFlushMillisec == zeroFlushMillisec
                     && this.dfm == dfm
                     && this.shareMode == shareMode
-                    && this.threadTaskType == threadTaskType);
+                    && this.threadTaskType == threadTaskType
+                    && this.ResamplerConversionQuality == resamplerConversionQuality);
             }
 
             public bool CompatibleTo(
@@ -341,7 +344,8 @@ namespace PlayPcmWin
                     int zeroFlushMillisec,
                     WasapiDataFeedMode dfm,
                     WasapiSharedOrExclusive shareMode,
-                    RenderThreadTaskType threadTaskType) {
+                    RenderThreadTaskType threadTaskType,
+                    int resamplerConversionQuality) {
                 return (this.setuped
                     && this.samplingRate == samplingRate
                     && SampleFormatIsCompatible(this.sampleFormat, fmt)
@@ -350,7 +354,8 @@ namespace PlayPcmWin
                     && this.ZeroFlushMillisec == zeroFlushMillisec
                     && this.dfm == dfm
                     && this.shareMode == shareMode
-                    && this.threadTaskType == threadTaskType);
+                    && this.threadTaskType == threadTaskType
+                    && this.ResamplerConversionQuality == resamplerConversionQuality);
             }
 
             private bool SampleFormatIsCompatible(
@@ -373,7 +378,8 @@ namespace PlayPcmWin
                 int zeroFlushMillisec,
                 WasapiDataFeedMode dfm,
                 WasapiSharedOrExclusive shareMode,
-                RenderThreadTaskType threadTaskType) {
+                RenderThreadTaskType threadTaskType,
+                int resamplerConversionQuality) {
                     this.setuped = true;
                 this.samplingRate = samplingRate;
                 this.sampleFormat = fmt;
@@ -383,6 +389,7 @@ namespace PlayPcmWin
                 this.dfm = dfm;
                 this.shareMode = shareMode;
                 this.threadTaskType = threadTaskType;
+                this.ResamplerConversionQuality = resamplerConversionQuality;
             }
 
             /// <summary>
@@ -1095,7 +1102,7 @@ namespace PlayPcmWin
                         radioButtonShared.IsChecked == true ?
                             Properties.Resources.Shared : Properties.Resources.Exclusive,
                         wasapi.GetBufferFormatSampleRate()*0.001,
-                        SampleFormatTypeToStr(wasapi.GetBufferFormatType()),
+                        SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
                         wasapi.GetNumOfChannels());
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -1341,6 +1348,8 @@ namespace PlayPcmWin
             wasapi.SetZeroFlushMillisec(m_deviceSetupInfo.ZeroFlushMillisec);
             wasapi.SetTimePeriodMillisec(m_preference.TimePeriodMillisec);
 
+            wasapi.SetResamplerConversionQuality(m_preference.ResamplerConversionQuality);
+
             int hr = wasapi.Setup(
                 m_deviceSetupInfo.SampleRate,
                 m_deviceSetupInfo.SampleFormat,
@@ -1393,17 +1402,18 @@ namespace PlayPcmWin
 
             PcmDataLib.PcmData startPcmData = FindPcmDataById(m_pcmDataListForPlay, startWavDataId);
 
-            // 1つのフォーマットに対して複数のデバイス設定選択肢がありうる。
+            // 1つのフォーマットに対して複数のSetup()設定選択肢がありうる。
 
-            int candidateNum = SampleFormatInfo.GetDeviceSampleFormatCandidateNum(
+            int candidateNum = SampleFormatInfo.GetSetupSampleFormatCandidateNum(
                 m_preference.wasapiSharedOrExclusive,
                 m_preference.bitsPerSampleFixType,
                 startPcmData.ValidBitsPerSample,
                 startPcmData.SampleValueRepresentationType);
             for (int i = 0; i < candidateNum; ++i) {
-                SampleFormatInfo sf = SampleFormatInfo.GetDeviceSampleFormat(
+                SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
                     m_preference.wasapiSharedOrExclusive,
                     m_preference.bitsPerSampleFixType,
+                    startPcmData.BitsPerSample,
                     startPcmData.ValidBitsPerSample,
                     startPcmData.SampleValueRepresentationType,
                     i);
@@ -1416,16 +1426,18 @@ namespace PlayPcmWin
                     m_preference.ZeroFlushMillisec,
                     m_preference.wasapiDataFeedMode,
                     m_preference.wasapiSharedOrExclusive,
-                    m_preference.renderThreadTaskType)) {
+                    m_preference.renderThreadTaskType,
+                    m_preference.ResamplerConversionQuality)) {
                     // すでにこのフォーマットでSetup完了している。
                     return true;
                 }
             }
 
             for (int i = 0; i < candidateNum; ++i) {
-                SampleFormatInfo sf = SampleFormatInfo.GetDeviceSampleFormat(
+                SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
                     m_preference.wasapiSharedOrExclusive,
                     m_preference.bitsPerSampleFixType,
+                    startPcmData.BitsPerSample,
                     startPcmData.ValidBitsPerSample,
                     startPcmData.SampleValueRepresentationType, i);
 
@@ -1437,7 +1449,8 @@ namespace PlayPcmWin
                     m_preference.ZeroFlushMillisec,
                     m_preference.wasapiDataFeedMode,
                     m_preference.wasapiSharedOrExclusive,
-                    m_preference.renderThreadTaskType);
+                    m_preference.renderThreadTaskType,
+                    m_preference.ResamplerConversionQuality);
 
                 int hr = WasapiSetup1();
                 if (0 <= hr) {
@@ -1681,7 +1694,7 @@ namespace PlayPcmWin
                         // WAVヘッダ読み込み成功。PcmDataを作って再生リストに足す。
 
                         PcmDataLib.PcmData pd = new PcmDataLib.PcmData();
-                        pd.SetFormat(wavData.NumChannels, wavData.BitsPerFrame, wavData.BitsPerFrame,
+                        pd.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.ValidBitsPerSample,
                             wavData.SampleRate, wavData.SampleValueRepresentationType, wavData.NumFrames);
                         if ("RIFFINFO_INAM".Equals(wavData.Title) &&
                             "RIFFINFO_IART".Equals(wavData.ArtistName)) {
@@ -2232,6 +2245,16 @@ namespace PlayPcmWin
 
                 // ダメ押し。
                 GC.Collect();
+
+                if (m_preference.wasapiSharedOrExclusive == WasapiSharedOrExclusive.Shared) {
+                    m_readFileWorker.ReportProgress(90, string.Format("Resampling...\r\n"));
+                }
+                r.hr = wasapi.ResampleIfNeeded();
+                if (r.hr < 0) {
+                    r.message = "Resample failed! " + string.Format("0x{0:X8}", r.hr);
+                    args.Result = r;
+                    return;
+                }
                 wasapi.AddPlayPcmDataEnd();
 
                 // 成功。
@@ -2337,7 +2360,12 @@ namespace PlayPcmWin
                 m_readProgressInfo.readFrames += readFrames;
                 var rpi = m_readProgressInfo;
 
-                double progressPercentage = 100.0 * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
+                double loadCompletedPercent = 100.0;
+                if (m_preference.wasapiSharedOrExclusive == WasapiSharedOrExclusive.Shared) {
+                    loadCompletedPercent = 90.0;
+                }
+
+                double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
                 m_readFileWorker.ReportProgress((int)progressPercentage,
                     string.Format("wasapi.AddPlayPcmData(id={0}, frames={1})\r\n", rpi.pcmDataId, rpi.readFrames));
             }
@@ -2446,12 +2474,18 @@ namespace PlayPcmWin
                 int readFrames = part.Length / (pd.BitsPerFrame / 8);
 
                 pd.SetSampleArray(part);
+                part = null;
 
                 // 必要に応じてpartの量子化ビット数の変更処理を行い、pdAfterに新しく確保したPCMデータ配列をセット。
                 // ここでpart配列は不要となる。
-                PcmData pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupInfo.SampleFormat);
-                pd.ForgetDataPart();
-                part = null;
+
+                PcmData pdAfter = null;
+                if (m_preference.wasapiSharedOrExclusive == WasapiSharedOrExclusive.Exclusive) {
+                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupInfo.SampleFormat);
+                    pd.ForgetDataPart();
+                } else {
+                    pdAfter = pd;
+                }
 
                 if (pdAfter.GetSampleArray() == null ||
                     0 == pdAfter.GetSampleArray().Length) {

@@ -55,8 +55,10 @@ enum WWShareMode {
 };
 
 enum WWBitFormatType {
-    WWSInt,
-    WWSFloat,
+    WWBitFormatUnknown = -1,
+    WWBitFormatSint,
+    WWBitFormatSfloat,
+    WWBitFormatNUM
 };
 
 enum WWPcmDataUsageType {
@@ -80,7 +82,7 @@ public:
     bool GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes);
 
     /// @param bitFormat 0:Int, 1:Float
-    /// @return 0 this format is supported
+    /// @return 0 this sampleFormat is supported
     int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
     // set use device
@@ -99,22 +101,32 @@ public:
     void SetZeroFlushMillisec(int zeroFlushMillisec);
     void SetTimePeriodMillisec(int millisec);
 
+    /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
+    ///        you need to resample pcm to DeviceSampleRate
     HRESULT Setup(
-        int sampleRate, WWPcmDataFormatType format, int numChannels);
+            int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels);
 
     void Unsetup(void);
 
-    // Setup後に呼ぶ(Setup()で決定するので)
-    int GetPcmDataSampleRate(void);
-    int GetPcmDataNumChannels(void);
-    int GetPcmDataFrameBytes(void);
+    // Setup後に呼ぶ(Setup()で代入するので)
+    int GetPcmDataSampleRate(void) const      { return m_sampleRate; }
+    int GetPcmDataNumChannels(void) const     { return m_numChannels; }
+    DWORD GetPcmDataDwChannelMask(void) const { return m_dwChannelMask; }
+    WWPcmDataSampleFormatType GetPcmDataSampleFormat(void) const { return m_sampleFormat; }
 
-    /// エンドポイントバッファーのデータフォーマット。
-    WWPcmDataFormatType GetMixFormatType(void);
+    bool IsResampleNeeded(void) const;
 
-    /// ミックスフォーマットサンプルレート
-    /// (WASAPI共有の場合、PcmDataSampleRateとは異なる値になることがある)
-    int GetMixFormatSampleRate(void);
+    /// if you changed sample format after Setup() call this function...
+    void UpdatePcmDataFormat(int sampleRate, WWPcmDataSampleFormatType sampleFormat,
+            int numChannels, DWORD dwChannelMask);
+
+    /// デバイス(ミックスフォーマット)サンプルレート
+    /// WASAPI共有の場合、Setup後にGetPcmDataSampleRateとは異なる値になることがある。
+    int GetDeviceSampleRate(void) const      { return m_deviceSampleRate; }
+    int GetDeviceNumChannels(void) const     { return m_deviceNumChannels; }
+    DWORD GetDeviceDwChannelMask(void) const { return m_deviceDwChannelMask; }
+    int GetDeviceBytesPerFrame(void) const   { return m_deviceBytesPerFrame; }
+    WWPcmDataSampleFormatType GetDeviceSampleFormat(void) const { return m_deviceSampleFormat; }
 
     /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
     void UpdatePlayPcmData(WWPcmData &pcmData);
@@ -174,19 +186,21 @@ private:
 
     IAudioClient *m_audioClient;
 
-    /// bytes per frame
-    int          m_frameBytes;
-
     /// wasapi audio buffer frame size
     UINT32       m_bufferFrameNum;
 
+    /// source data format
+    WWPcmDataSampleFormatType m_sampleFormat;
     int          m_sampleRate;
-
-    /// has different value from m_sampleRate on wasapi shared mode
-    int          m_deviceSampleRate;
-
-    WWPcmDataFormatType m_format;
     int          m_numChannels;
+    DWORD        m_dwChannelMask;
+
+    /// may have different value from m_sampleRate on wasapi shared mode
+    WWPcmDataSampleFormatType m_deviceSampleFormat;
+    int          m_deviceSampleRate;
+    int          m_deviceNumChannels;
+    DWORD        m_deviceDwChannelMask;
+    int          m_deviceBytesPerFrame;
 
     WWDataFeedMode m_dataFeedMode;
     WWSchedulerTaskType m_schedulerTaskType;
@@ -195,7 +209,6 @@ private:
 
     IAudioRenderClient  *m_renderClient;
     IAudioCaptureClient *m_captureClient;
-    IAudioClockAdjustment *m_audioClockAdjustment;
     HANDLE       m_thread;
     HANDLE       m_mutex;
     bool         m_coInitializeSuccess;

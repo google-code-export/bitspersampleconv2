@@ -75,6 +75,12 @@
                         <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" />
                     </Grid>
                 </GroupBox>
+                <GroupBox x:Uid="groupBox5" Header="Wasapi Shared Resampler" Height="60" Margin="554,370,12,0" Name="groupBox5" VerticalAlignment="Top">
+                    <Grid>
+                        <Label x:Uid="labelConversionQuality" Content="Quality (1 to 60):" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,3" Name="labelConversionQuality" VerticalAlignment="Center" Width="160" />
+                        <TextBox x:Uid="textBoxConversionQuality" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="100,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Width="30" Text="60" />
+                    </Grid>
+                </GroupBox>
             </Grid>
         </ScrollViewer>
         <Slider x:Uid="sliderWindowScaling" Ticks="0.8 0.84589701075245129562802960002288 0.89442719099991587856366946749251 0.94574160900317581330169611988722 1.0 1.0573712634405641195350370000286 1.1180339887498948482045868343656 1.182177011253969766627120149859 1.25" HorizontalAlignment="Left" Margin="12,0,0,12" Name="sliderWindowScaling" Width="182" Maximum="1.25" Value="1" Minimum="0.8" Grid.Row="1" Height="28" VerticalAlignment="Bottom" ValueChanged="sliderWindowScaling_ValueChanged" SmallChange="0.03125" TickFrequency="8" TickPlacement="BottomRight" LargeChange="0.0625" />

@@ -154,12 +154,12 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
             // audioFormat size==2
             HRG(ReadInt16(fpr, &shortValue));
             if (1 == shortValue) {
-                format_return->sampleFormat = WWMFSampleFormatInt;
+                format_return->sampleFormat = WWMFBitFormatInt;
             } else if (3 == shortValue) {
-                format_return->sampleFormat = WWMFSampleFormatFloat;
+                format_return->sampleFormat = WWMFBitFormatFloat;
             } else if (0xfffe == (unsigned short)shortValue) {
                 // WAVEFORMATEXTENSIBLEに書いてある。
-                format_return->sampleFormat = WWMFSampleFormatUnknown;
+                format_return->sampleFormat = WWMFBitFormatUnknown;
             } else {
                 printf("unrecognized format");
                 goto end;
@@ -201,9 +201,9 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
                     // format GUID
                     HRG(ReadBytes(fpr, 16U, buff));
                     if (0 == memcmp(buff, &MFAudioFormat_Float, 16)) {
-                        format_return->sampleFormat = WWMFSampleFormatFloat;
+                        format_return->sampleFormat = WWMFBitFormatFloat;
                     } else if (0 == memcmp(buff, &MFAudioFormat_PCM, 16)) {
-                        format_return->sampleFormat = WWMFSampleFormatInt;
+                        format_return->sampleFormat = WWMFBitFormatInt;
                     } else {
                         printf("unrecognized format guid");
                         goto end;
@@ -233,7 +233,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
 
     }
 end:
-    if (S_OK == hr && format_return->sampleFormat == WWMFSampleFormatUnknown) {
+    if (S_OK == hr && format_return->sampleFormat == WWMFBitFormatUnknown) {
         printf("unrecognized format");
         hr = E_FAIL;
     }
@@ -256,10 +256,10 @@ WriteWavHeader(FILE *fpw, WWMFPcmFormat &format, DWORD dataBytes)
 
     // fmt audioFormat size==2 1==int 3==float
     switch (format.sampleFormat) {
-    case WWMFSampleFormatInt:
+    case WWMFBitFormatInt:
         HRG(WriteInt16(fpw, 1));
         break;
-    case WWMFSampleFormatFloat:
+    case WWMFBitFormatFloat:
         HRG(WriteInt16(fpw, 3));
         break;
     default:
@@ -381,10 +381,10 @@ int wmain(int argc, wchar_t *argv[])
     switch (outputFormat.bits) {
     case 16:
     case 24:
-        outputFormat.sampleFormat = WWMFSampleFormatInt;
+        outputFormat.sampleFormat = WWMFBitFormatInt;
         break;
     case 32:
-        outputFormat.sampleFormat = WWMFSampleFormatFloat;
+        outputFormat.sampleFormat = WWMFBitFormatFloat;
         break;
     default:
         PrintUsage(argv[0]);

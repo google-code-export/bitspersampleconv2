@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <stdint.h>
+#include <float.h>
 
 const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w)
@@ -18,65 +19,65 @@ WWPcmDataContentTypeToStr(WWPcmDataContentType w)
 }
 
 const char *
-WWPcmDataFormatTypeToStr(WWPcmDataFormatType w)
+WWPcmDataSampleFormatTypeToStr(WWPcmDataSampleFormatType w)
 {
     switch (w) {
-    case WWPcmDataFormatSint16: return "Sint16";
-    case WWPcmDataFormatSint24: return "Sint24";
-    case WWPcmDataFormatSint32V24: return "Sint32V24";
-    case WWPcmDataFormatSint32: return "Sint32";
-    case WWPcmDataFormatSfloat: return "Sfloat";
+    case WWPcmDataSampleFormatSint16: return "Sint16";
+    case WWPcmDataSampleFormatSint24: return "Sint24";
+    case WWPcmDataSampleFormatSint32V24: return "Sint32V24";
+    case WWPcmDataSampleFormatSint32: return "Sint32";
+    case WWPcmDataSampleFormatSfloat: return "Sfloat";
     default: return "unknown";
     }
 }
 
-WWPcmDataFormatType
-WWPcmDataBitsPerSamplesToFormatType(int bitsPerSample, int validBitsPerSample, GUID subFormat)
+WWPcmDataSampleFormatType
+WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUID subFormat)
 {
     if (subFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
         if (bitsPerSample == 32 &&
             validBitsPerSample == 32) {
-            return WWPcmDataFormatSfloat;
+            return WWPcmDataSampleFormatSfloat;
         }
-        return WWPcmDataFormatUnknown;
+        return WWPcmDataSampleFormatUnknown;
     }
     
     if (subFormat == KSDATAFORMAT_SUBTYPE_PCM) {
         switch (bitsPerSample) {
         case 16:
             if (validBitsPerSample == 16) {
-                return WWPcmDataFormatSint16;
+                return WWPcmDataSampleFormatSint16;
             }
             break;
         case 24:
             if (validBitsPerSample == 24) {
-                return WWPcmDataFormatSint24;
+                return WWPcmDataSampleFormatSint24;
             }
             break;
         case 32:
             if (validBitsPerSample == 24) {
-                return WWPcmDataFormatSint32V24;
+                return WWPcmDataSampleFormatSint32V24;
             }
             if (validBitsPerSample == 32) {
-                return WWPcmDataFormatSint32;
+                return WWPcmDataSampleFormatSint32;
             }
             break;
         default:
             break;
         }
-        return WWPcmDataFormatUnknown;
+        return WWPcmDataSampleFormatUnknown;
     }
 
-    return WWPcmDataFormatUnknown;
+    return WWPcmDataSampleFormatUnknown;
 }
 
 int
-WWPcmDataFormatTypeToBitsPerSample(WWPcmDataFormatType t)
+WWPcmDataSampleFormatTypeToBitsPerSample(WWPcmDataSampleFormatType t)
 {
-    static const int result[WWPcmDataFormatNUM]
+    static const int result[WWPcmDataSampleFormatNUM]
         = { 16, 24, 32, 32, 32 };
 
-    if (t < 0 || WWPcmDataFormatNUM <= t) {
+    if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
         return -1;
     }
@@ -84,12 +85,12 @@ WWPcmDataFormatTypeToBitsPerSample(WWPcmDataFormatType t)
 }
 
 int
-WWPcmDataFormatTypeToValidBitsPerSample(WWPcmDataFormatType t)
+WWPcmDataSampleFormatTypeToValidBitsPerSample(WWPcmDataSampleFormatType t)
 {
-    static const int result[WWPcmDataFormatNUM]
+    static const int result[WWPcmDataSampleFormatNUM]
         = { 16, 24, 24, 32, 32 };
 
-    if (t < 0 || WWPcmDataFormatNUM <= t) {
+    if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
         return -1;
     }
@@ -97,12 +98,12 @@ WWPcmDataFormatTypeToValidBitsPerSample(WWPcmDataFormatType t)
 }
 
 bool
-WWPcmDataFormatTypeIsFloat(WWPcmDataFormatType t)
+WWPcmDataSampleFormatTypeIsFloat(WWPcmDataSampleFormatType t)
 {
-    static const bool result[WWPcmDataFormatNUM]
+    static const bool result[WWPcmDataSampleFormatNUM]
         = { false, false, false, false, true };
 
-    if (t < 0 || WWPcmDataFormatNUM <= t) {
+    if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
         return false;
     }
@@ -110,12 +111,12 @@ WWPcmDataFormatTypeIsFloat(WWPcmDataFormatType t)
 }
 
 bool
-WWPcmDataFormatTypeIsInt(WWPcmDataFormatType t)
+WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t)
 {
-    static const bool result[WWPcmDataFormatNUM]
+    static const bool result[WWPcmDataSampleFormatNUM]
         = { true, true, true, true, false };
 
-    if (t < 0 || WWPcmDataFormatNUM <= t) {
+    if (t < 0 || WWPcmDataSampleFormatNUM <= t) {
         assert(0);
         return false;
     }
@@ -145,7 +146,7 @@ WWPcmData::CopyFrom(WWPcmData *rhs)
 
     next = NULL;
 
-    int64_t bytes = nFrames * frameBytes;
+    int64_t bytes = nFrames * bytesPerFrame;
     assert(0 < bytes);
 
     stream = (BYTE*)malloc(bytes);
@@ -154,20 +155,20 @@ WWPcmData::CopyFrom(WWPcmData *rhs)
 
 bool
 WWPcmData::Init(
-        int aId, WWPcmDataFormatType aFormat, int anChannels,
+        int aId, WWPcmDataSampleFormatType aFormat, int anChannels,
         int64_t anFrames, int aframeBytes, WWPcmDataContentType dataType)
 {
     assert(stream == NULL);
 
     id       = aId;
-    format   = aFormat;
+    sampleFormat   = aFormat;
     contentType = dataType;
     next     = NULL;
     posFrame = 0;
     nChannels = anChannels;
     // メモリ確保に成功してからフレーム数をセットする。
     nFrames  = 0;
-    frameBytes = aframeBytes;
+    bytesPerFrame = aframeBytes;
     stream   = NULL;
 
     int64_t bytes = anFrames * aframeBytes;
@@ -196,7 +197,7 @@ WWPcmData::Init(
 int
 WWPcmData::GetSampleValueInt(int ch, int64_t posFrame)
 {
-    assert(format != WWPcmDataFormatSfloat);
+    assert(sampleFormat != WWPcmDataSampleFormatSfloat);
     assert(0 <= ch && ch < nChannels);
 
     if (posFrame < 0 ||
@@ -205,14 +206,14 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame)
     }
 
     int result = 0;
-    switch (format) {
-    case WWPcmDataFormatSint16:
+    switch (sampleFormat) {
+    case WWPcmDataSampleFormatSint16:
         {
             short *p = (short*)(&stream[2 * (nChannels * posFrame + ch)]);
             result = *p;
         }
         break;
-    case WWPcmDataFormatSint24:
+    case WWPcmDataSampleFormatSint24:
         {
             // bus error回避。x86にはbus error無いけど一応。
             unsigned char *p =
@@ -225,13 +226,13 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame)
             result /= 256;
         }
         break;
-    case WWPcmDataFormatSint32V24:
+    case WWPcmDataSampleFormatSint32V24:
         {
             int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
             result = ((*p)/256);
         }
         break;
-    case WWPcmDataFormatSint32:
+    case WWPcmDataSampleFormatSint32:
         {
             // mallocで確保したバッファーなので、bus errorは起きない。
             int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
@@ -249,7 +250,7 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame)
 float
 WWPcmData::GetSampleValueFloat(int ch, int64_t posFrame)
 {
-    assert(format == WWPcmDataFormatSfloat);
+    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
     assert(0 <= ch && ch < nChannels);
 
     if (posFrame < 0 ||
@@ -266,18 +267,18 @@ WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame)
 {
     float result = 0.0f;
 
-    switch (format) {
-    case WWPcmDataFormatSint16:
+    switch (sampleFormat) {
+    case WWPcmDataSampleFormatSint16:
         result = GetSampleValueInt(ch, posFrame) * (1.0f / 32768.0f);
         break;
-    case WWPcmDataFormatSint24:
-    case WWPcmDataFormatSint32V24:
+    case WWPcmDataSampleFormatSint24:
+    case WWPcmDataSampleFormatSint32V24:
         result = GetSampleValueInt(ch, posFrame) * (1.0f / 8388608.0f);
         break;
-    case WWPcmDataFormatSint32:
+    case WWPcmDataSampleFormatSint32:
         result = GetSampleValueInt(ch, posFrame) * (1.0f / 2147483648.0f);
         break;
-    case WWPcmDataFormatSfloat:
+    case WWPcmDataSampleFormatSfloat:
         result = GetSampleValueFloat(ch, posFrame);
         break;
     default:
@@ -290,7 +291,7 @@ WWPcmData::GetSampleValueAsFloat(int ch, int64_t posFrame)
 bool
 WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
 {
-    assert(format != WWPcmDataFormatSfloat);
+    assert(sampleFormat != WWPcmDataSampleFormatSfloat);
     assert(0 <= ch && ch < nChannels);
 
     if (posFrame < 0 ||
@@ -298,15 +299,15 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
         return false;
     }
 
-    switch (format) {
-    case WWPcmDataFormatSint16:
+    switch (sampleFormat) {
+    case WWPcmDataSampleFormatSint16:
         {
             short *p =
                 (short*)(&stream[2 * (nChannels * posFrame + ch)]);
             *p = (short)value;
         }
         break;
-    case WWPcmDataFormatSint24:
+    case WWPcmDataSampleFormatSint24:
         {
             // bus error回避。x86にはbus error無いけど一応。
             unsigned char *p =
@@ -316,7 +317,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
             p[2] = (unsigned char)((value>>16) & 0xff);
         }
         break;
-    case WWPcmDataFormatSint32V24:
+    case WWPcmDataSampleFormatSint32V24:
         {
             unsigned char *p =
                 (unsigned char*)(&stream[4 * (nChannels * posFrame + ch)]);
@@ -326,7 +327,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
             p[3] = (unsigned char)((value>>16) & 0xff);
         }
         break;
-    case WWPcmDataFormatSint32:
+    case WWPcmDataSampleFormatSint32:
         {
             // mallocで確保したバッファーなので、bus errorは起きない。
             int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
@@ -344,7 +345,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
 bool
 WWPcmData::SetSampleValueFloat(int ch, int64_t posFrame, float value)
 {
-    assert(format == WWPcmDataFormatSfloat);
+    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
     assert(0 <= ch && ch < nChannels);
 
     if (posFrame < 0 ||
@@ -362,18 +363,18 @@ WWPcmData::SetSampleValueAsFloat(int ch, int64_t posFrame, float value)
 {
     bool result = false;
 
-    switch (format) {
-    case WWPcmDataFormatSint16:
+    switch (sampleFormat) {
+    case WWPcmDataSampleFormatSint16:
         result = SetSampleValueInt(ch, posFrame, (int)(value * 32768.0f));
         break;
-    case WWPcmDataFormatSint24:
-    case WWPcmDataFormatSint32V24:
+    case WWPcmDataSampleFormatSint24:
+    case WWPcmDataSampleFormatSint32V24:
         result = SetSampleValueInt(ch, posFrame, (int)(value * 8388608.0f));
         break;
-    case WWPcmDataFormatSint32:
+    case WWPcmDataSampleFormatSint32:
         result = SetSampleValueInt(ch, posFrame, (int)(value * 2147483648.0f));
         break;
-    case WWPcmDataFormatSfloat:
+    case WWPcmDataSampleFormatSfloat:
         result = SetSampleValueFloat(ch, posFrame, value);
         break;
     default:
@@ -404,8 +405,8 @@ WWPcmData::UpdateSpliceDataWithStraightLine(
 {
     assert(0 < nFrames && nFrames <= 0x7fffffff);
 
-    switch (fromPcmData->format) {
-    case WWPcmDataFormatSfloat:
+    switch (fromPcmData->sampleFormat) {
+    case WWPcmDataSampleFormatSfloat:
         {
             // floatは、簡単。
             PcmSpliceInfoFloat *p =
@@ -509,4 +510,86 @@ WWPcmData::CreateCrossfadeData(
 
     // クロスフェードのPCMデータは2GBもない(assertでチェックしている)。intにキャストする。
     return (int)nFrames; 
+}
+
+int
+WWPcmData::GetBufferData(int64_t fromBytes, int wantBytes, BYTE *data_return)
+{
+    assert(data_return);
+    assert(0 <= fromBytes);
+
+    if (wantBytes <= 0 || nFrames <= fromBytes/bytesPerFrame) {
+        return 0;
+    }
+
+    int copyFrames = wantBytes/bytesPerFrame;
+    if (nFrames < (fromBytes/bytesPerFrame + copyFrames)) {
+        copyFrames = (int)(nFrames - fromBytes/bytesPerFrame);
+    }
+
+    if (copyFrames <= 0) {
+        // wantBytes is smaller than bytesPerFrame
+        assert(0);
+        return 0;
+    }
+
+    memcpy(data_return, &stream[fromBytes], copyFrames * bytesPerFrame);
+    return copyFrames * bytesPerFrame;
+}
+
+int
+WWPcmData::FillBufferAddData(const BYTE *buff, int bytes)
+{
+    assert(buff);
+    assert(0 <= bytes);
+
+    int copyFrames = bytes / bytesPerFrame;
+    if (nFrames - filledFrames < copyFrames) {
+        copyFrames = (int)(nFrames - filledFrames);
+    }
+
+    if (copyFrames <= 0) {
+        return 0;
+    }
+
+    memcpy(&stream[filledFrames*bytesPerFrame], buff, copyFrames * bytesPerFrame);
+    filledFrames += copyFrames;
+    return copyFrames * bytesPerFrame;
+}
+
+void
+WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
+{
+    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
+    *minValue_return = 0.0f;
+    *maxValue_return = 0.0f;
+    if (0 == nFrames) {
+        return;
+    }
+
+    float minValue = FLT_MAX;
+    float maxValue = FLT_MIN;
+
+    float *p = (float *)stream;
+    for (int i=0; i<nFrames * nChannels; ++i) {
+        float v = p[i];
+        if (v < minValue) {
+            minValue = v;
+        }
+        if (maxValue < v) {
+            maxValue = v;
+        }
+    }
+
+    *minValue_return = minValue;
+    *maxValue_return = maxValue;
+}
+
+void
+WWPcmData::ScaleSampleValue(float scale)
+{
+    float *p = (float *)stream;
+    for (int i=0; i<nFrames * nChannels; ++i) {
+        p[i] = p[i] * scale;
+    }
 }

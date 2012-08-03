@@ -138,9 +138,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
+    <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWMFResampler.h" />
+    <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

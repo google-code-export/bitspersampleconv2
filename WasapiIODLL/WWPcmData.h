@@ -16,26 +16,26 @@ enum WWPcmDataContentType {
 const char *
 WWPcmDataContentTypeToStr(WWPcmDataContentType w);
 
-/// データフォーマット。
-enum WWPcmDataFormatType {
-    WWPcmDataFormatUnknown = -1,
-    WWPcmDataFormatSint16,
-    WWPcmDataFormatSint24,
-    WWPcmDataFormatSint32V24,
-    WWPcmDataFormatSint32,
-    WWPcmDataFormatSfloat,
+/// サンプルフォーマット。
+enum WWPcmDataSampleFormatType {
+    WWPcmDataSampleFormatUnknown = -1,
+    WWPcmDataSampleFormatSint16,
+    WWPcmDataSampleFormatSint24,
+    WWPcmDataSampleFormatSint32V24,
+    WWPcmDataSampleFormatSint32,
+    WWPcmDataSampleFormatSfloat,
 
-    WWPcmDataFormatNUM
+    WWPcmDataSampleFormatNUM
 };
 const char *
-WWPcmDataFormatTypeToStr(WWPcmDataFormatType w);
-int WWPcmDataFormatTypeToBitsPerSample(WWPcmDataFormatType t);
-int WWPcmDataFormatTypeToValidBitsPerSample(WWPcmDataFormatType t);
-bool WWPcmDataFormatTypeIsFloat(WWPcmDataFormatType t);
-bool WWPcmDataFormatTypeIsInt(WWPcmDataFormatType t);
+WWPcmDataSampleFormatTypeToStr(WWPcmDataSampleFormatType w);
+int WWPcmDataSampleFormatTypeToBitsPerSample(WWPcmDataSampleFormatType t);
+int WWPcmDataSampleFormatTypeToValidBitsPerSample(WWPcmDataSampleFormatType t);
+bool WWPcmDataSampleFormatTypeIsFloat(WWPcmDataSampleFormatType t);
+bool WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t);
 
-WWPcmDataFormatType
-WWPcmDataBitsPerSamplesToFormatType(int bitsPerSample, int validBitsPerSample, GUID subFormat);
+WWPcmDataSampleFormatType
+WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUID subFormat);
 
 /*
  * play
@@ -48,12 +48,14 @@ WWPcmDataBitsPerSamplesToFormatType(int bitsPerSample, int validBitsPerSample, G
 struct WWPcmData {
     int       id;
     WWPcmData *next;
-    WWPcmDataFormatType format;
+    WWPcmDataSampleFormatType sampleFormat;
     WWPcmDataContentType contentType;
     int       nChannels;
 
-    /// bytes per frame
-    int       frameBytes;
+    int       bytesPerFrame;
+
+    /// used by FillBufferAddData()
+    int64_t   filledFrames;
 
     int64_t   nFrames;
     int64_t   posFrame;
@@ -62,23 +64,28 @@ struct WWPcmData {
     WWPcmData(void) {
         id       = 0;
         next     = NULL;
-        format   = WWPcmDataFormatUnknown;
+        sampleFormat   = WWPcmDataSampleFormatUnknown;
         contentType = WWPcmDataContentPcmData;
         nChannels = 0;
 
-        nFrames    = 0;
-        frameBytes = 0;
-        posFrame   = 0;
-        stream     = NULL;
+        nFrames       = 0;
+        bytesPerFrame = 0;
+        filledFrames  = 0;
+        posFrame      = 0;
+        stream        = NULL;
     }
 
     ~WWPcmData(void);
 
-    /// @param frameBytes 1フレームのバイト数。
+    /// @param bytesPerFrame 1フレームのバイト数。
     ///     (1サンプル1チャンネルのバイト数×チャンネル数)
-    bool Init(int id, WWPcmDataFormatType format, int nChannels,
-        int64_t nFrames, int frameBytes, WWPcmDataContentType dataType);
+    bool Init(int id, WWPcmDataSampleFormatType sampleFormat, int nChannels,
+        int64_t nFrames, int bytesPerFrame, WWPcmDataContentType dataType);
     void Term(void);
+
+    void Forget(void) {
+        stream = NULL;
+    }
 
     void CopyFrom(WWPcmData *rhs);
 
@@ -95,6 +102,24 @@ struct WWPcmData {
     int64_t AvailableFrames(void) const {
         return nFrames - posFrame;
     }
+
+    /// @return retrieved data bytes
+    int GetBufferData(int64_t fromBytes, int wantBytes, BYTE *data_return);
+
+    /// FillBuffer api.
+    /// FillBufferStart() and FillBufferAddSampleData() several times and FillBufferEnd()
+    void FillBufferStart(void) { filledFrames = 0; }
+
+    /// @param data sampleData
+    /// @param bytes data bytes
+    /// @return added sample bytes. 0 if satistifed and no sample data is consumed
+    int FillBufferAddData(const BYTE *data, int bytes);
+
+    void FillBufferEnd(void) { nFrames = filledFrames; }
+
+    /// get float sample min/max for volume correction
+    void FindSampleValueMinMax(float *minValue_return, float *maxValue_return);
+    void ScaleSampleValue(float scale);
 
 private:
     /** get sample value on posFrame.

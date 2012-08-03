@@ -92,3 +92,5 @@ PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.
 PlayPcmWin.g.en-US.resources:mainwindow.baml,buttonInspectDevice:System.Windows.FrameworkElement.Width,None,False,True,,164
 PlayPcmWin.g.en-US.resources:mainwindow.baml,groupBoxLog:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,ログ
 PlayPcmWin.g.en-US.resources:mainwindow.baml,textBoxLog:System.Windows.Controls.Control.FontFamily,Font,True,True,,MS Gothic
+PlayPcmWin.g.en-US.resources:settingswindow.baml,groupBox5:System.Windows.Controls.HeaderedContentControl.Header,Label,True,True,,Wasapi共有リサンプル
+PlayPcmWin.g.en-US.resources:settingswindow.baml,labelConversionQuality:System.Windows.Controls.ContentControl.Content,Label,True,True,,変換品質(1～60):

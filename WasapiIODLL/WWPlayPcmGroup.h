@@ -28,14 +28,15 @@ public:
 
     void Clear(void);
 
-    /// @param format データフォーマット。
-    /// @param frameBytes 1フレームのバイト数。
+    /// @param sampleFormat データフォーマット。
+    /// @param bytesPerFrame 1フレームのバイト数。
     ///     ＝(1サンプル1チャンネルのバイト数×チャンネル数)
     bool AddPlayPcmDataStart(
             int sampleRate,
-            WWPcmDataFormatType format,
+            WWPcmDataSampleFormatType sampleFormat,
             int numChannels,
-            int frameBytes);
+            DWORD dwChannelMask,
+            int bytesPerFrame);
 
     /// @param id WAVファイルID。
     /// @param data WAVファイルのPCMデータ。LRLRLR…で、リトルエンディアン。
@@ -44,7 +45,7 @@ public:
     /// @return true: 追加成功。false: 追加失敗。
     bool AddPlayPcmData(int id, BYTE *data, int64_t bytes);
 
-    bool AddPlayPcmDataEnd(void);
+    void AddPlayPcmDataEnd(void);
     
     void RemoveAt(int id);
 
@@ -57,15 +58,17 @@ public:
 
     bool GetRepatFlag(void) { return m_repeat; }
 
+    /// @return S_OK: success
+    HRESULT DoResample(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask, int conversionQuality);
+
 private:
     std::vector<WWPcmData> m_playPcmDataList;
 
+    WWPcmDataSampleFormatType m_sampleFormat;
     int                 m_sampleRate;
-    WWPcmDataFormatType m_format;
     int                 m_numChannels;
-
-    /// bytes per frame
-    int                 m_frameBytes;
+    DWORD               m_dwChannelMask;
+    int                 m_bytesPerFrame;
 
     bool                m_repeat;
 

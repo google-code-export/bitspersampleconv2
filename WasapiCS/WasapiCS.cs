@@ -88,6 +88,10 @@ namespace Wasapi {
         WasapiIO_AddPlayPcmDataSetPcmFragment(int id, long posBytes, byte[] data, long bytes);
 
         [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_ResampleIfNeeded();
+
+        [DllImport("WasapiIODLL.dll")]
         private extern static bool
         WasapiIO_AddPlayPcmDataEnd();
 
@@ -157,11 +161,11 @@ namespace Wasapi {
         
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetMixFormatSampleRate();
+        WasapiIO_GetDeviceSampleRate();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetMixFormatType();
+        WasapiIO_GetDeviceSampleFormat();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -169,7 +173,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetPcmDataFrameBytes();
+        WasapiIO_GetDeviceBytesPerFrame();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -182,6 +186,10 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll")]
         private extern static void
         WasapiIO_SetTimePeriodMillisec(int millisec);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_SetResamplerConversionQuality(int quality);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet=CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
@@ -344,6 +352,11 @@ namespace Wasapi {
             return WasapiIO_AddPlayPcmDataSetPcmFragment(id, posBytes, data, data.Length);
         }
 
+        /// <returns>HRESULT</returns>
+        public int ResampleIfNeeded() {
+            return WasapiIO_ResampleIfNeeded();
+        }
+
         public bool AddPlayPcmDataEnd() {
             return WasapiIO_AddPlayPcmDataEnd();
         }
@@ -425,35 +438,15 @@ namespace Wasapi {
         }
 
         public int GetBufferFormatSampleRate() {
-            return WasapiIO_GetMixFormatSampleRate();
+            return WasapiIO_GetDeviceSampleRate();
         }
 
         public int GetNumOfChannels() {
             return WasapiIO_GetPcmDataNumChannels();
         }
 
-        public SampleFormatType GetBufferFormatType() {
-            return (SampleFormatType)WasapiIO_GetMixFormatType();
-        }
-
-        public struct PcmFormat {
-            public int sampleRate;
-            public SampleFormatType sampleFormat;
-            public int numChannels;
-            public int frameBytes;
-        }
-
-        /// <summary>
-        /// @todo WasapiIOから、構造体を引き揚げられるようにする
-        /// </summary>
-        /// <returns></returns>
-        public PcmFormat GetPcmFormat() {
-            PcmFormat pf = new PcmFormat();
-            pf.sampleRate = WasapiIO_GetPcmDataSampleRate();
-            pf.sampleFormat = (SampleFormatType)WasapiIO_GetMixFormatType();
-            pf.numChannels = WasapiIO_GetPcmDataNumChannels();
-            pf.frameBytes = WasapiIO_GetPcmDataFrameBytes();
-            return pf;
+        public SampleFormatType GetDeviceSampleFormat() {
+            return (SampleFormatType)WasapiIO_GetDeviceSampleFormat();
         }
 
         public void SetZeroFlushMillisec(int millisec) {
@@ -462,6 +455,10 @@ namespace Wasapi {
 
         public void SetTimePeriodMillisec(int millisec) {
             WasapiIO_SetTimePeriodMillisec(millisec);
+        }
+
+        public void SetResamplerConversionQuality(int quality) {
+            WasapiIO_SetResamplerConversionQuality(quality);
         }
     }
 }

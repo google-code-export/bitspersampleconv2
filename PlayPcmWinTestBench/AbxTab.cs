@@ -272,7 +272,7 @@ namespace PlayPcmWinTestBench {
                 if (!readSuccess) {
                     return null;
                 }
-                pcmData.SetFormat(wavData.NumChannels, wavData.BitsPerFrame, wavData.BitsPerFrame,
+                pcmData.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.BitsPerSample,
                     wavData.SampleRate, wavData.SampleValueRepresentationType, wavData.NumFrames);
                 pcmData.SetSampleArray(wavData.GetSampleArray());
             }
@@ -298,19 +298,21 @@ namespace PlayPcmWinTestBench {
                 bool isExclusive,
                 bool isEventDriven,
                 int sampleRate,
+                int pcmDataBitsPerSample,
                 int pcmDataValidBitsPerSample,
                 PcmDataLib.PcmData.ValueRepresentationType vrt,
                 int latencyMillisec) {
-            int num = SampleFormatInfo.GetDeviceSampleFormatCandidateNum(
+            int num = SampleFormatInfo.GetSetupSampleFormatCandidateNum(
                 isExclusive ? WasapiSharedOrExclusive.Exclusive : WasapiSharedOrExclusive.Shared,
                 BitsPerSampleFixType.AutoSelect,
                 pcmDataValidBitsPerSample, vrt);
 
             int hr = -1;
             for (int i = 0; i < num; ++i) {
-                SampleFormatInfo sf = SampleFormatInfo.GetDeviceSampleFormat(
+                SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
                     isExclusive ? WasapiSharedOrExclusive.Exclusive : WasapiSharedOrExclusive.Shared,
                     BitsPerSampleFixType.AutoSelect,
+                    pcmDataBitsPerSample,
                     pcmDataValidBitsPerSample, vrt, i);
 
                 wasapi.SetDataFeedMode(
@@ -357,6 +359,7 @@ namespace PlayPcmWinTestBench {
                 radioButtonExclusiveA.IsChecked == true,
                 radioButtonEventDrivenA.IsChecked == true,
                 pcmData.SampleRate,
+                pcmData.BitsPerSample,
                 pcmData.ValidBitsPerSample,
                 pcmData.SampleValueRepresentationType,
                 Int32.Parse(textBoxLatencyA.Text));
@@ -398,6 +401,7 @@ namespace PlayPcmWinTestBench {
                 radioButtonExclusiveB.IsChecked == true,
                 radioButtonEventDrivenB.IsChecked == true,
                 pcmData.SampleRate,
+                pcmData.BitsPerSample,
                 pcmData.ValidBitsPerSample,
                 pcmData.SampleValueRepresentationType,
                 Int32.Parse(textBoxLatencyB.Text));

@@ -71,10 +71,10 @@ extern "C" __declspec(dllexport)
 bool __stdcall
 WasapiIO_GetUseDeviceIdString(LPWSTR idStr, int idStrBytes);
 
-/// @param format WWPcmDataFormatType
+/// @param sampleFormat WWPcmDataSampleFormatType
 extern "C" __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(int sampleRate, int format, int numChannels);
+WasapiIO_Setup(int sampleRate, int sampleFormat, int numChannels);
 
 extern "C" __declspec(dllexport)
 void __stdcall
@@ -91,6 +91,11 @@ WasapiIO_AddPlayPcmData(int id, unsigned char *data, int64_t bytes);
 extern "C" __declspec(dllexport)
 bool __stdcall
 WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *data, int64_t bytes);
+
+/// @return HRESULT
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_ResampleIfNeeded(void);
 
 extern "C" __declspec(dllexport)
 bool __stdcall
@@ -154,11 +159,11 @@ WasapiIO_GetTotalFrameNum(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetMixFormatSampleRate(void);
+WasapiIO_GetDeviceSampleRate(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetMixFormatType(void);
+WasapiIO_GetDeviceSampleFormat(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
@@ -184,3 +189,6 @@ extern "C" __declspec(dllexport)
 void __stdcall
 WasapiIO_SetTimePeriodMillisec(int millisec);
 
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetResamplerConversionQuality(int quality);

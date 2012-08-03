@@ -75,10 +75,10 @@ namespace WasapiPcmUtil {
 
         /// <summary>
         /// フォーマット設定から、
-        /// デバイスに設定されうるビットフォーマットの候補の数を数えて戻す。
+        /// Setup()に設定されうるビットフォーマットの候補の数を数えて戻す。
         /// </summary>
-        /// <returns>デバイスに設定されうるビットフォーマットの候補の数</returns>
-        static public int GetDeviceSampleFormatCandidateNum(
+        /// <returns>Setup()に設定されうるビットフォーマットの候補の数</returns>
+        static public int GetSetupSampleFormatCandidateNum(
                 WasapiSharedOrExclusive sharedOrExclusive,
                 BitsPerSampleFixType bitsPerSampleFixType,
                 int pcmDataValidBitsPerSample,
@@ -101,9 +101,10 @@ namespace WasapiPcmUtil {
         /// これは、内容的にテーブルなので、テーブルにまとめたほうが良い。
         /// </summary>
         /// <returns>デバイスに設定されるビットフォーマット</returns>
-        static public SampleFormatInfo GetDeviceSampleFormat(
+        static public SampleFormatInfo CreateSetupSampleFormat(
                 WasapiSharedOrExclusive sharedOrExclusive,
                 BitsPerSampleFixType bitsPerSampleFixType,
+                int bitsPerSample,
                 int validBitsPerSample,
                 PcmDataLib.PcmData.ValueRepresentationType vrt,
                 int candidateId) {
@@ -111,9 +112,9 @@ namespace WasapiPcmUtil {
 
             if (sharedOrExclusive == WasapiSharedOrExclusive.Shared) {
                 // 共有モード
-                sf.bitsPerSample = 32;
-                sf.validBitsPerSample = 32;
-                sf.bitFormatType = WasapiCS.BitFormatType.SFloat;
+                sf.bitsPerSample = bitsPerSample;
+                sf.validBitsPerSample = validBitsPerSample;
+                sf.bitFormatType = SampleFormatInfo.VrtToBft(vrt);
                 return sf;
             }
 

@@ -90,7 +90,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINVER=_WIN32_WINNT_WIN7;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -108,7 +108,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINVER=_WIN32_WINNT_WIN7;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -124,7 +124,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINVER=_WIN32_WINNT_WIN7;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>false</TreatWarningAsError>
@@ -141,7 +141,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINVER=_WIN32_WINNT_WIN7;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ExceptionHandling>Async</ExceptionHandling>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h" />
     <ClInclude Include="WasapiUser.h" />
+    <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
     <ClInclude Include="WWUtil.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="WasapiIOIF.cpp" />
     <ClCompile Include="WasapiUser.cpp" />
+    <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWPlayPcmGroup.cpp" />
     <ClCompile Include="WWUtil.cpp" />

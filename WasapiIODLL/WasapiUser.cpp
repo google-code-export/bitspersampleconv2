@@ -161,35 +161,48 @@ WasapiUser::WasapiUser(void)
     m_deviceCollection = NULL;
     m_deviceToUse      = NULL;
 
-    m_shutdownEvent    = NULL;
+    m_shutdownEvent          = NULL;
     m_audioSamplesReadyEvent = NULL;
+    m_audioClient            = NULL;
+    m_bufferFrameNum         = 0;
 
-    m_audioClient      = NULL;
+    m_sampleFormat  = WWPcmDataSampleFormatUnknown;
+    m_sampleRate    = 0;
+    m_numChannels   = 0;
+    m_dwChannelMask = 0;
+
+    m_deviceSampleFormat  = WWPcmDataSampleFormatUnknown;
+    m_deviceSampleRate    = 0;
+    m_deviceNumChannels   = 0;
+    m_deviceDwChannelMask = 0;
+    m_deviceBytesPerFrame = 0;
+
+    m_dataFeedMode      = WWDFMEventDriven;
+    m_schedulerTaskType = WWSTTAudio;
+    m_shareMode         = AUDCLNT_SHAREMODE_EXCLUSIVE;
+    m_latencyMillisec   = 0;
 
     m_renderClient     = NULL;
     m_captureClient    = NULL;
-
     m_thread           = NULL;
-    m_capturedPcmData  = NULL;
     m_mutex            = NULL;
     m_coInitializeSuccess = false;
+    m_footerNeedSendCount = 0;
+    m_dataFlow         = eRender;
     m_glitchCount      = 0;
-    m_schedulerTaskType = WWSTTAudio;
-    m_shareMode         = AUDCLNT_SHAREMODE_EXCLUSIVE;
-
-    m_audioClockAdjustment = NULL;
-    m_nowPlayingPcmData    = NULL;
-    m_pauseResumePcmData   = NULL;
-    m_useDeviceId          = -1;
-    m_deviceSampleRate     = 0;
-
+    m_footerCount      = 0;
+    m_useDeviceId      = -1;
     memset(m_useDeviceName, 0, sizeof m_useDeviceName);
     memset(m_useDeviceIdStr, 0, sizeof m_useDeviceIdStr);
 
+    m_capturedPcmData      = NULL;
+    m_nowPlayingPcmData    = NULL;
+    m_pauseResumePcmData   = NULL;
     m_stateChangedCallback = NULL;
     m_deviceEnumerator     = NULL;
     m_pNotificationClient  = NULL;
-	m_timePeriodMillisec   = 0;
+    m_timePeriodMillisec   = 0;
+    m_zeroFlushMillisec    = 0;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -614,7 +627,7 @@ GetChannelMask(int numChannels)
         result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
         break;
     default:
-        // ? unknown format
+        // ? unknown sampleFormat
         result = (DWORD)((1LL << numChannels)-1);
         break;
     }
@@ -625,23 +638,19 @@ GetChannelMask(int numChannels)
 HRESULT
 WasapiUser::Setup(
         int sampleRate,
-        WWPcmDataFormatType format,
+        WWPcmDataSampleFormatType sampleFormat,
         int numChannels)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = NULL;
 
     dprintf("D: %s(%d %s %d)\n", __FUNCTION__,
-        sampleRate, WWPcmDataFormatTypeToStr(format), numChannels);
+        sampleRate, WWPcmDataSampleFormatTypeToStr(sampleFormat), numChannels);
 
     m_sampleRate          = sampleRate;
-    m_format              = format;
+    m_sampleFormat        = sampleFormat;
     m_numChannels         = numChannels;
-
-    if (WWSMShared == m_shareMode) {
-        assert(WWPcmDataFormatTypeToBitsPerSample(m_format) == 32);
-        assert(WWPcmDataFormatTypeIsFloat(m_format));
-    }
+    m_dwChannelMask = 0; //< TODO: pass from argument
 
     m_audioSamplesReadyEvent =
         CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
@@ -675,11 +684,11 @@ WasapiUser::Setup(
     if (WWSMExclusive == m_shareMode) {
         // exclusive mode specific task
 
-        if (WWPcmDataFormatTypeIsInt(m_format)) {
+        if (WWPcmDataSampleFormatTypeIsInt(m_sampleFormat)) {
             wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
         }
         wfex->Format.wBitsPerSample
-            = (WORD)WWPcmDataFormatTypeToBitsPerSample(m_format);
+            = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(m_sampleFormat);
         wfex->Format.nSamplesPerSec = sampleRate;
 
         wfex->Format.nBlockAlign
@@ -688,7 +697,7 @@ WasapiUser::Setup(
         wfex->Format.nAvgBytesPerSec
             = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
         wfex->Samples.wValidBitsPerSample
-            = (WORD)WWPcmDataFormatTypeToValidBitsPerSample(m_format);
+            = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(m_sampleFormat);
         wfex->dwChannelMask = GetChannelMask(m_numChannels);
 
         dprintf("preferred Format:\n");
@@ -712,7 +721,7 @@ WasapiUser::Setup(
         }
     }
 
-    m_frameBytes = waveFormat->nBlockAlign;
+    m_deviceBytesPerFrame = waveFormat->nBlockAlign;
     
     DWORD streamFlags = 0;
     int periodsPerBuffer = 1;
@@ -734,21 +743,25 @@ WasapiUser::Setup(
     REFERENCE_TIME bufferPeriodicity = m_latencyMillisec * 10000;
     REFERENCE_TIME bufferDuration    = bufferPeriodicity * periodsPerBuffer;
 
-    bool needClockAdjustmentOnSharedMode = false;
+    m_deviceSampleRate    = waveFormat->nSamplesPerSec;
+    m_deviceNumChannels   = waveFormat->nChannels;
+    m_deviceDwChannelMask = wfex->dwChannelMask;
+    m_deviceSampleFormat  = m_sampleFormat;
 
-    m_deviceSampleRate = waveFormat->nSamplesPerSec;
+    // TODO: delete!
+    m_dwChannelMask = m_deviceDwChannelMask;
 
     if (WWSMShared == m_shareMode) {
-        // 共有モードでデバイスサンプルレートと
-        // WAVファイルのサンプルレートが異なる場合、
-        // 入力サンプリング周波数調整(リサンプリング)を行う。
+        // 共有モードでデバイスサンプルレートとWAVファイルのサンプルレートが異なる場合、
+        // 誰かが別のところでリサンプリングを行ってデバイスサンプルレートにする必要がある。
+        // デバイスサンプルレートはWasapiUser::GetDeviceSampleRate()
+        // WAVファイルのサンプルレートはWasapiUser::GetPcmDataSampleRate()で取得できる。
+        // この後誰かが別のところでリサンプリングを行った結果
+        // WAVファイルのサンプルレートが変わったらWasapiUser::UpdatePcmDataFormat()で更新する。
+        //
         // 共有モード イベント駆動の場合、bufferPeriodicityに0をセットする。
 
-        if (waveFormat->nSamplesPerSec != (DWORD)sampleRate) {
-            // 共有モードのサンプルレート変更。
-            needClockAdjustmentOnSharedMode = true;
-            streamFlags |= AUDCLNT_STREAMFLAGS_RATEADJUST;
-        }
+        m_deviceSampleFormat = WWPcmDataSampleFormatSfloat;
 
         if (WWDFMEventDriven == m_dataFeedMode) {
             bufferPeriodicity = 0;
@@ -784,18 +797,6 @@ WasapiUser::Setup(
         goto end;
     }
 
-    if (needClockAdjustmentOnSharedMode) {
-        assert(!m_audioClockAdjustment);
-        HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_audioClockAdjustment)));
-
-        assert(m_audioClockAdjustment);
-        HRG(m_audioClockAdjustment->SetSampleRate((float)sampleRate));
-        dprintf("IAudioClockAdjustment::SetSampleRate(%d) %08x\n", sampleRate, hr);
-    }
-
-    // サンプルレート変更後にGetBufferSizeする。なんとなく。なお
-    // サンプルレート変更前にGetBufferSizeしても、もどってくる値は同じだった。
-
     HRG(m_audioClient->GetBufferSize(&m_bufferFrameNum));
     dprintf("m_audioClient->GetBufferSize() rv=%u\n", m_bufferFrameNum);
 
@@ -806,29 +807,30 @@ WasapiUser::Setup(
     switch (m_dataFlow) {
     case eRender:
         HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_renderClient)));
+
         // 再生前無音0(初回再生用) 再生前無音1(一時停止再開用)、再生後無音の準備。
         {
             DWORD startZeroFlushMillisec = m_zeroFlushMillisec;
             if (startZeroFlushMillisec < m_latencyMillisec) {
                 startZeroFlushMillisec = m_latencyMillisec;
             }
-            m_startSilenceBuffer0.Init(-1, m_format, m_numChannels,
-                1 * (int)((int64_t)m_sampleRate * startZeroFlushMillisec / 1000),
-                m_frameBytes, WWPcmDataContentSilence);
+            m_startSilenceBuffer0.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+                1 * (int)((int64_t)m_deviceSampleRate * startZeroFlushMillisec / 1000),
+                m_deviceBytesPerFrame, WWPcmDataContentSilence);
         }
-        m_startSilenceBuffer1.Init(-1, m_format, m_numChannels,
-            1 * (int)((int64_t)m_sampleRate * m_latencyMillisec / 1000),
-            m_frameBytes, WWPcmDataContentSilence);
-        m_endSilenceBuffer.Init(-1, m_format, m_numChannels,
-            4 * (int)((int64_t)m_sampleRate * m_latencyMillisec / 1000),
-            m_frameBytes, WWPcmDataContentSilence);
+        m_startSilenceBuffer1.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+            1 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000),
+            m_deviceBytesPerFrame, WWPcmDataContentSilence);
+        m_endSilenceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+            4 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000),
+            m_deviceBytesPerFrame, WWPcmDataContentSilence);
 
         // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
-        m_spliceBuffer.Init(-1, m_format, m_numChannels,
-            m_sampleRate / 100, m_frameBytes, WWPcmDataContentSplice);
+        m_spliceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+            m_deviceSampleRate / 100, m_deviceBytesPerFrame, WWPcmDataContentSplice);
         // pauseバッファー。ポーズ時の波形つなぎに使われる。spliceバッファーと同様。
-        m_pauseBuffer.Init(-1, m_format, m_numChannels,
-            m_sampleRate / 100, m_frameBytes, WWPcmDataContentSplice);
+        m_pauseBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+            m_deviceSampleRate / 100, m_deviceBytesPerFrame, WWPcmDataContentSplice);
         break;
     case eCapture:
         HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_captureClient)));
@@ -848,11 +850,39 @@ end:
     return hr;
 }
 
+bool
+WasapiUser::IsResampleNeeded(void) const
+{
+    if (WWSMExclusive == m_shareMode) {
+        return false;
+    }
+
+    if (m_deviceSampleRate != m_sampleRate ||
+        m_deviceNumChannels != m_numChannels ||
+        m_deviceDwChannelMask != m_dwChannelMask ||
+        WWPcmDataSampleFormatSfloat != m_sampleFormat) {
+            return true;
+    }
+    return false;
+}
+
+void
+WasapiUser::UpdatePcmDataFormat(int sampleRate, WWPcmDataSampleFormatType sampleFormat,
+            int numChannels, DWORD dwChannelMask)
+{
+    assert(WWSMShared == m_shareMode);
+
+    m_sampleRate    = sampleRate;
+    m_sampleFormat  = sampleFormat;
+    m_numChannels   = numChannels;
+    m_dwChannelMask = dwChannelMask;
+}
+
 void
 WasapiUser::Unsetup(void)
 {
-    dprintf("D: %s() ASRE=%p ACA=%p CC=%p RC=%p AC=%p\n", __FUNCTION__,
-        m_audioSamplesReadyEvent, m_audioClockAdjustment, m_captureClient,
+    dprintf("D: %s() ASRE=%p CC=%p RC=%p AC=%p\n", __FUNCTION__,
+        m_audioSamplesReadyEvent, m_captureClient,
         m_renderClient, m_audioClient);
 
     if (m_audioSamplesReadyEvent) {
@@ -862,7 +892,6 @@ WasapiUser::Unsetup(void)
 
     ClearPlayPcmData();
 
-    SafeRelease(&m_audioClockAdjustment);
     SafeRelease(&m_captureClient);
     SafeRelease(&m_renderClient);
     SafeRelease(&m_audioClient);
@@ -906,7 +935,7 @@ WasapiUser::Start(void)
         if (0 <= nFrames) {
             assert(m_renderClient);
             HRG(m_renderClient->GetBuffer(nFrames, &pData));
-            memset(pData, 0, nFrames * m_frameBytes);
+            memset(pData, 0, nFrames * m_deviceBytesPerFrame);
             HRG(m_renderClient->ReleaseBuffer(nFrames, 0));
         }
 
@@ -1359,7 +1388,7 @@ WasapiUser::SetupCaptureBuffer(int64_t bytes)
     //   pcmData->nFrames: 録音可能総フレーム数
     m_capturedPcmData = new WWPcmData();
     m_capturedPcmData->posFrame = 0;
-    m_capturedPcmData->nFrames = bytes/m_frameBytes;
+    m_capturedPcmData->nFrames = bytes/m_deviceBytesPerFrame;
     m_capturedPcmData->stream = (BYTE*)malloc(bytes);
 
     return  m_capturedPcmData->stream != NULL;
@@ -1375,8 +1404,8 @@ WasapiUser::GetCapturedData(BYTE *data, int64_t bytes)
 
     assert(m_capturedPcmData);
 
-    if (m_capturedPcmData->posFrame * m_frameBytes < bytes) {
-        bytes = m_capturedPcmData->posFrame * m_frameBytes;
+    if (m_capturedPcmData->posFrame * m_deviceBytesPerFrame < bytes) {
+        bytes = m_capturedPcmData->posFrame * m_deviceBytesPerFrame;
     }
     memcpy(data, m_capturedPcmData->stream, bytes);
 
@@ -1420,9 +1449,9 @@ WasapiUser::CreateWritableFrames(BYTE *pData_return, int wantFrames)
         dprintf("pcmData=%p next=%p posFrame=%lld copyFrames=%d nFrames=%lld\n",
             pcmData, pcmData->next, pcmData->posFrame, copyFrames, pcmData->nFrames);
 
-        CopyMemory(&pData_return[pos*m_frameBytes],
-            &pcmData->stream[pcmData->posFrame * m_frameBytes],
-            copyFrames * m_frameBytes);
+        CopyMemory(&pData_return[pos*m_deviceBytesPerFrame],
+            &pcmData->stream[pcmData->posFrame * m_deviceBytesPerFrame],
+            copyFrames * m_deviceBytesPerFrame);
 
         pos               += copyFrames;
         pcmData->posFrame += copyFrames;
@@ -1478,11 +1507,11 @@ WasapiUser::AudioSamplesSendProc(void)
     copyFrames = CreateWritableFrames(to, writableFrames);
 
     if (0 < writableFrames - copyFrames) {
-        memset(&to[copyFrames*m_frameBytes], 0,
-            (writableFrames - copyFrames)*m_frameBytes);
+        memset(&to[copyFrames*m_deviceBytesPerFrame], 0,
+            (writableFrames - copyFrames)*m_deviceBytesPerFrame);
         /* dprintf("fc=%d bs=%d cb=%d memset %d bytes\n",
             m_footerCount, m_bufferFrameNum, copyFrames,
-            (m_bufferFrameNum - copyFrames)*m_frameBytes);
+            (m_bufferFrameNum - copyFrames)*m_deviceBytesPerFrame);
         */
     }
 
@@ -1707,16 +1736,16 @@ WasapiUser::AudioSamplesRecvProc(void)
     if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
         // 無音を録音した。
         dprintf("flags & AUDCLNT_BUFFERFLAGS_SILENT\n");
-        memset(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_frameBytes],
-            0, writeFrames * m_frameBytes);
+        memset(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_deviceBytesPerFrame],
+            0, writeFrames * m_deviceBytesPerFrame);
     } else {
         dprintf("numFramesAvailable=%u fb=%d pos=%lld devPos=%llu nextPos=%lld te=%d\n",
-            numFramesAvailable, m_frameBytes, m_capturedPcmData->posFrame, devicePosition,
+            numFramesAvailable, m_deviceBytesPerFrame, m_capturedPcmData->posFrame, devicePosition,
             (m_capturedPcmData->posFrame + numFramesAvailable),
             !!(flags & AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR));
 
-        memcpy(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_frameBytes],
-            pData, writeFrames * m_frameBytes);
+        memcpy(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_deviceBytesPerFrame],
+            pData, writeFrames * m_deviceBytesPerFrame);
     }
     m_capturedPcmData->posFrame += writeFrames;
 
@@ -1729,36 +1758,6 @@ end:
 
 /////////////////////////////////////////////////////////////////////////////
 // 設定取得
-
-int
-WasapiUser::GetPcmDataSampleRate(void)
-{
-    return m_sampleRate;
-}
-
-int
-WasapiUser::GetMixFormatSampleRate(void)
-{
-    return m_deviceSampleRate;
-}
-
-WWPcmDataFormatType
-WasapiUser::GetMixFormatType(void)
-{
-    return m_format;
-}
-
-int
-WasapiUser::GetPcmDataNumChannels(void)
-{
-    return m_numChannels;
-}
-
-int
-WasapiUser::GetPcmDataFrameBytes(void)
-{
-    return m_frameBytes;
-}
 
 void
 WasapiUser::DeviceStateChanged(LPCWSTR deviceIdStr)
@@ -1774,3 +1773,4 @@ WasapiUser::SetZeroFlushMillisec(int zeroFlushMillisec)
     assert(0 <= zeroFlushMillisec);
     m_zeroFlushMillisec = zeroFlushMillisec;
 }
+

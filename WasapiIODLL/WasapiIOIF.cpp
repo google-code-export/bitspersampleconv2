@@ -7,14 +7,21 @@
 struct WasapiIO {
     WasapiUser     wasapi;
     WWPlayPcmGroup playPcmGroup;
+    int mResamplerConversionQuality;
 
     HRESULT Init(void);
     void Term(void);
 
     void UpdatePlayRepeat(bool repeat);
     bool AddPcmDataStart(void);
+    HRESULT ResampleIfNeeded(void);
+    void AddPcmDataEnd(void);
 
     HRESULT Start(int wavDataId);
+
+    void SetResamplerConversionQuality(int quality) {
+        mResamplerConversionQuality = quality;
+    }
 };
 
 HRESULT
@@ -24,6 +31,7 @@ WasapiIO::Init(void)
     
     hr = wasapi.Init();
     playPcmGroup.Term();
+    mResamplerConversionQuality = 60;
 
     return hr;
 }
@@ -50,13 +58,47 @@ WasapiIO::UpdatePlayRepeat(bool repeat)
 bool
 WasapiIO::AddPcmDataStart(void)
 {
-    int sampleRate  = wasapi.GetPcmDataSampleRate();
-    int numChannels = wasapi.GetPcmDataNumChannels();
-    int frameBytes  = wasapi.GetPcmDataFrameBytes();
-    WWPcmDataFormatType format = wasapi.GetMixFormatType();
+    WWPcmDataSampleFormatType sampleFormat = wasapi.GetPcmDataSampleFormat();
+    int sampleRate      = wasapi.GetPcmDataSampleRate();
+    int numChannels     = wasapi.GetPcmDataNumChannels();
+    DWORD dwChannelMask = wasapi.GetPcmDataDwChannelMask();
+    int bytesPerFrame   = numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat) / 8;
 
     return playPcmGroup.AddPlayPcmDataStart(
-        sampleRate, format, numChannels, frameBytes);
+        sampleRate, sampleFormat, numChannels, dwChannelMask, bytesPerFrame);
+}
+
+HRESULT
+WasapiIO::ResampleIfNeeded(void)
+{
+    HRESULT hr;
+
+    if (!wasapi.IsResampleNeeded()) {
+        return S_OK;
+    }
+
+    hr = playPcmGroup.DoResample(
+        wasapi.GetDeviceSampleRate(),
+        WWPcmDataSampleFormatSfloat,
+        wasapi.GetDeviceNumChannels(),
+        wasapi.GetDeviceDwChannelMask(),
+        mResamplerConversionQuality);
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    wasapi.UpdatePcmDataFormat(wasapi.GetDeviceSampleRate(), WWPcmDataSampleFormatSfloat, wasapi.GetDeviceNumChannels(), wasapi.GetDeviceDwChannelMask());
+
+    return hr;
+}
+
+void
+WasapiIO::AddPcmDataEnd(void)
+{
+    playPcmGroup.AddPlayPcmDataEnd();
+
+    // リピートなしと仮定してリンクリストをつなげておく。
+    UpdatePlayRepeat(false);
 }
 
 HRESULT
@@ -217,11 +259,11 @@ WasapiIO_GetUseDeviceIdString(LPWSTR idStr, int idStrBytes)
 
 extern "C" __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(int sampleRate, int format, int numChannels)
+WasapiIO_Setup(int sampleRate, int sampleFormat, int numChannels)
 {
     assert(self);
     return self->wasapi.Setup(
-        sampleRate, (WWPcmDataFormatType)format, numChannels);
+        sampleRate, (WWPcmDataSampleFormatType)sampleFormat, numChannels);
 }
 
 extern "C" __declspec(dllexport)
@@ -266,10 +308,18 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *d
         return false;
     }
 
-    assert(posBytes + bytes <= p->nFrames * p->frameBytes);
+    assert(posBytes + bytes <= p->nFrames * p->bytesPerFrame);
 
     memcpy(&p->stream[posBytes], data, bytes);
     return true;
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_ResampleIfNeeded(void)
+{
+    assert(self);
+    return self->ResampleIfNeeded();
 }
 
 extern "C" __declspec(dllexport)
@@ -278,12 +328,9 @@ WasapiIO_AddPlayPcmDataEnd(void)
 {
     assert(self);
 
-    bool result = self->playPcmGroup.AddPlayPcmDataEnd();
+    self->AddPcmDataEnd();
 
-    // リピートなしと仮定してリンクリストをつなげておく。
-    self->UpdatePlayRepeat(false);
-
-    return result;
+    return true;
 }
 
 extern "C" __declspec(dllexport)
@@ -427,18 +474,18 @@ WasapiIO_SetPosFrame(int64_t v)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetMixFormatSampleRate(void)
+WasapiIO_GetDeviceSampleRate(void)
 {
     assert(self);
-    return self->wasapi.GetMixFormatSampleRate();
+    return self->wasapi.GetDeviceSampleRate();
 }
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetMixFormatType(void)
+WasapiIO_GetDeviceSampleFormat(void)
 {
     assert(self);
-    return self->wasapi.GetMixFormatType();
+    return self->wasapi.GetDeviceSampleFormat();
 }
 
 extern "C" __declspec(dllexport)
@@ -451,10 +498,10 @@ WasapiIO_GetPcmDataSampleRate(void)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetPcmDataFrameBytes(void)
+WasapiIO_GetDeviceBytesPerFrame(void)
 {
     assert(self);
-    return self->wasapi.GetPcmDataFrameBytes();
+    return self->wasapi.GetDeviceBytesPerFrame();
 }
 
 extern "C" __declspec(dllexport)
@@ -487,4 +534,11 @@ WasapiIO_SetTimePeriodMillisec(int millisec)
 {
     assert(self);
     self->wasapi.SetTimePeriodMillisec(millisec);
+}
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetResamplerConversionQuality(int quality)
+{
+    assert(self);
+    self->SetResamplerConversionQuality(quality);
 }

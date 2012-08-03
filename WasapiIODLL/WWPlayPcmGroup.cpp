@@ -1,9 +1,11 @@
 // 日本語UTF-8
 
 #include "WWPlayPcmGroup.h"
+#include "WWMFResampler.h"
 #include "WWUtil.h"
 #include <assert.h>
 #include <stdint.h>
+#include <list>
 
 WWPlayPcmGroup::WWPlayPcmGroup(void)
 {
@@ -32,7 +34,7 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
 {
     assert(1 <= m_numChannels);
     assert(1 <= m_sampleRate);
-    assert(1 <= m_frameBytes);
+    assert(1 <= m_bytesPerFrame);
 
 #ifdef _X86_
     if (0x7fffffffL < bytes) {
@@ -48,15 +50,15 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
     }
 
     WWPcmData pcmData;
-    if (!pcmData.Init(id, m_format, m_numChannels,
-            bytes/m_frameBytes,
-            m_frameBytes, WWPcmDataContentPcmData)) {
+    if (!pcmData.Init(id, m_sampleFormat, m_numChannels,
+            bytes/m_bytesPerFrame,
+            m_bytesPerFrame, WWPcmDataContentPcmData)) {
         dprintf("E: %s(%d, %p, %lld) malloc failed\n", __FUNCTION__, id, data, bytes);
         return false;
     }
 
     if (NULL != data) {
-        CopyMemory(pcmData.stream, data, (bytes/m_frameBytes) * m_frameBytes);
+        CopyMemory(pcmData.stream, data, (bytes/m_bytesPerFrame) * m_bytesPerFrame);
     }
     m_playPcmDataList.push_back(pcmData);
     return true;
@@ -65,29 +67,29 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
 bool
 WWPlayPcmGroup::AddPlayPcmDataStart(
         int sampleRate,
-        WWPcmDataFormatType format,
+        WWPcmDataSampleFormatType sampleFormat,
         int numChannels,
-        int frameBytes)
+        DWORD dwChannelMask,
+        int bytesPerFrame)
 {
     assert(m_playPcmDataList.size() == 0);
     assert(1 <= numChannels);
     assert(1 <= sampleRate);
-    assert(1 <= frameBytes);
+    assert(1 <= bytesPerFrame);
 
-    m_sampleRate  = sampleRate;
-    m_format      = format;
-    m_numChannels = numChannels;
-    m_frameBytes  = frameBytes;
+    m_sampleRate    = sampleRate;
+    m_sampleFormat  = sampleFormat;
+    m_numChannels   = numChannels;
+    m_bytesPerFrame = bytesPerFrame;
+    m_dwChannelMask = dwChannelMask;
 
     return true;
 }
 
-bool
+void
 WWPlayPcmGroup::AddPlayPcmDataEnd(void)
 {
     PlayPcmDataListDebug();
-
-    return true;
 }
 
 void
@@ -112,10 +114,10 @@ WWPlayPcmGroup::Clear(void)
     }
     m_playPcmDataList.clear();
 
-    m_sampleRate  = 0;
-    m_format      = WWPcmDataFormatUnknown;
-    m_numChannels = 0;
-    m_frameBytes  = 0;
+    m_sampleRate    = 0;
+    m_sampleFormat  = WWPcmDataSampleFormatUnknown;
+    m_numChannels   = 0;
+    m_bytesPerFrame = 0;
 }
 
 void
@@ -197,3 +199,162 @@ WWPlayPcmGroup::PlayPcmDataListDebug(void)
 #endif
 }
 
+HRESULT
+WWPlayPcmGroup::DoResample(
+        int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask, int conversionQuality)
+{
+    HRESULT hr = S_OK;
+    WWMFResampler resampler;
+    size_t n = m_playPcmDataList.size();
+    const int PROCESS_FRAMES = 128 * 1024;
+    BYTE *buff = new BYTE[PROCESS_FRAMES * m_bytesPerFrame];
+    std::list<WWPcmData *> toPcmDataList;
+    double conversionRatio = (double)sampleRate / m_sampleRate;
+    int rv;
+    size_t numConvertedPcmData = 0;
+    WWMFSampleData mfSampleData;
+    DWORD consumedBytes = 0;
+    assert(1 <= conversionQuality && conversionQuality <= 60);
+
+    if (NULL == buff) {
+        hr = E_OUTOFMEMORY;
+        goto end;
+    }
+
+    // 共有モードのサンプルレート変更。
+    HRG(resampler.Initialize(
+        WWMFPcmFormat(
+            (WWMFBitFormatType)WWPcmDataSampleFormatTypeIsFloat(m_sampleFormat),
+            (WORD)m_numChannels,
+            (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(m_sampleFormat),
+            m_sampleRate,
+            0, //< TODO: target dwChannelMask
+            (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(m_sampleFormat)),
+        WWMFPcmFormat(
+            WWMFBitFormatFloat,
+            (WORD)numChannels,
+            32,
+            sampleRate,
+            0, //< TODO: target dwChannelMask
+            32),
+        conversionQuality));
+
+    for (size_t i=0; i<n; ++i) {
+        WWPcmData *pFrom = &m_playPcmDataList[i];
+        WWPcmData pcmDataTo;
+        if (!pcmDataTo.Init(pFrom->id, sampleFormat, numChannels,
+                (int64_t)(conversionRatio * pFrom->nFrames),
+                numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat)/8, WWPcmDataContentPcmData)) {
+            dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->id);
+            hr = E_OUTOFMEMORY;
+            goto end;
+        }
+        m_playPcmDataList.push_back(pcmDataTo);
+        pFrom = &m_playPcmDataList[i];
+
+        WWPcmData *pTo = &m_playPcmDataList[n+i];
+        toPcmDataList.push_back(pTo);
+
+        for (size_t posFrames=0; ; posFrames += PROCESS_FRAMES) {
+            int buffBytes = pFrom->GetBufferData(posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buff);
+            if (0 == buffBytes) {
+                break;
+            }
+
+            HRG(resampler.Resample(buff, buffBytes, &mfSampleData));
+            consumedBytes = 0;
+            while (0 < toPcmDataList.size() && consumedBytes < mfSampleData.bytes) {
+                WWPcmData *pTo = toPcmDataList.front();
+                rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
+                consumedBytes += rv;
+                if (0 == rv) {
+                    pTo->FillBufferEnd();
+                    ++numConvertedPcmData;
+                    toPcmDataList.pop_front();
+                }
+            }
+            mfSampleData.Release();
+        }
+        pFrom->Term();
+    }
+
+    HRG(resampler.Drain(PROCESS_FRAMES * m_bytesPerFrame, &mfSampleData));
+    consumedBytes = 0;
+    while (0 < toPcmDataList.size() && consumedBytes < mfSampleData.bytes) {
+        WWPcmData *pTo = toPcmDataList.front();
+        rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
+        consumedBytes += rv;
+        if (0 == rv) {
+            pTo->FillBufferEnd();
+            ++numConvertedPcmData;
+            toPcmDataList.pop_front();
+        }
+    }
+    mfSampleData.Release();
+
+    while (0 < toPcmDataList.size()) {
+        WWPcmData *pTo = toPcmDataList.front();
+        pTo->FillBufferEnd();
+        if (0 == pTo->nFrames) {
+            hr = E_FAIL;
+            goto end;
+        }
+        ++numConvertedPcmData;
+        toPcmDataList.pop_front();
+    }
+
+    assert(n == numConvertedPcmData);
+
+    for (size_t i=0; i<n; ++i) {
+        m_playPcmDataList[i] = m_playPcmDataList[n+i];
+        m_playPcmDataList[n+i].Forget();
+    }
+
+    m_playPcmDataList.resize(numConvertedPcmData);
+
+    // update pcm format info
+    m_sampleFormat  = sampleFormat;
+    m_sampleRate    = sampleRate;
+    m_numChannels   = numChannels;
+    m_dwChannelMask = dwChannelMask;
+    m_bytesPerFrame = numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat)/8;
+
+    // reduce volume level when out of range sample value is found
+    {
+        float maxV = 0.0f;
+        float minV = 0.0f;
+        const float  SAMPLE_VALUE_MAX_FLOAT  =  1.0f;
+        const float  SAMPLE_VALUE_MIN_FLOAT  = -1.0f;
+
+        for (size_t i=0; i<n; ++i) {
+            float currentMax = 0.0f;
+            float currentMin = 0.0f;
+            m_playPcmDataList[i].FindSampleValueMinMax(&currentMin, &currentMax);
+            if (currentMin < minV) {
+                minV = currentMin;
+            }
+            if (maxV < currentMax) {
+                maxV = currentMax;
+            }
+        }
+
+        float scale = 1.0f;
+        if (SAMPLE_VALUE_MAX_FLOAT < maxV) {
+            scale = SAMPLE_VALUE_MAX_FLOAT / maxV;
+        }
+        if (minV < SAMPLE_VALUE_MIN_FLOAT && SAMPLE_VALUE_MIN_FLOAT / minV < scale) {
+            scale = SAMPLE_VALUE_MIN_FLOAT / minV;
+        }
+        if (scale < 1.0f) {
+            for (size_t i=0; i<n; ++i) {
+                m_playPcmDataList[i].ScaleSampleValue(scale);
+            }
+        }
+    }
+
+end:
+    resampler.Finalize();
+    delete [] buff;
+    buff = NULL;
+    return hr;
+}

@@ -78,6 +78,8 @@ namespace WavRWLib2
         private uint   m_byteRate;
         private ushort m_blockAlign;
         public ushort BitsPerSample { get; set; }
+        public ushort ValidBitsPerSample { get; set; }
+        public uint ChannelMask { get; set; }
 
         public bool Create(
                 int numChannels, int sampleRate, int bitsPerSample,
@@ -101,6 +103,8 @@ namespace WavRWLib2
             m_blockAlign = (ushort)(numChannels * bitsPerSample / 8);
 
             BitsPerSample = (ushort)bitsPerSample;
+            ValidBitsPerSample = (ushort)bitsPerSample;
+            ChannelMask = 0;
 
             SampleValueRepresentationType = sampleValueRepresentation;
             if (sampleValueRepresentation == PcmDataLib.PcmData.ValueRepresentationType.SInt) {
@@ -148,6 +152,7 @@ namespace WavRWLib2
             m_byteRate = br.ReadUInt32();
             m_blockAlign = br.ReadUInt16();
             BitsPerSample = br.ReadUInt16();
+            ValidBitsPerSample = BitsPerSample;
 
             ushort extensibleSize = 0;
             if (16 < m_subChunk1Size) {
@@ -163,8 +168,8 @@ namespace WavRWLib2
             if (22 == extensibleSize) {
                 // WAVEFORMATEX(22 bytes)
 
-                ushort bitsPerSampleEx = br.ReadUInt16();
-                uint dwChannelMask = br.ReadUInt32();
+                ValidBitsPerSample = br.ReadUInt16();
+                ChannelMask = br.ReadUInt32();
                 var formatGuid = br.ReadBytes(16);
 
                 var pcmGuid   = Guid.Parse("00000001-0000-0010-8000-00aa00389b71");
@@ -682,9 +687,13 @@ namespace WavRWLib2
             get { return m_fsc.NumChannels; }
         }
 
-        public int BitsPerFrame
+        public int BitsPerSample
         {
             get { return m_fsc.BitsPerSample; }
+        }
+
+        public int ValidBitsPerSample {
+            get { return m_fsc.ValidBitsPerSample; }
         }
 
         public long NumFrames
