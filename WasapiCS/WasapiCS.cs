@@ -177,7 +177,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetPcmDataNumChannels();
+        WasapiIO_GetDeviceNumChannels();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -437,12 +437,12 @@ namespace Wasapi {
             return WasapiIO_SetPosFrame(v);
         }
 
-        public int GetBufferFormatSampleRate() {
+        public int GetDeviceSampleRate() {
             return WasapiIO_GetDeviceSampleRate();
         }
 
-        public int GetNumOfChannels() {
-            return WasapiIO_GetPcmDataNumChannels();
+        public int GetDeviceNumChannels() {
+            return WasapiIO_GetDeviceNumChannels();
         }
 
         public SampleFormatType GetDeviceSampleFormat() {

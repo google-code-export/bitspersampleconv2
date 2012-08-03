@@ -164,7 +164,7 @@ namespace PlayPcmWin
             public string Duration {
                 get {
                     int seconds = m_pcmData.DurationSeconds;
-                    return SecondToHMSString(seconds);
+                    return SecondsToHMSString(seconds);
                 }
                 set {
                 }
@@ -1101,9 +1101,9 @@ namespace PlayPcmWin
                         Properties.Resources.Playing,
                         radioButtonShared.IsChecked == true ?
                             Properties.Resources.Shared : Properties.Resources.Exclusive,
-                        wasapi.GetBufferFormatSampleRate()*0.001,
+                        wasapi.GetDeviceSampleRate()*0.001,
                         SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
-                        wasapi.GetNumOfChannels());
+                        wasapi.GetDeviceNumChannels());
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 break;
@@ -2975,7 +2975,7 @@ namespace PlayPcmWin
             //Console.WriteLine("PlayDoWork end");
         }
 
-        private static string SecondToHMSString(int seconds) {
+        private static string SecondsToHMSString(int seconds) {
             int h = seconds / 3600;
             int m = seconds / 60 - h * 60;
             int s = seconds - h * 3600 - m * 60;
@@ -3020,14 +3020,19 @@ namespace PlayPcmWin
 
                 PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, pcmDataId);
 
-                slider1.Maximum = pcmData.NumFrames;
-                if (!mSliderSliding || pcmData.NumFrames <= slider1.Value) {
-                    slider1.Value = wasapi.GetPosFrame(usageType);
+                long totalFrameNum = wasapi.GetTotalFrameNum();
+                long playingFrame = wasapi.GetPosFrame(usageType);
+
+                slider1.Maximum = totalFrameNum;
+                if (!mSliderSliding || playingFrame <= slider1.Value) {
+                    slider1.Value = playingFrame;
                 }
 
+                int sampleRate = wasapi.GetDeviceSampleRate();
+
                 labelPlayingTime.Content = string.Format("{0}/{1}",
-                    SecondToHMSString((int)(slider1.Value / pcmData.SampleRate)),
-                    SecondToHMSString((int)(pcmData.NumFrames / pcmData.SampleRate)));
+                    SecondsToHMSString((int)(slider1.Value / sampleRate)),
+                    SecondsToHMSString((int)(totalFrameNum / sampleRate)));
             }
         }
 

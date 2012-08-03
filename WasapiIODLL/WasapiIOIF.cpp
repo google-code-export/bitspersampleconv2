@@ -506,10 +506,10 @@ WasapiIO_GetDeviceBytesPerFrame(void)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetPcmDataNumChannels(void)
+WasapiIO_GetDeviceNumChannels(void)
 {
     assert(self);
-    return self->wasapi.GetPcmDataNumChannels();
+    return self->wasapi.GetDeviceNumChannels();
 }
 
 extern "C" __declspec(dllexport)

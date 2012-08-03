@@ -175,7 +175,7 @@ WasapiIO_GetPcmDataFrameBytes(void);
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WasapiIO_GetPcmDataNumChannels(void);
+WasapiIO_GetDeviceNumChannels(void);
 
 extern "C" __declspec(dllexport)
 void __stdcall
