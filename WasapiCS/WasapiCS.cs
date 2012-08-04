@@ -153,7 +153,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static long
-        WasapiIO_GetTotalFrameNum();
+        WasapiIO_GetTotalFrameNum(int usageType);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
@@ -429,8 +429,8 @@ namespace Wasapi {
             return WasapiIO_GetPosFrame((int)t);
         }
 
-        public long GetTotalFrameNum() {
-            return WasapiIO_GetTotalFrameNum();
+        public long GetTotalFrameNum(PcmDataUsageType t) {
+            return WasapiIO_GetTotalFrameNum((int)t);
         }
 
         public bool SetPosFrame(long v) {

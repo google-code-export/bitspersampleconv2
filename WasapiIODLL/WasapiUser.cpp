@@ -1297,14 +1297,17 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
 }
 
 int64_t
-WasapiUser::GetTotalFrameNum(void)
+WasapiUser::GetTotalFrameNum(WWPcmDataUsageType t)
 {
-    WWPcmData *nowPlaying = m_nowPlayingPcmData;
+    int64_t result = 0;
 
-    if (!nowPlaying) {
-        return 0;
+    WWPcmData *pcm = GetPcmDataByUsageType(t);
+
+    if (pcm) {
+        result = pcm->nFrames;
     }
-    return nowPlaying->nFrames;
+
+    return result;
 }
 
 int64_t

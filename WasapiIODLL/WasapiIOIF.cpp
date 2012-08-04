@@ -458,10 +458,10 @@ WasapiIO_GetPosFrame(int usageType)
 
 extern "C" __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetTotalFrameNum(void)
+WasapiIO_GetTotalFrameNum(int usageType)
 {
     assert(self);
-    return self->wasapi.GetTotalFrameNum();
+    return self->wasapi.GetTotalFrameNum((WWPcmDataUsageType)usageType);
 }
 
 extern "C" __declspec(dllexport)

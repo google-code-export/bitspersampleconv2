@@ -155,7 +155,7 @@ WasapiIO_GetPosFrame(int usageType);
 
 extern "C" __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetTotalFrameNum(void);
+WasapiIO_GetTotalFrameNum(int usageType);
 
 extern "C" __declspec(dllexport)
 int __stdcall

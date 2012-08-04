@@ -161,7 +161,7 @@ public:
     int64_t GetPosFrame(WWPcmDataUsageType t);
 
     /// return total frames without pregap frame num
-    int64_t GetTotalFrameNum(void);
+    int64_t GetTotalFrameNum(WWPcmDataUsageType t);
 
     /// v must be 0 or greater number
     bool SetPosFrame(int64_t v);

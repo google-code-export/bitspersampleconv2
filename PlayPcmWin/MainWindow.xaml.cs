@@ -2923,8 +2923,6 @@ namespace PlayPcmWin
                 return false;
             }
 
-            slider1.Maximum = wasapi.GetTotalFrameNum();
-
             ChangeState(State.再生中);
             UpdateUIStatus();
 
@@ -3020,11 +3018,11 @@ namespace PlayPcmWin
 
                 PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, pcmDataId);
 
-                long totalFrameNum = wasapi.GetTotalFrameNum();
-                long playingFrame = wasapi.GetPosFrame(usageType);
+                long totalFrameNum = wasapi.GetTotalFrameNum(usageType);
+                long playingFrame  = wasapi.GetPosFrame(usageType);
 
                 slider1.Maximum = totalFrameNum;
-                if (!mSliderSliding || playingFrame <= slider1.Value) {
+                if (!mSliderSliding || totalFrameNum <= slider1.Value) {
                     slider1.Value = playingFrame;
                 }
 
