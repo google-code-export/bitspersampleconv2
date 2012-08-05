@@ -160,16 +160,16 @@ WWPcmData::Init(
 {
     assert(stream == NULL);
 
-    id       = aId;
-    sampleFormat   = aFormat;
-    contentType = dataType;
-    next     = NULL;
-    posFrame = 0;
-    nChannels = anChannels;
+    id           = aId;
+    sampleFormat = aFormat;
+    contentType  = dataType;
+    next         = NULL;
+    posFrame     = 0;
+    nChannels    = anChannels;
     // メモリ確保に成功してからフレーム数をセットする。
-    nFrames  = 0;
+    nFrames       = 0;
     bytesPerFrame = aframeBytes;
-    stream   = NULL;
+    stream        = NULL;
 
     int64_t bytes = anFrames * aframeBytes;
     if (bytes < 0) {

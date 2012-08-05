@@ -208,12 +208,8 @@ WWPlayPcmGroup::DoResample(
     size_t n = m_playPcmDataList.size();
     const int PROCESS_FRAMES = 128 * 1024;
     BYTE *buff = new BYTE[PROCESS_FRAMES * m_bytesPerFrame];
-    std::list<WWPcmData *> toPcmDataList;
-    double conversionRatio = (double)sampleRate / m_sampleRate;
-    int rv;
+    std::list<size_t> toPcmDataIdxList;
     size_t numConvertedPcmData = 0;
-    WWMFSampleData mfSampleData;
-    DWORD consumedBytes = 0;
     assert(1 <= conversionQuality && conversionQuality <= 60);
 
     if (NULL == buff) {
@@ -242,8 +238,9 @@ WWPlayPcmGroup::DoResample(
     for (size_t i=0; i<n; ++i) {
         WWPcmData *pFrom = &m_playPcmDataList[i];
         WWPcmData pcmDataTo;
+
         if (!pcmDataTo.Init(pFrom->id, sampleFormat, numChannels,
-                (int64_t)(conversionRatio * pFrom->nFrames),
+                (int64_t)(((double)sampleRate / m_sampleRate) * pFrom->nFrames),
                 numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat)/8, WWPcmDataContentPcmData)) {
             dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->id);
             hr = E_OUTOFMEMORY;
@@ -252,25 +249,37 @@ WWPlayPcmGroup::DoResample(
         m_playPcmDataList.push_back(pcmDataTo);
         pFrom = &m_playPcmDataList[i];
 
-        WWPcmData *pTo = &m_playPcmDataList[n+i];
-        toPcmDataList.push_back(pTo);
+        toPcmDataIdxList.push_back(n+i);
+
+        dprintf("D: pFrom stream=%p nFrames=%lld\n", pFrom->stream, pFrom->nFrames);
 
         for (size_t posFrames=0; ; posFrames += PROCESS_FRAMES) {
+            WWMFSampleData mfSampleData;
+            DWORD consumedBytes = 0;
+
             int buffBytes = pFrom->GetBufferData(posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buff);
+            dprintf("D: pFrom->GetBufferData posBytes=%lld bytes=%d rv=%d\n",
+                    posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buffBytes);
             if (0 == buffBytes) {
                 break;
             }
 
             HRG(resampler.Resample(buff, buffBytes, &mfSampleData));
+            dprintf("D: resampler.Resample mfSampleData.bytes=%u\n",
+                    mfSampleData.bytes);
             consumedBytes = 0;
-            while (0 < toPcmDataList.size() && consumedBytes < mfSampleData.bytes) {
-                WWPcmData *pTo = toPcmDataList.front();
-                rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
+            while (0 < toPcmDataIdxList.size() && consumedBytes < mfSampleData.bytes) {
+                size_t toIdx = toPcmDataIdxList.front();
+                WWPcmData *pTo = &m_playPcmDataList[toIdx];
+                assert(pTo);
+                int rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
+                dprintf("D: consumedBytes=%d/%d FillBufferAddData() pTo->stream=%p pTo->nFrames=%lld rv=%d\n",
+                        consumedBytes, mfSampleData.bytes, pTo->stream, pTo->nFrames, rv);
                 consumedBytes += rv;
                 if (0 == rv) {
                     pTo->FillBufferEnd();
                     ++numConvertedPcmData;
-                    toPcmDataList.pop_front();
+                    toPcmDataIdxList.pop_front();
                 }
             }
             mfSampleData.Release();
@@ -278,29 +287,39 @@ WWPlayPcmGroup::DoResample(
         pFrom->Term();
     }
 
-    HRG(resampler.Drain(PROCESS_FRAMES * m_bytesPerFrame, &mfSampleData));
-    consumedBytes = 0;
-    while (0 < toPcmDataList.size() && consumedBytes < mfSampleData.bytes) {
-        WWPcmData *pTo = toPcmDataList.front();
-        rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
-        consumedBytes += rv;
-        if (0 == rv) {
-            pTo->FillBufferEnd();
-            ++numConvertedPcmData;
-            toPcmDataList.pop_front();
-        }
-    }
-    mfSampleData.Release();
+    {
+        WWMFSampleData mfSampleData;
+        DWORD consumedBytes = 0;
 
-    while (0 < toPcmDataList.size()) {
-        WWPcmData *pTo = toPcmDataList.front();
+        HRG(resampler.Drain(PROCESS_FRAMES * m_bytesPerFrame, &mfSampleData));
+        consumedBytes = 0;
+        while (0 < toPcmDataIdxList.size() && consumedBytes < mfSampleData.bytes) {
+            size_t toIdx = toPcmDataIdxList.front();
+            WWPcmData *pTo = &m_playPcmDataList[toIdx];
+            assert(pTo);
+            int rv = pTo->FillBufferAddData(&mfSampleData.data[consumedBytes], mfSampleData.bytes - consumedBytes);
+            consumedBytes += rv;
+            if (0 == rv) {
+                pTo->FillBufferEnd();
+                ++numConvertedPcmData;
+                toPcmDataIdxList.pop_front();
+            }
+        }
+        mfSampleData.Release();
+    }
+
+    while (0 < toPcmDataIdxList.size()) {
+        size_t toIdx = toPcmDataIdxList.front();
+        WWPcmData *pTo = &m_playPcmDataList[toIdx];
+        assert(pTo);
+
         pTo->FillBufferEnd();
         if (0 == pTo->nFrames) {
             hr = E_FAIL;
             goto end;
         }
         ++numConvertedPcmData;
-        toPcmDataList.pop_front();
+        toPcmDataIdxList.pop_front();
     }
 
     assert(n == numConvertedPcmData);
