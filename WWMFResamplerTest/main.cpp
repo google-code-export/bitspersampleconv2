@@ -228,7 +228,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
                 printf("E: chunk bytes == %d\n", chunkBytes);
                 goto end;
             }
-            fseek(fpr, chunkBytes-4, SEEK_CUR);
+            fseek(fpr, chunkBytes, SEEK_CUR);
         }
 
     }
