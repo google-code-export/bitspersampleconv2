@@ -170,7 +170,7 @@ HRESULT
 WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData *sampleData_return)
 {
     HRESULT hr = E_FAIL;
-    IMFMediaBuffer *pBuffer = NULL;
+    CComPtr<IMFMediaBuffer> spBuffer;
     BYTE  *pByteBuffer = NULL;
     assert(pSample);
     DWORD cbBytes = 0;
@@ -178,8 +178,8 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
     assert(sampleData_return);
     assert(NULL == sampleData_return->data);
 
-    HRG(pSample->ConvertToContiguousBuffer(&pBuffer));
-    HRG(pBuffer->GetCurrentLength(&cbBytes));
+    HRG(pSample->ConvertToContiguousBuffer(&spBuffer));
+    HRG(spBuffer->GetCurrentLength(&cbBytes));
     if (0 == cbBytes) {
         sampleData_return->bytes = 0;
         sampleData_return->data = NULL;
@@ -187,7 +187,7 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
         goto end;
     }
 
-    HRG(pBuffer->Lock(&pByteBuffer, NULL, NULL));
+    HRG(spBuffer->Lock(&pByteBuffer, NULL, NULL));
 
     assert(NULL == sampleData_return->data);
     sampleData_return->data = new BYTE[cbBytes];
@@ -201,10 +201,9 @@ WWMFResampler::ConvertMFSampleToWWSampleData(IMFSample *pSample, WWMFSampleData 
     m_outputFrameTotal += cbBytes / m_outputFormat.FrameBytes();
 
     pByteBuffer = NULL;
-    HRG(pBuffer->Unlock());
+    HRG(spBuffer->Unlock());
 
 end:
-    SafeRelease(&pBuffer);
     return hr;
 }
 
