@@ -124,7 +124,7 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
 {
     HRESULT hr = S_OK;
     IMFSample *pSample = NULL;
-    IMFMediaBuffer *pBuffer = NULL;
+    CComPtr<IMFMediaBuffer> spBuffer;
     BYTE  *pByteBufferTo = NULL;
     //LONGLONG hnsSampleDuration;
     //LONGLONG hnsSampleTime;
@@ -133,17 +133,17 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     assert(ppSample);
     *ppSample = NULL;
         
-    HRG(MFCreateMemoryBuffer(sampleData.bytes, &pBuffer));
-    HRG(pBuffer->Lock(&pByteBufferTo, NULL, NULL));
+    HRG(MFCreateMemoryBuffer(sampleData.bytes, &spBuffer));
+    HRG(spBuffer->Lock(&pByteBufferTo, NULL, NULL));
 
     memcpy(pByteBufferTo, sampleData.data, sampleData.bytes);
 
     pByteBufferTo = NULL;
-    HRG(pBuffer->Unlock());
-    HRG(pBuffer->SetCurrentLength(sampleData.bytes));
+    HRG(spBuffer->Unlock());
+    HRG(spBuffer->SetCurrentLength(sampleData.bytes));
 
     HRG(MFCreateSample(&pSample));
-    HRG(pSample->AddBuffer(pBuffer));
+    HRG(pSample->AddBuffer(spBuffer));
 
     frameCount = sampleData.bytes / m_inputFormat.FrameBytes();
     /*
@@ -161,7 +161,6 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     pSample = NULL; //< prevent release
 
 end:
-    SafeRelease(&pBuffer);
     SafeRelease(&pSample);
     return hr;
 }
