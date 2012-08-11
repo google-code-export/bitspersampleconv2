@@ -1,5 +1,4 @@
-﻿// 日本語UTF-8
-#pragma once
+﻿#pragma once
 
 //#define WINVER _WIN32_WINNT_WIN7
 

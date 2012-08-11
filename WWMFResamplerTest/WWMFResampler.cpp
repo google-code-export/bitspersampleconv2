@@ -1,5 +1,4 @@
-﻿// 日本語UTF-8
-#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
+﻿#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
 
 #define WINVER _WIN32_WINNT_WIN7
 
@@ -312,7 +311,7 @@ WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return
         tmpData.bytes = cbOutputBytes;
         hr = GetSampleDataFromMFTransform(&tmpData);
         if (MF_E_TRANSFORM_NEED_MORE_INPUT == hr) {
-            // 終わり。
+            // end
             HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
             goto end;
         }
@@ -331,9 +330,6 @@ end:
 void
 WWMFResampler::Finalize(void)
 {
-    // Initialize()が中で失敗してm_pTransform==NULLのままここに来ても
-    // 正常にFinalizeが終了するようにする。
-
     SafeRelease(&m_pTransform);
     if (m_isMFStartuped) {
         MFShutdown();

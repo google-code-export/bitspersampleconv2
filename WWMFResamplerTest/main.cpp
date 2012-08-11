@@ -1,5 +1,4 @@
-﻿// 日本語UTF-8
-#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
+﻿#pragma warning(disable:4127)  // Disable warning C4127: conditional expression is constant
 
 #define WINVER _WIN32_WINNT_WIN7
 
@@ -158,7 +157,7 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
             } else if (3 == shortValue) {
                 format_return->sampleFormat = WWMFBitFormatFloat;
             } else if (0xfffe == (unsigned short)shortValue) {
-                // WAVEFORMATEXTENSIBLEに書いてある。
+                // SampleFormat is written on WAVEFORMATEXTENSIBLE
                 format_return->sampleFormat = WWMFBitFormatUnknown;
             } else {
                 printf("unrecognized format");
@@ -404,7 +403,7 @@ int wmain(int argc, wchar_t *argv[])
     buff = new BYTE[buffBytes];
 
     for (;;) {
-        // ファイルからPCMデータを読み込む。
+        // read PCM data from file
         readBytes = buffBytes;
         if (remainBytes < readBytes) {
             readBytes = remainBytes;
@@ -418,10 +417,10 @@ int wmain(int argc, wchar_t *argv[])
             goto end;
         }
 
-        // 変換する
+        // convert
         HRG(resampler.Resample(buff, readBytes, &sampleData));
 
-        // 書き込む。
+        // write to file
         result = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
         if (result != sampleData.bytes) {
             printf("file write error\n");
@@ -432,10 +431,10 @@ int wmain(int argc, wchar_t *argv[])
         sampleData.Release();
 
         if (remainBytes == 0) {
-            // 最後。
+            // end
             HRG(resampler.Drain(buffBytes, &sampleData));
 
-            // 書き込む。
+            // write remaining PCM data to file
             result = fwrite(sampleData.data, 1, sampleData.bytes, fpw);
             if (result != sampleData.bytes) {
                 printf("file write error\n");
