@@ -291,13 +291,12 @@ static HRESULT
 FixWavHeader(FILE *fpw, DWORD writeDataTotalBytes)
 {
     HRESULT hr = E_FAIL;
-    int dataChunkSize = writeDataTotalBytes + 4;
 
     fseek(fpw, 4, SEEK_SET);
-    HRG(WriteInt32(fpw, dataChunkSize + 0x24));
+    HRG(WriteInt32(fpw, writeDataTotalBytes + 0x28));
 
     fseek(fpw, 0x28, SEEK_SET);
-    HRG(WriteInt32(fpw, dataChunkSize));
+    HRG(WriteInt32(fpw, writeDataTotalBytes));
 
 end:
     return hr;
