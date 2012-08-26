@@ -293,7 +293,7 @@ FixWavHeader(FILE *fpw, DWORD writeDataTotalBytes)
     HRESULT hr = E_FAIL;
 
     fseek(fpw, 4, SEEK_SET);
-    HRG(WriteInt32(fpw, writeDataTotalBytes + 0x28));
+    HRG(WriteInt32(fpw, writeDataTotalBytes + 0x24));
 
     fseek(fpw, 0x28, SEEK_SET);
     HRG(WriteInt32(fpw, writeDataTotalBytes));
