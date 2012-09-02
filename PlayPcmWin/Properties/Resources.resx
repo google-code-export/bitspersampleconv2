@@ -280,4 +280,52 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   Clipped sample value count={1}, FileName={0}
 </value>
   </data>
+  <data name="CMenuPlaylistClear" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="CMenuPlayListEditMode" xml:space="preserve">
+    <value>PlayList item edit mode(_E)</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="MenuItemFileExit" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="MenuItemFileNew" xml:space="preserve">
+    <value>Clear the playlist(_N)</value>
+  </data>
+  <data name="MenuItemFileOpen" xml:space="preserve">
+    <value>_Open...</value>
+  </data>
+  <data name="MenuItemFileSaveAs" xml:space="preserve">
+    <value>Save _As...</value>
+  </data>
+  <data name="MenuItemFileSaveCueAs" xml:space="preserve">
+    <value>Save the playlist as a _CUE sheet...</value>
+  </data>
+  <data name="MenuItemHelpAbout" xml:space="preserve">
+    <value>About(_V)</value>
+  </data>
+  <data name="MenuItemHelpWeb" xml:space="preserve">
+    <value>Visit PlayPcmWin _Website</value>
+  </data>
+  <data name="MenuItemPlayListClear" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="MenuItemPlayListItemEditMode" xml:space="preserve">
+    <value>Playlist item edit mode(_E)</value>
+  </data>
+  <data name="MenuItemToolSettings" xml:space="preserve">
+    <value>_Settings</value>
+  </data>
+  <data name="MenuPlayList" xml:space="preserve">
+    <value>P_laylist</value>
+  </data>
+  <data name="MenuTool" xml:space="preserve">
+    <value>_Tools</value>
+  </data>
 </root>

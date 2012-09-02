@@ -280,4 +280,52 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   クリップしたサンプル値の数={1}個、ファイル名={0}
 </value>
   </data>
+  <data name="CMenuPlaylistClear" xml:space="preserve">
+    <value>再生リストをクリアー(_C)</value>
+  </data>
+  <data name="CMenuPlayListEditMode" xml:space="preserve">
+    <value>再生リスト項目編集モード(_E)</value>
+  </data>
+  <data name="MenuFile" xml:space="preserve">
+    <value>ファイル(_F)</value>
+  </data>
+  <data name="MenuHelp" xml:space="preserve">
+    <value>ヘルプ(_H)</value>
+  </data>
+  <data name="MenuItemFileExit" xml:space="preserve">
+    <value>終了(_X)</value>
+  </data>
+  <data name="MenuItemFileNew" xml:space="preserve">
+    <value>再生リストをクリアー(_N)</value>
+  </data>
+  <data name="MenuItemFileOpen" xml:space="preserve">
+    <value>開く(_O)...</value>
+  </data>
+  <data name="MenuItemFileSaveAs" xml:space="preserve">
+    <value>再生リストを保存(_S)...</value>
+  </data>
+  <data name="MenuItemFileSaveCueAs" xml:space="preserve">
+    <value>再生リストをCUEシートとして保存(_C)...</value>
+  </data>
+  <data name="MenuItemHelpAbout" xml:space="preserve">
+    <value>バージョン情報(_V)</value>
+  </data>
+  <data name="MenuItemHelpWeb" xml:space="preserve">
+    <value>PlayPcmWinのWebページ(_W)</value>
+  </data>
+  <data name="MenuItemPlayListClear" xml:space="preserve">
+    <value>再生リストをクリアー(_C)</value>
+  </data>
+  <data name="MenuItemPlayListItemEditMode" xml:space="preserve">
+    <value>再生リスト項目編集モード(_E)</value>
+  </data>
+  <data name="MenuItemToolSettings" xml:space="preserve">
+    <value>詳細設定(_S)</value>
+  </data>
+  <data name="MenuPlayList" xml:space="preserve">
+    <value>再生リスト(_L)</value>
+  </data>
+  <data name="MenuTool" xml:space="preserve">
+    <value>ツール(_T)</value>
+  </data>
 </root>

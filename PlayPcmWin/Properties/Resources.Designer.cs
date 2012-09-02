@@ -90,6 +90,24 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   _Clear the playlist に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CMenuPlaylistClear {
+            get {
+                return ResourceManager.GetString("CMenuPlaylistClear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PlayList item edit mode(_E) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CMenuPlayListEditMode {
+            get {
+                return ResourceManager.GetString("CMenuPlayListEditMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   CUE files|*.CUE に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CueFileFilter {
@@ -189,6 +207,132 @@ namespace PlayPcmWin.Properties {
         internal static string MemoryExhausted {
             get {
                 return ResourceManager.GetString("MemoryExhausted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _File に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuFile {
+            get {
+                return ResourceManager.GetString("MenuFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Help に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuHelp {
+            get {
+                return ResourceManager.GetString("MenuHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   E_xit に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemFileExit {
+            get {
+                return ResourceManager.GetString("MenuItemFileExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Clear the playlist(_N) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemFileNew {
+            get {
+                return ResourceManager.GetString("MenuItemFileNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Open... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemFileOpen {
+            get {
+                return ResourceManager.GetString("MenuItemFileOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Save _As... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemFileSaveAs {
+            get {
+                return ResourceManager.GetString("MenuItemFileSaveAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Save the playlist as a _CUE sheet... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemFileSaveCueAs {
+            get {
+                return ResourceManager.GetString("MenuItemFileSaveCueAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   About(_V) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemHelpAbout {
+            get {
+                return ResourceManager.GetString("MenuItemHelpAbout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Visit PlayPcmWin _Website に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemHelpWeb {
+            get {
+                return ResourceManager.GetString("MenuItemHelpWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Clear the playlist に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemPlayListClear {
+            get {
+                return ResourceManager.GetString("MenuItemPlayListClear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playlist item edit mode(_E) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemPlayListItemEditMode {
+            get {
+                return ResourceManager.GetString("MenuItemPlayListItemEditMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuItemToolSettings {
+            get {
+                return ResourceManager.GetString("MenuItemToolSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   P_laylist に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuPlayList {
+            get {
+                return ResourceManager.GetString("MenuPlayList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Tools に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MenuTool {
+            get {
+                return ResourceManager.GetString("MenuTool", resourceCulture);
             }
         }
         

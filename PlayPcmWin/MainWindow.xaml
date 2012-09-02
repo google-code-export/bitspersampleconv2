@@ -30,10 +30,10 @@
                 <MenuItem x:Uid="menuItemFileSaveCueAs" Header="Save the playlist as a _CUE sheet..." Click="MenuItemFileSaveCueAs_Click" Name="menuItemFileSaveCueAs" />
                 <MenuItem x:Uid="menuItemFileSaveAs" Header="Save _As..." Click="MenuItemFileSaveAs_Click" Name="menuItemFileSaveAs" />
                 <Separator x:Uid="Separator_1" />
-                <MenuItem x:Uid="MenuItem_1" Header="E_xit" Click="MenuItemFileExit_Click" />
+                <MenuItem x:Uid="menuItemFileExit" Header="E_xit" Click="MenuItemFileExit_Click" Name="menuItemFileExit" />
             </MenuItem>
             <MenuItem x:Uid="menuTool" Name="menuTool" Header="_Tools">
-                <MenuItem x:Uid="menuToolSettings" Name="menuToolSettings" Header="_Settings" Click="buttonSettings_Click" />
+                <MenuItem x:Uid="menuItemToolSettings" Name="menuItemToolSettings" Header="_Settings" Click="buttonSettings_Click" />
             </MenuItem>
             <MenuItem x:Uid="menuPlayList" Name="menuPlayList" Header="P_laylist">
                 <MenuItem x:Uid="menuItemPlayListClear" Name="menuItemPlayListClear" Header="_Clear the playlist" Click="MenuItemFileNew_Click" />
@@ -41,8 +41,8 @@
                 <MenuItem x:Uid="menuItemPlayListItemEditMode" Name="menuItemPlayListItemEditMode" Header="Playlist item edit mode(_E)" Click="buttonPlayListItemEditMode_Click" IsCheckable="True" />
             </MenuItem>
             <MenuItem x:Uid="menuHelp" Name="menuHelp" Header="_Help">
-                <MenuItem x:Uid="MenuItem_2" Header="About(_V)" Click="MenuItemHelpAbout_Click" />
-                <MenuItem x:Uid="MenuItem_3" Header="Visit PlayPcmWin _Website" Click="MenuItemHelpWeb_Click" />
+                <MenuItem x:Uid="menuItemHelpAbout" Header="About(_V)" Click="MenuItemHelpAbout_Click" Name="menuItemHelpAbout"/>
+                <MenuItem x:Uid="menuItemHelpWeb" Header="Visit PlayPcmWin _Website" Click="MenuItemHelpWeb_Click" Name="menuItemHelpWeb" />
             </MenuItem>
         </Menu>
         <GroupBox x:Uid="groupBoxPlaylist" Header="Playlist(Drop audio files from Explorer to add files)" Margin="6,26,6,136" Name="groupBoxPlaylist">

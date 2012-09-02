@@ -572,7 +572,7 @@ namespace PlayPcmWin
         {
             InitializeComponent();
 
-            InitializePlaymodeComboBox();
+            SetLocalizedTextToUI();
 
             this.AddHandler(Slider.MouseLeftButtonDownEvent,
                 new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
@@ -709,7 +709,7 @@ namespace PlayPcmWin
             NUM
         };
 
-        private void InitializePlaymodeComboBox() {
+        private void SetLocalizedTextToUI() {
             comboBoxPlayMode.Items.Clear();
             comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeAllTracks);
             comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeAllTracksRepeat);
@@ -717,6 +717,27 @@ namespace PlayPcmWin
             comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeOneTrackRepeat);
             comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeShuffle);
             comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeShuffleRepeat);
+
+            cmenuPlayListClear.Header    = Properties.Resources.CMenuPlaylistClear;
+            cmenuPlayListEditMode.Header = Properties.Resources.CMenuPlayListEditMode;
+
+            menuFile.Header = Properties.Resources.MenuFile;
+            menuItemFileNew.Header = Properties.Resources.MenuItemFileNew;
+            menuItemFileOpen.Header = Properties.Resources.MenuItemFileOpen;
+            menuItemFileSaveAs.Header = Properties.Resources.MenuItemFileSaveAs;
+            menuItemFileSaveCueAs.Header = Properties.Resources.MenuItemFileSaveCueAs;
+            menuItemFileExit.Header = Properties.Resources.MenuItemFileExit;
+
+            menuTool.Header = Properties.Resources.MenuTool;
+            menuItemToolSettings.Header = Properties.Resources.MenuItemToolSettings;
+
+            menuPlayList.Header = Properties.Resources.MenuPlayList;
+            menuItemPlayListClear.Header = Properties.Resources.MenuItemPlayListClear;
+            menuItemPlayListItemEditMode.Header = Properties.Resources.MenuItemPlayListItemEditMode;
+
+            menuHelp.Header = Properties.Resources.MenuHelp;
+            menuItemHelpAbout.Header = Properties.Resources.MenuItemHelpAbout;
+            menuItemHelpWeb.Header = Properties.Resources.MenuItemHelpWeb;
         }
 
         private bool IsPlayModeAllTracks() {
@@ -946,7 +967,7 @@ namespace PlayPcmWin
             buttonInspectDevice.IsEnabled    = true;
 
             buttonSettings.IsEnabled = true;
-            menuToolSettings.IsEnabled = true;
+            menuItemToolSettings.IsEnabled = true;
         }
 
         // 再生リストあり。再生していない状態。
@@ -973,7 +994,7 @@ namespace PlayPcmWin
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = true;
-            menuToolSettings.IsEnabled = true;
+            menuItemToolSettings.IsEnabled = true;
         }
 
         // 再生リストあり。再生開始処理中。
@@ -1000,7 +1021,7 @@ namespace PlayPcmWin
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = false;
-            menuToolSettings.IsEnabled = false;
+            menuItemToolSettings.IsEnabled = false;
         }
 
         // 再生中。
@@ -1028,7 +1049,7 @@ namespace PlayPcmWin
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = false;
-            menuToolSettings.IsEnabled = false;
+            menuItemToolSettings.IsEnabled = false;
         }
 
         private void UpdateUIStatus() {
