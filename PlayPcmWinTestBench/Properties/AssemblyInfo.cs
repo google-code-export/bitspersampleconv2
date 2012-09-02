@@ -3,6 +3,7 @@ using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System;
 
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
@@ -20,6 +21,8 @@ using System.Windows;
 // 参照不可能になります。COM からこのアセンブリ内の型にアクセスする場合は、
 // その型の ComVisible 属性を true に設定してください。
 [assembly: ComVisible(false)]
+
+[assembly: CLSCompliant(true)]
 
 //ローカライズ可能なアプリケーションのビルドを開始するには、
 //.csproj ファイルの <UICulture>CultureYouAreCodingWith</UICulture> を

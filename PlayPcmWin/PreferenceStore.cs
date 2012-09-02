@@ -1,22 +1,35 @@
 ﻿using WasapiPcmUtil;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.Collections.ObjectModel;
 
 namespace PlayPcmWin {
+    public enum PlayListDispModeType {
+        /// <summary>
+        /// 選択モード
+        /// </summary>
+        Select,
+        /// <summary>
+        /// 項目編集モード
+        /// </summary>
+        EditItem,
+    }
+
     public class Preference : WWXmlRW.SaveLoadContents {
         // SaveLoadContents IF
-        public int GetCurrentVersion() { return CurrentVersion; }
-        public int GetVersion() { return Version; }
+        public int GetCurrentVersionNumber() { return CurrentVersion; }
+        public int GetVersionNumber() { return Version; }
 
         public const int DefaultLatencyMilliseconds = 170;
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         public int Version { get; set; }
 
         public int LatencyMillisec { get; set; }
-        public WasapiSharedOrExclusive wasapiSharedOrExclusive { get; set; }
-        public WasapiDataFeedMode wasapiDataFeedMode { get; set; }
-        public RenderThreadTaskType renderThreadTaskType { get; set; }
-        public BitsPerSampleFixType bitsPerSampleFixType { get; set; }
+        public WasapiSharedOrExclusiveType WasapiSharedOrExclusive { get; set; }
+        public WasapiDataFeedModeType WasapiDataFeedMode { get; set; }
+        public RenderThreadTaskType RenderThreadTaskType { get; set; }
+        public BitsPerSampleFixType BitsPerSampleFixType { get; set; }
 
         public bool ReplaceGapWithKokomade { get; set; }
 
@@ -43,21 +56,35 @@ namespace PlayPcmWin {
         public bool Shuffle { get; set; }
         public int ZeroFlushMillisec { get; set; }
         public int TimePeriodMillisec { get; set; }
-        public List<string> PlayListColumnsOrder = new List<string>();
         public bool AlternatingRowBackground { get; set; }
-        public uint AlternatingRowBackgroundARGB { get; set; }
+        public long AlternatingRowBackgroundArgb { get; set; }
 
         public int ResamplerConversionQuality { get; set; }
 
-        public enum PlayListDispModeType {
-            /// <summary>
-            /// 選択モード
-            /// </summary>
-            Select,
-            /// <summary>
-            /// 項目編集モード
-            /// </summary>
-            EditItem,
+        private List<string> playListColumnsOrder = new List<string>();
+        public Collection<string> PlayListColumnsOrder {
+            get { return new Collection<string>(playListColumnsOrder); }
+        }
+
+        public void PlayListColumnsOrderRemoveRange(int idx, int count) {
+            playListColumnsOrder.RemoveRange(idx, count);
+        }
+
+        private void SetDefaultPlayListColumnsOrder() {
+            var pl = playListColumnsOrder;
+            pl.Clear();
+
+            pl.Add("Title");
+            pl.Add("Duration");
+            pl.Add("Artist");
+            pl.Add("AlbumTitle");
+            pl.Add("SampleRate");
+
+            pl.Add("QuantizationBitRate");
+            pl.Add("NumChannels");
+            pl.Add("BitRate");
+            pl.Add("IndexNr");
+            pl.Add("ReadSeparaterAfter");
         }
 
         public Preference() {
@@ -70,10 +97,10 @@ namespace PlayPcmWin {
         public void Reset() {
             Version = CurrentVersion;
             LatencyMillisec = DefaultLatencyMilliseconds;
-            wasapiSharedOrExclusive = WasapiSharedOrExclusive.Exclusive;
-            wasapiDataFeedMode = WasapiDataFeedMode.EventDriven;
-            renderThreadTaskType = RenderThreadTaskType.ProAudio;
-            bitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
+            WasapiSharedOrExclusive = WasapiSharedOrExclusiveType.Exclusive;
+            WasapiDataFeedMode = WasapiDataFeedModeType.EventDriven;
+            RenderThreadTaskType = RenderThreadTaskType.ProAudio;
+            BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             PreferredDeviceName = "";
             PreferredDeviceIdString = "";
             ReplaceGapWithKokomade = false;
@@ -98,22 +125,11 @@ namespace PlayPcmWin {
             MainWindowWidth  = 1000;
             MainWindowHeight = 640;
 
-            PlayListColumnsOrder.Clear();
-            PlayListColumnsOrder.Add("Title");
-            PlayListColumnsOrder.Add("Duration");
-            PlayListColumnsOrder.Add("Artist");
-            PlayListColumnsOrder.Add("AlbumTitle");
-            PlayListColumnsOrder.Add("SampleRate");
-
-            PlayListColumnsOrder.Add("QuantizationBitRate");
-            PlayListColumnsOrder.Add("NumChannels");
-            PlayListColumnsOrder.Add("BitRate");
-            PlayListColumnsOrder.Add("IndexNr");
-            PlayListColumnsOrder.Add("ReadSeparaterAfter");
-
             AlternatingRowBackground = true;
-            AlternatingRowBackgroundARGB = 0xfff8fcfcU;
+            AlternatingRowBackgroundArgb = 0xfff8fcfc;
             ResamplerConversionQuality = 60;
+
+            SetDefaultPlayListColumnsOrder();
         }
 
         /// <summary>
@@ -130,7 +146,7 @@ namespace PlayPcmWin {
     }
 
     sealed class PreferenceStore {
-        private static readonly string m_fileName = "PlayPcmWinPreference.xml";
+        private const string m_fileName = "PlayPcmWinPreference.xml";
 
         private PreferenceStore() {
         }
@@ -145,7 +161,7 @@ namespace PlayPcmWin {
                 // OK: older format. no playlist column info.
             } else if (p.PlayListColumnsOrder.Count == 20) {
                 // OK: load success. delete former 10 items inserted by Reset()
-                p.PlayListColumnsOrder.RemoveRange(0, 10);
+                p.PlayListColumnsOrderRemoveRange(0, 10);
             } else {
                 System.Console.WriteLine("E: Preference PlayListColumnOrder item count {0}", p.PlayListColumnsOrder.Count);
                 p.Reset();

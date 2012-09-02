@@ -119,25 +119,25 @@ namespace PlayPcmWin {
             }
         }
 
-        private UInt16 ByteArrayToBigU16(byte[] bytes, int offset=0) {
+        private static UInt16 ByteArrayToBigU16(byte[] bytes, int offset=0) {
             return (UInt16)(((UInt16)bytes[offset+0] << 8) +
                             ((UInt16)bytes[offset+1] << 0));
         }
 
-        private UInt32 ByteArrayToBigU24(byte[] bytes, int offset = 0) {
+        private static UInt32 ByteArrayToBigU24(byte[] bytes, int offset = 0) {
             return  (UInt32)((UInt32)bytes[offset + 0] << 16) +
                     (UInt32)((UInt32)bytes[offset + 1] << 8) +
                     (UInt32)((UInt32)bytes[offset + 2] << 0);
         }
 
-        private UInt32 ByteArrayToBigU32(byte[] bytes, int offset = 0) {
+        private static UInt32 ByteArrayToBigU32(byte[] bytes, int offset = 0) {
             return  (UInt32)((UInt32)bytes[offset+0] << 24) +
                     (UInt32)((UInt32)bytes[offset+1] << 16) +
                     (UInt32)((UInt32)bytes[offset+2] << 8) +
                     (UInt32)((UInt32)bytes[offset+3] << 0);
         }
 
-        private int ID3TagHeaderSize(byte[] sizeBytes) {
+        private static int ID3TagHeaderSize(byte[] sizeBytes) {
             System.Diagnostics.Debug.Assert(sizeBytes.Length == 4);
 
             return  ((int)(sizeBytes[0] & 0x7f) << 21) +
@@ -188,7 +188,7 @@ namespace PlayPcmWin {
             bool encryption  = (frameFlags & 0x0040) != 0;
 
             if (compression || encryption) {
-                SkipFrameContent(br, frameSize, frameFlags);
+                SkipFrameContent(br, frameSize);
                 return string.Empty;
             }
 
@@ -267,7 +267,7 @@ namespace PlayPcmWin {
             return ReadBytesWithUnsynchro(br, frameSize - pos);
         }
 
-        private void SkipFrameContent(BinaryReader br, int frameSize, int frameFlags) {
+        private void SkipFrameContent(BinaryReader br, int frameSize) {
             ReadBytesWithUnsynchro(br, frameSize);
         }
 
@@ -301,7 +301,7 @@ namespace PlayPcmWin {
                     // 終わり
                     return ID3Result.Success;
                 default:
-                    SkipFrameContent(br, frameSize, frameFlags);
+                    SkipFrameContent(br, frameSize);
                     break;
                 }
             }
@@ -348,7 +348,7 @@ namespace PlayPcmWin {
                     // 終わり
                     return ID3Result.Success;
                 default:
-                    SkipFrameContent(br, frameSize, 0);
+                    SkipFrameContent(br, frameSize);
                     break;
                 }
             }

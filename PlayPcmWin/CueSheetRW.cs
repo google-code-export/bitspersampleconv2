@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace PlayPcmWin {
 
@@ -92,7 +93,7 @@ namespace PlayPcmWin {
             int s =((tick - f) / 75) % 60;
             int m = (tick - s * 75 - f)/75/60;
 
-            return string.Format("{0:00}:{1:00}:{2:00}", m, s, f);
+            return string.Format(CultureInfo.InvariantCulture, "{0:00}:{1:00}:{2:00}", m, s, f);
         }
 
         public void Debug() {
@@ -122,82 +123,73 @@ namespace PlayPcmWin {
             m_albumPerformer = s;
         }
 
+        /// <summary>
+        /// throws IOException, ArgumentException, UnauthorizedException
+        /// </summary>
         public bool WriteToFile(string path) {
             if (m_trackInfoList.Count() == 0) {
                 return false;
             }
 
-            bool result = false;
-            try {
-                using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default)) {
-                    // アルバムタイトル
-                    if (null != m_albumTitle && 0 < m_albumTitle.Length) {
-                        sw.WriteLine(
-                            string.Format("TITLE \"{0}\"", m_albumTitle));
-                    } else {
-                        sw.WriteLine(
-                            string.Format("TITLE \"\""));
-                    }
+            using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default)) {
+                // アルバムタイトル
+                if (null != m_albumTitle && 0 < m_albumTitle.Length) {
+                    sw.WriteLine(
+                        string.Format(CultureInfo.InvariantCulture, "TITLE \"{0}\"", m_albumTitle));
+                } else {
+                    sw.WriteLine(
+                        string.Format(CultureInfo.InvariantCulture, "TITLE \"\""));
+                }
 
-                    // アルバム演奏者。
-                    if (null != m_albumPerformer && 0 < m_albumPerformer.Length) {
-                        sw.WriteLine(
-                            string.Format("PERFORMER \"{0}\"", m_albumPerformer));
-                    }
+                // アルバム演奏者。
+                if (null != m_albumPerformer && 0 < m_albumPerformer.Length) {
+                    sw.WriteLine(
+                        string.Format(CultureInfo.InvariantCulture, "PERFORMER \"{0}\"", m_albumPerformer));
+                }
 
-                    // 曲情報出力
-                    int trackCount = 1;
-                    for (int i = 0; i < m_trackInfoList.Count(); ++i) {
-                        CueSheetTrackInfo cti = m_trackInfoList[i];
+                // 曲情報出力
+                int trackCount = 1;
+                for (int i = 0; i < m_trackInfoList.Count(); ++i) {
+                    CueSheetTrackInfo cti = m_trackInfoList[i];
 
-                        if (0 == Path.GetDirectoryName(path).CompareTo(
+                    if (0 == string.CompareOrdinal(Path.GetDirectoryName(path),
                             Path.GetDirectoryName(cti.path))) {
-                            sw.WriteLine("FILE \"{0}\" WAVE", Path.GetFileName(cti.path));
-                        } else {
-                            sw.WriteLine("FILE \"{0}\" WAVE", cti.path);
-                        }
+                        sw.WriteLine("FILE \"{0}\" WAVE", Path.GetFileName(cti.path));
+                    } else {
+                        sw.WriteLine("FILE \"{0}\" WAVE", cti.path);
+                    }
 
+                    sw.WriteLine("  TRACK {0:D2} AUDIO", trackCount++);
+
+                    sw.WriteLine("    TITLE \"{0}\"", cti.title);
+
+                    if (null != cti.performer && 0 < cti.performer.Length) {
+                        sw.WriteLine("    PERFORMER \"{0}\"", cti.performer);
+                    }
+
+                    // INDEX ?? で曲情報が確定するので、その前にREM KOKOMADEを入れる。
+                    if (!(0 <= cti.endTick &&
+                        (i == m_trackInfoList.Count() - 1)) &&
+                        cti.readSeparatorAfter) {
+                        sw.WriteLine("    REM KOKOMADE");
+                    }
+
+                    sw.WriteLine("    INDEX {0} {1}",
+                        cti.indexId,
+                        CueSheetTrackInfo.TickIntToStr(cti.startTick));
+
+                    if (0 <= cti.endTick
+                            && ((i == m_trackInfoList.Count() -1)
+                            || (0 == string.CompareOrdinal(m_trackInfoList[i + 1].path, m_trackInfoList[i].path)
+                                && m_trackInfoList[i+1].startTick != m_trackInfoList[i].endTick))) {
                         sw.WriteLine("  TRACK {0:D2} AUDIO", trackCount++);
-
-                        sw.WriteLine("    TITLE \"{0}\"", cti.title);
-
-                        if (null != cti.performer && 0 < cti.performer.Length) {
-                            sw.WriteLine("    PERFORMER \"{0}\"", cti.performer);
-                        }
-
-                        // INDEX ?? で曲情報が確定するので、その前にREM KOKOMADEを入れる。
-                        if (!(0 <= cti.endTick &&
-                            (i == m_trackInfoList.Count() - 1)) &&
-                            cti.readSeparatorAfter) {
-                            sw.WriteLine("    REM KOKOMADE");
-                        }
-
-                        sw.WriteLine("    INDEX {0} {1}",
-                            cti.indexId,
-                            CueSheetTrackInfo.TickIntToStr(cti.startTick));
-
-                        if (0 <= cti.endTick &&
-                            ((i == m_trackInfoList.Count() -1) ||
-                            (0 == m_trackInfoList[i+1].path.CompareTo(
-                                m_trackInfoList[i].path) &&
-                             m_trackInfoList[i+1].startTick !=
-                                m_trackInfoList[i].endTick))) {
-                            sw.WriteLine("  TRACK {0:D2} AUDIO", trackCount++);
-                            sw.WriteLine("    TITLE \" gap \"");
-                            sw.WriteLine("    INDEX 00 {0}",
-                                CueSheetTrackInfo.TickIntToStr(cti.endTick));
-                        }
+                        sw.WriteLine("    TITLE \" gap \"");
+                        sw.WriteLine("    INDEX 00 {0}",
+                            CueSheetTrackInfo.TickIntToStr(cti.endTick));
                     }
                 }
-                result = true;
-            } catch (Exception e) {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be write:");
-                Console.WriteLine(e.Message);
-                result = false;
             }
-
-            return result;
+            return true;
         }
     };
 
@@ -237,6 +229,9 @@ namespace PlayPcmWin {
             return m_albumPerformer;
         }
 
+        /// <summary>
+        /// if file read is failed IOException or ArgumentException or UnauthrizedAccessException occurs
+        /// </summary>
         public bool ReadFromFile(string path) {
             // 2パス処理する。
             // パス1…ファイルから読み込んでm_trackInfoListに骨格を作る。
@@ -256,24 +251,18 @@ namespace PlayPcmWin {
             m_bAlbumInfoParsing = true;
 
             // Pass 1の処理
-            bool result = true;
-            try {
-                using (StreamReader sr = new StreamReader(path, Encoding.Default)) {
-                    string line;
-                    int lineno = 0;
-                    while ((line = sr.ReadLine()) != null) {
-                        ++lineno;
-                        result = ParseOneLine(line, lineno);
-                        if (!result) {
-                            break;
-                        }
+            bool result = false;
+            
+            using (StreamReader sr = new StreamReader(path, Encoding.Default)) {
+                string line;
+                int lineno = 0;
+                while ((line = sr.ReadLine()) != null) {
+                    ++lineno;
+                    result = ParseOneLine(line, lineno);
+                    if (!result) {
+                        break;
                     }
                 }
-            } catch (Exception e) {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be read:");
-                Console.WriteLine(e.Message);
-                return false;
             }
             if (!result) {
                 return false;
@@ -293,7 +282,7 @@ namespace PlayPcmWin {
                 CueSheetTrackInfo cur = m_trackInfoList[i];
                 CueSheetTrackInfo next = m_trackInfoList[i+1];
 
-                if (cur.path.CompareTo(next.path) == 0 &&
+                if (0 == string.CompareOrdinal(cur.path, next.path) &&
                     cur.endTick < 0) {
                     cur.endTick = next.startTick;
                 }
@@ -319,7 +308,7 @@ namespace PlayPcmWin {
             return true;
         }
 
-        private List<string> Tokenize(string line) {
+        private static List<string> Tokenize(string line) {
             int quoteStartPos = -1;
             int lastWhiteSpacePos = -1;
             List<string> tokenList = new List<string>();
@@ -381,8 +370,8 @@ namespace PlayPcmWin {
                 return true;
             }
 
-            switch (tokenList[0].ToLower()) {
-            case "performer":
+            switch (tokenList[0].ToUpperInvariant()) {
+            case "PERFORMER":
                 m_currentTrackInfo.performer = string.Empty;
                 if (2 <= tokenList.Count && 0 < tokenList[1].Trim().Length) {
                     if (m_bAlbumInfoParsing) {
@@ -393,7 +382,7 @@ namespace PlayPcmWin {
                 }
 
                 break;
-            case "title":
+            case "TITLE":
                 m_currentTrackInfo.title = string.Empty;
                 if (2 <= tokenList.Count && 0 < tokenList[1].Trim().Length) {
                     if (m_bAlbumInfoParsing) {
@@ -403,12 +392,13 @@ namespace PlayPcmWin {
                     }
                 }
                 break;
-            case "rem":
-                if (2 <= tokenList.Count && 0 == tokenList[1].CompareTo("KOKOMADE")) {
+            case "REM":
+                if (2 <= tokenList.Count
+                        && 0 == string.Compare(tokenList[1], "KOKOMADE", StringComparison.OrdinalIgnoreCase)) {
                     m_currentTrackInfo.readSeparatorAfter = true;
                 }
                 break;
-            case "file":
+            case "FILE":
                 if (tokenList.Count < 2) {
                     Console.WriteLine("Error on line {0}: FILE directive error: filename is not specified", lineno);
                     return true;
@@ -428,7 +418,7 @@ namespace PlayPcmWin {
                 m_currentTrackInfo.Debug();
 
                 break;
-            case "track":
+            case "TRACK":
                 if (tokenList.Count < 2) {
                     Console.WriteLine("Error on line {0}: track number is not specified", lineno);
                     return true;
@@ -439,12 +429,14 @@ namespace PlayPcmWin {
                 }
                 m_currentTrackInfo.Debug();
                 break;
-            case "index":
+            case "INDEX":
                 if (tokenList.Count < 3) {
                     Console.WriteLine("Error on line {0}: index number tick format err", lineno);
                     return true;
                 }
-                int.TryParse(tokenList[1], out m_currentTrackInfo.indexId);
+                if (!int.TryParse(tokenList[1], out m_currentTrackInfo.indexId)) {
+                    m_currentTrackInfo.indexId = 1;
+                }
 
                 m_currentTrackInfo.startTick = CueSheetTrackInfo.TickStrToInt(tokenList[2]);
                 if (m_currentTrackInfo.startTick < 0) {

@@ -11,12 +11,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WasapiPcmUtil;
+using System.Globalization;
 
 namespace PlayPcmWin {
     /// <summary>
     /// SettingsWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class SettingsWindow : Window {
+    public sealed partial class SettingsWindow : Window {
         public SettingsWindow() {
             InitializeComponent();
         }
@@ -26,10 +27,10 @@ namespace PlayPcmWin {
             m_preference = preference;
         }
 
-        private uint mPlaylistAlternateBackgroundArgb;
+        private long mPlaylistAlternateBackgroundArgb;
 
         private void UpdateUIFromPreference(Preference preference) {
-            switch (preference.bitsPerSampleFixType) {
+            switch (preference.BitsPerSampleFixType) {
             case BitsPerSampleFixType.Variable:
                 radioButtonBpsVariable.IsChecked = true;
                 break;
@@ -84,13 +85,13 @@ namespace PlayPcmWin {
                 preference.TimePeriodMillisec == 0 ? false : true;
 
             textBoxPlayingTimeSize.Text =
-                preference.PlayingTimeSize.ToString();
+                preference.PlayingTimeSize.ToString(CultureInfo.CurrentCulture);
 
             textBoxZeroFlushSeconds.Text =
-                string.Format("{0}", preference.ZeroFlushMillisec * 0.001);
+                string.Format(CultureInfo.CurrentCulture, "{0}", preference.ZeroFlushMillisec * 0.001);
 
             textBoxConversionQuality.Text =
-                string.Format("{0}", preference.ResamplerConversionQuality);
+                string.Format(CultureInfo.CurrentCulture, "{0}", preference.ResamplerConversionQuality);
 
             sliderWindowScaling.Value =
                 preference.WindowScale;
@@ -117,9 +118,9 @@ namespace PlayPcmWin {
             }
 
             {
-                mPlaylistAlternateBackgroundArgb = preference.AlternatingRowBackgroundARGB;
+                mPlaylistAlternateBackgroundArgb = preference.AlternatingRowBackgroundArgb;
                 rectangleColor.Fill = new SolidColorBrush(Util.ColorFromArgb(
-                        preference.AlternatingRowBackgroundARGB));
+                        preference.AlternatingRowBackgroundArgb));
                 checkBoxAlternateBackground.IsChecked =
                         preference.AlternatingRowBackground;
                 if (preference.AlternatingRowBackground) {
@@ -131,7 +132,7 @@ namespace PlayPcmWin {
                 }
             }
 
-            switch (preference.renderThreadTaskType) {
+            switch (preference.RenderThreadTaskType) {
             case RenderThreadTaskType.Audio:
                 radioButtonTaskAudio.IsChecked = true;
                 break;
@@ -149,37 +150,36 @@ namespace PlayPcmWin {
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             System.Diagnostics.Debug.Assert(null != m_preference);
-
             UpdateUIFromPreference(m_preference);
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e) {
             if (true == radioButtonBpsVariable.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Variable;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Variable;
             }
             if (true == radioButtonBpsVariableSint16Sint24.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
             }
             if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
             }
             if (true == radioButtonBpsSint16.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint16;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint16;
             }
             if (true == radioButtonBpsSint24.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint24;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint24;
             }
             if (true == radioButtonBpsSint32.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint32;
             }
             if (true == radioButtonBpsSfloat32.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
             }
             if (true == radioButtonSint32V24.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
             }
             if (true == radioButtonBpsAutoSelect.IsChecked) {
-                m_preference.bitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
+                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
             }
 
             m_preference.ReplaceGapWithKokomade
@@ -252,21 +252,21 @@ namespace PlayPcmWin {
             {
                 m_preference.AlternatingRowBackground
                     = checkBoxAlternateBackground.IsChecked == true;
-                m_preference.AlternatingRowBackgroundARGB
+                m_preference.AlternatingRowBackgroundArgb
                     = mPlaylistAlternateBackgroundArgb;
             }
 
             if (true == radioButtonTaskAudio.IsChecked) {
-                m_preference.renderThreadTaskType = RenderThreadTaskType.Audio;
+                m_preference.RenderThreadTaskType = RenderThreadTaskType.Audio;
             }
             if (true == radioButtonTaskNone.IsChecked) {
-                m_preference.renderThreadTaskType = RenderThreadTaskType.None;
+                m_preference.RenderThreadTaskType = RenderThreadTaskType.None;
             }
             if (true == radioButtonTaskPlayback.IsChecked) {
-                m_preference.renderThreadTaskType = RenderThreadTaskType.Playback;
+                m_preference.RenderThreadTaskType = RenderThreadTaskType.Playback;
             }
             if (true == radioButtonTaskProAudio.IsChecked) {
-                m_preference.renderThreadTaskType = RenderThreadTaskType.ProAudio;
+                m_preference.RenderThreadTaskType = RenderThreadTaskType.ProAudio;
             }
 
             Close();
@@ -282,7 +282,7 @@ namespace PlayPcmWin {
 
         private void sliderWindowScaling_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             if (null != labelWindowScaling) {
-                labelWindowScaling.Content = string.Format("{0:0.00}", e.NewValue);
+                labelWindowScaling.Content = string.Format(CultureInfo.InvariantCulture, "{0:0.00}", e.NewValue);
             }
         }
 

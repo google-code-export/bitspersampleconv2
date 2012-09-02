@@ -303,14 +303,14 @@ namespace PlayPcmWinTestBench {
                 PcmDataLib.PcmData.ValueRepresentationType vrt,
                 int latencyMillisec) {
             int num = SampleFormatInfo.GetSetupSampleFormatCandidateNum(
-                isExclusive ? WasapiSharedOrExclusive.Exclusive : WasapiSharedOrExclusive.Shared,
+                isExclusive ? WasapiSharedOrExclusiveType.Exclusive : WasapiSharedOrExclusiveType.Shared,
                 BitsPerSampleFixType.AutoSelect,
                 pcmDataValidBitsPerSample, vrt);
 
             int hr = -1;
             for (int i = 0; i < num; ++i) {
                 SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
-                    isExclusive ? WasapiSharedOrExclusive.Exclusive : WasapiSharedOrExclusive.Shared,
+                    isExclusive ? WasapiSharedOrExclusiveType.Exclusive : WasapiSharedOrExclusiveType.Shared,
                     BitsPerSampleFixType.AutoSelect,
                     pcmDataBitsPerSample,
                     pcmDataValidBitsPerSample, vrt, i);

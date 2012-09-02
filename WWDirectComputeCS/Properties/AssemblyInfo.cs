@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System;
 
 [assembly: AssemblyTitle("WWDirectComputeCS")]
 [assembly: AssemblyDescription("")]
@@ -12,6 +13,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
+
+[assembly: CLSCompliant(true)]
 
 [assembly: Guid("f0f272ed-5a55-48a6-84a6-ab455fc061a1")]
 

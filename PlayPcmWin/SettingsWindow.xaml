@@ -19,7 +19,7 @@
                     ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
                 </TransformGroup>
             </Grid.LayoutTransform>
-                <GroupBox x:Uid="groupBox1" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="232" Margin="12,12,12,0" Name="groupBox1" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxQuantizationBitrate" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="232" Margin="12,12,12,0" Name="groupBoxQuantizationBitrate" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_3">
                         <RadioButton x:Uid="radioButtonBpsVariable" Content="Autoselect Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)"  Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
                         <RadioButton x:Uid="radioButtonBpsVariableSint16Sint32V24" Content="Autoselect Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)"  IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
@@ -32,7 +32,7 @@
                         <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)"  Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox2" Header="CUE sheet settings" Height="59" Margin="12,249,0,0" Name="groupBox2" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">
+                <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Height="59" Margin="12,249,0,0" Name="groupBoxCuesheetSettings" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">
                     <Grid x:Uid="Grid_4">
                         <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Margin="6,6,6,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Top" />
                     </Grid>
@@ -51,7 +51,7 @@
                         <Rectangle x:Uid="rectangleColor" Height="22" HorizontalAlignment="Left" Margin="277,6,0,0" Name="rectangleColor" Stroke="Black" VerticalAlignment="Top" Width="72" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox3" Header="Other settings" Height="140" Margin="12,432,12,0" Name="groupBox3" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxOtherSettings" Header="Other settings" Height="140" Margin="12,432,12,0" Name="groupBoxOtherSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
                         <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size"  Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup"  Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
@@ -67,7 +67,7 @@
                         <CheckBox x:Uid="checkBoxTimePeriod1" Content="invoke timeBeginPeriod(1)"  HorizontalAlignment="Left" IsChecked="False" Margin="520,30,0,0" Name="checkBoxTimePeriod1" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox4" Header="Render thread task type" Height="120" Margin="554,249,12,0" Name="groupBox4" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Height="120" Margin="554,249,12,0" Name="groupBoxRenderThreadTaskType" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_8">
                         <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,0,0" Name="radioButtonTaskAudio" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTaskProAudio" VerticalAlignment="Top" IsChecked="True" />
@@ -75,7 +75,7 @@
                         <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox5" Header="Wasapi Shared Resampler" Height="60" Margin="554,370,12,0" Name="groupBox5" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxWasapiSharedResampler" Header="Wasapi Shared Resampler" Height="60" Margin="554,370,12,0" Name="groupBoxWasapiSharedResampler" VerticalAlignment="Top">
                     <Grid>
                         <Label x:Uid="labelConversionQuality" Content="Quality (1 to 60):" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,3" Name="labelConversionQuality" VerticalAlignment="Center" Width="160" />
                         <TextBox x:Uid="textBoxConversionQuality" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="100,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Width="30" Text="60" />

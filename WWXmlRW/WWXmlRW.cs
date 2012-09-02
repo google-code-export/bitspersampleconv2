@@ -5,8 +5,8 @@ using System.Xml.Serialization;
 
 namespace WWXmlRW {
     public interface SaveLoadContents {
-        int GetVersion();
-        int GetCurrentVersion();
+        int GetVersionNumber();
+        int GetCurrentVersionNumber();
 
     }
 
@@ -63,8 +63,8 @@ namespace WWXmlRW {
                 p = new T();
             }
 
-            if (p.GetCurrentVersion() != p.GetVersion()) {
-                Console.WriteLine("Version mismatch {0} != {1}", p.GetCurrentVersion(), p.GetVersion());
+            if (p.GetCurrentVersionNumber() != p.GetVersionNumber()) {
+                Console.WriteLine("Version mismatch {0} != {1}", p.GetCurrentVersionNumber(), p.GetVersionNumber());
                 p = new T();
                 result = false;
             }

@@ -124,7 +124,7 @@
     <value>Reading files...</value>
   </data>
   <data name="CueFileFilter" xml:space="preserve">
-    <value>CUE files|*.cue</value>
+    <value>CUE files|*.CUE</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>Error</value>
@@ -136,7 +136,7 @@
     <value>Failed</value>
   </data>
   <data name="FloatingPointNumbers" xml:space="preserve">
-    <value>floating point numbers</value>
+    <value>Float</value>
   </data>
   <data name="Latency" xml:space="preserve">
     <value>Latency</value>
@@ -163,7 +163,7 @@
     <value>Please create the playlist.</value>
   </data>
   <data name="PpwplFileFilter" xml:space="preserve">
-    <value>PPWPL files|*.ppwpl</value>
+    <value>PPWPL files|*.PPWPL</value>
   </data>
   <data name="PressPlayButton" xml:space="preserve">
     <value>Add more files to the playlist or Press play button</value>
@@ -191,13 +191,13 @@
   </data>
   <data name="SetupFailAdvice" xml:space="preserve">
     <value>*Please confirm sample rate or quantization bit rate are supported on your device using "list supported format" feature. Press [Clear the playlist][List supported format]
-*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use Fireface settings, M-Audio Profire control panel or equivallent tools on your system tray to change master sampling rate of those devices before playback.
+*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use FireFace settings, M-Audio ProFire control panel or equivalent tools on your system tray to change master sampling rate of those devices before playback.
 *44.1kHz and 88.2kHz sample rate of Creative X-Fi Titanium HD do work using timer driven mode.
-*Creative USB Sound Blaster HDs prefer event driven mode. Timer driven mode tends to more problematic on those devices.
+*Creative USB Sound Blaster HD prefers event driven mode. Timer driven mode tends to more problematic on some devices.
 *Lynx AES16e WaveRT driver requires very low latency settings such as 29ms.
-*There are strange audio devices which stops TOSLINK output when no signal. Such devices apparently seem not to deliver first several thousand samples of PCM data.
+*There are strange audio devices which stops TOSLINK output when no signal. Such devices apparently seem not to deliver first several thousand samples of PCM data. If first part of music is truncated, please increase [Zero flush period on playback starts] value.
 *PlayPcmWin cannot setup E-MU 0404 USB 24bit mode. [Detailed settings][Fix Sint16] to play 24bit files on those devices but it truncates lower 8bit information.
-*Halide Bridge seems to require 24bit data always. [Detailed settinsg][Fix Sint24] to play sound on those devices.</value>
+*Halide Bridge seems to require 24bit data always. [Detailed settings][Fix Sint24] to play sound on those devices.</value>
   </data>
   <data name="Shared" xml:space="preserve">
     <value>Shared</value>
@@ -240,7 +240,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Read playgroup {0} completed. Elapsed time: {1}ms</value>
   </data>
   <data name="SupportedFileFilter" xml:space="preserve">
-    <value>Supported files|*.wav;*.wave;*.flac;*.aif;*.aiff;*.cue;*.ppwpl|WAVE files|*.wav;*.wave|FLAC files|*.flac|AIFF files|*.aif;*.aiff|CUE files|*.cue|PPWPL files|*.ppwpl|All files|*.*</value>
+    <value>Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|All files|*.*</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
     <value>Timer driven</value>

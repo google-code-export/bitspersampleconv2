@@ -14,8 +14,8 @@ namespace PlayPcmWinTestBench {
 
     public class FirSave : WWXmlRW.SaveLoadContents {
         // SaveLoadContents IF
-        public int GetCurrentVersion() { return CurrentVersion; }
-        public int GetVersion() { return Version; }
+        public int GetCurrentVersionNumber() { return CurrentVersion; }
+        public int GetVersionNumber() { return Version; }
 
         public static readonly int CurrentVersion = 1;
         public int Version { get; set; }

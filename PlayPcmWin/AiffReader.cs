@@ -42,13 +42,8 @@ namespace PlayPcmWin {
             get { return BitsPerSample * NumChannels / 8; }
         }
 
-        public byte[] GetSampleArray() { return m_sampleArray; }
-
-        private byte[] m_sampleArray = null;
-
-        private long m_ckSize;
-
-        private bool m_isAIFC = false;
+        private long mCkSize;
+        private bool mIsAIFC = false;
 
         public enum CompressionType {
             Unknown = -1,
@@ -66,15 +61,15 @@ namespace PlayPcmWin {
                 return ResultType.NotAiff;
             }
 
-            m_ckSize = ReadBigU32(br);
-            if (0 != (m_ckSize & 0x80000000)) {
+            mCkSize = ReadBigU32(br);
+            if (0 != (mCkSize & 0x80000000)) {
                 return ResultType.HeaderError;
             }
 
             byte[] formType = br.ReadBytes(4);
             if (!PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFF")) {
                 if (PcmDataLib.Util.FourCCHeaderIs(formType, 0, "AIFC")) {
-                    m_isAIFC = true;
+                    mIsAIFC = true;
                 } else {
                     return ResultType.NotAiff;
                 }
@@ -83,12 +78,12 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private UInt16 ReadBigU16(BinaryReader br) {
+        private static UInt16 ReadBigU16(BinaryReader br) {
             UInt16 result = (UInt16)(((int)br.ReadByte() << 8) + br.ReadByte());
             return result;
         }
 
-        private UInt32 ReadBigU32(BinaryReader br) {
+        private static UInt32 ReadBigU32(BinaryReader br) {
             UInt32 result = 
                 (UInt32)((UInt32)br.ReadByte() << 24) +
                 (UInt32)((UInt32)br.ReadByte() << 16) +
@@ -101,7 +96,7 @@ namespace PlayPcmWin {
         /// 目的のチャンクが見つかるまでスキップする。
         /// </summary>
         /// <param name="ckId">チャンクID</param>
-        private bool SkipToChunk(BinaryReader br, string findCkId) {
+        private static bool SkipToChunk(BinaryReader br, string findCkId) {
             System.Diagnostics.Debug.Assert(findCkId.Length == 4);
 
             try {
@@ -120,7 +115,7 @@ namespace PlayPcmWin {
             }
         }
 
-        private ResultType ReadFverChunk(BinaryReader br) {
+        private static ResultType ReadFverChunk(BinaryReader br) {
             if (!SkipToChunk(br, "FVER")) {
                 return ResultType.NotFoundFverHeader;
             }
@@ -270,7 +265,7 @@ namespace PlayPcmWin {
                 return result;
             }
             
-            if (m_isAIFC) {
+            if (mIsAIFC) {
                 // AIFCの場合、FVERチャンクが来る(required)
                 result = ReadFverChunk(br);
                 if (ResultType.Success != result) {
@@ -321,7 +316,7 @@ namespace PlayPcmWin {
         /// ビッグエンディアンバイトオーダーの80ビット拡張倍精度浮動小数点数→double
         /// 手抜き実装: subnormal numberとか、NaNとかがどうなるかは確かめてない
         /// </summary>
-        private double IEEE754ExtendedDoubleBigEndianToDouble(byte[] extended) {
+        private static double IEEE754ExtendedDoubleBigEndianToDouble(byte[] extended) {
             System.Diagnostics.Debug.Assert(extended.Length == 10);
 
             byte[] resultBytes = new byte[8];

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace PlayPcmWin {
     public class PlaylistItemSave {
@@ -50,17 +51,20 @@ namespace PlayPcmWin {
 
     public class PlaylistSave : WWXmlRW.SaveLoadContents {
         // SaveLoadContents IF
-        public int GetCurrentVersion() { return CurrentVersion; }
-        public int GetVersion() { return Version; }
+        public int GetCurrentVersionNumber() { return CurrentVersion; }
+        public int GetVersionNumber() { return Version; }
 
         public static readonly int CurrentVersion = 1;
         public int Version { get; set; }
         public int ItemNum { get { return Items.Count(); } }
-        public List<PlaylistItemSave> Items;
+        private List<PlaylistItemSave> items = new List<PlaylistItemSave>();
+        public Collection<PlaylistItemSave> Items {
+            get { return new Collection<PlaylistItemSave>(items); }
+        }
 
         public void Reset() {
             Version = CurrentVersion;
-            Items = new List<PlaylistItemSave>();
+            items.Clear();
         }
 
         public PlaylistSave() {
@@ -68,7 +72,7 @@ namespace PlayPcmWin {
         }
 
         public void Add(PlaylistItemSave item) {
-            Items.Add(item);
+            items.Add(item);
         }
     }
 
@@ -76,7 +80,10 @@ namespace PlayPcmWin {
     ///  @todo PreferenceStoreクラスと同じなので、1個にまとめる。
     /// </summary>
     class PlaylistRW {
-        private static readonly string m_fileName = "PlayPcmWinPlayList.xml";
+        private PlaylistRW() {
+        }
+
+        private const string m_fileName = "PlayPcmWinPlayList.xml";
 
         private static void OverwritePlaylist(PlaylistSave p) {
             // TODO: ロード後に、強制的に上書きしたいパラメータがある場合はここで上書きする。

@@ -22,12 +22,12 @@ namespace WasapiPcmUtil {
         AutoSelect
     }
 
-    public enum WasapiSharedOrExclusive {
+    public enum WasapiSharedOrExclusiveType {
         Shared,
         Exclusive
     };
 
-    public enum WasapiDataFeedMode {
+    public enum WasapiDataFeedModeType {
         EventDriven,
         TimerDriven
     };
@@ -79,14 +79,14 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <returns>Setup()に設定されうるビットフォーマットの候補の数</returns>
         static public int GetSetupSampleFormatCandidateNum(
-                WasapiSharedOrExclusive sharedOrExclusive,
+                WasapiSharedOrExclusiveType sharedOrExclusive,
                 BitsPerSampleFixType bitsPerSampleFixType,
                 int pcmDataValidBitsPerSample,
                 PcmDataLib.PcmData.ValueRepresentationType vrt) {
             if (bitsPerSampleFixType != BitsPerSampleFixType.AutoSelect ||
                 pcmDataValidBitsPerSample == 16 ||
                 (pcmDataValidBitsPerSample == 32 && vrt == PcmData.ValueRepresentationType.SInt) ||
-                sharedOrExclusive == WasapiSharedOrExclusive.Shared) {
+                sharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
                 return 1;
             }
 
@@ -102,7 +102,7 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <returns>デバイスに設定されるビットフォーマット</returns>
         static public SampleFormatInfo CreateSetupSampleFormat(
-                WasapiSharedOrExclusive sharedOrExclusive,
+                WasapiSharedOrExclusiveType sharedOrExclusive,
                 BitsPerSampleFixType bitsPerSampleFixType,
                 int bitsPerSample,
                 int validBitsPerSample,
@@ -110,7 +110,7 @@ namespace WasapiPcmUtil {
                 int candidateId) {
             SampleFormatInfo sf = new SampleFormatInfo();
 
-            if (sharedOrExclusive == WasapiSharedOrExclusive.Shared) {
+            if (sharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
                 // 共有モード
                 sf.bitsPerSample = bitsPerSample;
                 sf.validBitsPerSample = validBitsPerSample;

@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace PlayPcmWin {
-    class FlacDecodeIF {
+    class FlacDecodeIF : IDisposable {
         public struct FlacCuesheetTrackIndexInfo {
             public int indexNr;
             public long offsetSamples;
@@ -17,14 +18,13 @@ namespace PlayPcmWin {
             public List<FlacCuesheetTrackIndexInfo> indices = new List<FlacCuesheetTrackIndexInfo>();
         };
 
-        private Process m_childProcess;
-        private BinaryReader m_br;
-        private AnonymousPipeServerStream m_pss;
-        private int m_bytesPerFrame;
-        private long m_numFrames;
-        private int m_pictureBytes;
-        private byte[] m_pictureData;
-        private int m_numFramesPerBlock;
+        private Process mChildProcess;
+        private BinaryReader mBinaryReader;
+        private AnonymousPipeServerStream mPipeServerStream;
+        private int mBytesPerFrame;
+        private long mNumFrames;
+        private int mPictureBytes;
+        private byte[] mPictureData;
 
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
@@ -62,8 +62,19 @@ namespace PlayPcmWin {
             }
         }
 
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                ReadStreamAbort();
+            }
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         private void SendString(string s) {
-            m_childProcess.StandardInput.WriteLine(s);
+            mChildProcess.StandardInput.WriteLine(s);
         }
 
         private void SendBase64(string s) {
@@ -75,41 +86,41 @@ namespace PlayPcmWin {
                 b[i * 2 + 1] = (byte)((c >> 8) & 0xff);
             }
             string sSend = Convert.ToBase64String(b);
-            m_childProcess.StandardInput.WriteLine(sSend);
+            mChildProcess.StandardInput.WriteLine(sSend);
         }
 
         private void StartChildProcess() {
-            System.Diagnostics.Debug.Assert(null == m_childProcess);
+            System.Diagnostics.Debug.Assert(null == mChildProcess);
 
-            m_childProcess = new Process();
-            m_childProcess.StartInfo.FileName = "FlacDecodeCS.exe";
+            mChildProcess = new Process();
+            mChildProcess.StartInfo.FileName = "FlacDecodeCS.exe";
 
-            m_pss = new AnonymousPipeServerStream(
+            mPipeServerStream = new AnonymousPipeServerStream(
                 PipeDirection.In, HandleInheritability.Inheritable);
 
-            m_childProcess.StartInfo.Arguments = m_pss.GetClientHandleAsString();
-            m_childProcess.StartInfo.UseShellExecute = false;
-            m_childProcess.StartInfo.CreateNoWindow = true;
-            m_childProcess.StartInfo.RedirectStandardInput = true;
-            m_childProcess.StartInfo.RedirectStandardOutput = false;
-            m_childProcess.Start();
+            mChildProcess.StartInfo.Arguments = mPipeServerStream.GetClientHandleAsString();
+            mChildProcess.StartInfo.UseShellExecute = false;
+            mChildProcess.StartInfo.CreateNoWindow = true;
+            mChildProcess.StartInfo.RedirectStandardInput = true;
+            mChildProcess.StartInfo.RedirectStandardOutput = false;
+            mChildProcess.Start();
 
-            m_pss.DisposeLocalCopyOfClientHandle();
-            m_br = new BinaryReader(m_pss);
+            mPipeServerStream.DisposeLocalCopyOfClientHandle();
+            mBinaryReader = new BinaryReader(mPipeServerStream);
         }
 
         private int StopChildProcess() {
-            System.Diagnostics.Debug.Assert(null != m_childProcess);
-            m_childProcess.WaitForExit();
-            int exitCode = m_childProcess.ExitCode;
-            m_childProcess.Close();
-            m_childProcess = null;
+            System.Diagnostics.Debug.Assert(null != mChildProcess);
+            mChildProcess.WaitForExit();
+            int exitCode = mChildProcess.ExitCode;
+            mChildProcess.Close();
+            mChildProcess = null;
 
-            m_pss.Close();
-            m_pss = null;
+            mPipeServerStream.Close();
+            mPipeServerStream = null;
 
-            m_br.Close();
-            m_br = null;
+            mBinaryReader.Close();
+            mBinaryReader = null;
 
             return exitCode;
         }
@@ -119,7 +130,8 @@ namespace PlayPcmWin {
             HeadereAndData,
         };
 
-        private int ReadStartCommon(ReadMode mode, string flacFilePath, long skipFrames, long wantFrames, out PcmDataLib.PcmData pcmData_return, out List<FlacCuesheetTrackInfo> cueSheet_return) {
+        private int ReadStartCommon(ReadMode mode, string flacFilePath, long skipFrames, long wantFrames,
+            out PcmDataLib.PcmData pcmData_return, out List<FlacCuesheetTrackInfo> cueSheet_return) {
             pcmData_return = new PcmDataLib.PcmData();
             cueSheet_return = new List<FlacCuesheetTrackInfo>();
             
@@ -133,48 +145,48 @@ namespace PlayPcmWin {
             case ReadMode.HeadereAndData:
                 SendString("A");
                 SendBase64(flacFilePath);
-                SendString(skipFrames.ToString());
-                SendString(wantFrames.ToString());
+                SendString(skipFrames.ToString(CultureInfo.InvariantCulture));
+                SendString(wantFrames.ToString(CultureInfo.InvariantCulture));
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
 
-            int rv = m_br.ReadInt32();
+            int rv = mBinaryReader.ReadInt32();
             if (rv != 0) {
                 return rv;
             }
 
-            int nChannels     = m_br.ReadInt32();
-            int bitsPerSample = m_br.ReadInt32();
-            int sampleRate    = m_br.ReadInt32();
+            int nChannels     = mBinaryReader.ReadInt32();
+            int bitsPerSample = mBinaryReader.ReadInt32();
+            int sampleRate    = mBinaryReader.ReadInt32();
 
-            m_numFrames         = m_br.ReadInt64();
-            m_numFramesPerBlock = m_br.ReadInt32();
+            mNumFrames         = mBinaryReader.ReadInt64();
+            int numFramesPerBlock = mBinaryReader.ReadInt32();
 
-            string titleStr = m_br.ReadString();
-            string albumStr = m_br.ReadString();
-            string artistStr = m_br.ReadString();
+            string titleStr = mBinaryReader.ReadString();
+            string albumStr = mBinaryReader.ReadString();
+            string artistStr = mBinaryReader.ReadString();
 
-            m_pictureBytes = m_br.ReadInt32();
-            m_pictureData = new byte[0];
-            if (0 < m_pictureBytes) {
-                m_pictureData = m_br.ReadBytes(m_pictureBytes);
+            mPictureBytes = mBinaryReader.ReadInt32();
+            mPictureData = new byte[0];
+            if (0 < mPictureBytes) {
+                mPictureData = mBinaryReader.ReadBytes(mPictureBytes);
             }
 
             {
-                int numCuesheetTracks = m_br.ReadInt32();
+                int numCuesheetTracks = mBinaryReader.ReadInt32();
                 for (int trackId=0; trackId < numCuesheetTracks; ++trackId) {
                     var cti = new FlacCuesheetTrackInfo();
-                    cti.trackNr = m_br.ReadInt32();
-                    cti.offsetSamples = m_br.ReadInt64();
+                    cti.trackNr = mBinaryReader.ReadInt32();
+                    cti.offsetSamples = mBinaryReader.ReadInt64();
 
-                    int numCuesheetTrackIndices = m_br.ReadInt32();
+                    int numCuesheetTrackIndices = mBinaryReader.ReadInt32();
                     for (int indexId=0; indexId < numCuesheetTrackIndices; ++indexId) {
                         var indexInfo = new FlacCuesheetTrackIndexInfo();
-                        indexInfo.indexNr = m_br.ReadInt32();
-                        indexInfo.offsetSamples = m_br.ReadInt64();
+                        indexInfo.indexNr = mBinaryReader.ReadInt32();
+                        indexInfo.offsetSamples = mBinaryReader.ReadInt64();
                         cti.indices.Add(indexInfo);
                     }
                     cueSheet_return.Add(cti);
@@ -187,13 +199,13 @@ namespace PlayPcmWin {
                 bitsPerSample,
                 sampleRate,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                m_numFrames);
+                mNumFrames);
 
             pcmData_return.DisplayName = titleStr;
             pcmData_return.AlbumTitle = albumStr;
             pcmData_return.ArtistName = artistStr;
 
-            pcmData_return.SetPicture(m_pictureBytes, m_pictureData);
+            pcmData_return.SetPicture(mPictureBytes, mPictureData);
             return 0;
         }
 
@@ -214,17 +226,17 @@ namespace PlayPcmWin {
         /// <param name="skipFrames">ファイルの先頭からのスキップするフレーム数。0以外の値を指定するとMD5のチェックが行われなくなる。</param>
         /// <param name="wantFrames">取得するフレーム数。</param>
         /// <param name="pcmData">出てきたデコード後のPCMデータ。</param>
-        /// <returns></returns>
+        /// <returns>0: 成功。負: 失敗。</returns>
         public int ReadStreamBegin(string flacFilePath, long skipFrames, long wantFrames, out PcmDataLib.PcmData pcmData_return) {
             List<FlacCuesheetTrackInfo> cti;
             int rv = ReadStartCommon(ReadMode.HeadereAndData, flacFilePath, skipFrames, wantFrames, out pcmData_return, out cti);
             if (rv != 0) {
                 StopChildProcess();
-                m_bytesPerFrame = 0;
+                mBytesPerFrame = 0;
                 return rv;
             }
 
-            m_bytesPerFrame = pcmData_return.BitsPerFrame / 8;
+            mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
             return 0;
         }
 
@@ -234,62 +246,50 @@ namespace PlayPcmWin {
         /// <returns>読んだサンプルデータ。サイズはpreferredFramesよりも少ない場合がある。(preferredFramesよりも多くはない。)</returns>
         public byte [] ReadStreamReadOne(long preferredFrames)
         {
-            System.Diagnostics.Debug.Assert(0 < m_bytesPerFrame);
+            System.Diagnostics.Debug.Assert(0 < mBytesPerFrame);
 
-            int frameCount = m_br.ReadInt32();
+            int frameCount = mBinaryReader.ReadInt32();
             // System.Console.WriteLine("ReadStreamReadOne() frameCount={0}", frameCount);
 
             if (frameCount == 0) {
                 return new byte[0];
             }
 
-            byte [] sampleArray = m_br.ReadBytes(frameCount * m_bytesPerFrame);
+            byte [] sampleArray = mBinaryReader.ReadBytes(frameCount * mBytesPerFrame);
 
             if (preferredFrames < frameCount) {
                 // 欲しいフレーム数よりも多くのサンプルデータが出てきた。CUEシートの場合などで起こる。
                 // データの後ろをtruncateする。
-                Array.Resize(ref sampleArray, (int)preferredFrames * m_bytesPerFrame);
+                Array.Resize(ref sampleArray, (int)preferredFrames * mBytesPerFrame);
                 frameCount = (int)preferredFrames;
             }
 
             return sampleArray;
         }
 
-        public int BytesPerFrame {
-            get { return m_bytesPerFrame; }
-        }
-
         public long NumFrames {
-            get { return m_numFrames; }
-        }
-
-        public int PictureBytes {
-            get { return m_pictureBytes; }
-        }
-
-        public byte[] GetPictureData() {
-            return m_pictureData;
+            get { return mNumFrames; }
         }
 
         public int ReadStreamEnd()
         {
             int exitCode = StopChildProcess();
 
-            m_bytesPerFrame = 0;
+            mBytesPerFrame = 0;
 
             return exitCode;
         }
 
         public void ReadStreamAbort() {
-            System.Diagnostics.Debug.Assert(null != m_childProcess);
-            m_pss.Close();
-            m_pss = null;
+            System.Diagnostics.Debug.Assert(null != mChildProcess);
+            mPipeServerStream.Close();
+            mPipeServerStream = null;
 
-            m_childProcess.Close();
-            m_childProcess = null;
+            mChildProcess.Close();
+            mChildProcess = null;
 
-            m_br.Close();
-            m_br = null;
+            mBinaryReader.Close();
+            mBinaryReader = null;
         }
 
     }

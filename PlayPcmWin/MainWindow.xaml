@@ -45,7 +45,7 @@
                 <MenuItem x:Uid="MenuItem_3" Header="Visit PlayPcmWin _Website" Click="MenuItemHelpWeb_Click" />
             </MenuItem>
         </Menu>
-        <GroupBox x:Uid="groupBox2" Header="Playlist(Drop audio files from Explorer to add files)" Margin="6,26,6,136" Name="groupBox2">
+        <GroupBox x:Uid="groupBoxPlaylist" Header="Playlist(Drop audio files from Explorer to add files)" Margin="6,26,6,136" Name="groupBoxPlaylist">
             <Grid x:Uid="Grid_2">
                 <Button x:Uid="buttonClearPlayList" Content="_Clear the playlist" HorizontalAlignment="Left" Margin="6,0,0,8" Name="buttonClearPlayList" Width="156" VerticalAlignment="Bottom" Click="buttonClearPlayList_Click" />
                 <Button x:Uid="buttonRemovePlayList" Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="buttonRemovePlayList" Width="179" VerticalAlignment="Bottom" Click="buttonRemovePlayList_Click" />
@@ -106,7 +106,7 @@
         <DockPanel x:Uid="DockPanel_1" Height="109" Margin="0,0,0,26" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
             <Image x:Uid="imageCoverArt" DockPanel.Dock="Left" RenderOptions.BitmapScalingMode="Fant" Name="imageCoverArt" Stretch="Uniform" Height="109" Width="109" Margin="6,0,0,0" />
             <Grid x:Uid="Grid_12" DockPanel.Dock="Right" Width="Auto" >
-                <GroupBox x:Uid="groupBox7" Header="Playback control" Margin="6,0,6,0" Name="groupBox7" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <GroupBox x:Uid="groupBoxPlaybackControl" Header="Playback control" Margin="6,0,6,0" Name="groupBoxPlaybackControl" Height="86" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <Grid x:Uid="Grid_3" Width="380">
                         <Button x:Uid="buttonPlay" Content="_Play" HorizontalAlignment="Left" Margin="6,6,0,0" Name="buttonPlay" VerticalAlignment="Top" Width="67" IsEnabled="False" Click="buttonPlay_Click" />
                         <Button x:Uid="buttonStop" Content="_Stop" HorizontalAlignment="Left" Margin="78,6,0,0" Name="buttonStop" VerticalAlignment="Top" Width="66" IsEnabled="False" Click="buttonStop_Click" />
@@ -149,7 +149,7 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBox1" Header="Output device" Width="320" Margin="6,180,6,106" Name="groupBox1">
+                <GroupBox x:Uid="groupBoxOutputDevices" Header="Output device" Width="320" Margin="6,180,6,106" Name="groupBoxOutputDevices">
                     <Grid x:Uid="Grid_10">
                         <ListBox x:Uid="listBoxDevices" Margin="6,6,6,37" Name="listBoxDevices" />
                         <Button x:Uid="buttonSettings" Content="_Detailed settings..." HorizontalAlignment="Left" Margin="6,0,0,6" Name="buttonSettings" VerticalAlignment="Bottom" Width="134" Click="buttonSettings_Click" />

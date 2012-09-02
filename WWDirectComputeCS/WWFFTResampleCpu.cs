@@ -160,9 +160,7 @@ namespace WWDirectComputeCS {
         /// <param name="countTo">入力データリサンプル開始オフセット</param>
         /// <returns>リサンプル出力</returns>
         public double[] Do() {
-            int hr = 0;
-
-            // 水増し処理 160倍
+            // 水増し処理 160倍ｗｗｗｗ
             //var sampleInterpolation = Interpolate();
 
             // @todo FFTする

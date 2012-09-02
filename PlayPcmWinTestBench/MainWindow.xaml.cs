@@ -8,8 +8,26 @@ using Wasapi;
 using System.Runtime.InteropServices;
 
 namespace PlayPcmWinTestBench {
-    public partial class MainWindow : Window {
+    internal static class NativeMethods {
+        [DllImport("WWDirectDrawTest.dll")]
+        public extern static int
+        WWDirectDrawTest_Test();
+    }
+
+    public partial class MainWindow : Window, IDisposable {
         Wasapi.WasapiCS wasapi;
+
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                m_playWorker.Dispose();
+                gen.Dispose();
+            }
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         public MainWindow() {
             InitializeComponent();
@@ -55,12 +73,10 @@ namespace PlayPcmWinTestBench {
         //////////////////////////////////////////////////////////////////////////////////////////
         // 互換性実験
 
-        [DllImport("WWDirectDrawTest.dll")]
-        private extern static int
-        WWDirectDrawTest_Test();
+        
 
         private void buttonCompatibility_Click(object sender, RoutedEventArgs e) {
-            int hr = WWDirectDrawTest_Test();
+            int hr = NativeMethods.WWDirectDrawTest_Test();
             textBoxCompatibility.Text += string.Format("DirectDraw PrimarySurface Lock {0:X8} {1}\r\n",
                 hr, hr==0 ? "成功" : "失敗");
         }

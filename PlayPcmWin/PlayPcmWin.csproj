@@ -85,6 +85,12 @@
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>PlayPcmWin.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -158,6 +164,7 @@
     <None Include="PlayPcmWin.exe.manifest">
       <SubType>Designer</SubType>
     </None>
+    <None Include="PlayPcmWin.snk" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -240,9 +247,12 @@ if $(PlatformName) == x64 goto :plat_x64
     goto :createResources
 :plat_x64
     set PLAT=x64
-  
+
 :createResources
 echo "creating localized resouces for " %25PLAT%25
+
+echo "#####################################################"
+goto :exit
 
 echo "create en-US resources ############################################"
 cd $(ProjectDir)
@@ -268,7 +278,7 @@ copy Resources.resources PlayPcmWin.Properties.Resources.en-US.resources
 del Resources.resources
 
 echo "link en-US resources"
-al /template:"..\PlayPcmWin.exe" /embed:PlayPcmWin.g.en-US.resources /embed:PlayPcmWin.Properties.Resources.en-US.resources /culture:en-US /out:PlayPcmWin.resources.dll 
+rem al /template:"..\PlayPcmWin.exe" /embed:PlayPcmWin.g.en-US.resources /embed:PlayPcmWin.Properties.Resources.en-US.resources /culture:en-US /out:PlayPcmWin.resources.dll 
 
 echo "cleanup"
 del LocBaml.exe

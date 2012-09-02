@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace PlayPcmWin {
     class Util {
-        public static Color ColorFromArgb(uint argb) {
+
+        private Util() {
+        }
+
+        public static Color ColorFromArgb(long argb) {
             return Color.FromArgb(
                 (byte)((argb & 0xff000000U) >> 24),
                 (byte)((argb & 0x00ff0000U) >> 16),
