@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 namespace PlayPcmWinTestBench {
     internal static class NativeMethods {
         [DllImport("WWDirectDrawTest.dll")]
-        public extern static int
+        internal extern static int
         WWDirectDrawTest_Test();
     }
 

@@ -28,35 +28,35 @@ namespace PlayPcmWin {
 
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.Success:
+            case (int)FlacDecodeCS.DecodeResultType.Success:
                 return "Success";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.Completed:
+            case (int)FlacDecodeCS.DecodeResultType.Completed:
                 return "Completed";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.DataNotReady:
+            case (int)FlacDecodeCS.DecodeResultType.DataNotReady:
                 return "Data not ready (internal error)";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.WriteOpenFailed:
+            case (int)FlacDecodeCS.DecodeResultType.WriteOpenFailed:
                 return "Could not open specified file";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.FlacStreamDecoderNewFailed:
+            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecoderNewFailed:
                 return "FlacStreamDecoder create failed";
 
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.FlacStreamDecoderInitFailed:
+            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecoderInitFailed:
                 return "FlacStreamDecoder init failed";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.FlacStreamDecorderProcessFailed:
+            case (int)FlacDecodeCS.DecodeResultType.FlacStreamDecorderProcessFailed:
                 return "FlacStreamDecoder returns fail";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.LostSync:
+            case (int)FlacDecodeCS.DecodeResultType.LostSync:
                 return "Lost sync while decoding (file corrupted)";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.BadHeader:
+            case (int)FlacDecodeCS.DecodeResultType.BadHeader:
                 return "Bad header";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.FrameCrcMismatch:
+            case (int)FlacDecodeCS.DecodeResultType.FrameCrcMismatch:
                 return "CRC mismatch. (File corrupted)";
 
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.Unparseable:
+            case (int)FlacDecodeCS.DecodeResultType.Unparseable:
                 return "Unparsable data";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.NumFrameIsNotAligned:
+            case (int)FlacDecodeCS.DecodeResultType.NumFrameIsNotAligned:
                 return "NumFrame is not aligned (internal error)";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.RecvBufferSizeInsufficient:
+            case (int)FlacDecodeCS.DecodeResultType.RecvBufferSizeInsufficient:
                 return "Recv bufer size is insufficient (internal error)";
-            case (int)FlacDecodeCS.FlacDecode.DecodeResultType.OtherError:
+            case (int)FlacDecodeCS.DecodeResultType.OtherError:
             default:
                 return "Other error";
             }

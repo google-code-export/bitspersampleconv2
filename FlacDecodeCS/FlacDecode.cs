@@ -3,114 +3,122 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.IO.Pipes;
+using System.Globalization;
 
 namespace FlacDecodeCS {
-    public class FlacDecode {
+    public enum DecodeResultType {
+        /// ヘッダの取得やデータの取得に成功。
+        Success = 0,
 
-        public enum DecodeResultType {
-            /// ヘッダの取得やデータの取得に成功。
-            Success = 0,
+        /// ファイルの最後まで行き、デコードを完了した。もうデータはない。
+        Completed = 1,
 
-            /// ファイルの最後まで行き、デコードを完了した。もうデータはない。
-            Completed = 1,
+        // 以下、FLACデコードエラー。
+        DataNotReady = -2,
+        WriteOpenFailed = -3,
+        FlacStreamDecoderNewFailed = -4,
 
-            // 以下、FLACデコードエラー。
-            DataNotReady               = -2,
-            WriteOpenFailed            = -3,
-            FlacStreamDecoderNewFailed = -4,
+        FlacStreamDecoderInitFailed = -5,
+        FlacStreamDecorderProcessFailed = -6,
+        LostSync = -7,
+        BadHeader = -8,
+        FrameCrcMismatch = -9,
 
-            FlacStreamDecoderInitFailed     = -5,
-            FlacStreamDecorderProcessFailed = -6,
-            LostSync                        = -7,
-            BadHeader                       = -8,
-            FrameCrcMismatch                = -9,
+        Unparseable = -10,
+        NumFrameIsNotAligned = -11,
+        RecvBufferSizeInsufficient = -12,
+        OtherError = -13,
+        FileOpenError = -14,
+    };
 
-            Unparseable                = -10,
-            NumFrameIsNotAligned       = -11,
-            RecvBufferSizeInsufficient = -12,
-            OtherError                 = -13,
-            FileOpenError              = -14,
-        };
-
+    internal static class NativeMethods {
         [DllImport("FlacDecodeDLL.dll", CharSet = CharSet.Unicode)]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_DecodeStart(string path, long skipFrames);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         void FlacDecodeDLL_DecodeEnd(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetNumOfChannels(int id);
-        
+
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetBitsPerSample(int id);
-        
+
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetSampleRate(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         long FlacDecodeDLL_GetNumFrames(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetNumFramesPerBlock(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetLastResult(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetNextPcmData(int id, int numFrame, byte[] buff);
 
         [DllImport("FlacDecodeDLL.dll", CharSet = CharSet.Unicode)]
-        private extern static
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal extern static
         bool FlacDecodeDLL_GetTitleStr(int id, System.Text.StringBuilder name, int nameBytes);
 
         [DllImport("FlacDecodeDLL.dll", CharSet = CharSet.Unicode)]
-        private extern static
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal extern static
         bool FlacDecodeDLL_GetAlbumStr(int id, System.Text.StringBuilder name, int nameBytes);
 
         [DllImport("FlacDecodeDLL.dll", CharSet = CharSet.Unicode)]
-        private extern static
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal extern static
         bool FlacDecodeDLL_GetArtistStr(int id, System.Text.StringBuilder name, int nameBytes);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetPictureBytes(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetPictureData(int id, int offs, int pictureBytes, byte[] buff);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetEmbeddedCuesheetTrackNumber(int id, int trackId);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         long FlacDecodeDLL_GetEmbeddedCuesheetTrackOffsetSamples(int id, int trackId);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetEmbeddedCuesheetTrackNumOfIndices(int id, int trackId);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         int FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexNumber(int id, int trackId, int indexId);
 
         [DllImport("FlacDecodeDLL.dll")]
-        private extern static
+        internal extern static
         long FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexOffsetSamples(int id, int trackId, int indexId);
+    }
+
+    public sealed class FlacDecode {
+
+        private FlacDecode() { }
 
         enum OperationType {
             DecodeAll,
@@ -162,7 +170,7 @@ namespace FlacDecodeCS {
 #endif
         }
 
-        private int DecodeOne(BinaryWriter bw) {
+        private static int DecodeOne(BinaryWriter bw) {
             string operationStr = System.Console.ReadLine();
             if (null == operationStr) {
                 LogWriteLine("stdinの1行目には、ヘッダーのみ抽出の場合H、内容も抽出する場合Aを入力してください。");
@@ -209,7 +217,7 @@ namespace FlacDecodeCS {
                 }
             }
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne operationType={0} path={1} skipF={2} wantF={3}",
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne operationType={0} path={1} skipF={2} wantF={3}",
                 operationType, path, skipFrames, wantFrames));
 
             /* パイプ出力の内容
@@ -240,60 +248,65 @@ namespace FlacDecodeCS {
              * ※2…32+t+al+ar+pic+tOffs+※1
              */
 
-            int rv = FlacDecodeDLL_DecodeStart(path, skipFrames);
+            int rv = NativeMethods.FlacDecodeDLL_DecodeStart(path, skipFrames);
             bw.Write(rv);
             if (rv < 0) {
-                LogWriteLine(string.Format("FLACデコード開始エラー。{0}", rv));
-                // FlacDecodeDLL_DecodeEnd(-1);
+                LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FLACデコード開始エラー。{0}", rv));
+                // NativeMethods.FlacDecodeDLL_DecodeEnd(-1);
                 return rv;
             }
 
             int id = rv;
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne id={0}", id));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne id={0}", id));
 
-            int nChannels     = FlacDecodeDLL_GetNumOfChannels(id);
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne GetNumChannels() {0}", nChannels));
+            int nChannels     = NativeMethods.FlacDecodeDLL_GetNumOfChannels(id);
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne GetNumChannels() {0}", nChannels));
 
-            int bitsPerSample = FlacDecodeDLL_GetBitsPerSample(id);
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne GetBitsPerSample() {0}", bitsPerSample));
+            int bitsPerSample = NativeMethods.FlacDecodeDLL_GetBitsPerSample(id);
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne GetBitsPerSample() {0}", bitsPerSample));
 
-            int sampleRate    = FlacDecodeDLL_GetSampleRate(id);
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne GetSampleRate() {0}", sampleRate));
+            int sampleRate    = NativeMethods.FlacDecodeDLL_GetSampleRate(id);
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne GetSampleRate() {0}", sampleRate));
 
-            long numFrames   = FlacDecodeDLL_GetNumFrames(id);
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne GetNumFrames() {0}", numFrames));
+            long numFrames   = NativeMethods.FlacDecodeDLL_GetNumFrames(id);
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne GetNumFrames() {0}", numFrames));
 
-            int numFramesPerBlock = FlacDecodeDLL_GetNumFramesPerBlock(id);
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne GetNumFramesPerBlock() {0}", numFramesPerBlock));
+            int numFramesPerBlock = NativeMethods.FlacDecodeDLL_GetNumFramesPerBlock(id);
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne GetNumFramesPerBlock() {0}", numFramesPerBlock));
 
             StringBuilder buf = new StringBuilder(256);
-            FlacDecodeDLL_GetTitleStr(id, buf, buf.Capacity * 2);
+            NativeMethods.FlacDecodeDLL_GetTitleStr(id, buf, buf.Capacity * 2);
             string titleStr = buf.ToString();
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne titleStr {0}", titleStr));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne titleStr {0}", titleStr));
 
-            FlacDecodeDLL_GetAlbumStr(id, buf, buf.Capacity * 2);
+            NativeMethods.FlacDecodeDLL_GetAlbumStr(id, buf, buf.Capacity * 2);
             string albumStr = buf.ToString();
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne albumStr {0}", albumStr));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne albumStr {0}", albumStr));
 
-            FlacDecodeDLL_GetArtistStr(id, buf, buf.Capacity * 2);
+            NativeMethods.FlacDecodeDLL_GetArtistStr(id, buf, buf.Capacity * 2);
             string artistStr = buf.ToString();
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne artistStr {0}", artistStr));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne artistStr {0}", artistStr));
 
-            int pictureBytes = FlacDecodeDLL_GetPictureBytes(id);
+            int pictureBytes = NativeMethods.FlacDecodeDLL_GetPictureBytes(id);
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne pictureBytes {0}", pictureBytes));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne pictureBytes {0}", pictureBytes));
 
             byte[] pictureData = null;
             if (0 < pictureBytes) {
                 pictureData = new byte[pictureBytes];
-                FlacDecodeDLL_GetPictureData(id, 0, pictureBytes, pictureData);
+                rv = NativeMethods.FlacDecodeDLL_GetPictureData(id, 0, pictureBytes, pictureData);
+                if (rv < 0) {
+                    LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne FlacDecodeDLL_GetPictureData rv={0}", rv));
+                    pictureBytes = 0;
+                    pictureData = null;
+                }
             }
 
-            LogWriteLine(string.Format("FlacDecodeCS DecodeOne output start"));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne output start"));
 
             bw.Write(nChannels);
             bw.Write(bitsPerSample);
@@ -312,21 +325,21 @@ namespace FlacDecodeCS {
 
             {
                 // Cuesheets
-                int numCuesheetTracks = FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(id);
-                LogWriteLine(string.Format("FlacDecodeCS DecodeOne numOfCuesheetTracks {0}", numCuesheetTracks));
+                int numCuesheetTracks = NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(id);
+                LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne numOfCuesheetTracks {0}", numCuesheetTracks));
                 bw.Write(numCuesheetTracks);
 
                 for (int trackId=0; trackId < numCuesheetTracks; ++trackId) {
-                    bw.Write(FlacDecodeDLL_GetEmbeddedCuesheetTrackNumber(id, trackId));
-                    bw.Write(FlacDecodeDLL_GetEmbeddedCuesheetTrackOffsetSamples(id, trackId));
+                    bw.Write(NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetTrackNumber(id, trackId));
+                    bw.Write(NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetTrackOffsetSamples(id, trackId));
 
-                    int numCuesheetTrackIndices = FlacDecodeDLL_GetEmbeddedCuesheetTrackNumOfIndices(id, trackId);
-                    LogWriteLine(string.Format("FlacDecodeCS DecodeOne CuesheetTrackNumOfIndices track={0} nIdx={1}", trackId, numCuesheetTrackIndices));
+                    int numCuesheetTrackIndices = NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetTrackNumOfIndices(id, trackId);
+                    LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne CuesheetTrackNumOfIndices track={0} nIdx={1}", trackId, numCuesheetTrackIndices));
                     bw.Write(numCuesheetTrackIndices);
 
                     for (int indexId=0; indexId < numCuesheetTrackIndices; ++indexId) {
-                        bw.Write(FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexNumber(id, trackId, indexId));
-                        bw.Write(FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexOffsetSamples(id, trackId, indexId));
+                        bw.Write(NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexNumber(id, trackId, indexId));
+                        bw.Write(NativeMethods.FlacDecodeDLL_GetEmbeddedCuesheetTrackIndexOffsetSamples(id, trackId, indexId));
                     }
                 }
             }
@@ -348,10 +361,10 @@ namespace FlacDecodeCS {
                 byte[] buff = new byte[numFramePerCall * frameBytes];
 
                 while (true) {
-                    LogWriteLine("FlacDecodeDLL_GetNextPcmData 呼び出し");
-                    rv = FlacDecodeDLL_GetNextPcmData(id, numFramePerCall, buff);
-                    ercd = FlacDecodeDLL_GetLastResult(id);
-                    LogWriteLine(string.Format("FlacDecodeDLL_GetNextPcmData rv={0} ercd={1}", rv, ercd));
+                    LogWriteLine("NativeMethods.FlacDecodeDLL_GetNextPcmData 呼び出し");
+                    rv = NativeMethods.FlacDecodeDLL_GetNextPcmData(id, numFramePerCall, buff);
+                    ercd = NativeMethods.FlacDecodeDLL_GetLastResult(id);
+                    LogWriteLine(string.Format(CultureInfo.InvariantCulture, "NativeMethods.FlacDecodeDLL_GetNextPcmData rv={0} ercd={1}", rv, ercd));
 
                     if (0 < rv) {
                         bw.Write(rv);
@@ -364,7 +377,7 @@ namespace FlacDecodeCS {
                         // これでおしまい。
                         int v0 = 0;
                         bw.Write(v0);
-                        LogWriteLine(string.Format("FlacDecodeDLL_GetNextPcmData 終了。rv={0} ercd={1}", rv, ercd));
+                        LogWriteLine(string.Format(CultureInfo.InvariantCulture, "NativeMethods.FlacDecodeDLL_GetNextPcmData 終了。rv={0} ercd={1}", rv, ercd));
                         if (0 <= rv && ercd == 1) {
                             ercd = 0;
                         }
@@ -373,19 +386,25 @@ namespace FlacDecodeCS {
                 }
             }
 
-            LogWriteLine("FlacDecodeDLL_DecodeEnd 呼び出し");
-            FlacDecodeDLL_DecodeEnd(id);
+            LogWriteLine("NativeMethods.FlacDecodeDLL_DecodeEnd 呼び出し");
+            NativeMethods.FlacDecodeDLL_DecodeEnd(id);
             return ercd;
         }
 
-        private int Run(string pipeHandleAsString) {
+        private static int Run(string pipeHandleAsString) {
             int exitCode = -1;
             using (PipeStream pipeClient = new AnonymousPipeClientStream(PipeDirection.Out, pipeHandleAsString)) {
                 using (BinaryWriter bw = new BinaryWriter(pipeClient)) {
                     try {
                         exitCode = DecodeOne(bw);
-                    } catch (System.Exception ex) {
-                        LogWriteLine(string.Format("E: {0}", ex));
+                    } catch (IOException ex) {
+                        LogWriteLine(string.Format(CultureInfo.InvariantCulture, "E: {0}", ex));
+                        exitCode = -5;
+                    } catch (ArgumentException ex) {
+                        LogWriteLine(string.Format(CultureInfo.InvariantCulture, "E: {0}", ex));
+                        exitCode = -5;
+                    } catch (UnauthorizedAccessException ex) {
+                        LogWriteLine(string.Format(CultureInfo.InvariantCulture, "E: {0}", ex));
                         exitCode = -5;
                     }
                 }
@@ -395,16 +414,15 @@ namespace FlacDecodeCS {
 
         static int Main1(string[] args) {
             if (1 != args.Length) {
-                LogWriteLine(string.Format("E: FlacDecode.cs args[0] must be pipeHandleAsStream"));
+                LogWriteLine(string.Format(CultureInfo.InvariantCulture, "E: FlacDecode.cs args[0] must be pipeHandleAsStream"));
                 return (int)DecodeResultType.OtherError;
             }
 
-            LogWriteLine(string.Format("FlacDecode.cs Main1 開始 args[0]={0}", args[0]));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecode.cs Main1 開始 args[0]={0}", args[0]));
 
-            FlacDecode p = new FlacDecode();
-            int exitCode = p.Run(args[0]);
+            int exitCode = FlacDecode.Run(args[0]);
 
-            LogWriteLine(string.Format("FlacDecode.cs Main1 終了 exitCode={0}", exitCode));
+            LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecode.cs Main1 終了 exitCode={0}", exitCode));
             return exitCode;
         }
 
@@ -416,7 +434,7 @@ namespace FlacDecodeCS {
             try {
                 exitCode = Main1(args);
             } catch (Exception ex) {
-                LogWriteLine(string.Format("FlacDecode.cs Main {0}", ex));
+                LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecode.cs Main {0}", ex));
             }
             LogClose();
 
