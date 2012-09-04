@@ -421,4 +421,55 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainRadioButtonTimerDriven" xml:space="preserve">
     <value>タイマー駆動</value>
   </data>
+  <data name="SettingsGroupBoxCuesheetSettings" xml:space="preserve">
+    <value>CUEシート設定</value>
+  </data>
+  <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
+    <value>DACが安定するまで無音を送出する</value>
+  </data>
+  <data name="SettingsGroupBoxListDisplay" xml:space="preserve">
+    <value>リスト表示設定</value>
+  </data>
+  <data name="SettingsGroupBoxOtherSettings" xml:space="preserve">
+    <value>その他設定</value>
+  </data>
+  <data name="SettingsGroupBoxQuantizationBitrate" xml:space="preserve">
+    <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換します)</value>
+  </data>
+  <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
+    <value>再生スレッドタスクタイプ</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiSharedResampler" xml:space="preserve">
+    <value>WASAPI共有リサンプル</value>
+  </data>
+  <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
+    <value>自動選択(ファイルの量子化ビット数が24ビットの場合Sint32V24とSint24を試します)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
+    <value>SFloat32に固定する(IEEE754単精度浮動小数点数形式:対応ハードウェアは非常に珍しい)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
+    <value>SInt16に固定する(24bpsや32bpsのデータが来たら下位ビットを切り捨てます)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
+    <value>SInt24に固定する(16bpsのデータは0埋めで水増し、32ビットのデータは下位8ビットを切り捨て)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
+    <value>SInt32に固定する(下位ビットが余る場合は0埋め、有効ビット数32bps)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
+    <value>SInt32V24に固定する(SInt32ビット、有効ビット数24bps)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariable" xml:space="preserve">
+    <value>Sint16,SInt32V24,SInt32を自動選択(PCI、PCIe、1394オーディオデバイスに適する)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariableSint16Sint24" xml:space="preserve">
+    <value>Sint16,SInt24を自動選択(USBオーディオデバイスに適する)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariableSint16Sint32V24" xml:space="preserve">
+    <value>Sint16,SInt32V24を自動選択(32bps非対応のPCI、PCIe、1394オーディオデバイス用)</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>PlayPcmWin 詳細設定</value>
+  </data>
 </root>

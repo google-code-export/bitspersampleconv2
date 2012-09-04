@@ -1,4 +1,4 @@
-﻿<Window x:Uid="Window_1" x:Class="PlayPcmWin.SettingsWindow"
+﻿<Window x:Uid="SettingsWindow" x:Class="PlayPcmWin.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PlayPcmWin detailed settings" Height="671" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel">
@@ -26,7 +26,7 @@
                         <RadioButton x:Uid="radioButtonBpsVariableSint16Sint24" Content="Autoselect Sint16,SInt24(Suitable for USB audio devices)"  IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonBpsSint16" Content="Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)"  Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonBpsSint24" Content="Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)"  Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonSint32V24" Content="Always use SInt32V24(SInt32, Valid bits=24bps)"  Margin="6,116,6,0" Name="radioButtonSint32V24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint32V24" Content="Always use SInt32V24(SInt32, Valid bits=24bps)"  Margin="6,116,6,0" Name="radioButtonBpsSint32V24" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonBpsSint32" Content="Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)"  Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonBpsSfloat32" Content="Always use SFloat32(IEEE754 single precision floating point format: Supported hardwares are very rare)"  Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)"  Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />

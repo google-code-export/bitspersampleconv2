@@ -421,4 +421,55 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="MainRadioButtonTimerDriven" xml:space="preserve">
     <value>Timer driven</value>
   </data>
+  <data name="SettingsGroupBoxCuesheetSettings" xml:space="preserve">
+    <value>CUE sheet settings</value>
+  </data>
+  <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
+    <value>Device buffer flush settings</value>
+  </data>
+  <data name="SettingsGroupBoxListDisplay" xml:space="preserve">
+    <value>List display settings</value>
+  </data>
+  <data name="SettingsGroupBoxOtherSettings" xml:space="preserve">
+    <value>Other settings</value>
+  </data>
+  <data name="SettingsGroupBoxQuantizationBitrate" xml:space="preserve">
+    <value>Quantization bit rate to pass through the WASAPI(Converts on file loading)</value>
+  </data>
+  <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
+    <value>Render thread task type</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiSharedResampler" xml:space="preserve">
+    <value>WASAPI Shared Resampler</value>
+  </data>
+  <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
+    <value>Auto select(Try Sint32V24 and Sint24 when 24bps data arrives)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
+    <value>Always use SFloat32(IEEE754 single precision floating point format: Supported hardware is very rare)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
+    <value>Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
+    <value>Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
+    <value>Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
+    <value>Always use SInt32V24(SInt32, Valid bits=24bps)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariable" xml:space="preserve">
+    <value>Auto select Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariableSint16Sint24" xml:space="preserve">
+    <value>Auto select Sint16,SInt24(Suitable for USB audio devices)</value>
+  </data>
+  <data name="SettingsRadioButtonBpsVariableSint16Sint32V24" xml:space="preserve">
+    <value>Auto select Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)</value>
+  </data>
+  <data name="SettingsWindowTitle" xml:space="preserve">
+    <value>PlayPcmWin detailed settings</value>
+  </data>
 </root>

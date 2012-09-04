@@ -21,7 +21,26 @@ namespace PlayPcmWin {
         public SettingsWindow() {
             InitializeComponent();
 
+            Title = Properties.Resources.SettingsWindowTitle;
             
+            groupBoxCuesheetSettings.Header = Properties.Resources.SettingsGroupBoxCuesheetSettings;
+            groupBoxDeviceBufferFlush.Header = Properties.Resources.SettingsGroupBoxDeviceBufferFlush;
+            groupBoxListDisplay.Header = Properties.Resources.SettingsGroupBoxListDisplay;
+            groupBoxOtherSettings.Header = Properties.Resources.SettingsGroupBoxOtherSettings;
+            groupBoxQuantizationBitrate.Header = Properties.Resources.SettingsGroupBoxQuantizationBitrate;
+            
+            groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
+            groupBoxWasapiSharedResampler.Header = Properties.Resources.SettingsGroupBoxWasapiSharedResampler;
+
+            radioButtonBpsAutoSelect.Content = Properties.Resources.SettingsRadioButtonBpsAutoSelect;
+            radioButtonBpsSfloat32.Content = Properties.Resources.SettingsRadioButtonBpsSfloat32;
+            radioButtonBpsSint16.Content = Properties.Resources.SettingsRadioButtonBpsSint16;
+            radioButtonBpsSint24.Content = Properties.Resources.SettingsRadioButtonBpsSint24;
+            radioButtonBpsSint32.Content = Properties.Resources.SettingsRadioButtonBpsSint32;
+
+            radioButtonBpsSint32V24.Content = Properties.Resources.SettingsRadioButtonBpsSint32V24;
+            radioButtonBpsVariable.Content = Properties.Resources.SettingsRadioButtonBpsVariable;
+
         }
 
         Preference m_preference = null;
@@ -55,7 +74,7 @@ namespace PlayPcmWin {
                 radioButtonBpsSfloat32.IsChecked = true;
                 break;
             case BitsPerSampleFixType.Sint32V24:
-                radioButtonSint32V24.IsChecked = true;
+                radioButtonBpsSint32V24.IsChecked = true;
                 break;
             case BitsPerSampleFixType.AutoSelect:
                 radioButtonBpsAutoSelect.IsChecked = true;
@@ -177,7 +196,7 @@ namespace PlayPcmWin {
             if (true == radioButtonBpsSfloat32.IsChecked) {
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
             }
-            if (true == radioButtonSint32V24.IsChecked) {
+            if (true == radioButtonBpsSint32V24.IsChecked) {
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
             }
             if (true == radioButtonBpsAutoSelect.IsChecked) {

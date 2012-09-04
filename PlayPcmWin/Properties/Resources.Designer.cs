@@ -868,6 +868,159 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   CUE sheet settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxCuesheetSettings {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxCuesheetSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Device buffer flush settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxDeviceBufferFlush {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxDeviceBufferFlush", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   List display settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxListDisplay {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxListDisplay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Other settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxOtherSettings {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxOtherSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Quantization bit rate to pass through the WASAPI(Converts on file loading) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxQuantizationBitrate {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxQuantizationBitrate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Render thread task type に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxRenderThreadTaskType {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxRenderThreadTaskType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   WASAPI Shared Resampler に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxWasapiSharedResampler {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxWasapiSharedResampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Auto select(Try Sint32V24 and Sint24 when 24bps data arrives) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsAutoSelect {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsAutoSelect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Always use SFloat32(IEEE754 single precision floating point format: Supported hardware is very rare) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsSfloat32 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsSfloat32", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsSint16 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsSint16", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsSint24 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsSint24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Always use SInt32(Fill 0s to lower bits, Valid bits=32bps) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsSint32 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsSint32", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Always use SInt32V24(SInt32, Valid bits=24bps) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsSint32V24 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsSint32V24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Auto select Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsVariable {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsVariable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Auto select Sint16,SInt24(Suitable for USB audio devices) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsVariableSint16Sint24 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsVariableSint16Sint24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Auto select Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonBpsVariableSint16Sint32V24 {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonBpsVariableSint16Sint32V24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PlayPcmWin detailed settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsWindowTitle {
+            get {
+                return ResourceManager.GetString("SettingsWindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   *Please confirm sample rate or quantization bit rate are supported on your device using &quot;list supported format&quot; feature. Press [Clear the playlist][List supported format]
         ///*Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use FireFace settings, M-Audio ProFire control panel or equivalent tools on your system tray to change master sampling rate of those devices before playback.
         ///*44.1kHz and 88.2kHz sample  [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
