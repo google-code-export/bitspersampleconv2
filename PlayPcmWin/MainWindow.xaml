@@ -48,7 +48,7 @@
         <GroupBox x:Uid="groupBoxPlaylist" Header="Playlist(Drop audio files from Explorer to add files)" Margin="6,26,6,136" Name="groupBoxPlaylist">
             <Grid x:Uid="Grid_2">
                 <Button x:Uid="buttonClearPlayList" Content="_Clear the playlist" HorizontalAlignment="Left" Margin="6,0,0,8" Name="buttonClearPlayList" Width="156" VerticalAlignment="Bottom" Click="buttonClearPlayList_Click" />
-                <Button x:Uid="buttonRemovePlayList" Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="buttonRemovePlayList" Width="179" VerticalAlignment="Bottom" Click="buttonRemovePlayList_Click" />
+                <Button x:Uid="buttonDelistSelected" Content="Delist the selected file(_R)" HorizontalAlignment="Left" Margin="170,0,0,8" Name="buttonDelistSelected" Width="179" VerticalAlignment="Bottom" Click="buttonRemovePlayList_Click" />
                 <DataGrid
                     x:Uid="dataGridPlayList" Name="dataGridPlayList"
                     Margin="6,6,6,37"
@@ -88,16 +88,16 @@
                     <DataGrid.Columns>
                         <!-- <DataGridTextColumn x:Name="IdColumn" Width="Auto" Binding="{Binding Path=Id}" Header="Id" />
                         -->
-                        <DataGridTextColumn x:Uid="TitleColumn" x:Name="TitleColumn" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
-                        <DataGridTextColumn x:Uid="DurationColumn" x:Name="DurationColumn" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
-                        <DataGridTextColumn x:Uid="ArtistColumn" x:Name="ArtistColumn" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
-                        <DataGridTextColumn x:Uid="AlbumTitleColumn" x:Name="AlbumTitleColumn" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
-                        <DataGridTextColumn x:Uid="SampleRateColumn" x:Name="SampleRateColumn" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
-                        <DataGridTextColumn x:Uid="QuantizationBitRateColumn" x:Name="QuantizationBitRateColumn" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
-                        <DataGridTextColumn x:Uid="NumChannelsColumn" x:Name="NumChannelsColumn" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
-                        <DataGridTextColumn x:Uid="BitRateColumn" x:Name="BitRateColumn" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
-                        <DataGridTextColumn x:Uid="IndexNrColumn" x:Name="IndexNrColumn" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
-                        <DataGridCheckBoxColumn x:Uid="ReadSeparaterAfterColumn" x:Name="ReadSeparaterAfterColumn" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnTitle" x:Name="dataGridColumnTitle" Width="Auto" Binding="{Binding Path=Title}" Header="Title" />
+                        <DataGridTextColumn x:Uid="dataGridColumnDuration" x:Name="dataGridColumnDuration" Width="Auto" Binding="{Binding Path=Duration}" Header="Duration"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnArtist" x:Name="dataGridColumnArtist" Width="Auto" Binding="{Binding Path=ArtistName}" Header="Artists"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnAlbumTitle" x:Name="dataGridColumnAlbumTitle" Width="Auto" Binding="{Binding Path=AlbumTitle}" Header="Album name"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnSampleRate" x:Name="dataGridColumnSampleRate" Width="Auto" Binding="{Binding Path=SampleRate}" Header="Sample rate"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnQuantizationBitRate" x:Name="dataGridColumnQuantizationBitRate" Width="Auto" Binding="{Binding Path=QuantizationBitRate}" Header="Quantization bit rate"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnNumChannels" x:Name="dataGridColumnNumChannels" Width="SizeToCells"  Binding="{Binding Path=NumChannels}" Header="Num of channels"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnBitRate" x:Name="dataGridColumnBitRate" Width="Auto" Binding="{Binding Path=BitRate}" Header="Bitrate"/>
+                        <DataGridTextColumn x:Uid="dataGridColumnIndexNr" x:Name="dataGridColumnIndexNr" Width="SizeToCells" Binding="{Binding Path=IndexNr}" Header="Index"/>
+                        <DataGridCheckBoxColumn x:Uid="dataGridColumnReadSeparaterAfter" x:Name="dataGridColumnReadSeparaterAfter" Width="SizeToCells" Binding="{Binding Path=ReadSeparaterAfter}" Header="Batch read endpoint"/>
                     </DataGrid.Columns>
 
                 </DataGrid>
@@ -129,19 +129,19 @@
             <Grid x:Uid="Grid_4">
                 <GroupBox x:Uid="groupBoxWasapiSettings" Header="WASAPI settings" Width="320" Height="174" Margin="6,6,6,0" Name="groupBoxWasapiSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
-                        <GroupBox x:Uid="groupBox5" Header="Operation mode" Height="79" HorizontalAlignment="Left" Name="groupBox5" VerticalAlignment="Top" Width="140" Margin="6,4,0,0">
+                        <GroupBox x:Uid="groupBoxWasapiOperationMode" Header="Operation mode" Height="79" HorizontalAlignment="Left" Name="groupBoxWasapiOperationMode" VerticalAlignment="Top" Width="140" Margin="6,4,0,0">
                             <Grid x:Uid="Grid_6">
                                 <RadioButton x:Uid="radioButtonExclusive" Content="Exclusive" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButtonExclusive" VerticalAlignment="Top" IsChecked="True" Checked="radioButtonExclusive_Checked" />
                                 <RadioButton x:Uid="radioButtonShared" Content="Shared" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonShared" VerticalAlignment="Top" Checked="radioButtonShared_Checked" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox x:Uid="groupBox6" Header="Data feed mode" Height="78" HorizontalAlignment="Left" Margin="160,4,0,0" Name="groupBox6" VerticalAlignment="Top" Width="140">
+                        <GroupBox x:Uid="groupBoxWasapiDataFeedMode" Header="Data feed mode" Height="78" HorizontalAlignment="Left" Margin="160,4,0,0" Name="groupBoxWasapiDataFeedMode" VerticalAlignment="Top" Width="140">
                             <Grid x:Uid="Grid_9">
                                 <RadioButton x:Uid="radioButtonEventDriven" Content="Event driven" HorizontalAlignment="Left" IsChecked="True" Margin="6,6,0,0" Name="radioButtonEventDriven" VerticalAlignment="Top" Checked="radioButtonEventDriven_Checked" />
                                 <RadioButton x:Uid="radioButtonTimerDriven" Content="Timer driven" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTimerDriven" VerticalAlignment="Top"  Checked="radioButtonTimerDriven_Checked" />
                             </Grid>
                         </GroupBox>
-                        <GroupBox x:Uid="groupBox3" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="5,87,0,0" Name="groupBox3" VerticalAlignment="Top" Width="164">
+                        <GroupBox x:Uid="groupBoxWasapiOutputLatency" Header="Output latency" Height="59" HorizontalAlignment="Left" Margin="5,87,0,0" Name="groupBoxWasapiOutputLatency" VerticalAlignment="Top" Width="164">
                             <Grid x:Uid="Grid_7">
                                 <TextBox x:Uid="textBoxLatency" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxLatency" VerticalAlignment="Top" Width="69" Text="latency" HorizontalContentAlignment="Right" />
                                 <Label x:Uid="label2" Content="ms" HorizontalAlignment="Left" Margin="81,6,0,0" Name="label2" VerticalAlignment="Top" Width="55" VerticalContentAlignment="Center" />

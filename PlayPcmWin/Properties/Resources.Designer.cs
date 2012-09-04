@@ -70,15 +70,6 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Reading files... に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string ChangingPlayGroup {
-            get {
-                return ResourceManager.GetString("ChangingPlayGroup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Clipped sample value detected on floating point PCM data!
         ///  Clipped sample value count={1}, FileName={0}
         /// に類似しているローカライズされた文字列を検索します。
@@ -86,33 +77,6 @@ namespace PlayPcmWin.Properties {
         internal static string ClippedSampleDetected {
             get {
                 return ResourceManager.GetString("ClippedSampleDetected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   _Clear the playlist に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string CMenuPlaylistClear {
-            get {
-                return ResourceManager.GetString("CMenuPlaylistClear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   PlayList item edit mode(_E) に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string CMenuPlayListEditMode {
-            get {
-                return ResourceManager.GetString("CMenuPlayListEditMode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   CUE files|*.CUE に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string CueFileFilter {
-            get {
-                return ResourceManager.GetString("CueFileFilter", resourceCulture);
             }
         }
         
@@ -171,6 +135,33 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   CUE files|*.CUE に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterCueFiles {
+            get {
+                return ResourceManager.GetString("FilterCueFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   PPWPL files|*.PPWPL に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterPpwplFiles {
+            get {
+                return ResourceManager.GetString("FilterPpwplFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|All files|*.* に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterSupportedFiles {
+            get {
+                return ResourceManager.GetString("FilterSupportedFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Float に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FloatingPointNumbers {
@@ -198,6 +189,447 @@ namespace PlayPcmWin.Properties {
         internal static string LicenseText {
             get {
                 return ResourceManager.GetString("LicenseText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Clear the playlist に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonClearPlayList {
+            get {
+                return ResourceManager.GetString("MainButtonClearPlayList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Delist the selected file(_R) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonDelistSelected {
+            get {
+                return ResourceManager.GetString("MainButtonDelistSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   L_ist supported formats に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonInspectDevice {
+            get {
+                return ResourceManager.GetString("MainButtonInspectDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Next に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonNext {
+            get {
+                return ResourceManager.GetString("MainButtonNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Pa_use に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonPause {
+            get {
+                return ResourceManager.GetString("MainButtonPause", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Play に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonPlay {
+            get {
+                return ResourceManager.GetString("MainButtonPlay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Prev に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonPrev {
+            get {
+                return ResourceManager.GetString("MainButtonPrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Resume(_U) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonResume {
+            get {
+                return ResourceManager.GetString("MainButtonResume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Detailed settings... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonSettings {
+            get {
+                return ResourceManager.GetString("MainButtonSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Stop に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainButtonStop {
+            get {
+                return ResourceManager.GetString("MainButtonStop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Clear the playlist に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainCMenuPlaylistClear {
+            get {
+                return ResourceManager.GetString("MainCMenuPlaylistClear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playlist item edit mode(_E) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainCMenuPlayListEditMode {
+            get {
+                return ResourceManager.GetString("MainCMenuPlayListEditMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Album name に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnAlbumTitle {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnAlbumTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Artists に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnArtist {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnArtist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Bitrate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnBitRate {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnBitRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Duration に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnDuration {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnDuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Index に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnIndexNr {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnIndexNr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Number of channels に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnNumChannels {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnNumChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Quantization bit rate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnQuantizationBitRate {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnQuantizationBitRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Batch read endpoint に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnReadSeparaterAfter {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnReadSeparaterAfter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sample rate に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnSampleRate {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnSampleRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Title に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainDataGridColumnTitle {
+            get {
+                return ResourceManager.GetString("MainDataGridColumnTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainExpanderSettings {
+            get {
+                return ResourceManager.GetString("MainExpanderSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Log に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxLog {
+            get {
+                return ResourceManager.GetString("MainGroupBoxLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Output device に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxOutputDevices {
+            get {
+                return ResourceManager.GetString("MainGroupBoxOutputDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playback control に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxPlaybackControl {
+            get {
+                return ResourceManager.GetString("MainGroupBoxPlaybackControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playlist(Drop audio files from Explorer to add files) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxPlaylist {
+            get {
+                return ResourceManager.GetString("MainGroupBoxPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Data feed mode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxWasapiDataFeedMode {
+            get {
+                return ResourceManager.GetString("MainGroupBoxWasapiDataFeedMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Operation mode に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxWasapiOperationMode {
+            get {
+                return ResourceManager.GetString("MainGroupBoxWasapiOperationMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Output latency に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxWasapiOutputLatency {
+            get {
+                return ResourceManager.GetString("MainGroupBoxWasapiOutputLatency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   WASAPI settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainGroupBoxWasapiSettings {
+            get {
+                return ResourceManager.GetString("MainGroupBoxWasapiSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   All tracks に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeAllTracks {
+            get {
+                return ResourceManager.GetString("MainPlayModeAllTracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   All tracks repeat に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeAllTracksRepeat {
+            get {
+                return ResourceManager.GetString("MainPlayModeAllTracksRepeat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   One track に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeOneTrack {
+            get {
+                return ResourceManager.GetString("MainPlayModeOneTrack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   One track repeat に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeOneTrackRepeat {
+            get {
+                return ResourceManager.GetString("MainPlayModeOneTrackRepeat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Shuffle に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeShuffle {
+            get {
+                return ResourceManager.GetString("MainPlayModeShuffle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Shuffle repeat に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainPlayModeShuffleRepeat {
+            get {
+                return ResourceManager.GetString("MainPlayModeShuffleRepeat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Event driven に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainRadioButtonEventDriven {
+            get {
+                return ResourceManager.GetString("MainRadioButtonEventDriven", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Exclusive に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainRadioButtonExclusive {
+            get {
+                return ResourceManager.GetString("MainRadioButtonExclusive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Shared に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainRadioButtonShared {
+            get {
+                return ResourceManager.GetString("MainRadioButtonShared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Timer driven に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainRadioButtonTimerDriven {
+            get {
+                return ResourceManager.GetString("MainRadioButtonTimerDriven", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Reading files... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusChangingPlayGroup {
+            get {
+                return ResourceManager.GetString("MainStatusChangingPlayGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Paused. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusPaused {
+            get {
+                return ResourceManager.GetString("MainStatusPaused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playing. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusPlaying {
+            get {
+                return ResourceManager.GetString("MainStatusPlaying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please create the playlist. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusPleaseCreatePlaylist {
+            get {
+                return ResourceManager.GetString("MainStatusPleaseCreatePlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Add more files to the playlist or Press play button に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusPressPlayButton {
+            get {
+                return ResourceManager.GetString("MainStatusPressPlayButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Read completed. ready to play. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusReadCompleted {
+            get {
+                return ResourceManager.GetString("MainStatusReadCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Setup device completed. Now reading files to main memory... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusReadingFiles {
+            get {
+                return ResourceManager.GetString("MainStatusReadingFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Stopping... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MainStatusStopping {
+            get {
+                return ResourceManager.GetString("MainStatusStopping", resourceCulture);
             }
         }
         
@@ -364,24 +796,6 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Pa_use に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Pause {
-            get {
-                return ResourceManager.GetString("Pause", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Paused に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Paused {
-            get {
-                return ResourceManager.GetString("Paused", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Play completed. elapsed time is に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string PlayCompletedElapsedTimeIs {
@@ -391,110 +805,11 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Playing. に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Playing {
-            get {
-                return ResourceManager.GetString("Playing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   All tracks に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeAllTracks {
-            get {
-                return ResourceManager.GetString("PlayModeAllTracks", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   All tracks repeat に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeAllTracksRepeat {
-            get {
-                return ResourceManager.GetString("PlayModeAllTracksRepeat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   One track に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeOneTrack {
-            get {
-                return ResourceManager.GetString("PlayModeOneTrack", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   One track repeat に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeOneTrackRepeat {
-            get {
-                return ResourceManager.GetString("PlayModeOneTrackRepeat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Shuffle に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeShuffle {
-            get {
-                return ResourceManager.GetString("PlayModeShuffle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Shuffle repeat に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PlayModeShuffleRepeat {
-            get {
-                return ResourceManager.GetString("PlayModeShuffleRepeat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Play start failed に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string PlayStartFailed {
             get {
                 return ResourceManager.GetString("PlayStartFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Please create the playlist. に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PleaseCreatePlaylist {
-            get {
-                return ResourceManager.GetString("PleaseCreatePlaylist", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   PPWPL files|*.PPWPL に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PpwplFileFilter {
-            get {
-                return ResourceManager.GetString("PpwplFileFilter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Add more files to the playlist or Press play button に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string PressPlayButton {
-            get {
-                return ResourceManager.GetString("PressPlayButton", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Read completed. ready to play. に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string ReadCompleted {
-            get {
-                return ResourceManager.GetString("ReadCompleted", resourceCulture);
             }
         }
         
@@ -526,15 +841,6 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Setup device completed. Now reading files to main memory... に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string ReadingFiles {
-            get {
-                return ResourceManager.GetString("ReadingFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Read playgroup {0} completed. Elapsed time: {1}ms に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ReadPlayGroupNCompleted {
@@ -549,15 +855,6 @@ namespace PlayPcmWin.Properties {
         internal static string RestoreFailedFiles {
             get {
                 return ResourceManager.GetString("RestoreFailedFiles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Resume(_U) に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Resume {
-            get {
-                return ResourceManager.GetString("Resume", resourceCulture);
             }
         }
         
@@ -587,24 +884,6 @@ namespace PlayPcmWin.Properties {
         internal static string Shared {
             get {
                 return ResourceManager.GetString("Shared", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Stopping... に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Stopping {
-            get {
-                return ResourceManager.GetString("Stopping", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|All files|*.* に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string SupportedFileFilter {
-            get {
-                return ResourceManager.GetString("SupportedFileFilter", resourceCulture);
             }
         }
         

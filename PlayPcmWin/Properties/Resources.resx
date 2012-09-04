@@ -120,10 +120,10 @@
   <data name="CannotAddFile" xml:space="preserve">
     <value>Sorry... Please stop playback to add files to the playlist.</value>
   </data>
-  <data name="ChangingPlayGroup" xml:space="preserve">
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
     <value>Reading files...</value>
   </data>
-  <data name="CueFileFilter" xml:space="preserve">
+  <data name="FilterCueFiles" xml:space="preserve">
     <value>CUE files|*.CUE</value>
   </data>
   <data name="Error" xml:space="preserve">
@@ -150,25 +150,22 @@
   <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
     <value>Not supported quantization bit rate. supported formats are 16, 24 and 32</value>
   </data>
-  <data name="Pause" xml:space="preserve">
-    <value>Pa_use</value>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>Paused.</value>
   </data>
-  <data name="Paused" xml:space="preserve">
-    <value>Paused</value>
-  </data>
-  <data name="Playing" xml:space="preserve">
+  <data name="MainStatusPlaying" xml:space="preserve">
     <value>Playing.</value>
   </data>
-  <data name="PleaseCreatePlaylist" xml:space="preserve">
+  <data name="MainStatusPleaseCreatePlaylist" xml:space="preserve">
     <value>Please create the playlist.</value>
   </data>
-  <data name="PpwplFileFilter" xml:space="preserve">
+  <data name="FilterPpwplFiles" xml:space="preserve">
     <value>PPWPL files|*.PPWPL</value>
   </data>
-  <data name="PressPlayButton" xml:space="preserve">
+  <data name="MainStatusPressPlayButton" xml:space="preserve">
     <value>Add more files to the playlist or Press play button</value>
   </data>
-  <data name="ReadCompleted" xml:space="preserve">
+  <data name="MainStatusReadCompleted" xml:space="preserve">
     <value>Read completed. ready to play.</value>
   </data>
   <data name="ReadFailedFiles" xml:space="preserve">
@@ -177,13 +174,13 @@
   <data name="ReadFileFailed" xml:space="preserve">
     <value>Read {0} file failed</value>
   </data>
-  <data name="ReadingFiles" xml:space="preserve">
+  <data name="MainStatusReadingFiles" xml:space="preserve">
     <value>Setup device completed. Now reading files to main memory...</value>
   </data>
   <data name="RestoreFailedFiles" xml:space="preserve">
     <value>Missing files while restoring playlist</value>
   </data>
-  <data name="Resume" xml:space="preserve">
+  <data name="MainButtonResume" xml:space="preserve">
     <value>Resume(_U)</value>
   </data>
   <data name="SaveFileFailed" xml:space="preserve">
@@ -202,7 +199,7 @@
   <data name="Shared" xml:space="preserve">
     <value>Shared</value>
   </data>
-  <data name="Stopping" xml:space="preserve">
+  <data name="MainStatusStopping" xml:space="preserve">
     <value>Stopping...</value>
   </data>
   <data name="TooManyChannels" xml:space="preserve">
@@ -239,7 +236,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="ReadPlayGroupNCompleted" xml:space="preserve">
     <value>Read playgroup {0} completed. Elapsed time: {1}ms</value>
   </data>
-  <data name="SupportedFileFilter" xml:space="preserve">
+  <data name="FilterSupportedFiles" xml:space="preserve">
     <value>Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|All files|*.*</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
@@ -251,22 +248,22 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="Version" xml:space="preserve">
     <value>Version</value>
   </data>
-  <data name="PlayModeAllTracks" xml:space="preserve">
+  <data name="MainPlayModeAllTracks" xml:space="preserve">
     <value>All tracks</value>
   </data>
-  <data name="PlayModeAllTracksRepeat" xml:space="preserve">
+  <data name="MainPlayModeAllTracksRepeat" xml:space="preserve">
     <value>All tracks repeat</value>
   </data>
-  <data name="PlayModeOneTrack" xml:space="preserve">
+  <data name="MainPlayModeOneTrack" xml:space="preserve">
     <value>One track</value>
   </data>
-  <data name="PlayModeOneTrackRepeat" xml:space="preserve">
+  <data name="MainPlayModeOneTrackRepeat" xml:space="preserve">
     <value>One track repeat</value>
   </data>
-  <data name="PlayModeShuffle" xml:space="preserve">
+  <data name="MainPlayModeShuffle" xml:space="preserve">
     <value>Shuffle</value>
   </data>
-  <data name="PlayModeShuffleRepeat" xml:space="preserve">
+  <data name="MainPlayModeShuffleRepeat" xml:space="preserve">
     <value>Shuffle repeat</value>
   </data>
   <data name="UsingDeviceStateChanged" xml:space="preserve">
@@ -280,11 +277,11 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   Clipped sample value count={1}, FileName={0}
 </value>
   </data>
-  <data name="CMenuPlaylistClear" xml:space="preserve">
+  <data name="MainCMenuPlaylistClear" xml:space="preserve">
     <value>_Clear the playlist</value>
   </data>
-  <data name="CMenuPlayListEditMode" xml:space="preserve">
-    <value>PlayList item edit mode(_E)</value>
+  <data name="MainCMenuPlayListEditMode" xml:space="preserve">
+    <value>Playlist item edit mode(_E)</value>
   </data>
   <data name="MenuFile" xml:space="preserve">
     <value>_File</value>
@@ -327,5 +324,101 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="MenuTool" xml:space="preserve">
     <value>_Tools</value>
+  </data>
+  <data name="MainGroupBoxLog" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="MainGroupBoxOutputDevices" xml:space="preserve">
+    <value>Output device</value>
+  </data>
+  <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
+    <value>Playback control</value>
+  </data>
+  <data name="MainGroupBoxPlaylist" xml:space="preserve">
+    <value>Playlist(Drop audio files from Explorer to add files)</value>
+  </data>
+  <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
+    <value>Data feed mode</value>
+  </data>
+  <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
+    <value>Operation mode</value>
+  </data>
+  <data name="MainGroupBoxWasapiOutputLatency" xml:space="preserve">
+    <value>Output latency</value>
+  </data>
+  <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
+    <value>WASAPI settings</value>
+  </data>
+  <data name="MainButtonClearPlayList" xml:space="preserve">
+    <value>_Clear the playlist</value>
+  </data>
+  <data name="MainButtonDelistSelected" xml:space="preserve">
+    <value>Delist the selected file(_R)</value>
+  </data>
+  <data name="MainButtonInspectDevice" xml:space="preserve">
+    <value>L_ist supported formats</value>
+  </data>
+  <data name="MainButtonNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MainButtonPause" xml:space="preserve">
+    <value>Pa_use</value>
+  </data>
+  <data name="MainButtonPlay" xml:space="preserve">
+    <value>_Play</value>
+  </data>
+  <data name="MainButtonPrev" xml:space="preserve">
+    <value>Prev</value>
+  </data>
+  <data name="MainButtonSettings" xml:space="preserve">
+    <value>_Detailed settings...</value>
+  </data>
+  <data name="MainButtonStop" xml:space="preserve">
+    <value>_Stop</value>
+  </data>
+  <data name="MainDataGridColumnAlbumTitle" xml:space="preserve">
+    <value>Album name</value>
+  </data>
+  <data name="MainDataGridColumnArtist" xml:space="preserve">
+    <value>Artists</value>
+  </data>
+  <data name="MainDataGridColumnBitRate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="MainDataGridColumnDuration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="MainDataGridColumnIndexNr" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="MainDataGridColumnNumChannels" xml:space="preserve">
+    <value>Number of channels</value>
+  </data>
+  <data name="MainDataGridColumnQuantizationBitRate" xml:space="preserve">
+    <value>Quantization bit rate</value>
+  </data>
+  <data name="MainDataGridColumnReadSeparaterAfter" xml:space="preserve">
+    <value>Batch read endpoint</value>
+  </data>
+  <data name="MainDataGridColumnSampleRate" xml:space="preserve">
+    <value>Sample rate</value>
+  </data>
+  <data name="MainDataGridColumnTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="MainExpanderSettings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="MainRadioButtonEventDriven" xml:space="preserve">
+    <value>Event driven</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>Exclusive</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>Shared</value>
+  </data>
+  <data name="MainRadioButtonTimerDriven" xml:space="preserve">
+    <value>Timer driven</value>
   </data>
 </root>

@@ -711,15 +711,15 @@ namespace PlayPcmWin
 
         private void SetLocalizedTextToUI() {
             comboBoxPlayMode.Items.Clear();
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeAllTracks);
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeAllTracksRepeat);
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeOneTrack);
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeOneTrackRepeat);
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeShuffle);
-            comboBoxPlayMode.Items.Add(Properties.Resources.PlayModeShuffleRepeat);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeAllTracks);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeAllTracksRepeat);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeOneTrack);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeOneTrackRepeat);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeShuffle);
+            comboBoxPlayMode.Items.Add(Properties.Resources.MainPlayModeShuffleRepeat);
 
-            cmenuPlayListClear.Header    = Properties.Resources.CMenuPlaylistClear;
-            cmenuPlayListEditMode.Header = Properties.Resources.CMenuPlayListEditMode;
+            cmenuPlayListClear.Header = Properties.Resources.MainCMenuPlaylistClear;
+            cmenuPlayListEditMode.Header = Properties.Resources.MainCMenuPlayListEditMode;
 
             menuFile.Header = Properties.Resources.MenuFile;
             menuItemFileNew.Header = Properties.Resources.MenuItemFileNew;
@@ -738,6 +738,47 @@ namespace PlayPcmWin
             menuHelp.Header = Properties.Resources.MenuHelp;
             menuItemHelpAbout.Header = Properties.Resources.MenuItemHelpAbout;
             menuItemHelpWeb.Header = Properties.Resources.MenuItemHelpWeb;
+
+            groupBoxLog.Header = Properties.Resources.MainGroupBoxLog;
+            groupBoxOutputDevices.Header = Properties.Resources.MainGroupBoxOutputDevices;
+            groupBoxPlaybackControl.Header = Properties.Resources.MainGroupBoxPlaybackControl;
+            groupBoxPlaylist.Header = Properties.Resources.MainGroupBoxPlaylist;
+            groupBoxWasapiDataFeedMode.Header = Properties.Resources.MainGroupBoxWasapiDataFeedMode;
+
+            groupBoxWasapiOperationMode.Header = Properties.Resources.MainGroupBoxWasapiOperationMode;
+            groupBoxWasapiOutputLatency.Header = Properties.Resources.MainGroupBoxWasapiOutputLatency;
+            groupBoxWasapiSettings.Header = Properties.Resources.MainGroupBoxWasapiSettings;
+
+            buttonClearPlayList.Content = Properties.Resources.MainButtonClearPlayList;
+            buttonDelistSelected.Content = Properties.Resources.MainButtonDelistSelected;
+            buttonInspectDevice.Content = Properties.Resources.MainButtonInspectDevice;
+            buttonNext.Content = Properties.Resources.MainButtonNext;
+            buttonPause.Content = Properties.Resources.MainButtonPause;
+
+            buttonPlay.Content = Properties.Resources.MainButtonPlay;
+            buttonPrev.Content = Properties.Resources.MainButtonPrev;
+            buttonSettings.Content = Properties.Resources.MainButtonSettings;
+            buttonStop.Content = Properties.Resources.MainButtonStop;
+
+            radioButtonEventDriven.Content = Properties.Resources.MainRadioButtonEventDriven;
+            radioButtonExclusive.Content = Properties.Resources.MainRadioButtonExclusive;
+            radioButtonShared.Content = Properties.Resources.MainRadioButtonShared;
+            radioButtonTimerDriven.Content = Properties.Resources.MainRadioButtonTimerDriven;
+
+            expanderSettings.Header = Properties.Resources.MainExpanderSettings;
+
+            dataGridColumnAlbumTitle.Header = Properties.Resources.MainDataGridColumnAlbumTitle;
+            dataGridColumnArtist.Header = Properties.Resources.MainDataGridColumnArtist;
+            dataGridColumnBitRate.Header = Properties.Resources.MainDataGridColumnBitRate;
+            dataGridColumnDuration.Header = Properties.Resources.MainDataGridColumnDuration;
+            dataGridColumnIndexNr.Header = Properties.Resources.MainDataGridColumnIndexNr;
+
+            dataGridColumnNumChannels.Header = Properties.Resources.MainDataGridColumnNumChannels;
+            dataGridColumnQuantizationBitRate.Header = Properties.Resources.MainDataGridColumnQuantizationBitRate;
+            dataGridColumnReadSeparaterAfter.Header = Properties.Resources.MainDataGridColumnReadSeparaterAfter;
+            dataGridColumnSampleRate.Header = Properties.Resources.MainDataGridColumnSampleRate;
+            dataGridColumnTitle.Header = Properties.Resources.MainDataGridColumnTitle;
+
         }
 
         private bool IsPlayModeAllTracks() {
@@ -963,7 +1004,7 @@ namespace PlayPcmWin
             groupBoxWasapiSettings.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled    = false;
-            buttonRemovePlayList.IsEnabled = false;
+            buttonDelistSelected.IsEnabled = false;
             buttonInspectDevice.IsEnabled    = true;
 
             buttonSettings.IsEnabled = true;
@@ -990,7 +1031,7 @@ namespace PlayPcmWin
             groupBoxWasapiSettings.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled = true;
-            buttonRemovePlayList.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
+            buttonDelistSelected.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = true;
@@ -1017,7 +1058,7 @@ namespace PlayPcmWin
             groupBoxWasapiSettings.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
-            buttonRemovePlayList.IsEnabled = false;
+            buttonDelistSelected.IsEnabled = false;
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = false;
@@ -1037,7 +1078,7 @@ namespace PlayPcmWin
             buttonPlay.IsEnabled = false;
             buttonStop.IsEnabled = true;
             buttonPause.IsEnabled = true;
-            buttonPause.Content = Properties.Resources.Pause;
+            buttonPause.Content = Properties.Resources.MainButtonPause;
             comboBoxPlayMode.IsEnabled = false;
 
             buttonNext.IsEnabled = true;
@@ -1045,7 +1086,7 @@ namespace PlayPcmWin
             groupBoxWasapiSettings.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
-            buttonRemovePlayList.IsEnabled = false;
+            buttonDelistSelected.IsEnabled = false;
             buttonInspectDevice.IsEnabled = false;
 
             buttonSettings.IsEnabled = false;
@@ -1068,7 +1109,7 @@ namespace PlayPcmWin
             switch (m_state) {
             case State.初期化完了:
                 UpdateUIToInitialState();
-                statusBarText.Content = Properties.Resources.PleaseCreatePlaylist;
+                statusBarText.Content = Properties.Resources.MainStatusPleaseCreatePlaylist;
                 break;
             case State.プレイリストあり:
                 if (0 < dataGridPlayList.Items.Count &&
@@ -1078,16 +1119,16 @@ namespace PlayPcmWin
                 }
 
                 UpdateUIToEditableState();
-                statusBarText.Content = Properties.Resources.PressPlayButton;
+                statusBarText.Content = Properties.Resources.MainStatusPressPlayButton;
                 break;
             case State.デバイスSetup完了:
                 // 一覧のクリアーとデバイスの選択、再生リストの作成関連を押せなくする。
                 UpdateUIToNonEditableState();
-                statusBarText.Content = Properties.Resources.ReadingFiles;
+                statusBarText.Content = Properties.Resources.MainStatusReadingFiles;
                 break;
             case State.ファイル読み込み完了:
                 UpdateUIToNonEditableState();
-                statusBarText.Content = Properties.Resources.ReadCompleted;
+                statusBarText.Content = Properties.Resources.MainStatusReadCompleted;
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 slider1.Value = 0;
@@ -1097,7 +1138,7 @@ namespace PlayPcmWin
                 UpdateUIToPlayingState();
                 statusBarText.Content =
                     string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch",
-                        Properties.Resources.Playing,
+                        Properties.Resources.MainStatusPlaying,
                         radioButtonShared.IsChecked == true ?
                             Properties.Resources.Shared : Properties.Resources.Exclusive,
                         wasapi.GetDeviceSampleRate()*0.001,
@@ -1108,20 +1149,20 @@ namespace PlayPcmWin
                 break;
             case State.再生一時停止中:
                 UpdateUIToPlayingState();
-                buttonPause.Content = Properties.Resources.Resume;
+                buttonPause.Content = Properties.Resources.MainButtonResume;
                 buttonNext.IsEnabled             = false;
                 buttonPrev.IsEnabled             = false;
-                statusBarText.Content = Properties.Resources.Paused;
+                statusBarText.Content = Properties.Resources.MainStatusPaused;
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
                 break;
             case State.再生停止開始:
                 UpdateUIToNonEditableState();
-                statusBarText.Content = Properties.Resources.Stopping;
+                statusBarText.Content = Properties.Resources.MainStatusStopping;
                 break;
             case State.再生グループ切り替え中:
                 UpdateUIToNonEditableState();
-                statusBarText.Content = Properties.Resources.ChangingPlayGroup;
+                statusBarText.Content = Properties.Resources.MainStatusChangingPlayGroup;
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -2008,7 +2049,7 @@ namespace PlayPcmWin
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.InitialDirectory = System.IO.Path.GetDirectoryName(pcmData0.FullPath);
-            dlg.Filter = Properties.Resources.CueFileFilter;
+            dlg.Filter = Properties.Resources.FilterCueFiles;
             Nullable<bool> result = dlg.ShowDialog();
             if (result != true) {
                 return;
@@ -2064,7 +2105,7 @@ namespace PlayPcmWin
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.InitialDirectory = System.IO.Path.GetDirectoryName(pcmData0.FullPath);
-            dlg.Filter = Properties.Resources.PpwplFileFilter;
+            dlg.Filter = Properties.Resources.FilterPpwplFiles;
             Nullable<bool> result = dlg.ShowDialog();
 
             if (result == true) {
@@ -2088,7 +2129,7 @@ namespace PlayPcmWin
             }
 
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = Properties.Resources.SupportedFileFilter;
+            dlg.Filter = Properties.Resources.FilterSupportedFiles;
             dlg.Multiselect = true;
 
             Nullable<bool> result = dlg.ShowDialog();
@@ -3594,9 +3635,9 @@ namespace PlayPcmWin
             UpdateCoverart();
 
             if (m_state == State.プレイリストあり && 0 <= dataGridPlayList.SelectedIndex) {
-                buttonRemovePlayList.IsEnabled = true;
+                buttonDelistSelected.IsEnabled = true;
             } else {
-                buttonRemovePlayList.IsEnabled = false;
+                buttonDelistSelected.IsEnabled = false;
             }
 
             if (null == wasapi) {

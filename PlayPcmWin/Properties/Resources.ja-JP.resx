@@ -120,10 +120,10 @@
   <data name="CannotAddFile" xml:space="preserve">
     <value>都合により、出力デバイス選択後は再生リストに追加できない作りになっております。いったん再生を停止してから追加していただけますようお願い致します。</value>
   </data>
-  <data name="ChangingPlayGroup" xml:space="preserve">
+  <data name="MainStatusChangingPlayGroup" xml:space="preserve">
     <value>読み込み中……</value>
   </data>
-  <data name="CueFileFilter" xml:space="preserve">
+  <data name="FilterCueFiles" xml:space="preserve">
     <value>CUEファイル|*.cue</value>
   </data>
   <data name="Error" xml:space="preserve">
@@ -141,7 +141,7 @@
   <data name="Latency" xml:space="preserve">
     <value>レイテンシー</value>
   </data>
-  <data name="NothingToStore" xml:space="preserve">
+  <data name="MessageNothingToStore" xml:space="preserve">
     <value>保存するデータはありません</value>
   </data>
   <data name="NotSupportedFileFormat" xml:space="preserve">
@@ -150,25 +150,22 @@
   <data name="NotSupportedQuantizationBitRate" xml:space="preserve">
     <value>量子化ビット数が16でも24でも32でもないPCMファイルの再生には対応していません</value>
   </data>
-  <data name="Pause" xml:space="preserve">
-    <value>一時停止(_U)</value>
+  <data name="MainStatusPaused" xml:space="preserve">
+    <value>再生一時停止中。</value>
   </data>
-  <data name="Paused" xml:space="preserve">
-    <value>再生一時停止中</value>
-  </data>
-  <data name="Playing" xml:space="preserve">
+  <data name="MainStatusPlaying" xml:space="preserve">
     <value>再生中。</value>
   </data>
-  <data name="PleaseCreatePlaylist" xml:space="preserve">
+  <data name="MainStatusPleaseCreatePlaylist" xml:space="preserve">
     <value>再生リストを作って下さい。</value>
   </data>
-  <data name="PpwplFileFilter" xml:space="preserve">
+  <data name="FilterPpwplFiles" xml:space="preserve">
     <value>PPWPLファイル|*.ppwpl</value>
   </data>
-  <data name="PressPlayButton" xml:space="preserve">
+  <data name="MainStatusPressPlayButton" xml:space="preserve">
     <value>再生リストを作り、再生ボタンを押して下さい。</value>
   </data>
-  <data name="ReadCompleted" xml:space="preserve">
+  <data name="MainStatusReadCompleted" xml:space="preserve">
     <value>ファイル読み込み完了。再生できます。</value>
   </data>
   <data name="ReadFailedFiles" xml:space="preserve">
@@ -177,13 +174,13 @@
   <data name="ReadFileFailed" xml:space="preserve">
     <value>{0}ファイル読み込み失敗</value>
   </data>
-  <data name="ReadingFiles" xml:space="preserve">
+  <data name="MainStatusReadingFiles" xml:space="preserve">
     <value>デバイス選択完了。ファイル読み込み中……</value>
   </data>
   <data name="RestoreFailedFiles" xml:space="preserve">
     <value>前回終了時の再生リストを復元しようとして読み込めなかったファイル</value>
   </data>
-  <data name="Resume" xml:space="preserve">
+  <data name="MainButtonResume" xml:space="preserve">
     <value>再生再開(_U)</value>
   </data>
   <data name="SaveFileFailed" xml:space="preserve">
@@ -202,8 +199,8 @@
   <data name="Shared" xml:space="preserve">
     <value>共有</value>
   </data>
-  <data name="Stopping" xml:space="preserve">
-    <value>再生停止開始</value>
+  <data name="MainStatusStopping" xml:space="preserve">
+    <value>再生停止開始……</value>
   </data>
   <data name="TooManyChannels" xml:space="preserve">
     <value>31chを超えるチャンネル数を持つPCMファイルの再生には対応していません</value>
@@ -239,7 +236,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="ReadPlayGroupNCompleted" xml:space="preserve">
     <value>再生グループ{0}番読み込み完了。所要時間: {1}ms</value>
   </data>
-  <data name="SupportedFileFilter" xml:space="preserve">
+  <data name="FilterSupportedFiles" xml:space="preserve">
     <value>対応しているファイル|*.wav;*.wave;*.flac;*.aif;*.aiff;*.cue;*.ppwpl|WAVEファイル|*.wav;*.wave|FLACファイル|*.flac|AIFFファイル|*.aif;*.aiff|CUEファイル|*.cue|PPWPLファイル|*.ppwpl|全てのファイル|*.*</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
@@ -251,22 +248,22 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="Version" xml:space="preserve">
     <value>バージョン</value>
   </data>
-  <data name="PlayModeAllTracks" xml:space="preserve">
+  <data name="MainPlayModeAllTracks" xml:space="preserve">
     <value>全曲</value>
   </data>
-  <data name="PlayModeAllTracksRepeat" xml:space="preserve">
+  <data name="MainPlayModeAllTracksRepeat" xml:space="preserve">
     <value>全曲繰り返し</value>
   </data>
-  <data name="PlayModeOneTrack" xml:space="preserve">
+  <data name="MainPlayModeOneTrack" xml:space="preserve">
     <value>1曲</value>
   </data>
-  <data name="PlayModeOneTrackRepeat" xml:space="preserve">
+  <data name="MainPlayModeOneTrackRepeat" xml:space="preserve">
     <value>1曲繰り返し</value>
   </data>
-  <data name="PlayModeShuffle" xml:space="preserve">
+  <data name="MainPlayModeShuffle" xml:space="preserve">
     <value>シャッフル</value>
   </data>
-  <data name="PlayModeShuffleRepeat" xml:space="preserve">
+  <data name="MainPlayModeShuffleRepeat" xml:space="preserve">
     <value>シャッフル繰り返し</value>
   </data>
   <data name="UsingDeviceStateChanged" xml:space="preserve">
@@ -280,10 +277,10 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   クリップしたサンプル値の数={1}個、ファイル名={0}
 </value>
   </data>
-  <data name="CMenuPlaylistClear" xml:space="preserve">
+  <data name="MainCMenuPlaylistClear" xml:space="preserve">
     <value>再生リストをクリアー(_C)</value>
   </data>
-  <data name="CMenuPlayListEditMode" xml:space="preserve">
+  <data name="MainCMenuPlayListEditMode" xml:space="preserve">
     <value>再生リスト項目編集モード(_E)</value>
   </data>
   <data name="MenuFile" xml:space="preserve">
@@ -327,5 +324,101 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="MenuTool" xml:space="preserve">
     <value>ツール(_T)</value>
+  </data>
+  <data name="MainButtonClearPlayList" xml:space="preserve">
+    <value>再生リストをクリア(_C)</value>
+  </data>
+  <data name="MainButtonDelistSelected" xml:space="preserve">
+    <value>選択曲除外(_R)</value>
+  </data>
+  <data name="MainButtonInspectDevice" xml:space="preserve">
+    <value>対応フォーマット(_I)</value>
+  </data>
+  <data name="MainButtonNext" xml:space="preserve">
+    <value>＞＞</value>
+  </data>
+  <data name="MainButtonPause" xml:space="preserve">
+    <value>一時停止(_U)</value>
+  </data>
+  <data name="MainButtonPlay" xml:space="preserve">
+    <value>再生(_P)</value>
+  </data>
+  <data name="MainButtonPrev" xml:space="preserve">
+    <value>＜＜</value>
+  </data>
+  <data name="MainButtonSettings" xml:space="preserve">
+    <value>詳細設定…(_D)</value>
+  </data>
+  <data name="MainButtonStop" xml:space="preserve">
+    <value>停止(_S)</value>
+  </data>
+  <data name="MainDataGridColumnAlbumTitle" xml:space="preserve">
+    <value>アルバム名</value>
+  </data>
+  <data name="MainDataGridColumnArtist" xml:space="preserve">
+    <value>アーティスト</value>
+  </data>
+  <data name="MainDataGridColumnBitRate" xml:space="preserve">
+    <value>ビットレート</value>
+  </data>
+  <data name="MainDataGridColumnDuration" xml:space="preserve">
+    <value>長さ</value>
+  </data>
+  <data name="MainDataGridColumnIndexNr" xml:space="preserve">
+    <value>Index</value>
+  </data>
+  <data name="MainDataGridColumnNumChannels" xml:space="preserve">
+    <value>チャンネル数</value>
+  </data>
+  <data name="MainDataGridColumnQuantizationBitRate" xml:space="preserve">
+    <value>量子化ビット数</value>
+  </data>
+  <data name="MainDataGridColumnReadSeparaterAfter" xml:space="preserve">
+    <value>ここまで一括読み込み</value>
+  </data>
+  <data name="MainDataGridColumnSampleRate" xml:space="preserve">
+    <value>サンプルレート</value>
+  </data>
+  <data name="MainDataGridColumnTitle" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="MainExpanderSettings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="MainGroupBoxLog" xml:space="preserve">
+    <value>ログ</value>
+  </data>
+  <data name="MainGroupBoxOutputDevices" xml:space="preserve">
+    <value>出力デバイス</value>
+  </data>
+  <data name="MainGroupBoxPlaybackControl" xml:space="preserve">
+    <value>再生制御</value>
+  </data>
+  <data name="MainGroupBoxPlaylist" xml:space="preserve">
+    <value>再生リスト(エクスプローラーからドロップして下さい)</value>
+  </data>
+  <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
+    <value>データ供給モード</value>
+  </data>
+  <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
+    <value>動作モード</value>
+  </data>
+  <data name="MainGroupBoxWasapiOutputLatency" xml:space="preserve">
+    <value>出力レイテンシー</value>
+  </data>
+  <data name="MainGroupBoxWasapiSettings" xml:space="preserve">
+    <value>WASAPI設定</value>
+  </data>
+  <data name="MainRadioButtonEventDriven" xml:space="preserve">
+    <value>イベント駆動</value>
+  </data>
+  <data name="MainRadioButtonExclusive" xml:space="preserve">
+    <value>排他モード</value>
+  </data>
+  <data name="MainRadioButtonShared" xml:space="preserve">
+    <value>共有モード</value>
+  </data>
+  <data name="MainRadioButtonTimerDriven" xml:space="preserve">
+    <value>タイマー駆動</value>
   </data>
 </root>

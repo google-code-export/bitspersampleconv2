@@ -20,6 +20,8 @@ namespace PlayPcmWin {
     public sealed partial class SettingsWindow : Window {
         public SettingsWindow() {
             InitializeComponent();
+
+            
         }
 
         Preference m_preference = null;
