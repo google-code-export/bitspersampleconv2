@@ -472,4 +472,70 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin 詳細設定</value>
   </data>
+  <data name="SettingsButtonCancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="SettingsButtonChangeColor" xml:space="preserve">
+    <value>色を変更...</value>
+  </data>
+  <data name="SettingsButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsButtonReset" xml:space="preserve">
+    <value>すべてリセット(_R)</value>
+  </data>
+  <data name="SettingsCheckBoxAlternateBackground" xml:space="preserve">
+    <value>リストの背景色を縞々にする</value>
+  </data>
+  <data name="SettingsCheckBoxCoverart" xml:space="preserve">
+    <value>カバーアート画像表示</value>
+  </data>
+  <data name="SettingsCheckBoxManuallySetMainWindowDimension" xml:space="preserve">
+    <value>ウィンドウの位置とサイズを記憶</value>
+  </data>
+  <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
+    <value>ファイル読込並列化</value>
+  </data>
+  <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
+    <value>INDEX00の後に[ここまで一括読み込み]を付ける</value>
+  </data>
+  <data name="SettingsCheckBoxPlayingTimeBold" xml:space="preserve">
+    <value>太字</value>
+  </data>
+  <data name="SettingsCheckBoxRefrainRedraw" xml:space="preserve">
+    <value>再生中の再描画を最小限にする</value>
+  </data>
+  <data name="SettingsCheckBoxStorePlaylistContent" xml:space="preserve">
+    <value>再生リストの内容を記憶</value>
+  </data>
+  <data name="SettingsCheckBoxTimePeriod1" xml:space="preserve">
+    <value>timeBeginPeriod(1)を呼ぶ</value>
+  </data>
+  <data name="SettingsLabelConversionQuality" xml:space="preserve">
+    <value>変換品質(1～60):</value>
+  </data>
+  <data name="SettingsLabelFontPoints" xml:space="preserve">
+    <value>pt</value>
+  </data>
+  <data name="SettingsLabelPlayingTimeFont" xml:space="preserve">
+    <value>再生時間表示フォント:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
+    <value>再生開始時無音送出秒数</value>
+  </data>
+  <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
+    <value>秒</value>
+  </data>
+  <data name="SettingsRadioButtonTaskAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="SettingsRadioButtonTaskNone" xml:space="preserve">
+    <value>設定なし</value>
+  </data>
+  <data name="SettingsRadioButtonTaskPlayback" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="SettingsRadioButtonTaskProAudio" xml:space="preserve">
+    <value>Pro Audio</value>
+  </data>
 </root>

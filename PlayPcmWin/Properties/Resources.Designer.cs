@@ -868,6 +868,123 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Cancel に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsButtonCancel {
+            get {
+                return ResourceManager.GetString("SettingsButtonCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Change color... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsButtonChangeColor {
+            get {
+                return ResourceManager.GetString("SettingsButtonChangeColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   OK に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsButtonOK {
+            get {
+                return ResourceManager.GetString("SettingsButtonOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Restore defaults に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsButtonReset {
+            get {
+                return ResourceManager.GetString("SettingsButtonReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Alternating row background に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxAlternateBackground {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxAlternateBackground", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Display cover art images に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxCoverart {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxCoverart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Remember Window position and size に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxManuallySetMainWindowDimension {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxManuallySetMainWindowDimension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Parallelize file read に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxParallelRead {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxParallelRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Set [Batch read endpoint] flag after INDEX00 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxPlaceKokomadeAterIndex00 {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxPlaceKokomadeAterIndex00", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Bold に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxPlayingTimeBold {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxPlayingTimeBold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Minimize GUI redraw when playing に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxRefrainRedraw {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxRefrainRedraw", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Restore the playlist on program startup に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxStorePlaylistContent {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxStorePlaylistContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Invoke timeBeginPeriod(1) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxTimePeriod1 {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxTimePeriod1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   CUE sheet settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsGroupBoxCuesheetSettings {
@@ -927,6 +1044,51 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsGroupBoxWasapiSharedResampler {
             get {
                 return ResourceManager.GetString("SettingsGroupBoxWasapiSharedResampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Quality (1 to 60): に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelConversionQuality {
+            get {
+                return ResourceManager.GetString("SettingsLabelConversionQuality", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   pt に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelFontPoints {
+            get {
+                return ResourceManager.GetString("SettingsLabelFontPoints", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playing time font: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelPlayingTimeFont {
+            get {
+                return ResourceManager.GetString("SettingsLabelPlayingTimeFont", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Zero flush period on playback starts: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelZeroFlushSeconds {
+            get {
+                return ResourceManager.GetString("SettingsLabelZeroFlushSeconds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   second(s) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelZeroFlushUnit {
+            get {
+                return ResourceManager.GetString("SettingsLabelZeroFlushUnit", resourceCulture);
             }
         }
         
@@ -1008,6 +1170,42 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsRadioButtonBpsVariableSint16Sint32V24 {
             get {
                 return ResourceManager.GetString("SettingsRadioButtonBpsVariableSint16Sint32V24", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Audio に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonTaskAudio {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonTaskAudio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playback に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonTaskNone {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonTaskNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   None に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonTaskPlayback {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonTaskPlayback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Pro Audio に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsRadioButtonTaskProAudio {
+            get {
+                return ResourceManager.GetString("SettingsRadioButtonTaskProAudio", resourceCulture);
             }
         }
         

@@ -40,6 +40,33 @@ namespace PlayPcmWin {
 
             radioButtonBpsSint32V24.Content = Properties.Resources.SettingsRadioButtonBpsSint32V24;
             radioButtonBpsVariable.Content = Properties.Resources.SettingsRadioButtonBpsVariable;
+            radioButtonTaskAudio.Content = Properties.Resources.SettingsRadioButtonTaskAudio;
+            radioButtonTaskNone.Content = Properties.Resources.SettingsRadioButtonTaskNone;
+            radioButtonTaskPlayback.Content = Properties.Resources.SettingsRadioButtonTaskPlayback;
+
+            radioButtonTaskProAudio.Content = Properties.Resources.SettingsRadioButtonTaskProAudio;
+
+            checkBoxAlternateBackground.Content = Properties.Resources.SettingsCheckBoxAlternateBackground;
+            checkBoxCoverart.Content = Properties.Resources.SettingsCheckBoxCoverart;
+            checkBoxManuallySetMainWindowDimension.Content = Properties.Resources.SettingsCheckBoxManuallySetMainWindowDimension;
+            checkBoxParallelRead.Content = Properties.Resources.SettingsCheckBoxParallelRead;
+            checkBoxPlaceKokomadeAfterIndex00.Content = Properties.Resources.SettingsCheckBoxPlaceKokomadeAterIndex00;
+
+            checkBoxPlayingTimeBold.Content = Properties.Resources.SettingsCheckBoxPlayingTimeBold;
+            checkBoxRefrainRedraw.Content = Properties.Resources.SettingsCheckBoxRefrainRedraw;
+            checkBoxStorePlaylistContent.Content = Properties.Resources.SettingsCheckBoxStorePlaylistContent;
+            checkBoxTimePeriod1.Content = Properties.Resources.SettingsCheckBoxTimePeriod1;
+
+            labelConversionQuality.Content = Properties.Resources.SettingsLabelConversionQuality;
+            labelFontPoints.Content = Properties.Resources.SettingsLabelFontPoints;
+            labelPlayingTimeFont.Content = Properties.Resources.SettingsLabelPlayingTimeFont;
+            labelZeroFlushSeconds.Content = Properties.Resources.SettingsLabelZeroFlushSeconds;
+            labelZeroFlushUnit.Content = Properties.Resources.SettingsLabelZeroFlushUnit;
+
+            buttonCancel.Content = Properties.Resources.SettingsButtonCancel;
+            buttonChangeColor.Content = Properties.Resources.SettingsButtonChangeColor;
+            buttonOK.Content = Properties.Resources.SettingsButtonOK;
+            buttonReset.Content = Properties.Resources.SettingsButtonReset;
 
         }
 

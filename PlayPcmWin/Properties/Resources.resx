@@ -472,4 +472,70 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin detailed settings</value>
   </data>
+  <data name="SettingsButtonCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SettingsButtonChangeColor" xml:space="preserve">
+    <value>Change color...</value>
+  </data>
+  <data name="SettingsButtonOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="SettingsButtonReset" xml:space="preserve">
+    <value>_Restore defaults</value>
+  </data>
+  <data name="SettingsCheckBoxAlternateBackground" xml:space="preserve">
+    <value>Alternating row background</value>
+  </data>
+  <data name="SettingsCheckBoxCoverart" xml:space="preserve">
+    <value>Display cover art images</value>
+  </data>
+  <data name="SettingsCheckBoxManuallySetMainWindowDimension" xml:space="preserve">
+    <value>Remember Window position and size</value>
+  </data>
+  <data name="SettingsCheckBoxParallelRead" xml:space="preserve">
+    <value>Parallelize file read</value>
+  </data>
+  <data name="SettingsCheckBoxPlaceKokomadeAterIndex00" xml:space="preserve">
+    <value>Set [Batch read endpoint] flag after INDEX00</value>
+  </data>
+  <data name="SettingsCheckBoxPlayingTimeBold" xml:space="preserve">
+    <value>Bold</value>
+  </data>
+  <data name="SettingsCheckBoxRefrainRedraw" xml:space="preserve">
+    <value>Minimize GUI redraw when playing</value>
+  </data>
+  <data name="SettingsCheckBoxStorePlaylistContent" xml:space="preserve">
+    <value>Restore the playlist on program startup</value>
+  </data>
+  <data name="SettingsCheckBoxTimePeriod1" xml:space="preserve">
+    <value>Invoke timeBeginPeriod(1)</value>
+  </data>
+  <data name="SettingsLabelConversionQuality" xml:space="preserve">
+    <value>Quality (1 to 60):</value>
+  </data>
+  <data name="SettingsLabelFontPoints" xml:space="preserve">
+    <value>pt</value>
+  </data>
+  <data name="SettingsLabelPlayingTimeFont" xml:space="preserve">
+    <value>Playing time font:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
+    <value>Zero flush period on playback starts:</value>
+  </data>
+  <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
+    <value>second(s)</value>
+  </data>
+  <data name="SettingsRadioButtonTaskAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="SettingsRadioButtonTaskNone" xml:space="preserve">
+    <value>Playback</value>
+  </data>
+  <data name="SettingsRadioButtonTaskPlayback" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="SettingsRadioButtonTaskProAudio" xml:space="preserve">
+    <value>Pro Audio</value>
+  </data>
 </root>
