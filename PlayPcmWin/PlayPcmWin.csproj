@@ -161,6 +161,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.ja-JP.resx" />
+    <EmbeddedResource Include="Properties\Resources.zh-Hant.resx" />
     <None Include="PlayPcmWin.exe.manifest">
       <SubType>Designer</SubType>
     </None>

@@ -1093,7 +1093,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Auto select(Try Sint32V24 and Sint24 when 24bps data arrives) に類似しているローカライズされた文字列を検索します。
+        ///   Auto select(Try Int32V24 and Int24 when 24bps data arrives) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsAutoSelect {
             get {
@@ -1102,7 +1102,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Always use SFloat32(IEEE754 single precision floating point format: Supported hardware is very rare) に類似しているローカライズされた文字列を検索します。
+        ///   Always use Float32(IEEE754 single precision floating point format: Supported hardware is very rare) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsSfloat32 {
             get {
@@ -1111,7 +1111,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives) に類似しているローカライズされた文字列を検索します。
+        ///   Always use Int16 format(Truncates lower bits when 24bps or 32bps data arrives) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsSint16 {
             get {
@@ -1120,7 +1120,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives) に類似しているローカライズされた文字列を検索します。
+        ///   Always use Int24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsSint24 {
             get {
@@ -1129,7 +1129,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Always use SInt32(Fill 0s to lower bits, Valid bits=32bps) に類似しているローカライズされた文字列を検索します。
+        ///   Always use Int32(Fill 0s to lower bits, Valid bits=32bps) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsSint32 {
             get {
@@ -1138,7 +1138,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Always use SInt32V24(SInt32, Valid bits=24bps) に類似しているローカライズされた文字列を検索します。
+        ///   Always use Int32V24(Int32, Valid bits=24bps) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsSint32V24 {
             get {
@@ -1147,7 +1147,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Auto select Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices) に類似しているローカライズされた文字列を検索します。
+        ///   Auto select Int16,Int32V24,Int32(Suitable for PCI、PCIe、1394 audio devices) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsVariable {
             get {
@@ -1156,7 +1156,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Auto select Sint16,SInt24(Suitable for USB audio devices) に類似しているローカライズされた文字列を検索します。
+        ///   Auto select Int16,Int24(Suitable for USB audio devices) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsVariableSint16Sint24 {
             get {
@@ -1165,7 +1165,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Auto select Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps) に類似しているローカライズされた文字列を検索します。
+        ///   Auto select Int16,Int32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsRadioButtonBpsVariableSint16Sint32V24 {
             get {
