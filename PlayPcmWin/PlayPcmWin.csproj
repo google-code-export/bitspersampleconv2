@@ -5,7 +5,6 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <UICulture>en-US</UICulture>
     <ProjectGuid>{23DC272C-B67B-41C5-9622-A35BFA3B9D1E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
