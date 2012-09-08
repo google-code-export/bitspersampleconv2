@@ -76,7 +76,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>PlayPcmWin64.ico</ApplicationIcon>
+    <ApplicationIcon>ppwlogo.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
@@ -223,13 +223,13 @@
     <Resource Include="libFlacLicense.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="PlayPcmWin64.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="PlayPcmWinLicense.txt" />
   </ItemGroup>
   <ItemGroup>
     <SplashScreen Include="ppwsplash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ppwlogo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
