@@ -193,8 +193,8 @@
 *Creative USB Sound Blaster HD prefers event driven mode. Timer driven mode tends to more problematic on some devices.
 *Lynx AES16e WaveRT driver requires very low latency settings such as 29ms.
 *There are strange audio devices which stops TOSLINK output when no signal. Such devices apparently seem not to deliver first several thousand samples of PCM data. If first part of music is truncated, please increase [Zero flush period on playback starts] value.
-*PlayPcmWin cannot setup E-MU 0404 USB 24bit mode. [Detailed settings][Fix Sint16] to play 24bit files on those devices but it truncates lower 8bit information.
-*Halide Bridge seems to require 24bit data always. [Detailed settings][Fix Sint24] to play sound on those devices.</value>
+*PlayPcmWin cannot setup E-MU 0404 USB 24bit mode. [Detailed settings][Fix Int16] to play 24bit files on those devices but it truncates lower 8bit information.
+*Halide Bridge seems to require 24bit data always. [Detailed settings][Fix Int24] to play sound on those devices.</value>
   </data>
   <data name="Shared" xml:space="preserve">
     <value>Shared</value>

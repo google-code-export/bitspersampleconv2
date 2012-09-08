@@ -21,15 +21,15 @@
             </Grid.LayoutTransform>
                 <GroupBox x:Uid="groupBoxQuantizationBitrate" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="232" Margin="12,12,12,0" Name="groupBoxQuantizationBitrate" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_3">
-                        <RadioButton x:Uid="radioButtonBpsVariable" Content="Autoselect Sint16,SInt32V24,SInt32(Suitable for PCI、PCIe、1394 audio devices)"  Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
-                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint32V24" Content="Autoselect Sint16,SInt32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)"  IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint24" Content="Autoselect Sint16,SInt24(Suitable for USB audio devices)"  IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsSint16" Content="Always use SInt16 format(Truncates lower bits when 24bps or 32bps data arrives)"  Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsSint24" Content="Always use SInt24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)"  Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsSint32V24" Content="Always use SInt32V24(SInt32, Valid bits=24bps)"  Margin="6,116,6,0" Name="radioButtonBpsSint32V24" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsSint32" Content="Always use SInt32(Fill 0s to lower bits, Valid bits=32bps)"  Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsSfloat32" Content="Always use SFloat32(IEEE754 single precision floating point format: Supported hardwares are very rare)"  Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
-                        <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Sint32V24 and Sint24 when 24bps data arrives)"  Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsVariable" Content="Autoselect Int16,Int32V24,Int32(Suitable for PCI、PCIe、1394 audio devices)"  Margin="6,6,6,0" Name="radioButtonBpsVariable" VerticalAlignment="Top" IsChecked="False" />
+                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint32V24" Content="Autoselect Int16,Int32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)"  IsChecked="False" Margin="6,28,6,0" Name="radioButtonBpsVariableSint16Sint32V24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsVariableSint16Sint24" Content="Autoselect Int16,Int24(Suitable for USB audio devices)"  IsChecked="False" Margin="6,50,6,0" Name="radioButtonBpsVariableSint16Sint24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint16" Content="Always use Int16 format(Truncates lower bits when 24bps or 32bps data arrives)"  Margin="6,72,6,0" Name="radioButtonBpsSint16" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint24" Content="Always use Int24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)"  Margin="6,94,6,0" Name="radioButtonBpsSint24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint32V24" Content="Always use Int32V24(Int32, Valid bits=24bps)"  Margin="6,116,6,0" Name="radioButtonBpsSint32V24" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSint32" Content="Always use Int32(Fill 0s to lower bits, Valid bits=32bps)"  Margin="6,138,6,0" Name="radioButtonBpsSint32" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsSfloat32" Content="Always use Float32(IEEE754 single precision floating point format: Supported hardwares are very rare)"  Margin="6,160,6,0" Name="radioButtonBpsSfloat32" VerticalAlignment="Top" />
+                        <RadioButton x:Uid="radioButtonBpsAutoSelect" Content="Autoselect(Try Int32V24 and Int24 when 24bps data arrives)"  Margin="6,182,6,0" Name="radioButtonBpsAutoSelect" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
                 <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Height="59" Margin="12,249,0,0" Name="groupBoxCuesheetSettings" VerticalAlignment="Top" HorizontalAlignment="Left" Width="536">

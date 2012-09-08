@@ -40,10 +40,12 @@ namespace PlayPcmWin {
 
             radioButtonBpsSint32V24.Content = Properties.Resources.SettingsRadioButtonBpsSint32V24;
             radioButtonBpsVariable.Content = Properties.Resources.SettingsRadioButtonBpsVariable;
+            radioButtonBpsVariableSint16Sint24.Content = Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint24;
+            radioButtonBpsVariableSint16Sint32V24.Content = Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint32V24;
             radioButtonTaskAudio.Content = Properties.Resources.SettingsRadioButtonTaskAudio;
+
             radioButtonTaskNone.Content = Properties.Resources.SettingsRadioButtonTaskNone;
             radioButtonTaskPlayback.Content = Properties.Resources.SettingsRadioButtonTaskPlayback;
-
             radioButtonTaskProAudio.Content = Properties.Resources.SettingsRadioButtonTaskProAudio;
 
             checkBoxAlternateBackground.Content = Properties.Resources.SettingsCheckBoxAlternateBackground;
