@@ -443,7 +443,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>WASAPI共有リサンプル</value>
   </data>
   <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
-    <value>自動選択(ファイルの量子化ビット数が24ビットの場合Sint32V24とSint24を試します)</value>
+    <value>自動選択(ファイルの量子化ビット数が24ビットの場合Int32V24とInt24を試します)</value>
   </data>
   <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
     <value>Float32に固定する(IEEE754単精度浮動小数点数形式:対応ハードウェアは非常に珍しい)</value>
@@ -458,7 +458,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>Int32に固定する(下位ビットが余る場合は0埋め、有効ビット数32bps)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
-    <value>Int32V24に固定する(SInt32ビット、有効ビット数24bps)</value>
+    <value>Int32V24に固定する(Int32ビット、有効ビット数24bps)</value>
   </data>
   <data name="SettingsRadioButtonBpsVariable" xml:space="preserve">
     <value>Int16,Int32V24,Int32を自動選択(PCI、PCIe、1394オーディオデバイスに適する)</value>
