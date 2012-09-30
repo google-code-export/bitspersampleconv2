@@ -48,10 +48,26 @@ namespace PlayPcmWin {
             startTick = rhs.startTick;
             endTick   = rhs.endTick;
 
-            indexId   = rhs.indexId;
-            performer = rhs.performer;
+            indexId    = rhs.indexId;
+            performer  = rhs.performer;
             albumTitle = rhs.albumTitle;
             readSeparatorAfter = rhs.readSeparatorAfter;
+        }
+
+        public PlaylistTrackInfo ConvertToPlaylistTrackInfo() {
+            PlaylistTrackInfo pti = new PlaylistTrackInfo();
+            pti.path      = path;
+            pti.title     = title;
+            pti.trackId   = trackId;
+            pti.startTick = startTick;
+            pti.endTick   = endTick;
+
+            pti.indexId    = indexId;
+            pti.performer  = performer;
+            pti.albumTitle = albumTitle;
+            pti.readSeparatorAfter = readSeparatorAfter;
+
+            return pti;
         }
 
         private static bool TimeStrToInt(string timeStr, out int timeInt) {
@@ -196,37 +212,31 @@ namespace PlayPcmWin {
     /// <summary>
     /// CUEシートを読むクラス
     /// </summary>
-    class CueSheetReader {
-        private List<CueSheetTrackInfo> m_trackInfoList;
-        private CueSheetTrackInfo m_currentTrackInfo;
-        private string m_dirPath;
+    class CueSheetReader : PlaylistReader {
+        private List<CueSheetTrackInfo> mTrackInfoList;
+        private CueSheetTrackInfo mCurrentTrackInfo;
+        private string mDirPath;
 
-        private string m_albumTitle;
-        private string m_albumPerformer;
+        private string mAlbumTitle;
+        private string mAlbumPerformer;
 
-        private bool m_bAlbumInfoParsing;
+        private bool mIsAlbumInfoParsing;
 
         public int GetTrackInfoCount() {
-            return m_trackInfoList.Count;
+            return mTrackInfoList.Count;
         }
 
-        public CueSheetTrackInfo GetTrackInfo(int nth) {
-            return m_trackInfoList[nth];
-        }
+        public PlaylistTrackInfo GetTrackInfo(int nth) {
+            var pti = mTrackInfoList[nth].ConvertToPlaylistTrackInfo();
 
-        /// <summary>
-        /// タイトルがファイルに書いてない場合、string.Emptyがもどる。
-        /// </summary>
-        public string GetAlbumTitle() {
-            return m_albumTitle;
-        }
+            if (pti.albumTitle == string.Empty) {
+                pti.albumTitle = mAlbumTitle;
+            }
+            if (pti.performer == string.Empty) {
+                pti.performer = mAlbumPerformer;
+            }
 
-        /// <summary>
-        /// 演奏者がファイルに書いてない場合、string.Emptyが戻る。
-        /// </summary>
-        /// <returns></returns>
-        public string GetAlbumPerformer() {
-            return m_albumPerformer;
+            return pti;
         }
 
         /// <summary>
@@ -240,15 +250,15 @@ namespace PlayPcmWin {
             //          cur.endTickが埋まっていない場合
             //          cur.endTick←next.startTickする。
 
-            m_trackInfoList = new List<CueSheetTrackInfo>();
-            m_dirPath = System.IO.Path.GetDirectoryName(path) + "\\";
+            mTrackInfoList = new List<CueSheetTrackInfo>();
+            mDirPath = System.IO.Path.GetDirectoryName(path) + "\\";
 
-            m_currentTrackInfo = new CueSheetTrackInfo();
-            m_currentTrackInfo.Clear();
+            mCurrentTrackInfo = new CueSheetTrackInfo();
+            mCurrentTrackInfo.Clear();
 
-            m_albumTitle     = string.Empty;
+            mAlbumTitle     = string.Empty;
 
-            m_bAlbumInfoParsing = true;
+            mIsAlbumInfoParsing = true;
 
             // Pass 1の処理
             bool result = false;
@@ -278,9 +288,9 @@ namespace PlayPcmWin {
             */
 
             // Pass 2の処理
-            for (int i = 0; i < m_trackInfoList.Count-1; ++i) {
-                CueSheetTrackInfo cur = m_trackInfoList[i];
-                CueSheetTrackInfo next = m_trackInfoList[i+1];
+            for (int i = 0; i < mTrackInfoList.Count-1; ++i) {
+                CueSheetTrackInfo cur = mTrackInfoList[i];
+                CueSheetTrackInfo next = mTrackInfoList[i+1];
 
                 if (0 == string.CompareOrdinal(cur.path, next.path) &&
                     cur.endTick < 0) {
@@ -372,30 +382,30 @@ namespace PlayPcmWin {
 
             switch (tokenList[0].ToUpperInvariant()) {
             case "PERFORMER":
-                m_currentTrackInfo.performer = string.Empty;
+                mCurrentTrackInfo.performer = string.Empty;
                 if (2 <= tokenList.Count && 0 < tokenList[1].Trim().Length) {
-                    if (m_bAlbumInfoParsing) {
-                        m_albumPerformer = tokenList[1];
+                    if (mIsAlbumInfoParsing) {
+                        mAlbumPerformer = tokenList[1];
                     } else {
-                        m_currentTrackInfo.performer = tokenList[1];
+                        mCurrentTrackInfo.performer = tokenList[1];
                     }
                 }
 
                 break;
             case "TITLE":
-                m_currentTrackInfo.title = string.Empty;
+                mCurrentTrackInfo.title = string.Empty;
                 if (2 <= tokenList.Count && 0 < tokenList[1].Trim().Length) {
-                    if (m_bAlbumInfoParsing) {
-                        m_albumTitle = tokenList[1];
+                    if (mIsAlbumInfoParsing) {
+                        mAlbumTitle = tokenList[1];
                     } else {
-                        m_currentTrackInfo.title = tokenList[1];
+                        mCurrentTrackInfo.title = tokenList[1];
                     }
                 }
                 break;
             case "REM":
                 if (2 <= tokenList.Count
                         && 0 == string.Compare(tokenList[1], "KOKOMADE", StringComparison.OrdinalIgnoreCase)) {
-                    m_currentTrackInfo.readSeparatorAfter = true;
+                    mCurrentTrackInfo.readSeparatorAfter = true;
                 }
                 break;
             case "FILE":
@@ -407,15 +417,15 @@ namespace PlayPcmWin {
                     ((tokenList[1][0] == '\\' && tokenList[1][1] == '\\') ||
                     ((tokenList[1][1] == ':')))) {
                     // フルパス。
-                    m_currentTrackInfo.path = tokenList[1];
+                    mCurrentTrackInfo.path = tokenList[1];
                 } else {
                     // 相対パス。
-                    m_currentTrackInfo.path = m_dirPath + tokenList[1];
+                    mCurrentTrackInfo.path = mDirPath + tokenList[1];
                 }
 
                 // file tag has come; End album info.
-                m_bAlbumInfoParsing = false;
-                m_currentTrackInfo.Debug();
+                mIsAlbumInfoParsing = false;
+                mCurrentTrackInfo.Debug();
 
                 break;
             case "TRACK":
@@ -423,40 +433,40 @@ namespace PlayPcmWin {
                     Console.WriteLine("Error on line {0}: track number is not specified", lineno);
                     return true;
                 }
-                if (!int.TryParse(tokenList[1], out m_currentTrackInfo.trackId)) {
+                if (!int.TryParse(tokenList[1], out mCurrentTrackInfo.trackId)) {
                     Console.WriteLine("Error on line {0}: track number TryParse failed", lineno);
                     return true;
                 }
-                m_currentTrackInfo.Debug();
+                mCurrentTrackInfo.Debug();
                 break;
             case "INDEX":
                 if (tokenList.Count < 3) {
                     Console.WriteLine("Error on line {0}: index number tick format err", lineno);
                     return true;
                 }
-                if (!int.TryParse(tokenList[1], out m_currentTrackInfo.indexId)) {
-                    m_currentTrackInfo.indexId = 1;
+                if (!int.TryParse(tokenList[1], out mCurrentTrackInfo.indexId)) {
+                    mCurrentTrackInfo.indexId = 1;
                 }
 
-                m_currentTrackInfo.startTick = CueSheetTrackInfo.TickStrToInt(tokenList[2]);
-                if (m_currentTrackInfo.startTick < 0) {
+                mCurrentTrackInfo.startTick = CueSheetTrackInfo.TickStrToInt(tokenList[2]);
+                if (mCurrentTrackInfo.startTick < 0) {
                     Console.WriteLine("Error on line {0}: index {1} time format error ({2})",
-                        lineno, m_currentTrackInfo.indexId, tokenList[2]);
+                        lineno, mCurrentTrackInfo.indexId, tokenList[2]);
                     return true;
                 }
 
-                if (m_currentTrackInfo.indexId == 0 ||
-                    m_currentTrackInfo.indexId == 1) {
+                if (mCurrentTrackInfo.indexId == 0 ||
+                    mCurrentTrackInfo.indexId == 1) {
                     CueSheetTrackInfo newTrackInfo = new CueSheetTrackInfo();
-                    newTrackInfo.CopyFrom(m_currentTrackInfo);
-                    m_trackInfoList.Add(newTrackInfo);
-                    m_currentTrackInfo.Debug();
+                    newTrackInfo.CopyFrom(mCurrentTrackInfo);
+                    mTrackInfoList.Add(newTrackInfo);
+                    mCurrentTrackInfo.Debug();
 
                     // 揮発要素はここでリセットする。
-                    m_currentTrackInfo.startTick = -1;
-                    m_currentTrackInfo.readSeparatorAfter = false;
-                    m_currentTrackInfo.performer = string.Empty;
-                    m_currentTrackInfo.albumTitle = string.Empty;
+                    mCurrentTrackInfo.startTick = -1;
+                    mCurrentTrackInfo.readSeparatorAfter = false;
+                    mCurrentTrackInfo.performer = string.Empty;
+                    mCurrentTrackInfo.albumTitle = string.Empty;
                 }
                 break;
 

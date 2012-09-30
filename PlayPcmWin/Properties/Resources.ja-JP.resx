@@ -124,7 +124,7 @@
     <value>読み込み中……</value>
   </data>
   <data name="FilterCueFiles" xml:space="preserve">
-    <value>CUEファイル|*.cue</value>
+    <value>CUEファイル|*.CUE</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>エラー</value>
@@ -160,7 +160,7 @@
     <value>再生リストを作って下さい。</value>
   </data>
   <data name="FilterPpwplFiles" xml:space="preserve">
-    <value>PPWPLファイル|*.ppwpl</value>
+    <value>PPWPLファイル|*.PPWPL</value>
   </data>
   <data name="MainStatusPressPlayButton" xml:space="preserve">
     <value>再生リストを作り、再生ボタンを押して下さい。</value>
@@ -237,7 +237,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>再生グループ{0}番読み込み完了。所要時間: {1}ms</value>
   </data>
   <data name="FilterSupportedFiles" xml:space="preserve">
-    <value>対応しているファイル|*.wav;*.wave;*.flac;*.aif;*.aiff;*.cue;*.ppwpl|WAVEファイル|*.wav;*.wave|FLACファイル|*.flac|AIFFファイル|*.aif;*.aiff|CUEファイル|*.cue|PPWPLファイル|*.ppwpl|全てのファイル|*.*</value>
+    <value>対応しているファイル|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVEファイル|*.WAV;*.WAVE|FLACファイル|*.FLAC|AIFFファイル|*.AIF;*.AIFF;*.AIFC;*.AIFFC|CUEファイル|*.CUE|PPWPLファイル|*.PPWPL|M3Uファイル|*.M3U;*.M3U8|全てのファイル|*.*</value>
   </data>
   <data name="TimerDriven" xml:space="preserve">
     <value>タイマー駆動</value>
@@ -537,5 +537,8 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsRadioButtonTaskProAudio" xml:space="preserve">
     <value>Pro Audio</value>
+  </data>
+  <data name="FilterM3uFiles" xml:space="preserve">
+    <value>M3Uファイル|*.M3U;*.M3U8</value>
   </data>
 </root>

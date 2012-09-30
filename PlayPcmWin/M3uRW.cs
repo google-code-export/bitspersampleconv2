@@ -23,13 +23,37 @@ namespace PlayPcmWin {
         public M3uTrackInfo(string aPath) {
             path = aPath;
         }
+
+        public PlaylistTrackInfo ConvertToPlaylistTrackInfo() {
+            var plti = new PlaylistTrackInfo();
+            plti.path = path;
+            plti.title = string.Empty;
+            plti.trackId = 0;
+            plti.startTick = 0;
+            plti.endTick = -1;
+
+            plti.indexId = 0;
+            plti.performer = string.Empty;
+            plti.albumTitle = string.Empty;
+            plti.readSeparatorAfter = false;
+
+            return plti;
+        }
     };
 
-    class M3uReader {
+    class M3uReader : PlaylistReader {
         List<M3uTrackInfo> mTrackInfoList;
         string mDirPath;
 
         public M3uReader() {
+        }
+
+        public PlaylistTrackInfo GetTrackInfo(int nth) {
+            return mTrackInfoList[nth].ConvertToPlaylistTrackInfo();
+        }
+
+        public int GetTrackInfoCount() {
+            return mTrackInfoList.Count;
         }
 
         public bool ReadFromFile(string path) {

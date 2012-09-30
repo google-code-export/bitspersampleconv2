@@ -144,6 +144,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   M3U files|*.M3U;*.M3U8 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterM3uFiles {
+            get {
+                return ResourceManager.GetString("FilterM3uFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   PPWPL files|*.PPWPL に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterPpwplFiles {
@@ -153,7 +162,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|All files|*.* に類似しているローカライズされた文字列を検索します。
+        ///   Supported files|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE files|*.WAV;*.WAVE|FLAC files|*.FLAC|AIFF files|*.AIF;*.AIFF;*.AIFC;*AIFFC|CUE files|*.CUE|PPWPL files|*.PPWPL|M3U files|*.M3U;*.M3U8|All files|*.* に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterSupportedFiles {
             get {
