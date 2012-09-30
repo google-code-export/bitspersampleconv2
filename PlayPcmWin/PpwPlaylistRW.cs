@@ -79,8 +79,8 @@ namespace PlayPcmWin {
     /// <summary>
     ///  @todo PreferenceStoreクラスと同じなので、1個にまとめる。
     /// </summary>
-    class PlaylistRW {
-        private PlaylistRW() {
+    class PpwPlaylistRW {
+        private PpwPlaylistRW() {
         }
 
         private const string m_fileName = "PlayPcmWinPlayList.xml";

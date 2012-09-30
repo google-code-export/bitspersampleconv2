@@ -514,9 +514,9 @@ namespace PlayPcmWin
 
             PlaylistSave pl;
             if (path.Length == 0) {
-                pl = PlaylistRW.Load();
+                pl = PpwPlaylistRW.Load();
             } else {
-                pl = PlaylistRW.LoadFrom(path);
+                pl = PpwPlaylistRW.LoadFrom(path);
             }
             foreach (var p in pl.Items) {
                 int rv = ReadFileHeader(p.PathName, ReadHeaderMode.OnlyConcreteFile, null, null);
@@ -549,15 +549,15 @@ namespace PlayPcmWin
                 var p = m_pcmDataListForDisp[i];
                 var playListItem = m_playListItems[i];
 
-                s.Items.Add(new PlaylistItemSave().Set(
+                s.Add(new PlaylistItemSave().Set(
                     p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
                     p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter));
             }
 
             if (path.Length == 0) {
-                return PlaylistRW.Save(s);
+                return PpwPlaylistRW.Save(s);
             } else {
-                return PlaylistRW.SaveAs(s, path);
+                return PpwPlaylistRW.SaveAs(s, path);
             }
         }
 
