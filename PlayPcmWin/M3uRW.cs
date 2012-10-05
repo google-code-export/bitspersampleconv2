@@ -62,9 +62,14 @@ namespace PlayPcmWin {
             mTrackInfoList = new List<M3uTrackInfo>();
             mDirPath = System.IO.Path.GetDirectoryName(path) + "\\";
 
+            Encoding encoding = Encoding.Default;
+            if (0 == string.CompareOrdinal(Path.GetExtension(path).ToUpperInvariant(), ".M3U8")) {
+                encoding = Encoding.UTF8;
+            }
+
             bool result = true;
             try {
-                using (StreamReader sr = new StreamReader(path, Encoding.UTF8)) {
+                using (StreamReader sr = new StreamReader(path, encoding)) {
                     string line;
                     while ((line = sr.ReadLine()) != null) {
                         ParseOneLine(line);
@@ -73,14 +78,17 @@ namespace PlayPcmWin {
             } catch (IOException ex) {
                 Console.WriteLine(ex);
                 result = false;
+            } catch (ArgumentException ex) {
+                Console.WriteLine(ex);
+                result = false;
             }
             return result;
         }
 
-        const string SUPPORTED_EXTENSION_REGEX = @"(\.WAV|\.WAVE|\.FLAC|\.AIF|\.AIFF|\.AIFC|.AIFFC";
+        const string SUPPORTED_EXTENSION_REGEX = @"(\.WAV|\.WAVE|\.FLAC|\.AIF|\.AIFF|\.AIFC|\.AIFFC)";
 
         private void ParseOneLine(string line) {
-            if (line.StartsWith("#")) {
+            if (line.StartsWith("#", StringComparison.InvariantCulture)) {
                 // 飛ばす
                 return;
             }

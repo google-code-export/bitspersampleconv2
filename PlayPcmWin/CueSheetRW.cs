@@ -229,10 +229,10 @@ namespace PlayPcmWin {
         public PlaylistTrackInfo GetTrackInfo(int nth) {
             var pti = mTrackInfoList[nth].ConvertToPlaylistTrackInfo();
 
-            if (pti.albumTitle == string.Empty) {
+            if (0 == pti.albumTitle.Length) {
                 pti.albumTitle = mAlbumTitle;
             }
-            if (pti.performer == string.Empty) {
+            if (0 == pti.performer.Length) {
                 pti.performer = mAlbumPerformer;
             }
 

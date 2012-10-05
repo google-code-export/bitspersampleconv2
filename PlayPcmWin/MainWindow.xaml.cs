@@ -1880,11 +1880,11 @@ namespace PlayPcmWin
         private int ReadPlaylist(string path) {
             PlaylistReader plr = null;
             switch (Path.GetExtension(path).ToUpperInvariant()) {
-            case "CUE":
+            case ".CUE":
                 plr = new CueSheetReader();
                 break;
-            case "M3U":
-            case "M3U8":
+            case ".M3U":
+            case ".M3U8":
                 plr = new M3uReader();
                 break;
             default:
