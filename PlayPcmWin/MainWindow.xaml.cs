@@ -1675,6 +1675,10 @@ namespace PlayPcmWin
                 // pcmData.EndTick = -1;
                 // pcmData.CueSheetIndex = 1;
             } else {
+                pcmData.StartTick = plti.startTick;
+                pcmData.EndTick = plti.endTick;
+                pcmData.CueSheetIndex = plti.indexId;
+
                 if (0 < plti.title.Length) {
                     pcmData.DisplayName = plti.title;
                     /* if (csti.indexId == 0) {
@@ -1683,13 +1687,12 @@ namespace PlayPcmWin
                 } else {
                     pcmData.DisplayName = pcmData.FileName;
                 }
-                pcmData.StartTick = plti.startTick;
-                pcmData.EndTick = plti.endTick;
-
-                pcmData.ArtistName = plti.performer;
-                pcmData.CueSheetIndex = plti.indexId;
-                pcmData.AlbumTitle = plti.albumTitle;
-                pcmData.ArtistName = plti.performer;
+                if (0 < plti.performer.Length) {
+                    pcmData.ArtistName = plti.performer;
+                }
+                if (0 < plti.albumTitle.Length) {
+                    pcmData.AlbumTitle = plti.albumTitle;
+                }
             }
 
             // カバーアート画像を追加する
