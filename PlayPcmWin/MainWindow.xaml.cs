@@ -1679,13 +1679,12 @@ namespace PlayPcmWin
                 pcmData.EndTick = plti.endTick;
                 pcmData.CueSheetIndex = plti.indexId;
 
-                if (0 < plti.title.Length) {
-                    pcmData.DisplayName = plti.title;
-                    /* if (csti.indexId == 0) {
-                        pcmData.DisplayName = csti.title + " (gap)";
-                    } */
-                } else {
-                    pcmData.DisplayName = pcmData.FileName;
+                if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
+                    if (0 < plti.title.Length) {
+                        pcmData.DisplayName = plti.title;
+                    } else {
+                        pcmData.DisplayName = pcmData.FileName;
+                    }
                 }
                 if (0 < plti.performer.Length) {
                     pcmData.ArtistName = plti.performer;
