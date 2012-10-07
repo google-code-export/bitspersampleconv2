@@ -1664,12 +1664,13 @@ namespace PlayPcmWin
             pcmData.Id = m_pcmDataListForDisp.Count();
             pcmData.Ordinal = pcmData.Id;
             pcmData.GroupId = m_groupIdNextAdd;
+            // PCMファイルにタイトル名が埋め込まれていない時、ファイル名をタイトル名にする。
+            if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
+                pcmData.DisplayName = pcmData.FileName;
+            }
 
             // CUEシートの情報をセットする。
             if (null == plti) {
-                if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
-                    pcmData.DisplayName = pcmData.FileName;
-                }
                 // startTickとendTickは、既にセットされていることもあるので、ここではセットしない。
                 // pcmData.StartTick = 0;
                 // pcmData.EndTick = -1;
@@ -1679,13 +1680,11 @@ namespace PlayPcmWin
                 pcmData.EndTick = plti.endTick;
                 pcmData.CueSheetIndex = plti.indexId;
 
-                if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
-                    if (0 < plti.title.Length) {
-                        pcmData.DisplayName = plti.title;
-                    } else {
-                        pcmData.DisplayName = pcmData.FileName;
-                    }
+                // 再生リストにタイトル名情報がある時は、再生リストのタイトル名をタイトル名にする。
+                if (0 < plti.title.Length) {
+                    pcmData.DisplayName = plti.title;
                 }
+
                 if (0 < plti.performer.Length) {
                     pcmData.ArtistName = plti.performer;
                 }
