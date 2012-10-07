@@ -1,3 +1,7 @@
+For PlayPcmWin 4.0.3 or newer version, simply update Resources.resx to update En-US resources.
+
+Here is older way to update En-US resources (applicable for PlayPcmWin 4.0.1 or older version).
+
 1. update resource using vs xaml editor and resource editor
 2. run AddUid.bat
 3. open VS project
