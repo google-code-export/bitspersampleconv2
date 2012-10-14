@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
+using System.Text;
 
 namespace PlayPcmWin {
     public enum PlayListDispModeType {
@@ -60,6 +61,8 @@ namespace PlayPcmWin {
         public long AlternatingRowBackgroundArgb { get; set; }
 
         public int ResamplerConversionQuality { get; set; }
+
+        public int CueEncodingCodePage { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -128,6 +131,8 @@ namespace PlayPcmWin {
             AlternatingRowBackground = true;
             AlternatingRowBackgroundArgb = 0xfff8fcfc;
             ResamplerConversionQuality = 60;
+
+            CueEncodingCodePage = Encoding.Default.CodePage;
 
             SetDefaultPlayListColumnsOrder();
         }

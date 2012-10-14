@@ -60,6 +60,7 @@ namespace PlayPcmWin {
             checkBoxTimePeriod1.Content = Properties.Resources.SettingsCheckBoxTimePeriod1;
 
             labelConversionQuality.Content = Properties.Resources.SettingsLabelConversionQuality;
+            labelCueEncoding.Content = Properties.Resources.SettingsCueEncoding;
             labelFontPoints.Content = Properties.Resources.SettingsLabelFontPoints;
             labelPlayingTimeFont.Content = Properties.Resources.SettingsLabelPlayingTimeFont;
             labelZeroFlushSeconds.Content = Properties.Resources.SettingsLabelZeroFlushSeconds;
@@ -69,7 +70,6 @@ namespace PlayPcmWin {
             buttonChangeColor.Content = Properties.Resources.SettingsButtonChangeColor;
             buttonOK.Content = Properties.Resources.SettingsButtonOK;
             buttonReset.Content = Properties.Resources.SettingsButtonReset;
-
         }
 
         Preference m_preference = null;
@@ -196,6 +196,14 @@ namespace PlayPcmWin {
                 radioButtonTaskProAudio.IsChecked = true;
                 break;
             }
+
+            comboBoxCueEncoding.Items.Clear();
+            foreach (var encoding in Encoding.GetEncodings()) {
+                int pos = comboBoxCueEncoding.Items.Add(encoding.DisplayName);
+                if (preference.CueEncodingCodePage == encoding.CodePage) {
+                    comboBoxCueEncoding.SelectedIndex = pos;
+                }
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -317,6 +325,14 @@ namespace PlayPcmWin {
             }
             if (true == radioButtonTaskProAudio.IsChecked) {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.ProAudio;
+            }
+
+            if (0 <= comboBoxCueEncoding.SelectedIndex) {
+                var encodingInfoArray = Encoding.GetEncodings();
+                if (comboBoxCueEncoding.SelectedIndex < encodingInfoArray.Length) {
+                    var encodingInfo = encodingInfoArray[comboBoxCueEncoding.SelectedIndex];
+                    m_preference.CueEncodingCodePage = encodingInfo.CodePage;
+                }
             }
 
             Close();

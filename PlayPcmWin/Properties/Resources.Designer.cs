@@ -994,6 +994,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Encoding: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCueEncoding {
+            get {
+                return ResourceManager.GetString("SettingsCueEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   CUE sheet settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsGroupBoxCuesheetSettings {

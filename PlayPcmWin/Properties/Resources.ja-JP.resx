@@ -541,4 +541,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="FilterM3uFiles" xml:space="preserve">
     <value>M3Uファイル|*.M3U;*.M3U8</value>
   </data>
+  <data name="SettingsCueEncoding" xml:space="preserve">
+    <value>文字コード:</value>
+  </data>
 </root>

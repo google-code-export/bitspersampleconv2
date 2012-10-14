@@ -222,6 +222,12 @@ namespace PlayPcmWin {
 
         private bool mIsAlbumInfoParsing;
 
+        private Encoding encoding;
+
+        public CueSheetReader(Encoding encoding) {
+            this.encoding = encoding;
+        }
+
         public int GetTrackInfoCount() {
             return mTrackInfoList.Count;
         }
@@ -263,7 +269,7 @@ namespace PlayPcmWin {
             // Pass 1の処理
             bool result = false;
             
-            using (StreamReader sr = new StreamReader(path, Encoding.Default)) {
+            using (StreamReader sr = new StreamReader(path, encoding)) {
                 string line;
                 int lineno = 0;
                 while ((line = sr.ReadLine()) != null) {

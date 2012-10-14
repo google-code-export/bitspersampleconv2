@@ -219,4 +219,7 @@
   <data name="MenuTool" xml:space="preserve">
     <value>工具(_T)</value>
   </data>
+  <data name="SettingsCueEncoding" xml:space="preserve">
+    <value>字元編碼:</value>
+  </data>
 </root>

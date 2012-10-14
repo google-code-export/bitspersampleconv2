@@ -1681,14 +1681,14 @@ namespace PlayPcmWin
                 pcmData.CueSheetIndex = plti.indexId;
 
                 // 再生リストにタイトル名情報がある時は、再生リストのタイトル名をタイトル名にする。
-                if (0 < plti.title.Length) {
+                if (plti.title != null && 0 < plti.title.Length) {
                     pcmData.DisplayName = plti.title;
                 }
 
-                if (0 < plti.performer.Length) {
+                if (plti.performer != null && 0 < plti.performer.Length) {
                     pcmData.ArtistName = plti.performer;
                 }
-                if (0 < plti.albumTitle.Length) {
+                if (plti.albumTitle != null && 0 < plti.albumTitle.Length) {
                     pcmData.AlbumTitle = plti.albumTitle;
                 }
             }
@@ -1882,7 +1882,7 @@ namespace PlayPcmWin
             PlaylistReader plr = null;
             switch (Path.GetExtension(path).ToUpperInvariant()) {
             case ".CUE":
-                plr = new CueSheetReader();
+                plr = new CueSheetReader(Encoding.GetEncoding(m_preference.CueEncodingCodePage));
                 break;
             case ".M3U":
             case ".M3U8":

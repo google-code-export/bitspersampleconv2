@@ -88,7 +88,7 @@ namespace PlayPcmWin {
         const string SUPPORTED_EXTENSION_REGEX = @"(\.WAV|\.WAVE|\.FLAC|\.AIF|\.AIFF|\.AIFC|\.AIFFC)";
 
         private void ParseOneLine(string line) {
-            if (line.StartsWith("#", StringComparison.InvariantCulture)) {
+            if (line.StartsWith("#", StringComparison.Ordinal)) {
                 // 飛ばす
                 return;
             }
