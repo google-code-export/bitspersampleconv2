@@ -27,15 +27,15 @@ namespace PlayPcmWin {
         public PlaylistTrackInfo ConvertToPlaylistTrackInfo() {
             var plti = new PlaylistTrackInfo();
 
-            plti.path = path;
-            plti.title = string.Empty;
-            plti.trackId = 0;
+            plti.path      = path;
+            plti.title     = string.Empty;
+            plti.trackId   = 0;
             plti.startTick = 0;
-            plti.endTick = -1;
+            plti.endTick   = -1; //< till the last sample
 
-            plti.indexId = 0;
-            plti.performer = string.Empty;
-            plti.albumTitle = string.Empty;
+            plti.indexId            = 0;
+            plti.performer          = string.Empty;
+            plti.albumTitle         = string.Empty;
             plti.readSeparatorAfter = false;
 
             return plti;
