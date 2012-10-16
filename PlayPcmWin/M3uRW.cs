@@ -13,7 +13,7 @@ namespace PlayPcmWin {
         }
 
         public void CopyFrom(M3uTrackInfo rhs) {
-            path   = rhs.path;
+            path = rhs.path;
         }
 
         public void Debug() {
@@ -26,6 +26,7 @@ namespace PlayPcmWin {
 
         public PlaylistTrackInfo ConvertToPlaylistTrackInfo() {
             var plti = new PlaylistTrackInfo();
+
             plti.path = path;
             plti.title = string.Empty;
             plti.trackId = 0;
@@ -89,17 +90,17 @@ namespace PlayPcmWin {
 
         private void ParseOneLine(string line) {
             if (line.StartsWith("#", StringComparison.Ordinal)) {
-                // 飛ばす
+                // コメント行。行末まで無視する。
                 return;
             }
 
             if (!Regex.IsMatch(Path.GetExtension(line).ToUpperInvariant(), SUPPORTED_EXTENSION_REGEX)) {
-                // 飛ばす
+                // サポートしていないファイル形式。行末まで無視する。
                 return;
             }
 
             if (Regex.IsMatch(line, @"^http:\/\/.*")) {
-                // 飛ばす
+                // URI。行末まで無視する。
                 return;
             }
 
@@ -115,7 +116,7 @@ namespace PlayPcmWin {
                 return;
             }
 
-            // 相対パス
+            // ここに来たということは、相対パス。
             var sb = new StringBuilder(mDirPath);
             sb.Append(line.Trim());
             mTrackInfoList.Add(new M3uTrackInfo(sb.ToString()));
