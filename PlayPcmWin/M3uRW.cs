@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace PlayPcmWin {
     class M3uTrackInfo {
-        public string path;
+        private string path;
 
         public void Clear() {
             path = string.Empty;
@@ -43,8 +43,8 @@ namespace PlayPcmWin {
     };
 
     class M3uReader : PlaylistReader {
-        List<M3uTrackInfo> mTrackInfoList;
-        string mDirPath;
+        private List<M3uTrackInfo> mTrackInfoList;
+        private string mDirPath;
 
         public M3uReader() {
         }
@@ -86,7 +86,7 @@ namespace PlayPcmWin {
             return result;
         }
 
-        const string SUPPORTED_EXTENSION_REGEX = @"(\.WAV|\.WAVE|\.FLAC|\.AIF|\.AIFF|\.AIFC|\.AIFFC)";
+        private const string SUPPORTED_MUSICFILE_EXTENSIONS = @"(\.WAV|\.WAVE|\.FLAC|\.AIF|\.AIFF|\.AIFC|\.AIFFC)";
 
         private void ParseOneLine(string line) {
             if (line.StartsWith("#", StringComparison.Ordinal)) {
@@ -94,7 +94,7 @@ namespace PlayPcmWin {
                 return;
             }
 
-            if (!Regex.IsMatch(Path.GetExtension(line).ToUpperInvariant(), SUPPORTED_EXTENSION_REGEX)) {
+            if (!Regex.IsMatch(Path.GetExtension(line).ToUpperInvariant(), SUPPORTED_MUSICFILE_EXTENSIONS)) {
                 // サポートしていないファイル形式。行末まで無視する。
                 return;
             }
@@ -121,6 +121,5 @@ namespace PlayPcmWin {
             sb.Append(line.Trim());
             mTrackInfoList.Add(new M3uTrackInfo(sb.ToString()));
         }
-
     }
 }
