@@ -65,6 +65,7 @@ enum WWPcmDataUsageType {
     WWPDUNowPlaying,
     WWPDUPauseResumeToPlay,
     WWPDUSpliceNext,
+    WWPDUCapture,
 };
 
 class WasapiUser {

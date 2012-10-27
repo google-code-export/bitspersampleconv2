@@ -129,7 +129,11 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Start(int wavDataId);
+        WasapiIO_StartPlayback(int wavDataId);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_StartRecording();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
@@ -328,6 +332,29 @@ namespace Wasapi {
             }
         }
 
+        /// <summary>
+        ///  サンプルフォーマットタイプ→有効ビット数(1サンプル1chあたり。バイト数ではなくビット数)
+        /// </summary>
+        /// <param name="t">サンプルフォーマットタイプ</param>
+        /// <returns>有効ビット数(1サンプル1chあたり。バイト数ではなくビット数)</returns>
+        public static int SampleFormatTypeToValidBitsPerSample(SampleFormatType t) {
+            switch (t) {
+            case SampleFormatType.Sint16:
+                return 16;
+            case SampleFormatType.Sint24:
+                return 24;
+            case SampleFormatType.Sint32V24:
+                return 24;
+            case SampleFormatType.Sint32:
+                return 32;
+            case SampleFormatType.Sfloat:
+                return 32;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 0;
+            }
+        }
+
         public int Setup(int sampleRate, SampleFormatType format, int numChannels) {
             return WasapiIO_Setup(sampleRate, (int)format, numChannels);
         }
@@ -377,6 +404,7 @@ namespace Wasapi {
             NowPlaying,
             PauseResumeToPlay,
             SpliceNext,
+            Capture,
         };
 
         public int GetPcmDataId(PcmDataUsageType t) {
@@ -405,8 +433,12 @@ namespace Wasapi {
             return WasapiIO_GetCaptureGlitchCount();
         }
 
-        public int Start(int wavDataId) {
-            return WasapiIO_Start(wavDataId);
+        public int StartPlayback(int wavDataId) {
+            return WasapiIO_StartPlayback(wavDataId);
+        }
+
+        public int StartRecording() {
+            return WasapiIO_StartRecording();
         }
 
         public bool Run(int millisec) {

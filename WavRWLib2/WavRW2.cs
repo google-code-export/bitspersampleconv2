@@ -82,7 +82,7 @@ namespace WavRWLib2
         public uint ChannelMask { get; set; }
 
         public bool Create(
-                int numChannels, int sampleRate, int bitsPerSample,
+                int numChannels, int sampleRate, int bitsPerSample, int validBitsPerSample,
                 PcmDataLib.PcmData.ValueRepresentationType sampleValueRepresentation)
         {
             m_subChunk1Id = new byte[4];
@@ -103,7 +103,7 @@ namespace WavRWLib2
             m_blockAlign = (ushort)(numChannels * bitsPerSample / 8);
 
             BitsPerSample = (ushort)bitsPerSample;
-            ValidBitsPerSample = (ushort)bitsPerSample;
+            ValidBitsPerSample = (ushort)validBitsPerSample;
             ChannelMask = 0;
 
             SampleValueRepresentationType = sampleValueRepresentation;
@@ -741,7 +741,7 @@ namespace WavRWLib2
             m_rcd.Create((uint)(36 + sampleArray.LongLength));
 
             m_fsc = new FmtSubChunk();
-            m_fsc.Create(numChannels, sampleRate, bitsPerSample, sampleValueRepresentation);
+            m_fsc.Create(numChannels, sampleRate, bitsPerSample, validBitsPerSample, sampleValueRepresentation);
 
             var dsc = new DataSubChunk();
             dsc.Create(numFrames, sampleArray);

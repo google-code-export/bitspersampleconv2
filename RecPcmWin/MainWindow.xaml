@@ -17,7 +17,8 @@
         </GroupBox>
         <Button Content="録音(_P)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="6,8,0,0" Name="buttonRec" VerticalAlignment="Top" Width="75" Click="buttonRec_Click" Grid.Column="1" />
         <Slider Height="23" Margin="6,42,12,0" Name="slider1" VerticalAlignment="Top" Grid.Column="1" />
-        <Label Content="0/0" Height="28" HorizontalContentAlignment="Right" Margin="171,8,12,0" Name="label1" VerticalAlignment="Top" Grid.Column="1" />
+        <Label Content="0/0" Height="28" HorizontalContentAlignment="Right" Margin="171,8,78,0" Name="label1" VerticalAlignment="Top" Grid.Column="1" />
+        <Label Content="秒" Height="28" HorizontalContentAlignment="Left" Margin="417,8,0,0" Name="labelSeconds" VerticalAlignment="Top" Grid.Column="1" />
         <Button Content="停止(_S)" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="90,8,0,0" Name="buttonStop" VerticalAlignment="Top" Width="75" Click="buttonStop_Click" Grid.Column="1" />
         <GroupBox Header="ログ" Margin="6,82,12,6" Name="groupBoxLog" Grid.Column="1">
             <Grid>
@@ -50,8 +51,10 @@
                 </GroupBox>
                 <GroupBox Header="量子化ビット数" Height="106" HorizontalAlignment="Left" Margin="211,151,0,0" Name="groupBox6" VerticalAlignment="Top" Width="200">
                     <Grid>
-                        <RadioButton Content="16ビット" Height="16" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButton16" VerticalAlignment="Top" IsChecked="True" Checked="radioButton16_Checked" />
-                        <RadioButton Content="32ビット" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButton24" VerticalAlignment="Top" Checked="radioButton32_Checked" />
+                        <RadioButton Content="16bit" Height="16" HorizontalAlignment="Left" Margin="6,6,0,0" Name="radioButton16" VerticalAlignment="Top" IsChecked="True" Checked="radioButton16_Checked" />
+                        <RadioButton Content="24bit" Height="16" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButton24" VerticalAlignment="Top" Checked="radioButton24_Checked" />
+                        <RadioButton Content="32bit" Height="16" HorizontalAlignment="Left" Margin="6,50,0,0" Name="radioButton32" VerticalAlignment="Top" Checked="radioButton32_Checked" />
+                        <RadioButton Content="32bit(有効24bit)" Height="16" HorizontalAlignment="Left" Margin="70,50,0,0" Name="radioButton32v24" VerticalAlignment="Top" Checked="radioButton32v24_Checked" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="録音バッファーサイズ" Height="62" HorizontalAlignment="Left" Margin="6,181,0,0" Name="groupBox7" VerticalAlignment="Top" Width="199">

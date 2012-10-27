@@ -1,32 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Wasapiex;
+using Wasapi;
 using WavRWLib2;
 using System.IO;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace RecPcmWin {
     public partial class MainWindow : Window {
         private WasapiCS wasapi;
 
-        WavData m_wavData = null;
+        WavData mWavData = null;
 
         const int DEFAULT_BUFFER_SIZE_MB    = 256;
         const int DEFAULT_OUTPUT_LATENCY_MS = 200;
-        int m_samplingFrequency     = 44100;
-        int m_samplingBitsPerSample = 16;
-        byte[] m_capturedPcmData;
+        int mSamplingFrequency     = 44100;
+        int mNumChannels = 2;
+        WasapiCS.SampleFormatType mSampleFormat = WasapiCS.SampleFormatType.Sint16;
+        byte[] mCapturedPcmData;
 
         public MainWindow() {
             InitializeComponent();
@@ -75,7 +67,7 @@ namespace RecPcmWin {
                     listBoxDevices.SelectedIndex = 0;
                 }
 
-                if (m_wavData != null) {
+                if (mWavData != null) {
                     buttonDeviceSelect.IsEnabled = true;
                 }
                 buttonInspectDevice.IsEnabled = true;
@@ -116,7 +108,14 @@ namespace RecPcmWin {
             }
 
             try {
-                m_bufferBytes = Int32.Parse(textBoxRecMaxMB.Text) * 1024 * 1024;
+                var bytes = Int32.Parse(textBoxRecMaxMB.Text) * 1024L * 1024L;
+                if (0x7fffffff < bytes) {
+                    string s = string.Format("E: 録音バッファーサイズを2047MB以下に減らして下さい。\r\n");
+                    textBoxLog.Text += s;
+                    MessageBox.Show(s);
+                    return;
+                }
+                m_bufferBytes = (int)bytes;
             } catch (Exception ex) {
                 textBoxLog.Text += string.Format("{0}\r\n", ex);
             }
@@ -125,11 +124,11 @@ namespace RecPcmWin {
                 textBoxRecMaxMB.Text = string.Format("{0}", DEFAULT_BUFFER_SIZE_MB);
             }
             try {
-                m_capturedPcmData = null;
-                m_capturedPcmData = new byte[m_bufferBytes];
+                mCapturedPcmData = null;
+                mCapturedPcmData = new byte[m_bufferBytes];
             } catch (Exception ex) {
                 textBoxLog.Text += string.Format("{0}\r\n", ex);
-                MessageBox.Show(string.Format("おそらくメモリ不足ですので、録音バッファーサイズを減らして下さい\r\n{0}", ex));
+                MessageBox.Show(string.Format("E: おそらくメモリ不足ですので、録音バッファーサイズを減らして下さい。\r\n{0}", ex));
                 return;
             }
             
@@ -144,17 +143,19 @@ namespace RecPcmWin {
             if (true == radioButtonTimerDriven.IsChecked) {
                 dfm = WasapiCS.DataFeedMode.TimerDriven;
             }
-
-            hr = wasapi.Setup(dfm, m_samplingFrequency, m_samplingBitsPerSample, latencyMillisec);
+            
+            wasapi.SetDataFeedMode(dfm);
+            wasapi.SetLatencyMillisec(latencyMillisec);
+            hr = wasapi.Setup(mSamplingFrequency, mSampleFormat, mNumChannels);
             textBoxLog.Text += string.Format("wasapi.Setup({0}, {1}, {2}, {3}) {4:X8}\r\n",
-                m_samplingFrequency, m_samplingBitsPerSample, latencyMillisec, dfm, hr);
+                mSamplingFrequency, mSampleFormat, latencyMillisec, dfm, hr);
             if (hr < 0) {
                 wasapi.Unsetup();
                 textBoxLog.Text += string.Format("wasapi.Unsetup()\r\n");
                 CreateDeviceList();
                 string sDfm = DfmToStr(dfm);
-                string s = string.Format("エラー: wasapi.Setup({0}, {1}, {2}, {3})失敗。{4:X8}\nこのプログラムのバグか、オーディオデバイスが{0}Hz {1}bit レイテンシー{2}ms {3}に対応していないのか、どちらかです。\r\n",
-                    m_samplingFrequency, m_samplingBitsPerSample,
+                string s = string.Format("E: wasapi.Setup({0}, {1}, {2}, {3})失敗。{4:X8}\nこのプログラムのバグか、オーディオデバイスが{0}Hz {1} レイテンシー{2}ms {3}に対応していないのか、どちらかです。\r\n",
+                    mSamplingFrequency, mSampleFormat,
                     latencyMillisec, sDfm, hr);
                 textBoxLog.Text += s;
                 MessageBox.Show(s);
@@ -169,15 +170,107 @@ namespace RecPcmWin {
         }
 
         private void buttonDeviceDeselect_Click(object sender, RoutedEventArgs e) {
+            textBoxLog.Text += string.Format("wasapi.Stop()\r\n");
             wasapi.Stop();
+            textBoxLog.Text += string.Format("wasapi.Unsetup()\r\n");
             wasapi.Unsetup();
             CreateDeviceList();
         }
 
+struct InspectFormat {
+            public int sampleRate;
+            public int bitsPerSample;
+            public int validBitsPerSample;
+            public int bitFormat; // 0:Int, 1:Float
+            public InspectFormat(int sr, int bps, int vbps, int bf) {
+                sampleRate = sr;
+                bitsPerSample = bps;
+                validBitsPerSample = vbps;
+                bitFormat = bf;
+            }
+        };
+
+        const int TEST_SAMPLE_RATE_NUM = 8;
+        const int TEST_BIT_REPRESENTATION_NUM = 5;
+
+        static readonly InspectFormat [] gInspectFormats = new InspectFormat [] {
+                new InspectFormat(44100, 16, 16, 0),
+                new InspectFormat(48000, 16, 16, 0),
+                new InspectFormat(88200, 16, 16, 0),
+                new InspectFormat(96000, 16, 16, 0),
+                new InspectFormat(176400, 16, 16, 0),
+                new InspectFormat(192000, 16, 16, 0),
+                new InspectFormat(352800, 16, 16, 0),
+                new InspectFormat(384000, 16, 16, 0),
+
+                new InspectFormat(44100, 24, 24, 0),
+                new InspectFormat(48000, 24, 24, 0),
+                new InspectFormat(88200, 24, 24, 0),
+                new InspectFormat(96000, 24, 24, 0),
+                new InspectFormat(176400, 24, 24, 0),
+                new InspectFormat(192000, 24, 24, 0),
+                new InspectFormat(352800, 24, 24, 0),
+                new InspectFormat(384000, 24, 24, 0),
+
+                new InspectFormat(44100, 32, 24, 0),
+                new InspectFormat(48000, 32, 24, 0),
+                new InspectFormat(88200, 32, 24, 0),
+                new InspectFormat(96000, 32, 24, 0),
+                new InspectFormat(176400, 32, 24, 0),
+                new InspectFormat(192000, 32, 24, 0),
+                new InspectFormat(352800, 32, 24, 0),
+                new InspectFormat(384000, 32, 24, 0),
+
+                new InspectFormat(44100, 32, 32, 0),
+                new InspectFormat(48000, 32, 32, 0),
+                new InspectFormat(88200, 32, 32, 0),
+                new InspectFormat(96000, 32, 32, 0),
+                new InspectFormat(176400, 32, 32, 0),
+                new InspectFormat(192000, 32, 32, 0),
+                new InspectFormat(352800, 32, 32, 0),
+                new InspectFormat(384000, 32, 32, 0),
+
+                new InspectFormat(44100, 32, 32, 1),
+                new InspectFormat(48000, 32, 32, 1),
+                new InspectFormat(88200, 32, 32, 1),
+                new InspectFormat(96000, 32, 32, 1),
+                new InspectFormat(176400, 32, 32, 1),
+                new InspectFormat(192000, 32, 32, 1),
+                new InspectFormat(352800, 32, 32, 1),
+                new InspectFormat(384000, 32, 32, 1),
+            };
+
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             string dn = wasapi.GetDeviceName(listBoxDevices.SelectedIndex);
-            string s = wasapi.InspectDevice(listBoxDevices.SelectedIndex);
-            textBoxLog.Text += string.Format("wasapi.InspectDevice()\r\n{0}\r\n{1}\r\n", dn, s);
+            string did = wasapi.GetDeviceIdString(listBoxDevices.SelectedIndex);
+
+            textBoxLog.Text += string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", dn, did);
+            textBoxLog.Text += "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n";
+            for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
+                var sb = new StringBuilder();
+                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                    InspectFormat ifmt = gInspectFormats[idx];
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0,3}kHz {1}{2}V{3}",
+                        ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
+                        ifmt.bitsPerSample, ifmt.validBitsPerSample));
+                }
+                sb.Append("||\r\n");
+                textBoxLog.Text += sb.ToString();
+
+                sb.Clear();
+                for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
+                    int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
+                    System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
+                    InspectFormat ifmt = gInspectFormats[idx];
+                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat);
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
+                }
+                sb.Append("||\r\n");
+                textBoxLog.Text += sb.ToString();
+                textBoxLog.Text += "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n";
+            }
         }
 
         BackgroundWorker bw;
@@ -185,19 +278,17 @@ namespace RecPcmWin {
         private int m_bufferBytes = -1;
 
         private void buttonRec_Click(object sender, RoutedEventArgs e) {
-            
-
             wasapi.SetupCaptureBuffer(m_bufferBytes);
             textBoxLog.Text += string.Format("wasapi.SetupCaptureBuffer() {0:X8}\r\n", m_bufferBytes);
 
-            int hr = wasapi.Start();
-            textBoxLog.Text += string.Format("wasapi.Start() {0:X8}\r\n", hr);
+            int hr = wasapi.StartRecording();
+            textBoxLog.Text += string.Format("wasapi.StartRecording() {0:X8}\r\n", hr);
             if (hr < 0) {
                 return;
             }
 
             slider1.Value = 0;
-            slider1.Maximum = wasapi.GetTotalFrameNum();
+            slider1.Maximum = wasapi.GetTotalFrameNum(WasapiCS.PcmDataUsageType.Capture);
             buttonStop.IsEnabled     = true;
             buttonRec.IsEnabled      = false;
             buttonDeselect.IsEnabled = false;
@@ -214,10 +305,10 @@ namespace RecPcmWin {
             if (null == wasapi) {
                 return;
             }
-            slider1.Value = wasapi.GetPosFrame();
+            slider1.Value = wasapi.GetPosFrame(WasapiCS.PcmDataUsageType.Capture);
             label1.Content = string.Format("{0:F1}/{1:F1}",
-                slider1.Value / m_samplingFrequency,
-                slider1.Maximum / m_samplingFrequency);
+                slider1.Value / mSamplingFrequency,
+                slider1.Maximum / mSamplingFrequency);
         }
 
         private void RunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
@@ -251,16 +342,31 @@ namespace RecPcmWin {
 
         }
 
+        private PcmDataLib.PcmData.ValueRepresentationType SampleFormatToVRT(WasapiCS.SampleFormatType t) {
+            switch (t) {
+            case WasapiCS.SampleFormatType.Sfloat:
+                return PcmDataLib.PcmData.ValueRepresentationType.SFloat;
+            case WasapiCS.SampleFormatType.Sint16:
+            case WasapiCS.SampleFormatType.Sint24:
+            case WasapiCS.SampleFormatType.Sint32V24:
+            case WasapiCS.SampleFormatType.Sint32:
+                return PcmDataLib.PcmData.ValueRepresentationType.SInt;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return PcmDataLib.PcmData.ValueRepresentationType.SInt;
+            }
+        }
+
         private void SaveRecordedData() {
-            int bytes = wasapi.GetCapturedData(m_capturedPcmData);
-            int nFrames = bytes / (m_samplingBitsPerSample / 8) / 2; // 2==2ch
+            var bytes = wasapi.GetCapturedData(mCapturedPcmData);
+            var nFrames = bytes / WasapiCS.SampleFormatTypeToUseBytesPerSample(mSampleFormat) / mNumChannels;
 
             if (nFrames == 0) {
                 return;
             }
 
-            textBoxLog.Text += string.Format("captured frames={0} glichCount={1}\r\n",
-                nFrames, wasapi.GetCaptureGlitchCount());
+            textBoxLog.Text += string.Format("captured frames={0} ({1:F1} seconds) glichCount={2}\r\n",
+                nFrames, (double)nFrames / mSamplingFrequency, wasapi.GetCaptureGlitchCount());
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".wav";
@@ -271,97 +377,70 @@ namespace RecPcmWin {
             if (result != true) {
                 return;
             }
-            
-            m_wavData = new WavData();
-            List<PcmSamples1Channel> samples = new List<PcmSamples1Channel>();
-            PcmSamples1Channel sL = new PcmSamples1Channel(nFrames, m_samplingBitsPerSample);
-            PcmSamples1Channel sR = new PcmSamples1Channel(nFrames, m_samplingBitsPerSample);
 
-            switch (m_samplingBitsPerSample) {
-            case 16: {
-                    int pos = 0;
-                    short v;
-                    for (int i = 0; i < nFrames; ++i) {
-                        v = (short)(m_capturedPcmData[pos] + m_capturedPcmData[pos+1] * 256);
-                        pos += 2;
-                        sL.Set16(i, v);
-                        v = (short)(m_capturedPcmData[pos] + m_capturedPcmData[pos + 1] * 256);
-                        pos += 2;
-                        sR.Set16(i, v);
-                    }
-                }
-                break;
-            case 32: {
-                    int pos = 0;
-                    int v;
-                    for (int i = 0; i < nFrames; ++i) {
-                        v = m_capturedPcmData[pos]
-                            + m_capturedPcmData[pos + 1] * (1 << 8)
-                            + m_capturedPcmData[pos + 2] * (1 << 16)
-                            + m_capturedPcmData[pos + 3] * (1 << 24);
-                        pos += 4;
-                        sL.Set32(i, v);
-                        v = m_capturedPcmData[pos]
-                            + m_capturedPcmData[pos + 1] * (1 << 8)
-                            + m_capturedPcmData[pos + 2] * (1 << 16)
-                            + m_capturedPcmData[pos + 3] * (1 << 24);
-                        pos += 4;
-                        sR.Set32(i, v);
-                    }
-                }
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-            samples.Add(sL);
-            samples.Add(sR);
+            // あとで本のサイズに戻す。
+            var originalSize = mCapturedPcmData.Length;
+            Array.Resize(ref mCapturedPcmData, (int)bytes);
+
+            mWavData = new WavData();
+            mWavData.Set(mNumChannels, WasapiCS.SampleFormatTypeToUseBytesPerSample(mSampleFormat) * 8, WasapiCS.SampleFormatTypeToValidBitsPerSample(mSampleFormat),
+                mSamplingFrequency, SampleFormatToVRT(mSampleFormat), nFrames, mCapturedPcmData);
 
             try {
-                m_wavData.Create(m_samplingFrequency, m_samplingBitsPerSample, samples);
                 using (BinaryWriter w = new BinaryWriter(File.Open(dlg.FileName, FileMode.Create))) {
-                    m_wavData.Write(w);
+                    mWavData.Write(w);
+
+                    textBoxLog.Text += string.Format("ファイル保存成功: {0}\r\n", dlg.FileName);
                 }
             } catch (Exception ex) {
-                string s = string.Format("ファイル保存失敗: {0}\r\n{1}\r\n", dlg.FileName, ex);
-                textBoxLog.Text +=s;
+                string s = string.Format("E: ファイル保存失敗: {0}\r\n{1}\r\n", dlg.FileName, ex);
+                textBoxLog.Text += s;
                 MessageBox.Show(s);
             }
 
             slider1.Value = 0;
             label1.Content = "0/0";
+            Array.Resize(ref mCapturedPcmData, originalSize);
         }
 
         private void radioButton44100_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 44100;
+            mSamplingFrequency = 44100;
         }
 
         private void radioButton48000_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 48000;
+            mSamplingFrequency = 48000;
         }
 
         private void radioButton88200_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 88200;
+            mSamplingFrequency = 88200;
         }
 
         private void radioButton96000_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 96000;
+            mSamplingFrequency = 96000;
         }
 
         private void radioButton176400_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 176400;
+            mSamplingFrequency = 176400;
         }
 
         private void radioButton192000_Checked(object sender, RoutedEventArgs e) {
-            m_samplingFrequency = 192000;
+            mSamplingFrequency = 192000;
         }
 
         private void radioButton16_Checked(object sender, RoutedEventArgs e) {
-            m_samplingBitsPerSample = 16;
+            mSampleFormat = WasapiCS.SampleFormatType.Sint16;
+        }
+
+        private void radioButton24_Checked(object sender, RoutedEventArgs e) {
+            mSampleFormat = WasapiCS.SampleFormatType.Sint24;
+        }
+
+        private void radioButton32v24_Checked(object sender, RoutedEventArgs e) {
+            mSampleFormat = WasapiCS.SampleFormatType.Sint32V24;
         }
 
         private void radioButton32_Checked(object sender, RoutedEventArgs e) {
-            m_samplingBitsPerSample = 32;
+            mSampleFormat = WasapiCS.SampleFormatType.Sint32;
         }
     }
 }

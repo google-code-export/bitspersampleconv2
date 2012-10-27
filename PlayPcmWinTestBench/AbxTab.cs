@@ -376,7 +376,7 @@ namespace PlayPcmWinTestBench {
             wasapi.AddPlayPcmData(0, pcmData.GetSampleArray());
             wasapi.AddPlayPcmDataEnd();
 
-            hr = wasapi.Start(0);
+            hr = wasapi.StartPlayback(0);
             m_playWorker.RunWorkerAsync();
             m_status = Status.Play;
             UpdateAbxTabUIStatus();
@@ -418,7 +418,7 @@ namespace PlayPcmWinTestBench {
             wasapi.AddPlayPcmData(0, pcmData.GetSampleArray());
             wasapi.AddPlayPcmDataEnd();
 
-            hr = wasapi.Start(0);
+            hr = wasapi.StartPlayback(0);
             m_playWorker.RunWorkerAsync();
             m_status = Status.Play;
             UpdateAbxTabUIStatus();

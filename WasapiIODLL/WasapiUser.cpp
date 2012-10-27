@@ -907,7 +907,7 @@ WasapiUser::Start(void)
 
     dprintf("D: %s()\n", __FUNCTION__);
 
-    assert(m_nowPlayingPcmData);
+    assert(m_nowPlayingPcmData || m_capturedPcmData);
 
     HRG(m_audioClient->Reset());
 
@@ -1191,6 +1191,9 @@ WasapiUser::GetPcmDataByUsageType(WWPcmDataUsageType t)
         break;
     case WWPDUSpliceNext:
         pcm = m_spliceBuffer.next;
+        break;
+    case WWPDUCapture:
+        pcm = m_capturedPcmData;
         break;
     default:
         assert(0);

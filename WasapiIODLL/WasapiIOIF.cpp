@@ -17,7 +17,8 @@ struct WasapiIO {
     HRESULT ResampleIfNeeded(void);
     void AddPcmDataEnd(void);
 
-    HRESULT Start(int wavDataId);
+    HRESULT StartPlayback(int wavDataId);
+    HRESULT StartRecording(void);
 
     void SetResamplerConversionQuality(int quality) {
         mResamplerConversionQuality = quality;
@@ -102,7 +103,7 @@ WasapiIO::AddPcmDataEnd(void)
 }
 
 HRESULT
-WasapiIO::Start(int wavDataId)
+WasapiIO::StartPlayback(int wavDataId)
 {
     WWPcmData *p = playPcmGroup.FindPcmDataById(wavDataId);
     if (NULL == p) {
@@ -112,6 +113,12 @@ WasapiIO::Start(int wavDataId)
     }
 
     wasapi.UpdatePlayPcmData(*p);
+    return wasapi.Start();
+}
+
+HRESULT
+WasapiIO::StartRecording(void)
+{
     return wasapi.Start();
 }
 
@@ -409,11 +416,20 @@ WasapiIO_GetCaptureGlitchCount(void)
 
 extern "C" __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Start(int wavDataId)
+WasapiIO_StartPlayback(int wavDataId)
 {
     assert(self);
 
-    return self->Start(wavDataId);
+    return self->StartPlayback(wavDataId);
+}
+
+extern "C" __declspec(dllexport)
+HRESULT __stdcall
+WasapiIO_StartRecording(void)
+{
+    assert(self);
+
+    return self->StartRecording();
 }
 
 extern "C" __declspec(dllexport)

@@ -3016,8 +3016,8 @@ namespace PlayPcmWin
             m_sw.Reset();
             m_sw.Start();
 
-            int hr = wasapi.Start(wavDataId);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Start({0}) {1:X8}\r\n",
+            int hr = wasapi.StartPlayback(wavDataId);
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}\r\n",
                 wavDataId, hr));
             if (hr < 0) {
                 MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}", hr));
