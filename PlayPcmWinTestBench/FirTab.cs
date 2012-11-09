@@ -280,7 +280,7 @@ namespace PlayPcmWinTestBench {
             public string inputPath;
             public string outputPath;
             public int outputBitsPerSample;
-            public bool outputSampleIsFloat;
+            public PcmData.ValueRepresentationType valueRepresentationType;
             public double kaiserAlpha;
             public WindowFuncType windowFunc;
             public int firLength;
@@ -303,15 +303,15 @@ namespace PlayPcmWinTestBench {
             args.outputPath = textBoxFirOutputPath.Text;
             if (radioButtonFir16bit.IsChecked == true) {
                 args.outputBitsPerSample = 16;
-                args.outputSampleIsFloat = false;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SInt;
             }
             if (radioButtonFir24bit.IsChecked == true) {
                 args.outputBitsPerSample = 24;
-                args.outputSampleIsFloat = false;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SInt;
             }
             if (radioButtonFir32bitFloat.IsChecked == true) {
                 args.outputBitsPerSample = 32;
-                args.outputSampleIsFloat = true;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SFloat;
             }
             
             if (!Double.TryParse(textBoxKaiserAlpha.Text, out args.kaiserAlpha) ||
@@ -451,8 +451,7 @@ namespace PlayPcmWinTestBench {
 
             PcmData pcmDataWrite
                 = pcmDataOutput.BitsPerSampleConvertTo(
-                    args.outputBitsPerSample,
-                    args.outputSampleIsFloat ? PcmData.ValueRepresentationType.SFloat : PcmData.ValueRepresentationType.SInt);
+                    args.outputBitsPerSample, args.valueRepresentationType);
 
             bool writeResult = false;
             try {

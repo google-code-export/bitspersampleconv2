@@ -357,13 +357,13 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
             dprintf(fdi->logFP, "entry=\"%s\" length=%d\n\n",
                 (const char *)(VC.comments[i].entry),
                 VC.comments[i].length);
-            if (0 == strncmp("TITLE=", (const char *)(&VC.comments[i].entry[0]), 6)) {
+            if (0 == _strnicmp("TITLE=", (const char *)(&VC.comments[i].entry[0]), 6)) {
                 strncpy_s(fdi->titleStr, (const char *)(&VC.comments[i].entry[6]), FLACDECODE_MAX_STRSZ-1);
             }
-            if (0 == strncmp("ALBUM=", (const char *)(&VC.comments[i].entry[0]), 6)) {
+            if (0 == _strnicmp("ALBUM=", (const char *)(&VC.comments[i].entry[0]), 6)) {
                 strncpy_s(fdi->albumStr, (const char *)(&VC.comments[i].entry[6]), FLACDECODE_MAX_STRSZ-1);
             }
-            if (0 == strncmp("ARTIST=", (const char *)(&VC.comments[i].entry[0]), 7)) {
+            if (0 == _strnicmp("ARTIST=", (const char *)(&VC.comments[i].entry[0]), 7)) {
                 strncpy_s(fdi->artistStr, (const char *)(&VC.comments[i].entry[7]), FLACDECODE_MAX_STRSZ-1);
             }
         }

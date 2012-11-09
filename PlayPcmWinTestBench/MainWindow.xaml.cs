@@ -8,12 +8,6 @@ using Wasapi;
 using System.Runtime.InteropServices;
 
 namespace PlayPcmWinTestBench {
-    internal static class NativeMethods {
-        [DllImport("WWDirectDrawTest.dll")]
-        internal extern static int
-        WWDirectDrawTest_Test();
-    }
-
     public partial class MainWindow : Window, IDisposable {
         Wasapi.WasapiCS wasapi;
 
@@ -44,6 +38,7 @@ namespace PlayPcmWinTestBench {
             InitFirTab();
             InitHilbTab();
             InitAnalyticSignalTab();
+            InitItUpsample();
         }
 
         private void Window_Closed(object sender, EventArgs e) {
@@ -131,8 +126,12 @@ namespace PlayPcmWinTestBench {
                 double[] v = { 1, 0, 0, 0, -1, 0, 0, 0 };
                 var rv = WWDirectComputeCS.WWFFTCpu.ComplexFFT(v);
             }
-
         }
+    }
 
+    internal static class NativeMethods {
+        [DllImport("WWDirectDrawTest.dll")]
+        internal extern static int
+        WWDirectDrawTest_Test();
     }
 }

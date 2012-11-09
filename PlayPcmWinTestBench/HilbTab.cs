@@ -56,15 +56,15 @@ namespace PlayPcmWinTestBench {
             args.outputPath = textBoxHilbOutputPath.Text;
             if (radioButtonHilbSint16.IsChecked == true) {
                 args.outputBitsPerSample = 16;
-                args.outputSampleIsFloat = false;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SInt;
             }
             if (radioButtonHilbSint24.IsChecked == true) {
                 args.outputBitsPerSample = 24;
-                args.outputSampleIsFloat = false;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SInt;
             }
             if (radioButtonHilbFloat32.IsChecked == true) {
                 args.outputBitsPerSample = 32;
-                args.outputSampleIsFloat = true;
+                args.valueRepresentationType = PcmData.ValueRepresentationType.SFloat;
             }
 
             if (!Double.TryParse(textBoxHilbKaiserAlpha.Text, out args.kaiserAlpha) ||
