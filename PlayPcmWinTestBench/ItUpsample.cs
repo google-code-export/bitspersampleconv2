@@ -159,12 +159,12 @@ namespace PlayPcmWinTestBench {
                     }
                 });
 
-                // 最後の1区間はサンプルホールドする
+                // 最後の1区間は0に向かう
                 for (int ch=0; ch < pcmDataIn.NumChannels; ++ch) {
                     var pos = pcmDataIn.NumFrames-1;
                     var v = pcmDataIn.GetSampleValueInDouble(ch, pos);
                     for (int i=0; i < mFreqMagnitude; ++i) {
-                        pcm.SetSampleValueInDouble(ch, pos * mFreqMagnitude + i, v);
+                        pcm.SetSampleValueInDouble(ch, pos * mFreqMagnitude + i, v * (mFreqMagnitude - i-1) / mFreqMagnitude);
                     }
                 }
                 break;
