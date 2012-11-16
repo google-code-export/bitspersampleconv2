@@ -171,9 +171,6 @@ namespace PlayPcmWinTestBench {
             }
             PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat);
 
-            // Real partを音量制限処理。
-            //pcmDataReal.LimitLevelOnDoubleRange();
-
             PcmData pcmDataImaginary = new PcmData();
             pcmDataImaginary.CopyFrom(pcmDataReal);
 
@@ -232,17 +229,7 @@ namespace PlayPcmWinTestBench {
                     m_ASWorker.ReportProgress(percentage);
                 }
                 fir.Unsetup();
-
             }
-
-            /*
-            // Imaginary partを音量制限処理。
-            double scale = pcmDataImaginary.LimitLevelOnDoubleRange();
-            if (scale < 1.0) {
-                // real partとimaginary partの音量を合わせる。
-                pcmDataReal.ScaleDoubleBuffer(scale);
-            }
-            */
 
             // 解析信号を出力。
             m_analyticSignalList.Clear();
