@@ -39,6 +39,7 @@ namespace PlayPcmWinTestBench {
             InitHilbTab();
             InitAnalyticSignalTab();
             InitItUpsample();
+            InitPhaseRotationTab();
         }
 
         private void Window_Closed(object sender, EventArgs e) {

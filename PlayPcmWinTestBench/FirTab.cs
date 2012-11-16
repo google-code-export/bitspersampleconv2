@@ -276,7 +276,7 @@ namespace PlayPcmWinTestBench {
             Kaiser
         };
 
-        struct FirWorkerArgs {
+        class FirWorkerArgs {
             public string inputPath;
             public string outputPath;
             public int outputBitsPerSample;
@@ -409,8 +409,7 @@ namespace PlayPcmWinTestBench {
                     // 結果を出力に書き込む。
                     for (long i=0; i < pcmFir.Length; ++i) {
                         var re = pcmFir[i];
-                        pcmDataOut.SetSampleValueInDouble(ch, i + offs,
-                            (float)(re));
+                        pcmDataOut.SetSampleValueInDouble(ch, i + offs, re);
                     }
 
                     // 進捗Update。
@@ -468,7 +467,7 @@ namespace PlayPcmWinTestBench {
             if (scale == 1.0) {
                 result = string.Format("WAVファイル書き込み成功: {0}", args.outputPath);
             } else {
-                result = string.Format("WAVファイル書き込み成功: {0}\r\nレベルオーバーのため音量を{1:0.##}倍しました({2:0.##}dB)",
+                result = string.Format("WAVファイル書き込み成功: {0}\r\nレベルオーバーのため音量を{1:0.######}倍しました({2:0.######}dB)",
                     args.outputPath, scale, 20.0 * Math.Log10(scale));
             }
             return true;

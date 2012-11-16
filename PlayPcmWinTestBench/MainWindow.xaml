@@ -119,12 +119,23 @@
                     </GroupBox>
                     <GroupBox Header="ヒルベルト変換の設定" Height="113" HorizontalAlignment="Left" Margin="6,67,0,0" Name="groupBox15" VerticalAlignment="Top" Width="756">
                         <Grid>
-                            <Label Content="FIRフィルタ長(奇数):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,4,0,0" Name="label39" VerticalAlignment="Top" Width="192" />
-                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="203,6,0,0" Name="textBoxASFilterLength" Text="8191" VerticalAlignment="Top" Width="62" />
-                            <GroupBox Header="窓関数" Height="83" HorizontalAlignment="Left" Margin="271,0,0,0" Name="groupBox16" VerticalAlignment="Top" Width="335">
+                            <Label Content="FIRフィルタ長(奇数):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,4,0,0" Name="label39" VerticalAlignment="Top" Width="155" />
+                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="167,6,0,0" Name="textBoxASFilterLength" Text="8191" VerticalAlignment="Top" Width="62" />
+                            <GroupBox Header="ヒルベルト変換フィルタ種類" Height="83" HorizontalAlignment="Left" Margin="510,0,0,0" VerticalAlignment="Top" Width="228">
                                 <Grid>
-                                    <Label Content="カイザー窓α(4&lt;α&lt;9):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="128,26,0,0" Name="label40" VerticalAlignment="Top" Width="141" />
-                                    <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="273,28,0,0" Name="textBoxASKaiserAlpha" Text="6.0" VerticalAlignment="Top" Width="44" />
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1*" />
+                                        <RowDefinition Height="1*" />
+                                    </Grid.RowDefinitions>
+                                    <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonASBandlimited" VerticalAlignment="Center" IsChecked="True" />
+                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonASHighPass" VerticalAlignment="Center" />
+                                </Grid>
+                            </GroupBox>
+
+                            <GroupBox Header="窓関数" Height="83" HorizontalAlignment="Left" Margin="239,0,0,0" Name="groupBox16" VerticalAlignment="Top" Width="265">
+                                <Grid>
+                                    <Label Content="α(4&lt;α&lt;9):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="102,26,0,0" Name="label40" VerticalAlignment="Top" Width="88" />
+                                    <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="193,28,0,0" Name="textBoxASKaiserAlpha" Text="6.0" VerticalAlignment="Top" Width="44" />
                                     <RadioButton Content="ブラックマン窓" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,7,0,0" Name="radioButtonASBlackman" VerticalAlignment="Top" Width="173" />
                                     <RadioButton Content="カイザー窓" Height="16" HorizontalAlignment="Left" Margin="6,31,0,0" Name="radioButtonASKaiser" VerticalAlignment="Top" Width="121" IsChecked="True" />
                                 </Grid>
@@ -190,11 +201,16 @@
                     </GroupBox>
                     <Button Content="出力(_R)" Height="23" HorizontalAlignment="Left" Margin="6,404,0,0" Name="buttonHilbOutputStart" VerticalAlignment="Top" Width="107" Click="buttonHilbOutputStart_Click" />
                     <ProgressBar Height="23" HorizontalAlignment="Left" Margin="6,0,0,6" Name="progressBarHilb" VerticalAlignment="Bottom" Width="345" />
-                    <GroupBox Header="出力サンプルデータ形式" Height="54" HorizontalAlignment="Left" Margin="6,270,0,0" Name="groupBox18" VerticalAlignment="Top" Width="440">
+                    <GroupBox Header="出力サンプルデータ形式" Height="106" HorizontalAlignment="Left" Margin="401,70,0,0" Name="groupBox18" VerticalAlignment="Top" Width="229">
                         <Grid>
-                            <RadioButton Content="16bit integer" Height="16" HorizontalAlignment="Left" Margin="7,6,0,0" Name="radioButtonHilbSint16" VerticalAlignment="Top" Width="115" />
-                            <RadioButton Content="24bit integer" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="167,6,0,0" Name="radioButtonHilbSint24" VerticalAlignment="Top" Width="133" />
-                            <RadioButton Content="32bit float" Height="16" HorizontalAlignment="Left" Margin="327,6,0,0" Name="radioButtonHilbFloat32" VerticalAlignment="Top" Width="108" />
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <RadioButton Content="16bit integer" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbSint16" VerticalAlignment="Center" Width="115" />
+                            <RadioButton Grid.Row="1" Content="24bit integer" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonHilbSint24" VerticalAlignment="Center" Width="133" />
+                            <RadioButton Grid.Row="2"  Content="32bit float" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbFloat32" VerticalAlignment="Center" Width="108" />
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="出力ファイル" Height="62" HorizontalAlignment="Left" Margin="6,336,0,0" Name="groupBoxHilbOutput" VerticalAlignment="Top" Width="466">
@@ -204,11 +220,11 @@
                         </Grid>
                     </GroupBox>
                     <TextBox AcceptsReturn="True" AcceptsTab="True" Height="77" IsReadOnly="True" Margin="369,0,6,6" Name="textBoxHilbLog" Text="" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Width="393" VerticalAlignment="Bottom" />
-                    <GroupBox Header="設定" Height="193" HorizontalAlignment="Left" Margin="10,71,0,0" Name="groupBoxHilbSettings" VerticalAlignment="Top" Width="325">
+                    <GroupBox Header="設定" Height="259" HorizontalAlignment="Left" Margin="10,71,0,0" Name="groupBoxHilbSettings" VerticalAlignment="Top" Width="370">
                         <Grid>
-                            <Label Content="FIRフィルタ長(奇数):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,6,0,0" Name="label38" VerticalAlignment="Top" Width="192" />
-                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="203,8,0,0" Name="textBoxHilbFilterN" Text="8191" VerticalAlignment="Top" Width="62" />
-                            <GroupBox Header="窓関数" Height="124" HorizontalAlignment="Left" Margin="13,40,0,0" Name="groupBox19" VerticalAlignment="Top" Width="288">
+                            <Label Content="FIRフィルタ長(奇数):" Height="34" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,0,0,0" Name="label38" VerticalAlignment="Top" Width="192" />
+                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="203,3,0,0" Name="textBoxHilbFilterN" Text="8191" VerticalAlignment="Top" Width="62" />
+                            <GroupBox Header="窓関数" Height="110" HorizontalAlignment="Left" Margin="12,31,0,0" Name="groupBox19" VerticalAlignment="Top" Width="288">
                                 <Grid>
                                     <Label Content="カイザー窓α(4&lt;α&lt;9):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,53,0,0" Name="label37" VerticalAlignment="Top" Width="192" />
                                     <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="202,55,0,0" Name="textBoxHilbKaiserAlpha" Text="6.0" VerticalAlignment="Top" Width="44" />
@@ -216,6 +232,69 @@
                                     <RadioButton Content="カイザー窓" Height="16" HorizontalAlignment="Left" Margin="6,31,0,0" Name="radioButtonHilbKaiser" VerticalAlignment="Top" Width="173" />
                                 </Grid>
                             </GroupBox>
+                            <GroupBox Header="ヒルベルト変換フィルターの種類" Height="81" HorizontalAlignment="Left" Margin="12,147,0,0" VerticalAlignment="Top" Width="252">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1*" />
+                                        <RowDefinition Height="1*" />
+                                    </Grid.RowDefinitions>
+                                    <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbertFilterBandlimited" VerticalAlignment="Center" IsChecked="True" />
+                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbertFilterHighPass" VerticalAlignment="Center" />
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="音の位相を回転" Name="tabItemPhase">
+                <Grid>
+                    <GroupBox Header="入力ファイル" Height="61" HorizontalAlignment="Left" Margin="10,10,0,0" Name="groupBoxPhaseInput" VerticalAlignment="Top" Width="620">
+                        <Grid>
+                            <TextBox Height="24" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxPhaseInputPath" Text="C:\audio\input.wav" VerticalAlignment="Top" Width="450" />
+                            <Button Content="参照(_B)…" Height="23" HorizontalAlignment="Left" Margin="472,7,0,0" Name="buttonPhaseReferInputPath" VerticalAlignment="Top" Width="120" Click="buttonPhaseInputBrowse_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <Button Content="出力(_R)" Height="23" HorizontalAlignment="Left" Margin="6,404,0,0" Name="buttonPhaseOutputStart" VerticalAlignment="Top" Width="107" Click="buttonPhaseOutputStart_Click" />
+                    <ProgressBar Height="23" HorizontalAlignment="Left" Margin="6,0,0,6" Name="progressBarPhase" VerticalAlignment="Bottom" Width="345" />
+                    <GroupBox Header="出力サンプルデータ形式" Height="54" HorizontalAlignment="Left" Margin="6,270,0,0" VerticalAlignment="Top" Width="440">
+                        <Grid>
+                            <RadioButton Content="16bit integer" Height="16" HorizontalAlignment="Left" Margin="7,6,0,0" Name="radioButtonPhaseSint16" VerticalAlignment="Top" Width="115" />
+                            <RadioButton Content="24bit integer" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="167,6,0,0" Name="radioButtonPhaseSint24" VerticalAlignment="Top" Width="133" />
+                            <RadioButton Content="32bit float" Height="16" HorizontalAlignment="Left" Margin="327,6,0,0" Name="radioButtonPhaseFloat32" VerticalAlignment="Top" Width="108" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="出力ファイル" Height="62" HorizontalAlignment="Left" Margin="6,336,0,0" Name="groupBoxPhaseOutput" VerticalAlignment="Top" Width="466">
+                        <Grid>
+                            <TextBox Height="24" HorizontalAlignment="Left" Margin="6,6,0,0" Name="textBoxPhaseOutputPath" Text="C:\audio\output.wav" VerticalAlignment="Top" Width="317" />
+                            <Button Content="参照(_W)…" Height="23" HorizontalAlignment="Left" Margin="327,6,0,0" Name="buttonPhaseReferOutputPath" VerticalAlignment="Top" Width="120" Click="buttonPhaseOutputBrowse_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="設定" Height="193" HorizontalAlignment="Left" Margin="10,71,0,0" Name="groupBoxPhaseSettings" VerticalAlignment="Top" Width="682">
+                        <Grid>
+                            <Label Content="ヒルベルト変換フィルタの長さ(奇数):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,6,0,0" VerticalAlignment="Top" Width="245" />
+                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="257,8,0,0" Name="textBoxPhaseFilterN" Text="8191" VerticalAlignment="Top" Width="62" />
+                            <GroupBox Header="ヒルベルト変換フィルタの窓関数" Height="85" HorizontalAlignment="Left" Margin="13,40,0,0" VerticalAlignment="Top" Width="411">
+                                <Grid>
+                                    <Label Content="カイザー窓α(4&lt;α&lt;9):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="124,26,0,0" VerticalAlignment="Top" Width="192" />
+                                    <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="320,28,0,0" Name="textBoxPhaseKaiserAlpha" Text="6.0" VerticalAlignment="Top" Width="44" />
+                                    <RadioButton Content="ブラックマン窓" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,7,0,0" Name="radioButtonPhaseBlackman" VerticalAlignment="Top" Width="173" />
+                                    <RadioButton Content="カイザー窓" Height="16" HorizontalAlignment="Left" Margin="6,31,0,0" Name="radioButtonPhaseKaiser" VerticalAlignment="Top" Width="173" />
+                                </Grid>
+                            </GroupBox>
+                            <Label Content="位相回転(度 degree):" Height="28" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="5,130,0,0" VerticalAlignment="Top" Width="192" />
+                            <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="202,132,0,0" Name="textBoxPhaseRotationDegree" Text="23.4" VerticalAlignment="Top" Width="62" />
+
+                            <GroupBox Header="ヒルベルト変換フィルタ種類" Height="83" HorizontalAlignment="Left" Margin="430,0,0,0" VerticalAlignment="Top" Width="228">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="1*" />
+                                        <RowDefinition Height="1*" />
+                                    </Grid.RowDefinitions>
+                                    <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPhaseBandlimited" VerticalAlignment="Center" IsChecked="True" />
+                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPhaseHighPass" VerticalAlignment="Center" />
+                                </Grid>
+                            </GroupBox>
+
                         </Grid>
                     </GroupBox>
                 </Grid>
@@ -305,9 +384,10 @@
                             <TextBox Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="6,6,0,0" Name="textBoxItUpsampleFreqMagnitude" Text="4" VerticalAlignment="Top" Width="63" Grid.Column="1" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="補間方法" Height="100" HorizontalAlignment="Left" Margin="10,164,0,0" Name="groupBox27" VerticalAlignment="Top" Width="300">
+                    <GroupBox Header="補間方法" Height="150" HorizontalAlignment="Left" Margin="330,100,0,0" Name="groupBox27" VerticalAlignment="Top" Width="300">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="100*" />
                                 <RowDefinition Height="100*" />
                                 <RowDefinition Height="100*" />
                                 <RowDefinition Height="100*" />
@@ -315,9 +395,10 @@
                             <RadioButton Content="インパルス・トレイン" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonItUpsampleImpulse" VerticalAlignment="Center" />
                             <RadioButton Content="サンプル・ホールド" Grid.Row="1" Height="16" HorizontalAlignment="Left" IsChecked="True" Margin="6,0,0,0" Name="radioButtonItUpsampleSampleHold" VerticalAlignment="Center" />
                             <RadioButton Content="直線補間" Grid.Row="2" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonItUpsampleLinear" VerticalAlignment="Center" />
+                            <RadioButton Content="キュービック・エルミート・スプライン" Grid.Row="3" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonItUpsampleCubic" VerticalAlignment="Center" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="出力ビットフォーマット" Height="100" HorizontalAlignment="Left" Margin="316,164,0,0" Name="groupBox26" VerticalAlignment="Top" Width="200">
+                    <GroupBox Header="出力ビットフォーマット" Height="100" HorizontalAlignment="Left" Margin="16,170,0,0" Name="groupBox26" VerticalAlignment="Top" Width="200">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="100*" />
@@ -434,10 +515,14 @@
                                 <ColumnDefinition Width="190*" />
                                 <ColumnDefinition Width="113*" />
                             </Grid.ColumnDefinitions>
-                            <Label Content="周波数(Hz)" Name="label1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Right" Width="158" Height="24" VerticalAlignment="Top" Margin="0,6,5,0" />
-                            <Label Content="量(ピコ秒RMS)" Name="label8" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Margin="0,36,0,0" HorizontalAlignment="Right" Width="163" Height="24" VerticalAlignment="Top" />
-                            <TextBox Margin="0,36,0,0" Name="textBoxSequentialJitterPicoseconds" HorizontalAlignment="Left" Width="79" Height="24" VerticalAlignment="Top" Text="1000" HorizontalContentAlignment="Right" Grid.Column="1" />
-                            <TextBox Margin="0,6,0,0" Name="textBoxSequentialJitterFrequency" HorizontalAlignment="Left" Width="79" Text="100" HorizontalContentAlignment="Right" Height="24" VerticalAlignment="Top" Grid.Column="1" />
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
+                            </Grid.RowDefinitions>
+                            <Label Content="周波数(Hz)" Grid.Row="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" HorizontalAlignment="Right" Width="158" Height="24" VerticalAlignment="Center" Margin="0,0,0,0" />
+                            <Label Content="量(ピコ秒RMS)" Grid.Row="1"  HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Margin="0,0,0,0" HorizontalAlignment="Right" Width="163" Height="24" VerticalAlignment="Center" />
+                            <TextBox Margin="0,0,0,0" Name="textBoxSequentialJitterPicoseconds"  Grid.Row="1" HorizontalAlignment="Left" Width="79" Height="24" VerticalAlignment="Center" Text="1000" HorizontalContentAlignment="Right" Grid.Column="1" />
+                            <TextBox Margin="0,0,0,0" Name="textBoxSequentialJitterFrequency"  Grid.Row="0"  HorizontalAlignment="Left" Width="79" Text="100" HorizontalContentAlignment="Right" Height="24" VerticalAlignment="Center" Grid.Column="1" />
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="入力ファイル" Height="90" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBox5" VerticalAlignment="Top" Width="474">
@@ -454,27 +539,30 @@
                                 <ColumnDefinition Width="97*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="0*" />
-                                <RowDefinition Height="93*" />
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
                             </Grid.RowDefinitions>
-                            <Label Content="三角分布ジッター最大量(ピコ秒)" Grid.Row="1" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,7,0,0" Name="label12" VerticalContentAlignment="Center" Width="215" Height="34" VerticalAlignment="Top" />
-                            <TextBox Grid.Column="1" Grid.Row="1" Height="24" HorizontalAlignment="Left" Margin="12,12,0,0" Name="textBoxTpdfJitterPicoseconds" Text="0" VerticalAlignment="Top" Width="79" HorizontalContentAlignment="Right" />
-                            <Label Content="一様分布ジッター最大量(ピコ秒)" Grid.Row="1" Height="34" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,37,0,0" Name="label15" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="215" />
-                            <TextBox Grid.Column="1" Grid.Row="1" Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="12,42,0,0" Name="textBoxRpdfJitterPicoseconds" Text="0" VerticalAlignment="Top" Width="79" />
+                            <Label Content="三角分布ジッター最大量(ピコ秒)" Grid.Row="0" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="label12" VerticalContentAlignment="Center" Width="215" Height="34" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Height="24" HorizontalAlignment="Left" Margin="0,0,0,0" Name="textBoxTpdfJitterPicoseconds" Text="0" VerticalAlignment="Center" Width="79" HorizontalContentAlignment="Right" />
+                            <Label Content="一様分布ジッター最大量(ピコ秒)" Grid.Row="1" Height="34" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="label15" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="215" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Height="24" HorizontalAlignment="Left" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="textBoxRpdfJitterPicoseconds" Text="0" VerticalAlignment="Center" Width="79" />
                         </Grid>
                     </GroupBox>
                     <ProgressBar Grid.Row="3" Height="23" Margin="6,0,0,6" Name="progressBarAQ" VerticalAlignment="Bottom" Width="233" HorizontalAlignment="Left" />
                     <GroupBox Grid.Row="1" Header="畳み込み計算打ち切り設定" Height="146" HorizontalAlignment="Left" IsEnabled="True" Margin="382,7,0,0" Name="groupBox10" VerticalAlignment="Top" Width="380">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="0*" />
-                                <RowDefinition Height="93*" />
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
+                                <RowDefinition Height="10*" />
                             </Grid.RowDefinitions>
-                            <RadioButton Content="±256サンプル CPU処理" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,7,0,0" Name="radioButtonConvolution256" VerticalAlignment="Top" IsChecked="True" />
-                            <RadioButton Content="±65536サンプル CPU処理(±256サンプルの256倍の計算量)" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,29,0,0" Name="radioButtonAQCpu16" VerticalAlignment="Top" />
-                            <RadioButton Content="±65536サンプル GPU処理" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,51,0,0" Name="radioButtonAQGpu16" VerticalAlignment="Top" />
-                            <RadioButton Content="±1048576サンプル GPU処理" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,73,0,0" Name="radioButtonAQGpu20" VerticalAlignment="Top" />
-                            <RadioButton Content="±16777216サンプル GPU処理" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,95,0,0" Name="radioButtonAQGpu24" VerticalAlignment="Top" />
+                            <RadioButton Content="±256サンプル CPU処理" Grid.Row="0" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonConvolution256" VerticalAlignment="Center" IsChecked="True" />
+                            <RadioButton Content="±65536サンプル CPU処理(±256サンプルの256倍の計算量)" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonAQCpu16" VerticalAlignment="Center" />
+                            <RadioButton Content="±65536サンプル GPU処理" Grid.Row="2" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonAQGpu16" VerticalAlignment="Center" />
+                            <RadioButton Content="±1048576サンプル GPU処理" Grid.Row="3" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonAQGpu20" VerticalAlignment="Center" />
+                            <RadioButton Content="±16777216サンプル GPU処理" Grid.Row="4" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonAQGpu24" VerticalAlignment="Center" />
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="出力ファイル" Height="88" HorizontalAlignment="Left" Margin="6,0,0,0" Name="groupBox6" VerticalAlignment="Top" Width="474" Grid.Row="2">

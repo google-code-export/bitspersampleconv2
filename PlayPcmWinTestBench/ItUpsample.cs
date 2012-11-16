@@ -40,7 +40,8 @@ namespace PlayPcmWinTestBench {
 
             ImpulseTrain,
             SampleHold,
-            LinearInterpolation,
+            Linear,
+            Cubic,
         };
 
         private ItUpsampleType mItUpsampleType = ItUpsampleType.Unknown;
@@ -78,7 +79,10 @@ namespace PlayPcmWinTestBench {
                 mItUpsampleType = ItUpsampleType.SampleHold;
             }
             if (true == radioButtonItUpsampleLinear.IsChecked) {
-                mItUpsampleType = ItUpsampleType.LinearInterpolation;
+                mItUpsampleType = ItUpsampleType.Linear;
+            }
+            if (true == radioButtonItUpsampleCubic.IsChecked) {
+                mItUpsampleType = ItUpsampleType.Cubic;
             }
             System.Diagnostics.Debug.Assert(mItUpsampleType != ItUpsampleType.Unknown);
 
@@ -145,7 +149,7 @@ namespace PlayPcmWinTestBench {
                 });
                 break;
 
-            case ItUpsampleType.LinearInterpolation:
+            case ItUpsampleType.Linear:
                 Parallel.For(0, pcmDataIn.NumFrames - 1, (pos) => {
                     // 0 <= pos <= NumFrames-2まで実行する
                     for (int ch=0; ch < pcmDataIn.NumChannels; ++ch) {
@@ -166,6 +170,37 @@ namespace PlayPcmWinTestBench {
                     for (int i=0; i < mFreqMagnitude; ++i) {
                         pcm.SetSampleValueInDouble(ch, pos * mFreqMagnitude + i, v * (mFreqMagnitude - i-1) / mFreqMagnitude);
                     }
+                }
+                break;
+
+            case ItUpsampleType.Cubic: {
+                    var h = new double[4 * mFreqMagnitude];
+                    double a = -0.5;
+                    for (int i=0; i < mFreqMagnitude; ++i) {
+                        double t = (double)i/mFreqMagnitude;
+                        h[mFreqMagnitude * 2 + i] = (a + 2) * t * t * t - (a + 3) * t * t + 1;
+                        h[mFreqMagnitude * 2 - i] = h[mFreqMagnitude * 2 +i];
+                    }
+                    for (int i=mFreqMagnitude; i < mFreqMagnitude * 2; ++i) {
+                        double t = (double)i / mFreqMagnitude;
+                        h[mFreqMagnitude * 2 + i] = a * t * t * t - 5 * a * t * t + 8 * a * t - 4 * a;
+                        h[mFreqMagnitude * 2 - i] = h[mFreqMagnitude * 2 + i];
+                    }
+                    Parallel.For(0, pcmDataOut.NumFrames, (pos) => {
+                        for (int ch=0; ch < pcmDataIn.NumChannels; ++ch) {
+                            var x = new double[4 * mFreqMagnitude];
+                            for (int i=0; i < 4 * mFreqMagnitude; ++i) {
+                                if (0 == (pos + i) % mFreqMagnitude) {
+                                    x[i] = pcmDataIn.GetSampleValueInDouble(ch, (pos+i)/mFreqMagnitude);
+                                }
+                            }
+                            double v = 0;
+                            for (int i=0; i < 4* mFreqMagnitude; ++i) {
+                                v += h[i] * x[i];
+                            }
+                            pcm.SetSampleValueInDouble(ch, pos, v);
+                        }
+                    });
                 }
                 break;
             default:

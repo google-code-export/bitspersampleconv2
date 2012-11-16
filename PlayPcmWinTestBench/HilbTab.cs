@@ -44,8 +44,12 @@ namespace PlayPcmWinTestBench {
             }
         }
 
+        class HilbertWorkerArgs : FirWorkerArgs {
+            public WWHilbert.HilbertFilterType hilbertFilterType;
+        };
+
         private void buttonHilbOutputStart_Click(object sender, RoutedEventArgs e) {
-            var args = new FirWorkerArgs();
+            var args = new HilbertWorkerArgs();
             if (!Int32.TryParse(textBoxHilbFilterN.Text, out args.firLength) ||
                 (args.firLength & 1) == 0 || args.firLength <= 0) {
                 MessageBox.Show("FIRフィルタ長は正の奇数の数値を半角数字で入力してください。処理中断。");
@@ -79,6 +83,11 @@ namespace PlayPcmWinTestBench {
                 args.windowFunc = WindowFuncType.Kaiser;
             }
 
+            args.hilbertFilterType = WWHilbert.HilbertFilterType.HighPass;
+            if (radioButtonHilbertFilterBandlimited.IsChecked == true) {
+                args.hilbertFilterType = WWHilbert.HilbertFilterType.Bandlimited;
+            }
+
             AddHilbLog(string.Format("開始。{0} → {1}\r\n", args.inputPath, args.outputPath));
             buttonHilbOutputStart.IsEnabled = false;
             groupBoxHilbInput.IsEnabled = false;
@@ -102,10 +111,12 @@ namespace PlayPcmWinTestBench {
             progressBarHilb.Value = e.ProgressPercentage;
         }
 
-        private bool HilbertDo(FirWorkerArgs args, PcmData pcmDataIn, out PcmData pcmDataOutput) {
+        private bool HilbertDo(FirWorkerArgs argsFir, PcmData pcmDataIn, out PcmData pcmDataOutput) {
+            HilbertWorkerArgs args = argsFir as HilbertWorkerArgs;
+
             var dft = new WWDirectComputeCS.WWDftCpu();
 
-            var hilb = WWHilbert.HilbertFirCoeff(args.firLength);
+            var hilb = WWHilbert.HilbertFirCoeff(args.hilbertFilterType, args.firLength);
             System.Diagnostics.Debug.Assert(hilb.Length == args.firLength);
 
             // 窓関数
@@ -159,8 +170,7 @@ namespace PlayPcmWinTestBench {
                     // 結果を出力に書き込む。
                     for (long i=0; i < pcmFir.Length; ++i) {
                         var re = pcmFir[i];
-                        pcmDataOutput.SetSampleValueInDouble(ch, i + offs,
-                            (float)(re));
+                        pcmDataOutput.SetSampleValueInDouble(ch, i + offs, re);
                     }
 
                     // 進捗Update。

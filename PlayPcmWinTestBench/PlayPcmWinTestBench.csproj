@@ -120,6 +120,7 @@
     <Compile Include="AnalyticSignalTab.cs" />
     <Compile Include="HilbTab.cs" />
     <Compile Include="ItUpsample.cs" />
+    <Compile Include="PhaseRotationTab.cs" />
     <Compile Include="UpsampleTab.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

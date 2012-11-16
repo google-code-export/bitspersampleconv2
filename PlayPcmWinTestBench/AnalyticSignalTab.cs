@@ -98,8 +98,12 @@ namespace PlayPcmWinTestBench {
             }
         }
 
+        class AnalyticSignalWorkerArgs : FirWorkerArgs {
+            public WWHilbert.HilbertFilterType hilbertFilterType;
+        };
+
         private void buttonASCreate_Click(object sender, RoutedEventArgs e) {
-            var args = new FirWorkerArgs();
+            var args = new AnalyticSignalWorkerArgs();
             if (!Int32.TryParse(textBoxASFilterLength.Text, out args.firLength) ||
                 (args.firLength & 1) == 0 || args.firLength <= 0) {
                 MessageBox.Show("FIRフィルタ長は正の奇数の数値を半角数字で入力してください。処理中断。");
@@ -118,6 +122,11 @@ namespace PlayPcmWinTestBench {
                 args.windowFunc = WindowFuncType.Blackman;
             } else {
                 args.windowFunc = WindowFuncType.Kaiser;
+            }
+
+            args.hilbertFilterType = WWHilbert.HilbertFilterType.HighPass;
+            if (radioButtonASBandlimited.IsChecked == true) {
+                args.hilbertFilterType = WWHilbert.HilbertFilterType.Bandlimited;
             }
 
             m_analyticSignalList.Clear();
@@ -145,7 +154,7 @@ namespace PlayPcmWinTestBench {
         }
 
         private void m_AnalyticSignalWorker_DoWork(object sender, DoWorkEventArgs e) {
-            FirWorkerArgs args = (FirWorkerArgs)e.Argument;
+            AnalyticSignalWorkerArgs args = e.Argument as AnalyticSignalWorkerArgs;
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -163,14 +172,14 @@ namespace PlayPcmWinTestBench {
             PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat);
 
             // Real partを音量制限処理。
-            pcmDataReal.LimitLevelOnDoubleRange();
+            //pcmDataReal.LimitLevelOnDoubleRange();
 
             PcmData pcmDataImaginary = new PcmData();
             pcmDataImaginary.CopyFrom(pcmDataReal);
 
             var dft = new WWDirectComputeCS.WWDftCpu();
 
-            var hilb = WWHilbert.HilbertFirCoeff(args.firLength);
+            var hilb = WWHilbert.HilbertFirCoeff(args.hilbertFilterType, args.firLength);
             System.Diagnostics.Debug.Assert(hilb.Length == args.firLength);
 
             // 窓関数
@@ -226,12 +235,14 @@ namespace PlayPcmWinTestBench {
 
             }
 
+            /*
             // Imaginary partを音量制限処理。
             double scale = pcmDataImaginary.LimitLevelOnDoubleRange();
             if (scale < 1.0) {
                 // real partとimaginary partの音量を合わせる。
                 pcmDataReal.ScaleDoubleBuffer(scale);
             }
+            */
 
             // 解析信号を出力。
             m_analyticSignalList.Clear();
