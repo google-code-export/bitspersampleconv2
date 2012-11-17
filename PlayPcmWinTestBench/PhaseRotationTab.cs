@@ -121,7 +121,7 @@ namespace PlayPcmWinTestBench {
                 result, sw.ElapsedMilliseconds / 1000);
         }
 
-        // この関数は、音量制限を行わない。呼び出し側で必要に応じて音量を制限する。
+        // この関数は音量制限を行わない。呼び出し側で必要に応じて音量を制限する。
         private bool PhaseRotationDo(FirWorkerArgs argsFWA, PcmData pcmDataIn, out PcmData pcmDataOutput) {
             PhaseRotationWorkerArgs args = argsFWA as PhaseRotationWorkerArgs;
 

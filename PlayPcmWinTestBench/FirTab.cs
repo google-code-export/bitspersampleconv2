@@ -445,11 +445,19 @@ namespace PlayPcmWinTestBench {
                 return false;
             }
 
-            // 音量制限処理。
-            double scale = pcmDataOutput.LimitLevelOnDoubleRange();
+            // サンプルフォーマットが整数型の時だけ音量制限処理する。
+            double scale = 1.0;
+            double maxLevel = 0.0f;
+            if (args.valueRepresentationType == PcmData.ValueRepresentationType.SInt) {
+                scale = pcmDataOutput.LimitLevelOnDoubleRange();
+            } else {
+                double maxV, minV;
+                pcmDataOutput.FindMaxMinValueOnDoubleBuffer(out maxV, out minV);
+                maxLevel = Math.Max(Math.Abs(maxV), Math.Abs(minV));
+            }
 
             PcmData pcmDataWrite
-                = pcmDataOutput.BitsPerSampleConvertTo(
+                    = pcmDataOutput.BitsPerSampleConvertTo(
                     args.outputBitsPerSample, args.valueRepresentationType);
 
             bool writeResult = false;
@@ -464,11 +472,16 @@ namespace PlayPcmWinTestBench {
                 return false;
             }
 
-            if (scale == 1.0) {
-                result = string.Format("WAVファイル書き込み成功: {0}", args.outputPath);
+            if (args.valueRepresentationType == PcmData.ValueRepresentationType.SInt) {
+                if (scale == 1.0) {
+                    result = string.Format("WAVファイル書き込み成功: {0}", args.outputPath);
+                } else {
+                    result = string.Format("WAVファイル書き込み成功: {0}\r\nレベルオーバーのため音量を{1:0.######}倍しました({2:0.######}dB)",
+                            args.outputPath, scale, 20.0 * Math.Log10(scale));
+                }
             } else {
-                result = string.Format("WAVファイル書き込み成功: {0}\r\nレベルオーバーのため音量を{1:0.######}倍しました({2:0.######}dB)",
-                    args.outputPath, scale, 20.0 * Math.Log10(scale));
+                result = string.Format("WAVファイル書き込み成功: {0}\r\nサンプル値の絶対値の最大値 {1:0.######}",
+                        args.outputPath, maxLevel);
             }
             return true;
         }
