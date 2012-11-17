@@ -191,7 +191,6 @@
 ・RME Fireface400やM-AUDIO ProFire2626、Echo AudioFire等は、機器に設定されているマスターサンプリングレートをWASAPIから変更できないため手動で合わせる必要があります。
 ・Creative X-Fi Titanium HDの44.1kHzと88.2kHzはタイマー駆動モードならば動作します。
 ・Creative USB Sound Blaster HDはイベント駆動モードのほうが安定動作します。
-・Lynx AES16eのWaveRTドライバは、出力レイテンシーを29msなどの小さな値に設定すると再生できます。
 ・無音時に省電力のためS/PDIF出力を停止するデバイス等では、出力レイテンシーを50msなどの小さな値に設定すると曲の頭が途切れることがあるそうです。
 ・E-MU 0404 USBは、PlayPcmWinのバグが原因で量子化ビット数24bitのファイルを再生できません。[詳細設定][Int16に固定する]を選択すると16bitにダウンサンプルされてしまいますが音は鳴ります。
 ・Halide Bridgeは[詳細設定][Int24に固定する]を選択すると再生できたそうです。</value>

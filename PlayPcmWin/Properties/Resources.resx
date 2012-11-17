@@ -191,7 +191,6 @@
 *Some professional audio devices (RME Fireface, M-Audio ProFire, Echo AudioFire etc.) are not able to be changed master sampling rate via WASAPI. Please use FireFace settings, M-Audio ProFire control panel or equivalent tools on your system tray to change master sampling rate of those devices before playback.
 *44.1kHz and 88.2kHz sample rate of Creative X-Fi Titanium HD do work using timer driven mode.
 *Creative USB Sound Blaster HD prefers event driven mode. Timer driven mode tends to more problematic on some devices.
-*Lynx AES16e WaveRT driver requires very low latency settings such as 29ms.
 *There are strange audio devices which stops TOSLINK output when no signal. Such devices apparently seem not to deliver first several thousand samples of PCM data. If first part of music is truncated, please increase [Zero flush period on playback starts] value.
 *PlayPcmWin cannot setup E-MU 0404 USB 24bit mode. [Detailed settings][Fix Int16] to play 24bit files on those devices but it truncates lower 8bit information.
 *Halide Bridge seems to require 24bit data always. [Detailed settings][Fix Int24] to play sound on those devices.</value>
