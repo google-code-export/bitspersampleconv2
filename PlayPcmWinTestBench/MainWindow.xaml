@@ -128,7 +128,7 @@
                                         <RowDefinition Height="1*" />
                                     </Grid.RowDefinitions>
                                     <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonASBandlimited" VerticalAlignment="Center" IsChecked="True" />
-                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonASHighPass" VerticalAlignment="Center" />
+                                    <RadioButton Content="ハイパス型(バグ有り)" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonASHighPass" VerticalAlignment="Center" />
                                 </Grid>
                             </GroupBox>
 
@@ -239,7 +239,7 @@
                                         <RowDefinition Height="1*" />
                                     </Grid.RowDefinitions>
                                     <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbertFilterBandlimited" VerticalAlignment="Center" IsChecked="True" />
-                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbertFilterHighPass" VerticalAlignment="Center" />
+                                    <RadioButton Content="ハイパス型(バグ有り)" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonHilbertFilterHighPass" VerticalAlignment="Center" />
                                 </Grid>
                             </GroupBox>
                         </Grid>
@@ -291,7 +291,7 @@
                                         <RowDefinition Height="1*" />
                                     </Grid.RowDefinitions>
                                     <RadioButton Content="バンドリミテッド型" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPhaseBandlimited" VerticalAlignment="Center" IsChecked="True" />
-                                    <RadioButton Content="ハイパス型" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPhaseHighPass" VerticalAlignment="Center" />
+                                    <RadioButton Content="ハイパス型(バグ有り)" Grid.Row="1" Height="16" HorizontalAlignment="Left" Margin="6,0,0,0" Name="radioButtonPhaseHighPass" VerticalAlignment="Center" />
                                 </Grid>
                             </GroupBox>
 
