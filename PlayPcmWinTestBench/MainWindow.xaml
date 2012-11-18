@@ -205,7 +205,7 @@
                     </GroupBox>
                     <Button Content="出力(_R)" Height="23" HorizontalAlignment="Left" Margin="6,404,0,0" Name="buttonHilbOutputStart" VerticalAlignment="Top" Width="107" Click="buttonHilbOutputStart_Click" />
                     <ProgressBar Height="23" HorizontalAlignment="Left" Margin="6,0,0,6" Name="progressBarHilb" VerticalAlignment="Bottom" Width="345" />
-                    <GroupBox Header="出力サンプルデータ形式" Height="106" HorizontalAlignment="Left" Margin="401,70,0,0" Name="groupBox18" VerticalAlignment="Top" Width="229">
+                    <GroupBox Header="出力サンプルデータ形式" Height="106" HorizontalAlignment="Left" Margin="385,70,0,0" Name="groupBox18" VerticalAlignment="Top" Width="229">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
@@ -260,7 +260,7 @@
                     </GroupBox>
                     <Button Content="出力(_R)" Height="23" HorizontalAlignment="Left" Margin="6,404,0,0" Name="buttonPhaseOutputStart" VerticalAlignment="Top" Width="107" Click="buttonPhaseOutputStart_Click" />
                     <ProgressBar Height="23" HorizontalAlignment="Left" Margin="6,0,0,6" Name="progressBarPhase" VerticalAlignment="Bottom" Width="345" />
-                    <GroupBox Header="出力サンプルデータ形式" Height="110" HorizontalAlignment="Left" Margin="465,71,0,0" VerticalAlignment="Top" Width="256">
+                    <GroupBox Header="出力サンプルデータ形式" Height="110" HorizontalAlignment="Left" Margin="425,71,0,0" VerticalAlignment="Top" Width="256">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
