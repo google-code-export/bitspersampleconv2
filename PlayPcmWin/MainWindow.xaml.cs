@@ -1386,7 +1386,7 @@ namespace PlayPcmWin
                 m_deviceSetupInfo.LatencyMillisec));
 
             wasapi.SetZeroFlushMillisec(m_deviceSetupInfo.ZeroFlushMillisec);
-            wasapi.SetTimePeriodMillisec(m_preference.TimePeriodMillisec);
+            wasapi.SetTimePeriodHundredNanosec(m_preference.TimePeriodHundredNanosec);
 
             wasapi.SetResamplerConversionQuality(m_preference.ResamplerConversionQuality);
 
@@ -3081,6 +3081,13 @@ namespace PlayPcmWin
                 // ワーカースレッドがキャンセルされているので、何もしない。
                 return;
             }
+
+            /* {
+                long hnano = wasapi.GetTimePeriodHundredNanosec();
+                AddLogText(string.Format(CultureInfo.InvariantCulture, " timer resolution = {0} microsec\r\n",
+                    hnano * 0.1));
+            } */
+
 
             // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ等)の再生位置情報を画面に表示する。
             WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;

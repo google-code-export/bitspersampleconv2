@@ -189,7 +189,11 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_SetTimePeriodMillisec(int millisec);
+        WasapiIO_SetTimePeriodHundredNanosec(int hnanosec);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_GetTimePeriodHundredNanosec();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -485,8 +489,14 @@ namespace Wasapi {
             WasapiIO_SetZeroFlushMillisec(millisec);
         }
 
-        public void SetTimePeriodMillisec(int millisec) {
-            WasapiIO_SetTimePeriodMillisec(millisec);
+        /// @param hnanosec x 100 nanoseconds
+        public void SetTimePeriodHundredNanosec(int hnanosec) {
+            WasapiIO_SetTimePeriodHundredNanosec(hnanosec);
+        }
+
+        /// @return hnanosec x 100 nanoseconds
+        public int GetTimePeriodHundredNanosec() {
+            return WasapiIO_GetTimePeriodHundredNanosec();
         }
 
         public void SetResamplerConversionQuality(int quality) {

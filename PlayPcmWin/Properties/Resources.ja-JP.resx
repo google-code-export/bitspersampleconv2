@@ -543,4 +543,13 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCueEncoding" xml:space="preserve">
     <value>文字コード:</value>
   </data>
+  <data name="SettingsTimerResolution1Millisec" xml:space="preserve">
+    <value>タイマー解像度=1ms</value>
+  </data>
+  <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
+    <value>タイマー解像度=0.5ms</value>
+  </data>
+  <data name="SettingsTimerResolutionDefault" xml:space="preserve">
+    <value>既定のタイマー解像度</value>
+  </data>
 </root>

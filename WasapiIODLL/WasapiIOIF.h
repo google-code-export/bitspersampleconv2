@@ -187,7 +187,11 @@ WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec);
 
 extern "C" __declspec(dllexport)
 void __stdcall
-WasapiIO_SetTimePeriodMillisec(int millisec);
+WasapiIO_SetTimePeriodHundredNanosec(int hnanosec);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_GetTimePeriodHundredNanosec(void);
 
 extern "C" __declspec(dllexport)
 void __stdcall

@@ -56,7 +56,7 @@ namespace PlayPcmWin {
         public bool RefrainRedraw { get; set; }
         public bool Shuffle { get; set; }
         public int ZeroFlushMillisec { get; set; }
-        public int TimePeriodMillisec { get; set; }
+        public int TimePeriodHundredNanosec { get; set; }
         public bool AlternatingRowBackground { get; set; }
         public long AlternatingRowBackgroundArgb { get; set; }
 
@@ -121,7 +121,7 @@ namespace PlayPcmWin {
             DispCoverart = true;
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
-            TimePeriodMillisec = 1;
+            TimePeriodHundredNanosec = 10000;
 
             MainWindowLeft   = 100;
             MainWindowTop    = 100;

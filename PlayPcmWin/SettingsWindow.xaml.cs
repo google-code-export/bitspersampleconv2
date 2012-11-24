@@ -57,7 +57,9 @@ namespace PlayPcmWin {
             checkBoxPlayingTimeBold.Content = Properties.Resources.SettingsCheckBoxPlayingTimeBold;
             checkBoxRefrainRedraw.Content = Properties.Resources.SettingsCheckBoxRefrainRedraw;
             checkBoxStorePlaylistContent.Content = Properties.Resources.SettingsCheckBoxStorePlaylistContent;
-            checkBoxTimePeriod1.Content = Properties.Resources.SettingsCheckBoxTimePeriod1;
+            cbItemTimerResolutionDefault.Content = Properties.Resources.SettingsTimerResolutionDefault;
+            cbItemTimerResolution1Millisec.Content = Properties.Resources.SettingsTimerResolution1Millisec;
+            cbItemTimerResolution500Microsec.Content = Properties.Resources.SettingsTimerResolution500Microsec;
 
             labelConversionQuality.Content = Properties.Resources.SettingsLabelConversionQuality;
             labelCueEncoding.Content = Properties.Resources.SettingsCueEncoding;
@@ -131,8 +133,13 @@ namespace PlayPcmWin {
             checkBoxParallelRead.IsChecked =
                 preference.ParallelRead;
 
-            checkBoxTimePeriod1.IsChecked =
-                preference.TimePeriodMillisec == 0 ? false : true;
+            if (5000 == preference.TimePeriodHundredNanosec) {
+                comboBoxTimePeriod.SelectedItem = cbItemTimerResolution500Microsec;
+            } else if (10000 == preference.TimePeriodHundredNanosec) {
+                comboBoxTimePeriod.SelectedItem = cbItemTimerResolution1Millisec;
+            } else {
+                comboBoxTimePeriod.SelectedItem = cbItemTimerResolutionDefault;
+            }
 
             textBoxPlayingTimeSize.Text =
                 preference.PlayingTimeSize.ToString(CultureInfo.CurrentCulture);
@@ -258,8 +265,13 @@ namespace PlayPcmWin {
             m_preference.ParallelRead
                 = checkBoxParallelRead.IsChecked == true;
 
-            m_preference.TimePeriodMillisec
-                = checkBoxTimePeriod1.IsChecked == true ? 1 : 0;
+            if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution500Microsec) {
+                m_preference.TimePeriodHundredNanosec = 5000;
+            } else if (comboBoxTimePeriod.SelectedItem == cbItemTimerResolution1Millisec) {
+                m_preference.TimePeriodHundredNanosec = 10000;
+            } else {
+                m_preference.TimePeriodHundredNanosec = 0;
+            }
 
             m_preference.WindowScale = sliderWindowScaling.Value;
 

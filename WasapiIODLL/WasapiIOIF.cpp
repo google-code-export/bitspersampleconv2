@@ -546,11 +546,20 @@ WasapiIO_SetZeroFlushMillisec(int millisec)
 
 extern "C" __declspec(dllexport)
 void __stdcall
-WasapiIO_SetTimePeriodMillisec(int millisec)
+WasapiIO_SetTimePeriodHundredNanosec(int hnanosec)
 {
     assert(self);
-    self->wasapi.SetTimePeriodMillisec(millisec);
+    self->wasapi.SetTimePeriodHundredNanosec(hnanosec);
 }
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_GetTimePeriodHundredNanosec(void)
+{
+    assert(self);
+    return self->wasapi.GetTimePeriodHundredNanosec();
+}
+
 extern "C" __declspec(dllexport)
 void __stdcall
 WasapiIO_SetResamplerConversionQuality(int quality)

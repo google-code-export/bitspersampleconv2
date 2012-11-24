@@ -100,7 +100,8 @@ public:
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
     void SetZeroFlushMillisec(int zeroFlushMillisec);
-    void SetTimePeriodMillisec(int millisec);
+    void SetTimePeriodHundredNanosec(int hnanosec);
+    int  GetTimePeriodHundredNanosec(void) const { return m_setTimePeriodHundredNanosec; }
 
     /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
@@ -235,7 +236,9 @@ private:
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
     IMMNotificationClient *m_pNotificationClient;
-    int          m_timePeriodMillisec;
+    ULONG        m_beforeTimePeriodHundredNanosec;
+    ULONG        m_desiredTimePeriodHundredNanosec;
+    ULONG        m_setTimePeriodHundredNanosec;
     int          m_zeroFlushMillisec;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
@@ -249,6 +252,9 @@ private:
 
     void ClearCapturedPcmData(void);
     void ClearPlayPcmData(void);
+
+    DWORD SetTimerResolution(void);
+    void UnsetTimerResolution(void);
 
     /// WASAPIレンダーバッファに詰めるデータを作る。
     int CreateWritableFrames(BYTE *pData_return, int wantFrames);
