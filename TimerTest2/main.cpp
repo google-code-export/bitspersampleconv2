@@ -29,8 +29,7 @@ int main(void)
     ULONG maxResolution = 0U;
     ULONG curResolution = 0U;
 
-    NtQueryTimerResolution(
-            &minResolution, &maxResolution, &curResolution);
+    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
 
     printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
             minResolution, maxResolution, curResolution);
