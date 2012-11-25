@@ -17,13 +17,13 @@
 #endif /* TEST_MMTIMER */
 
 extern "C" {
-extern NTSYSAPI NTSTATUS NTAPI
+NTSYSAPI NTSTATUS NTAPI
 NtSetTimerResolution(
         IN  ULONG   desiredResolution,
         IN  BOOLEAN setResolution,
         OUT PULONG  currentResolution);
 
-extern NTSYSAPI NTSTATUS NTAPI
+NTSYSAPI NTSTATUS NTAPI
 NtQueryTimerResolution(
         OUT PULONG minimumResolution,
         OUT PULONG maximumResolution,
