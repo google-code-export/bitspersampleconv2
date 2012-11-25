@@ -17,17 +17,17 @@
 #endif /* TEST_MMTIMER */
 
 extern "C" {
-NTSYSAPI NTSTATUS NTAPI
-NtSetTimerResolution(
-        IN  ULONG   desiredResolution,
-        IN  BOOLEAN setResolution,
-        OUT PULONG  currentResolution);
+    NTSYSAPI NTSTATUS NTAPI
+    NtSetTimerResolution(
+            IN  ULONG   desiredResolution,
+            IN  BOOLEAN setResolution,
+            OUT PULONG  currentResolution);
 
-NTSYSAPI NTSTATUS NTAPI
-NtQueryTimerResolution(
-        OUT PULONG minimumResolution,
-        OUT PULONG maximumResolution,
-        OUT PULONG currentResolution);
+    NTSYSAPI NTSTATUS NTAPI
+    NtQueryTimerResolution(
+            OUT PULONG minimumResolution,
+            OUT PULONG maximumResolution,
+            OUT PULONG currentResolution);
 }; /* extern "C" */
 
 int main(void)
