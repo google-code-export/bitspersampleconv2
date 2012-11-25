@@ -23,18 +23,18 @@
 
 // ntdll.lib
 extern "C" {
-extern NTSYSAPI NTSTATUS NTAPI
+NTSYSAPI NTSTATUS NTAPI
 NtSetTimerResolution(
         IN  ULONG   desiredResolution,
         IN  BOOLEAN setResolution,
         OUT PULONG  currentResolution);
 
-extern NTSYSAPI NTSTATUS NTAPI
+NTSYSAPI NTSTATUS NTAPI
 NtQueryTimerResolution(
         OUT PULONG minimumResolution,
         OUT PULONG maximumResolution,
         OUT PULONG currentResolution);
-};
+}; /* extern "C" */
 
 WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
 {
