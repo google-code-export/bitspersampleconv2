@@ -36,43 +36,45 @@ int main(void)
     ULONG maxResolution  = 0U;
     ULONG curResolution  = 0U;
     ULONG origResolution = 0U;
+    NTSTATUS stat = 0;
+    MMRESULT mmr  = 0;
 
-    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
-    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
-            minResolution, maxResolution, curResolution);
+    stat = NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution %x min=%u max=%u cur=%u\n",
+            stat, minResolution, maxResolution, curResolution);
     origResolution = curResolution;
 
-    NtSetTimerResolution(maxResolution, TRUE, &curResolution);
-    printf("NtSetTimerResolution set=%u cur=%u\n",
-            maxResolution, curResolution);
+    stat = NtSetTimerResolution(maxResolution, TRUE, &curResolution);
+    printf("NtSetTimerResolution %x set=%u cur=%u\n",
+            stat, maxResolution, curResolution);
 
-    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
-    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
-            minResolution, maxResolution, curResolution);
+    stat = NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution %x min=%u max=%u cur=%u\n",
+            stat, minResolution, maxResolution, curResolution);
 
-    NtSetTimerResolution(origResolution, TRUE, &curResolution);
-    printf("NtSetTimerResolution set=%u cur=%u\n",
-            origResolution, curResolution);
+    stat = NtSetTimerResolution(origResolution, TRUE, &curResolution);
+    printf("NtSetTimerResolution %x set=%u cur=%u\n",
+            stat, origResolution, curResolution);
 
-    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
-    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
-            minResolution, maxResolution, curResolution);
+    stat = NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution %x min=%u max=%u cur=%u\n",
+            stat, minResolution, maxResolution, curResolution);
 
 #ifdef TEST_MMTIMER
     printf("\n");
 
-    timeBeginPeriod(1);
-    printf("timeBeginPeriod(1)\n");
+    mmr = timeBeginPeriod(1);
+    printf("timeBeginPeriod(1) %x\n", mmr);
 
-    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
-    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
-            minResolution, maxResolution, curResolution);
+    stat = NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution %x min=%u max=%u cur=%u\n",
+            stat, minResolution, maxResolution, curResolution);
 
-    timeEndPeriod(1);
-    printf("timeEndPeriod(1)\n");
+    mmr = timeEndPeriod(1);
+    printf("timeEndPeriod(1) %x\n", mmr);
 
-    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
-    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
-            minResolution, maxResolution, curResolution);
+    stat = NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution %x min=%u max=%u cur=%u\n",
+            stat, minResolution, maxResolution, curResolution);
 #endif /* TEST_MMTIMER */
 }
