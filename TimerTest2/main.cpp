@@ -46,9 +46,17 @@ int main(void)
     printf("NtSetTimerResolution set=%u cur=%u\n",
             maxResolution, curResolution);
 
+    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
+            minResolution, maxResolution, curResolution);
+
     NtSetTimerResolution(origResolution, TRUE, &curResolution);
     printf("NtSetTimerResolution set=%u cur=%u\n",
             origResolution, curResolution);
+
+    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
+            minResolution, maxResolution, curResolution);
 
 #ifdef TEST_MMTIMER
     printf("\n");
