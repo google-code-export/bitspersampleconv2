@@ -9,6 +9,13 @@
  */
 #pragma comment(lib, "ntdll")
 
+#define TEST_MMTIMER
+
+#ifdef TEST_MMTIMER
+#include <mmsystem.h>
+#pragma comment(lib, "winmm")
+#endif /* TEST_MMTIMER */
+
 extern "C" {
 extern NTSYSAPI NTSTATUS NTAPI
 NtSetTimerResolution(
@@ -21,21 +28,41 @@ NtQueryTimerResolution(
         OUT PULONG minimumResolution,
         OUT PULONG maximumResolution,
         OUT PULONG currentResolution);
-};
+}; /* extern "C" */
 
 int main(void)
 {
     ULONG minResolution = 0U;
     ULONG maxResolution = 0U;
     ULONG curResolution = 0U;
+    ULONG origResolution = 0U;
 
     NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
+            minResolution, maxResolution, curResolution);
+    origResolution = curResolution;
 
+    NtSetTimerResolution(maxResolution, TRUE, &curResolution);
+    printf("NtSetTimerResolution %u cur=%u\n",
+            maxResolution, curResolution);
+
+    NtSetTimerResolution(origResolution, TRUE, &curResolution);
+    printf("NtSetTimerResolution %u cur=%u\n",
+            maxResolution, curResolution);
+
+#ifdef TEST_MMTIMER
+    timeBeginPeriod(1);
+    printf("timeBeginPeriod(1)\n");
+
+    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
     printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
             minResolution, maxResolution, curResolution);
 
-    NtSetTimerResolution(maxResolution, TRUE, &curResolution);
+    timeEndPeriod(1);
+    printf("timeEndPeriod(1)\n");
 
-    printf("NtSetTimerResolution %u cur=%u\n",
-            maxResolution, curResolution);
+    NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
+    printf("NtQueryTimerResolution min=%u max=%u cur=%u\n",
+            minResolution, maxResolution, curResolution);
+#endif /* TEST_MMTIMER */
 }
