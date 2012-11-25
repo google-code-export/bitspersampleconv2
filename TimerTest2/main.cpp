@@ -48,9 +48,10 @@ int main(void)
 
     NtSetTimerResolution(origResolution, TRUE, &curResolution);
     printf("NtSetTimerResolution %u cur=%u\n",
-            maxResolution, curResolution);
+            origResolution, curResolution);
 
 #ifdef TEST_MMTIMER
+    printf("\n");
     timeBeginPeriod(1);
     printf("timeBeginPeriod(1)\n");
 
