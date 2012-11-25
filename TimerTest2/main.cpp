@@ -32,9 +32,9 @@ NtQueryTimerResolution(
 
 int main(void)
 {
-    ULONG minResolution = 0U;
-    ULONG maxResolution = 0U;
-    ULONG curResolution = 0U;
+    ULONG minResolution  = 0U;
+    ULONG maxResolution  = 0U;
+    ULONG curResolution  = 0U;
     ULONG origResolution = 0U;
 
     NtQueryTimerResolution(&minResolution, &maxResolution, &curResolution);
@@ -60,6 +60,7 @@ int main(void)
 
 #ifdef TEST_MMTIMER
     printf("\n");
+
     timeBeginPeriod(1);
     printf("timeBeginPeriod(1)\n");
 
