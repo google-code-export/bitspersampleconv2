@@ -2,10 +2,10 @@
 #include <stdio.h>
 
 /* ntdll.dll is included in Windows Driver Kit.
- * You may need to update VS user library path to:
- * $(LibraryPath);C:\WinDDK\7600.16385.1\lib\win7\i386
- * or
- * $(LibraryPath);C:\WinDDK\7600.16385.1\lib\win7\amd64
+ * You may need to update VS user library path to
+ * i386:  $(LibraryPath);C:\WinDDK\7600.16385.1\lib\win7\i386
+ * amd64: $(LibraryPath);C:\WinDDK\7600.16385.1\lib\win7\amd64
+ * respectively.
  */
 #pragma comment(lib, "ntdll")
 
