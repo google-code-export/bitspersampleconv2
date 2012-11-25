@@ -43,11 +43,11 @@ int main(void)
     origResolution = curResolution;
 
     NtSetTimerResolution(maxResolution, TRUE, &curResolution);
-    printf("NtSetTimerResolution %u cur=%u\n",
+    printf("NtSetTimerResolution set=%u cur=%u\n",
             maxResolution, curResolution);
 
     NtSetTimerResolution(origResolution, TRUE, &curResolution);
-    printf("NtSetTimerResolution %u cur=%u\n",
+    printf("NtSetTimerResolution set=%u cur=%u\n",
             origResolution, curResolution);
 
 #ifdef TEST_MMTIMER
