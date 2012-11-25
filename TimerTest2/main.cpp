@@ -12,8 +12,8 @@
 #define TEST_MMTIMER
 
 #ifdef TEST_MMTIMER
-#include <mmsystem.h>
-#pragma comment(lib, "winmm")
+# include <mmsystem.h>
+# pragma comment(lib, "winmm")
 #endif /* TEST_MMTIMER */
 
 extern "C" {
