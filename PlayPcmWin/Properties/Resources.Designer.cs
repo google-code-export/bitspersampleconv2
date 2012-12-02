@@ -1057,16 +1057,16 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   WASAPI Shared Resampler に類似しているローカライズされた文字列を検索します。
+        ///   WASAPI shared mode settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SettingsGroupBoxWasapiSharedResampler {
+        internal static string SettingsGroupBoxWasapiShared {
             get {
-                return ResourceManager.GetString("SettingsGroupBoxWasapiSharedResampler", resourceCulture);
+                return ResourceManager.GetString("SettingsGroupBoxWasapiShared", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Quality (1 to 60): に類似しているローカライズされた文字列を検索します。
+        ///   Resampler MFT Quality (1 to 60): に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsLabelConversionQuality {
             get {
@@ -1224,6 +1224,15 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsRadioButtonTaskProAudio {
             get {
                 return ResourceManager.GetString("SettingsRadioButtonTaskProAudio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Scale maximum amplitude to 0.98 to soothe limiter APO に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsSootheLimiterApo {
+            get {
+                return ResourceManager.GetString("SettingsSootheLimiterApo", resourceCulture);
             }
         }
         

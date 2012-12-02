@@ -43,6 +43,11 @@ namespace PlayPcmWin
             "cover.jpg",
         };
 
+        /// <summary>
+        /// 共有モードの音量制限。
+        /// </summary>
+        const double SHARED_MAX_AMPLITUDE = 0.98;
+
         private WasapiCS wasapi;
 
         private Wasapi.WasapiCS.StateChangedCallback m_wasapiStateChangedDelegate;
@@ -2346,6 +2351,18 @@ namespace PlayPcmWin
                     args.Result = r;
                     return;
                 }
+
+                if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared
+                        && m_preference.SootheLimiterApo) {
+                    // Limiter APO対策の音量制限。
+                    double maxAmplitude = wasapi.ScanPcmMaxAbsAmplitude();
+                    if (SHARED_MAX_AMPLITUDE < maxAmplitude) {
+                        m_readFileWorker.ReportProgress(95, string.Format(CultureInfo.InvariantCulture, "Scaling amplitude by {0:0.000}dB ({1:0.000}x) to soothe Limiter APO...\r\n",
+                                20.0 * Math.Log10(SHARED_MAX_AMPLITUDE / maxAmplitude), SHARED_MAX_AMPLITUDE / maxAmplitude));
+                        wasapi.ScalePcmAmplitude(SHARED_MAX_AMPLITUDE / maxAmplitude);
+                    }
+                }
+
                 wasapi.AddPlayPcmDataEnd();
 
                 // 成功。

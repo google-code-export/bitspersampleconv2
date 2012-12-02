@@ -56,6 +56,9 @@ public:
     WWPcmData *FirstPcmData(void);
     WWPcmData *LastPcmData(void);
 
+    WWPcmData *NthPcmData(int n);
+    int Count(void) const { return (int)m_playPcmDataList.size(); }
+
     bool GetRepatFlag(void) { return m_repeat; }
 
     /// @return S_OK: success

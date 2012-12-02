@@ -92,6 +92,14 @@ namespace Wasapi {
         WasapiIO_ResampleIfNeeded();
 
         [DllImport("WasapiIODLL.dll")]
+        private extern static double
+        WasapiIO_ScanPcmMaxAbsAmplitude();
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_ScalePcmAmplitude(double scale);
+
+        [DllImport("WasapiIODLL.dll")]
         private extern static bool
         WasapiIO_AddPlayPcmDataEnd();
 
@@ -386,6 +394,14 @@ namespace Wasapi {
         /// <returns>HRESULT</returns>
         public int ResampleIfNeeded() {
             return WasapiIO_ResampleIfNeeded();
+        }
+
+        public double ScanPcmMaxAbsAmplitude() {
+            return WasapiIO_ScanPcmMaxAbsAmplitude();
+        }
+
+        public void ScalePcmAmplitude(double scale) {
+            WasapiIO_ScalePcmAmplitude(scale);
         }
 
         public bool AddPlayPcmDataEnd() {

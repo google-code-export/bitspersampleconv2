@@ -18,6 +18,19 @@ namespace PlayPcmWin {
     /// SettingsWindow.xaml の相互作用ロジック
     /// </summary>
     public sealed partial class SettingsWindow : Window {
+        enum SettingsBitFormatType {
+            Variable,
+            VariableSint16Sint32V24,
+            VariableSint16Sint24,
+            Sint16,
+            Sint24,
+
+            Sint32V24,
+            Sint32,
+            Sfloat32,
+            AutoSelect,
+        };
+
         public SettingsWindow() {
             InitializeComponent();
 
@@ -30,18 +43,19 @@ namespace PlayPcmWin {
             groupBoxQuantizationBitrate.Header = Properties.Resources.SettingsGroupBoxQuantizationBitrate;
             
             groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
-            groupBoxWasapiSharedResampler.Header = Properties.Resources.SettingsGroupBoxWasapiSharedResampler;
+            groupBoxWasapiShared.Header = Properties.Resources.SettingsGroupBoxWasapiShared;
 
-            radioButtonBpsAutoSelect.Content = Properties.Resources.SettingsRadioButtonBpsAutoSelect;
-            radioButtonBpsSfloat32.Content = Properties.Resources.SettingsRadioButtonBpsSfloat32;
-            radioButtonBpsSint16.Content = Properties.Resources.SettingsRadioButtonBpsSint16;
-            radioButtonBpsSint24.Content = Properties.Resources.SettingsRadioButtonBpsSint24;
-            radioButtonBpsSint32.Content = Properties.Resources.SettingsRadioButtonBpsSint32;
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariable);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint32V24);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint24);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint16);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint24);
 
-            radioButtonBpsSint32V24.Content = Properties.Resources.SettingsRadioButtonBpsSint32V24;
-            radioButtonBpsVariable.Content = Properties.Resources.SettingsRadioButtonBpsVariable;
-            radioButtonBpsVariableSint16Sint24.Content = Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint24;
-            radioButtonBpsVariableSint16Sint32V24.Content = Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint32V24;
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint32V24);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint32);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSfloat32);
+            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsAutoSelect);
+
             radioButtonTaskAudio.Content = Properties.Resources.SettingsRadioButtonTaskAudio;
 
             radioButtonTaskNone.Content = Properties.Resources.SettingsRadioButtonTaskNone;
@@ -49,6 +63,9 @@ namespace PlayPcmWin {
             radioButtonTaskProAudio.Content = Properties.Resources.SettingsRadioButtonTaskProAudio;
 
             checkBoxAlternateBackground.Content = Properties.Resources.SettingsCheckBoxAlternateBackground;
+
+            checkBoxSootheLimiterApo.Content = Properties.Resources.SettingsSootheLimiterApo;
+
             checkBoxCoverart.Content = Properties.Resources.SettingsCheckBoxCoverart;
             checkBoxManuallySetMainWindowDimension.Content = Properties.Resources.SettingsCheckBoxManuallySetMainWindowDimension;
             checkBoxParallelRead.Content = Properties.Resources.SettingsCheckBoxParallelRead;
@@ -84,34 +101,31 @@ namespace PlayPcmWin {
         private void UpdateUIFromPreference(Preference preference) {
             switch (preference.BitsPerSampleFixType) {
             case BitsPerSampleFixType.Variable:
-                radioButtonBpsVariable.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Variable;
                 break;
             case BitsPerSampleFixType.VariableSint16Sint24:
-                radioButtonBpsVariableSint16Sint24.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.VariableSint16Sint24;
                 break;
             case BitsPerSampleFixType.VariableSint16Sint32V24:
-                radioButtonBpsVariableSint16Sint32V24.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.VariableSint16Sint32V24;
                 break;
             case BitsPerSampleFixType.Sint16:
-                radioButtonBpsSint16.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint16;
                 break;
             case BitsPerSampleFixType.Sint24:
-                radioButtonBpsSint24.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint24;
                 break;
             case BitsPerSampleFixType.Sint32:
-                radioButtonBpsSint32.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint32;
                 break;
             case BitsPerSampleFixType.Sfloat32:
-                radioButtonBpsSfloat32.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sfloat32;
                 break;
             case BitsPerSampleFixType.Sint32V24:
-                radioButtonBpsSint32V24.IsChecked = true;
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint32V24;
                 break;
             case BitsPerSampleFixType.AutoSelect:
-                radioButtonBpsAutoSelect.IsChecked = true;
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
+                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.AutoSelect;
                 break;
             }
 
@@ -149,6 +163,8 @@ namespace PlayPcmWin {
 
             textBoxConversionQuality.Text =
                 string.Format(CultureInfo.CurrentCulture, "{0}", preference.ResamplerConversionQuality);
+
+            checkBoxSootheLimiterApo.IsChecked = preference.SootheLimiterApo;
 
             sliderWindowScaling.Value =
                 preference.WindowScale;
@@ -219,32 +235,37 @@ namespace PlayPcmWin {
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e) {
-            if (true == radioButtonBpsVariable.IsChecked) {
+            System.Diagnostics.Debug.Assert(0 <= comboBoxOutputFormat.SelectedIndex);
+            var settingsBitFormat = (SettingsBitFormatType)comboBoxOutputFormat.SelectedIndex;
+            switch (settingsBitFormat) {
+            case SettingsBitFormatType.Variable:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Variable;
-            }
-            if (true == radioButtonBpsVariableSint16Sint24.IsChecked) {
+                break;
+            case SettingsBitFormatType.VariableSint16Sint24:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
-            }
-            if (true == radioButtonBpsVariableSint16Sint32V24.IsChecked) {
+                break;
+            case SettingsBitFormatType.VariableSint16Sint32V24:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
-            }
-            if (true == radioButtonBpsSint16.IsChecked) {
+                break;
+            case SettingsBitFormatType.Sint16:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint16;
-            }
-            if (true == radioButtonBpsSint24.IsChecked) {
+                break;
+            case SettingsBitFormatType.Sint24:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint24;
-            }
-            if (true == radioButtonBpsSint32.IsChecked) {
+                break;
+            case SettingsBitFormatType.Sint32:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint32;
-            }
-            if (true == radioButtonBpsSfloat32.IsChecked) {
+                break;
+            case SettingsBitFormatType.Sfloat32:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sfloat32;
-            }
-            if (true == radioButtonBpsSint32V24.IsChecked) {
+                break;
+            case SettingsBitFormatType.Sint32V24:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint32V24;
-            }
-            if (true == radioButtonBpsAutoSelect.IsChecked) {
+                break;
+            case SettingsBitFormatType.AutoSelect:
+            default:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
+                break;
             }
 
             m_preference.ReplaceGapWithKokomade
@@ -311,6 +332,8 @@ namespace PlayPcmWin {
                     MessageBox.Show("Wasapi Shared Resampler Qualityの大きさは 1～60の範囲の数字を入力してください。");
                 }
             }
+
+            m_preference.SootheLimiterApo = (checkBoxSootheLimiterApo.IsChecked == true);
 
             m_preference.PlayingTimeFontBold = (checkBoxPlayingTimeBold.IsChecked == true);
 

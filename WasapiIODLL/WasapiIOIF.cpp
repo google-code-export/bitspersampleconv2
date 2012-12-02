@@ -23,6 +23,9 @@ struct WasapiIO {
     void SetResamplerConversionQuality(int quality) {
         mResamplerConversionQuality = quality;
     }
+
+    double ScanPcmMaxAbsAmplitude(void);
+    void ScalePcmAmplitude(double scale);
 };
 
 HRESULT
@@ -91,6 +94,41 @@ WasapiIO::ResampleIfNeeded(void)
     wasapi.UpdatePcmDataFormat(wasapi.GetDeviceSampleRate(), WWPcmDataSampleFormatSfloat, wasapi.GetDeviceNumChannels(), wasapi.GetDeviceDwChannelMask());
 
     return hr;
+}
+
+double
+WasapiIO::ScanPcmMaxAbsAmplitude(void)
+{
+    float minResult = FLT_MAX;
+    float maxResult = FLT_MIN;
+
+    for (int i=0; i<playPcmGroup.Count(); ++i) {
+        WWPcmData *pcm = playPcmGroup.NthPcmData(i);
+        assert(pcm);
+
+        float minV, maxV;
+        pcm->FindSampleValueMinMax(&minV, &maxV);
+
+        if (minV < minResult) {
+            minResult = minV;
+        }
+        if (maxResult < maxV) {
+            maxResult = maxV;
+        }
+    }
+    
+    return max(fabsf(maxResult), fabsf(minResult));
+}
+
+void
+WasapiIO::ScalePcmAmplitude(double scale)
+{
+    for (int i=0; i<playPcmGroup.Count(); ++i) {
+        WWPcmData *pcm = playPcmGroup.NthPcmData(i);
+        assert(pcm);
+
+        pcm->ScaleSampleValue((float)scale);
+    }
 }
 
 void
@@ -566,4 +604,20 @@ WasapiIO_SetResamplerConversionQuality(int quality)
 {
     assert(self);
     self->SetResamplerConversionQuality(quality);
+}
+
+extern "C" __declspec(dllexport)
+double __stdcall
+WasapiIO_ScanPcmMaxAbsAmplitude(void)
+{
+    assert(self);
+    return self->ScanPcmMaxAbsAmplitude();
+}
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_ScalePcmAmplitude(double scale)
+{
+    assert(self);
+    return self->ScalePcmAmplitude(scale);
 }

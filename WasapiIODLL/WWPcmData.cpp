@@ -561,6 +561,7 @@ void
 WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
 {
     assert(sampleFormat == WWPcmDataSampleFormatSfloat);
+
     *minValue_return = 0.0f;
     *maxValue_return = 0.0f;
     if (0 == nFrames) {
@@ -588,6 +589,8 @@ WWPcmData::FindSampleValueMinMax(float *minValue_return, float *maxValue_return)
 void
 WWPcmData::ScaleSampleValue(float scale)
 {
+    assert(sampleFormat == WWPcmDataSampleFormatSfloat);
+
     float *p = (float *)stream;
     for (int i=0; i<nFrames * nChannels; ++i) {
         p[i] = p[i] * scale;

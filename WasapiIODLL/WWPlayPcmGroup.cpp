@@ -184,6 +184,16 @@ WWPlayPcmGroup::LastPcmData(void)
     return &m_playPcmDataList[m_playPcmDataList.size()-1];
 }
 
+WWPcmData *
+WWPlayPcmGroup::NthPcmData(int n)
+{
+    if (n < 0 || m_playPcmDataList.size() <= (size_t)n) {
+        return NULL;
+    }
+
+    return &m_playPcmDataList[n];
+}
+
 void
 WWPlayPcmGroup::PlayPcmDataListDebug(void)
 {

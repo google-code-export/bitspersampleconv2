@@ -59,10 +59,9 @@ namespace PlayPcmWin {
         public int TimePeriodHundredNanosec { get; set; }
         public bool AlternatingRowBackground { get; set; }
         public long AlternatingRowBackgroundArgb { get; set; }
-
         public int ResamplerConversionQuality { get; set; }
-
         public int CueEncodingCodePage { get; set; }
+        public bool SootheLimiterApo { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -133,6 +132,8 @@ namespace PlayPcmWin {
             ResamplerConversionQuality = 60;
 
             CueEncodingCodePage = Encoding.Default.CodePage;
+
+            SootheLimiterApo = true;
 
             SetDefaultPlayListColumnsOrder();
         }

@@ -196,3 +196,11 @@ WasapiIO_GetTimePeriodHundredNanosec(void);
 extern "C" __declspec(dllexport)
 void __stdcall
 WasapiIO_SetResamplerConversionQuality(int quality);
+
+extern "C" __declspec(dllexport)
+double __stdcall
+WasapiIO_ScanPcmMaxAbsAmplitude(void);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_ScalePcmAmplitude(double scale);

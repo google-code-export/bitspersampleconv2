@@ -438,8 +438,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
     <value>Render thread task type</value>
   </data>
-  <data name="SettingsGroupBoxWasapiSharedResampler" xml:space="preserve">
-    <value>WASAPI Shared Resampler</value>
+  <data name="SettingsGroupBoxWasapiShared" xml:space="preserve">
+    <value>WASAPI shared mode settings</value>
   </data>
   <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
     <value>Auto select(Try Int32V24 and Int24 when 24bps data arrives)</value>
@@ -511,7 +511,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Invoke timeBeginPeriod(1)</value>
   </data>
   <data name="SettingsLabelConversionQuality" xml:space="preserve">
-    <value>Quality (1 to 60):</value>
+    <value>Resampler MFT Quality (1 to 60):</value>
   </data>
   <data name="SettingsLabelFontPoints" xml:space="preserve">
     <value>pt</value>
@@ -551,5 +551,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsTimerResolutionDefault" xml:space="preserve">
     <value>Default timer resolution</value>
+  </data>
+  <data name="SettingsSootheLimiterApo" xml:space="preserve">
+    <value>Scale maximum amplitude to 0.98 to soothe limiter APO</value>
   </data>
 </root>
