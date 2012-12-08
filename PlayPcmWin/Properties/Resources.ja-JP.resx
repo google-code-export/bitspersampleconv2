@@ -547,12 +547,12 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>タイマー解像度=1ms</value>
   </data>
   <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
-    <value>タイマー解像度=0.5ms</value>
+    <value>タイマー解像度=0.5ms (不安定)</value>
   </data>
   <data name="SettingsTimerResolutionDefault" xml:space="preserve">
     <value>既定のタイマー解像度</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
-    <value>最大振幅が0.98になるように音量を調整してリミッターAPOの副作用を軽減する</value>
+    <value>最大振幅が0.98になるように音量を調整してリミッターAPOによる歪を軽減する</value>
   </data>
 </root>

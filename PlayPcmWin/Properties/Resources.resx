@@ -547,7 +547,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Timer resolution = 1 ms</value>
   </data>
   <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
-    <value>Timer resolution = 0.5 ms</value>
+    <value>Timer reso=0.5 ms (unstable)</value>
   </data>
   <data name="SettingsTimerResolutionDefault" xml:space="preserve">
     <value>Default timer resolution</value>

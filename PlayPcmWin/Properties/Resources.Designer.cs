@@ -1246,7 +1246,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Timer resolution = 0.5 ms に類似しているローカライズされた文字列を検索します。
+        ///   Timer reso=0.5 ms (unstable) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsTimerResolution500Microsec {
             get {
