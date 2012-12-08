@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Threading;
 using System.Globalization;
+using System.Windows.Shapes;
 
 namespace TimerResolutionMonitor {
     public sealed partial class MainWindow : Window {
@@ -35,7 +36,27 @@ namespace TimerResolutionMonitor {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
+        const int LINE_NUM            = 18;
+        const int MAJOR_LINE_INTERVAL = 6;
+        List<Line> mLineList = new List<Line>();
+
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            var majorLineArgb = new SolidColorBrush(Colors.Gray);
+            var minorLineArgb = new SolidColorBrush(Colors.Silver);
+            majorLineArgb.Freeze();
+            minorLineArgb.Freeze();
+            
+            for (int i=0; i < LINE_NUM; ++i) {
+                var line = new Line();
+                if (0 == (i % MAJOR_LINE_INTERVAL)) {
+                    line.Stroke = majorLineArgb;
+                } else {
+                    line.Stroke = minorLineArgb;
+                }
+                canvas1.Children.Add(line);
+                mLineList.Add(line);
+            }
+
             UpdateUI();
 
             this.Title = string.Format(CultureInfo.CurrentCulture, "TimerResolutionMonitor {0}", AssemblyVersion);
@@ -102,14 +123,38 @@ namespace TimerResolutionMonitor {
         }
 
         private void UpdateUI() {
-            this.lineYAxis0.Y2 = canvas1.ActualHeight;
-            this.lineYAxis1.Y2 = canvas1.ActualHeight;
-            this.lineYAxis2.Y2 = canvas1.ActualHeight;
+            {
+                int i=0;
+                foreach (var line in mLineList) {
+                    line.X1 = YAXIS_POS_X + (canvas1.ActualWidth - YAXIS_POS_X) * i / LINE_NUM;
+                    line.X2 = YAXIS_POS_X + (canvas1.ActualWidth - YAXIS_POS_X) * i / LINE_NUM;
+                    line.Y1 = 0;
+                    line.Y2 = canvas1.ActualHeight * 4 / 5;
+                    ++i;
+                }
+            }
 
-            this.lineYAxis1.X1 = YAXIS_POS_X + (canvas1.ActualWidth-YAXIS_POS_X)/3;
-            this.lineYAxis1.X2 = YAXIS_POS_X + (canvas1.ActualWidth - YAXIS_POS_X) / 3;
-            this.lineYAxis2.X1 = YAXIS_POS_X + 2 * (canvas1.ActualWidth - YAXIS_POS_X) / 3;
-            this.lineYAxis2.X2 = YAXIS_POS_X + 2 * (canvas1.ActualWidth - YAXIS_POS_X) / 3;
+            switch (comboBox1.SelectedIndex) {
+            case (int)UpdateIntervalType.Interval500ms:
+                this.labelX1.Content = "30s";
+                this.labelX2.Content = "1min";
+                break;
+            case (int)UpdateIntervalType.Interval1s:
+                this.labelX1.Content = "1min";
+                this.labelX2.Content = "2min";
+                break;
+            case (int)UpdateIntervalType.Interval10s:
+                this.labelX1.Content = "10min";
+                this.labelX2.Content = "20min";
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+            Canvas.SetLeft(labelX1, (YAXIS_POS_X + (canvas1.ActualWidth - YAXIS_POS_X) * 2 * MAJOR_LINE_INTERVAL / LINE_NUM) - labelX1.ActualWidth / 2);
+            Canvas.SetLeft(labelX2, (YAXIS_POS_X + (canvas1.ActualWidth - YAXIS_POS_X) * 1 * MAJOR_LINE_INTERVAL / LINE_NUM) - labelX2.ActualWidth / 2);
+            Canvas.SetTop(labelX1, canvas1.ActualHeight * 4 / 5);
+            Canvas.SetTop(labelX2, canvas1.ActualHeight * 4 / 5);
 
             double horizontalInterval = canvas1.ActualHeight / 5;
 
@@ -152,6 +197,8 @@ namespace TimerResolutionMonitor {
             }
 
             Properties.Settings.Default.UpdateInterval = comboBox1.SelectedIndex;
+
+            mTimerResolutionLog.Clear();
 
             mDispatcherTimer.Interval = GetTimeSpan();
             mDispatcherTimer.Start();
