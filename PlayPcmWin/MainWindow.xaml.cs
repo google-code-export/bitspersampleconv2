@@ -639,6 +639,12 @@ namespace PlayPcmWin
 
             dataGridPlayList.ItemsSource = m_playListItems;
 
+            if (0 <= m_preference.LastPlayItemIndex &&
+                    m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
+                dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
+                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+            }
+
             int hr = 0;
             wasapi = new WasapiCS();
             hr = wasapi.Init();
@@ -1336,6 +1342,9 @@ namespace PlayPcmWin
 
                 // 再生リストの列の並び順を覚える
                 SavePlaylistColumnOrderToPreference();
+
+                // 最後に再生していた曲の番号
+                m_preference.LastPlayItemIndex = dataGridPlayList.SelectedIndex;
 
                 // 設定ファイルを書き出す。
                 PreferenceStore.Save(m_preference);

@@ -63,6 +63,9 @@ namespace PlayPcmWin {
         public int CueEncodingCodePage { get; set; }
         public bool SootheLimiterApo { get; set; }
 
+        public int LastPlayItemIndex { get; set; }
+
+
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
             get { return new Collection<string>(playListColumnsOrder); }
@@ -121,6 +124,7 @@ namespace PlayPcmWin {
             RefrainRedraw = false;
             ZeroFlushMillisec = 500;
             TimePeriodHundredNanosec = 10000;
+            LastPlayItemIndex = 0;
 
             MainWindowLeft   = 100;
             MainWindowTop    = 100;
