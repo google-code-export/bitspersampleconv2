@@ -1,22 +1,4 @@
-﻿/*
-    BPSConvWin
-    Copyright (C) 2009 Yamamoto DIY Software Lab.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -168,22 +150,43 @@ namespace BpsConvWin
             return true;
         }
 
-        public bool ReduceBitsPerSample(int newBitsPerSample, bool addDither)
+        public bool ReduceBitsPerSample(int newBitsPerSample, bool addDither, bool noiseShaping)
         {
-            ushort mask = (ushort)(0xffff & (0xffff << (16 - newBitsPerSample)));
+            uint mask = 0xffffffff << (16 - newBitsPerSample);
+            uint maskError = ~mask;
             RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
             byte[] randomNumber = new byte[2];
 
-            Console.WriteLine("D: mask={0:X}", mask);
+            Console.WriteLine("D: maskErr={0:X}", maskError);
 
+            uint error = 0;
+            uint errorAcc = 0;
             for (int i=0; i < data.Length / 2; ++i) {
-                ushort sample = (ushort)(data[i * 2] + (data[i * 2 + 1] << 8));
-                sample &= mask;
+                int sample = (short)(data[i * 2] + (data[i * 2 + 1] << 8));
+                error = (uint)sample & maskError;
+                sample = (int)(sample - error);
+                errorAcc += error;
+
                 if (addDither) {
                     gen.GetBytes(randomNumber);
                     ushort randDither = (ushort)((ushort)((randomNumber[0] << 8) + randomNumber[1]) & (ushort)(~mask));
                     sample += randDither;
                 }
+
+                if (noiseShaping) {
+                    if (maskError <= errorAcc) {
+                        errorAcc -= maskError;
+                        sample += (int)maskError;
+                    }
+                }
+
+                if (0x7fff < sample) {
+                    sample = 0x7fff;
+                }
+                if (sample < -0x8000) {
+                    sample = -0x8000;
+                }
+
                 data[i * 2]     = (byte)(0xff & sample);
                 data[i * 2 + 1] = (byte)(0xff & (sample>>8));
             }
@@ -206,8 +209,14 @@ namespace BpsConvWin
         {
         }
 
-        public static bool Convert(BinaryReader br, BinaryWriter bw, int newQuantizationBitrate, bool addDither)
-        {
+        public struct ConvertParams {
+            public int newQuantizationBitrate;
+            public bool addDither;
+            public bool noiseShaping;
+        };
+
+        public static bool Convert(BinaryReader br, BinaryWriter bw,
+                ConvertParams args) {
             RiffChunkDescriptor rcd = new RiffChunkDescriptor();
             if (!rcd.Read(br)) {
                 return false;
@@ -223,7 +232,7 @@ namespace BpsConvWin
                 return false;
             }
 
-            if (!dsc.ReduceBitsPerSample(newQuantizationBitrate, addDither)) {
+            if (!dsc.ReduceBitsPerSample(args.newQuantizationBitrate, args.addDither, args.noiseShaping)) {
                 return false;
             }
 

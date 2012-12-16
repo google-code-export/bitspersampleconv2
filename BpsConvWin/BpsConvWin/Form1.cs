@@ -1,22 +1,4 @@
-﻿/*
-    BPSConvWin
-    Copyright (C) 2009 Yamamoto DIY Software Lab.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
@@ -37,9 +19,11 @@ namespace BpsConvWin
             textBoxOutput.Text = rm.GetString("PleasePressBrowseButton") + "\r\n";
         }
 
-        private static string ReadFileNameToWriteFileName(string readFileName, int nth)
+        private static string ReadFileNameToWriteFileName(string readFileName, BpsConv.ConvertParams a)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}.wav", readFileName, nth);
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}_{3}.wav",
+                readFileName, a.addDither ? "_Dither" : "", a.noiseShaping ? "_NS" : "",
+                a.newQuantizationBitrate);
         }
 
         private void buttonReadFile_Click(object sender, EventArgs e)
@@ -58,20 +42,16 @@ namespace BpsConvWin
                     textBoxReadFilePath.Text = readFileName;
 
                     textBoxOutput.Text = string.Empty;
-                    for (int i=1; i < 16; ++i) {
-                        textBoxOutput.Text += string.Format(CultureInfo.InvariantCulture, rm.GetString("OutputFileNameGuideText"),
-                            ReadFileNameToWriteFileName(readFileName, i)) + "\r\n";
-                    }
                     textBoxOutput.Text += rm.GetString("PleasePressConvButton") + "\r\n";
                 }
             }
         }
 
-        struct BackgroundWorkerArgs
+        class BackgroundWorkerArgs
         {
             public string readFileName;
             public string writeFileName;
-            public int    newBitsPerSample;
+            public BpsConv.ConvertParams convParams;
         };
 
         private int workerProgress;
@@ -85,16 +65,21 @@ namespace BpsConvWin
                 return;
             }
 
-            string writeFileName = ReadFileNameToWriteFileName(readFileName, workerProgress);
+            var cp = new BpsConv.ConvertParams();
+            cp.addDither = radioButtonDither.Checked;
+            cp.noiseShaping = radioButtonNoiseShaping.Checked;
+            cp.newQuantizationBitrate = workerProgress;
+
+            string writeFileName = ReadFileNameToWriteFileName(readFileName, cp);
             textBoxOutput.Text += string.Format(CultureInfo.InvariantCulture, rm.GetString("ConvertingProgressText"),
                 readFileName, writeFileName, workerProgress) + "\r\n";
 
-            BackgroundWorkerArgs a = new BackgroundWorkerArgs();
-            a.readFileName     = readFileName;
-            a.writeFileName    = writeFileName;
-            a.newBitsPerSample = workerProgress;
+            BackgroundWorkerArgs args = new BackgroundWorkerArgs();
+            args.readFileName     = readFileName;
+            args.writeFileName    = writeFileName;
+            args.convParams = cp;
 
-            backgroundWorker1.RunWorkerAsync(a);        
+            backgroundWorker1.RunWorkerAsync(args);
         }
 
         private void buttonConvStart_Click(object sender, EventArgs e)
@@ -114,16 +99,16 @@ namespace BpsConvWin
                 return;
             }
 
-            WorkerDoNext();        
+            WorkerDoNext();
         }
          
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorkerArgs a    = (BackgroundWorkerArgs)e.Argument;
+            BackgroundWorkerArgs a    = e.Argument as BackgroundWorkerArgs;
             try {
                 using (BinaryReader br = new BinaryReader(File.Open(a.readFileName, FileMode.Open))) {
                     using (BinaryWriter bw = new BinaryWriter(File.Open(a.writeFileName, FileMode.CreateNew))) {
-                        if (!BpsConv.Convert(br, bw, a.newBitsPerSample, checkBoxAddDither.Checked)) {
+                        if (!BpsConv.Convert(br, bw, a.convParams)) {
                             e.Result = rm.GetString("ConvFailedByWrongFormat");
                             return;
                         }
@@ -135,5 +120,6 @@ namespace BpsConvWin
             }
             e.Result = null;
         }
+
     }
 }

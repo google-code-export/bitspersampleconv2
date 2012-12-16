@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="buttonReadFile.Text" xml:space="preserve">
     <value>参照(&amp;B)...</value>
@@ -129,16 +129,36 @@
   <data name="buttonConvStart.Text" xml:space="preserve">
     <value>変換開始(&amp;S)</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="checkBoxAddDither.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="radioButton1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 18</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="checkBoxAddDither.Size" type="System.Drawing.Size, System.Drawing">
-    <value>106, 16</value>
+  <data name="radioButton1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 16</value>
   </data>
-  <data name="checkBoxAddDither.Text" xml:space="preserve">
-    <value>ディザを加える(&amp;A)</value>
+  <data name="radioButton1.Text" xml:space="preserve">
+    <value>切り捨て(&amp;R)</value>
+  </data>
+  <data name="radioButtonNoiseShaping.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 62</value>
+  </data>
+  <data name="radioButtonNoiseShaping.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 16</value>
+  </data>
+  <data name="radioButtonNoiseShaping.Text" xml:space="preserve">
+    <value>ノイズシェイピング(&amp;N)</value>
+  </data>
+  <data name="radioButtonDither.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 40</value>
+  </data>
+  <data name="radioButtonDither.Size" type="System.Drawing.Size, System.Drawing">
+    <value>66, 16</value>
+  </data>
+  <data name="radioButtonDither.Text" xml:space="preserve">
+    <value>ディザ(&amp;D)</value>
+  </data>
+  <data name="groupBox3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>207, 96</value>
   </data>
   <data name="groupBox3.Text" xml:space="preserve">
     <value>オプション</value>
