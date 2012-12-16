@@ -62,6 +62,7 @@ namespace BpsConvWin
 
             if (15 < workerProgress) {
                 textBoxOutput.Text += rm.GetString("ConvertEnd");
+                buttonConvStart.Enabled = true;
                 return;
             }
 
