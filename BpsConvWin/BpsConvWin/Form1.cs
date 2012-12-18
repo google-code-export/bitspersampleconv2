@@ -11,12 +11,17 @@ namespace BpsConvWin
         private string readFileName;
         private System.Resources.ResourceManager rm;
 
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+        }
+
         public Form1()
         {
             InitializeComponent();
 
             rm = BpsConvWin.Properties.Resources.ResourceManager;
             textBoxOutput.Text = rm.GetString("PleasePressBrowseButton") + "\r\n";
+            Text = string.Format(CultureInfo.CurrentCulture, "BpsConvWin {0}", AssemblyVersion);
         }
 
         private static string ReadFileNameToWriteFileName(string readFileName, BpsConv.ConvertParams a)
@@ -106,10 +111,12 @@ namespace BpsConvWin
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorkerArgs a    = e.Argument as BackgroundWorkerArgs;
+            var bpsConv = new BpsConv();
+
             try {
-                using (BinaryReader br = new BinaryReader(File.Open(a.readFileName, FileMode.Open))) {
+                using (BinaryReader br = new BinaryReader(File.Open(a.readFileName, FileMode.Open, FileAccess.Read, FileShare.Read))) {
                     using (BinaryWriter bw = new BinaryWriter(File.Open(a.writeFileName, FileMode.CreateNew))) {
-                        if (!BpsConv.Convert(br, bw, a.convParams)) {
+                        if (!bpsConv.Convert(br, bw, a.convParams)) {
                             e.Result = rm.GetString("ConvFailedByWrongFormat");
                             return;
                         }
