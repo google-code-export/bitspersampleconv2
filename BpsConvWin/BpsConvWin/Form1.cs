@@ -8,7 +8,7 @@ namespace BpsConvWin
 {
     public partial class Form1 : Form
     {
-        private string readFileName;
+        private string mReadFileName;
         private System.Resources.ResourceManager rm;
 
         private static string AssemblyVersion {
@@ -42,9 +42,9 @@ namespace BpsConvWin
                 ofd.AutoUpgradeEnabled = true;
                 DialogResult dr = ofd.ShowDialog();
                 if (DialogResult.OK == dr) {
-                    readFileName             = ofd.FileName;
+                    mReadFileName             = ofd.FileName;
                     buttonConvStart.Enabled  = true;
-                    textBoxReadFilePath.Text = readFileName;
+                    textBoxReadFilePath.Text = mReadFileName;
 
                     textBoxOutput.Text = string.Empty;
                     textBoxOutput.Text += rm.GetString("PleasePressConvButton") + "\r\n";
@@ -55,57 +55,23 @@ namespace BpsConvWin
         class BackgroundWorkerArgs
         {
             public string readFileName;
-            public string writeFileName;
-            public BpsConv.ConvertParams convParams;
         };
-
-        private int workerProgress;
-
-        private void WorkerDoNext()
-        {
-            ++workerProgress;
-
-            if (15 < workerProgress) {
-                textBoxOutput.Text += rm.GetString("ConvertEnd");
-                buttonConvStart.Enabled = true;
-                return;
-            }
-
-            var cp = new BpsConv.ConvertParams();
-            cp.addDither = radioButtonDither.Checked;
-            cp.noiseShaping = radioButtonNoiseShaping.Checked;
-            cp.newQuantizationBitrate = workerProgress;
-
-            string writeFileName = ReadFileNameToWriteFileName(readFileName, cp);
-            textBoxOutput.Text += string.Format(CultureInfo.InvariantCulture, rm.GetString("ConvertingProgressText"),
-                readFileName, writeFileName, workerProgress) + "\r\n";
-
-            BackgroundWorkerArgs args = new BackgroundWorkerArgs();
-            args.readFileName     = readFileName;
-            args.writeFileName    = writeFileName;
-            args.convParams = cp;
-
-            backgroundWorker1.RunWorkerAsync(args);
-        }
 
         private void buttonConvStart_Click(object sender, EventArgs e)
         {
             textBoxOutput.Text = rm.GetString("NowConverting") + "\r\n";
 
-            workerProgress          = 0;
             buttonConvStart.Enabled = false;
 
-            WorkerDoNext();
+            BackgroundWorkerArgs args = new BackgroundWorkerArgs();
+            args.readFileName = mReadFileName;
+            backgroundWorker1.RunWorkerAsync(args);
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (null != e.Result) {
-                textBoxOutput.Text += (string)e.Result;
-                return;
-            }
-
-            WorkerDoNext();
+            textBoxOutput.Text += rm.GetString("ConvertEnd") + "\r\n";
+            buttonConvStart.Enabled = true;
         }
          
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
@@ -115,11 +81,23 @@ namespace BpsConvWin
 
             try {
                 using (BinaryReader br = new BinaryReader(File.Open(a.readFileName, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    using (BinaryWriter bw = new BinaryWriter(File.Open(a.writeFileName, FileMode.CreateNew))) {
-                        if (!bpsConv.Convert(br, bw, a.convParams)) {
-                            e.Result = rm.GetString("ConvFailedByWrongFormat");
-                            return;
-                        }
+                    if (!bpsConv.ReadFromFile(br)) {
+                        e.Result = rm.GetString("ConvFailedByWrongFormat");
+                        return;
+                    }
+                }
+
+                for (int i=1; i < bpsConv.BitsPerSample; ++i) {
+                    var cp = new BpsConv.ConvertParams();
+                    cp.addDither = radioButtonDither.Checked;
+                    cp.noiseShaping = radioButtonNoiseShaping.Checked;
+                    cp.newQuantizationBitrate = i;
+
+                    var writeFileName = ReadFileNameToWriteFileName(mReadFileName, cp);
+
+                    backgroundWorker1.ReportProgress(i, cp);
+                    using (BinaryWriter bw = new BinaryWriter(File.Open(writeFileName, FileMode.CreateNew))) {
+                        bpsConv.Convert(cp, bw);
                     }
                 }
             } catch (Exception ex) {
@@ -127,6 +105,13 @@ namespace BpsConvWin
                 return;
             }
             e.Result = null;
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            var cp = e.UserState as BpsConv.ConvertParams;
+
+            textBoxOutput.Text += string.Format(CultureInfo.InvariantCulture, rm.GetString("ConvertingProgressText"),
+                    mReadFileName, ReadFileNameToWriteFileName(mReadFileName, cp), cp.newQuantizationBitrate) + "\r\n";
         }
 
     }

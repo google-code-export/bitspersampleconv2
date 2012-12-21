@@ -101,8 +101,8 @@ namespace BpsConvWin
 
             bitsPerSample = br.ReadUInt16();
             Console.WriteLine("D: bitsPerSample={0}", bitsPerSample);
-            if (16 != bitsPerSample) {
-                Console.WriteLine("E: bitsPerSample={0} this program only accepts 16bps PCM WAV files so far.", bitsPerSample);
+            if (16 != bitsPerSample && 24 != bitsPerSample) {
+                Console.WriteLine("E: bitsPerSample={0} this program only accepts 16bit or 24bit PCM WAV files so far.", bitsPerSample);
                 return false;
             }
 
@@ -175,6 +175,17 @@ namespace BpsConvWin
         public uint   subChunk2Size;
         public byte[] data;
 
+        public void Setup(uint bytes, byte[] dataFrom) {
+            subChunk2Id = new byte[4];
+            subChunk2Id[0] = (byte)'d';
+            subChunk2Id[1] = (byte)'a';
+            subChunk2Id[2] = (byte)'t';
+            subChunk2Id[3] = (byte)'a';
+            subChunk2Size = bytes;
+            data = new byte[bytes];
+            dataFrom.CopyTo(data, 0);
+        }
+
         public bool Read(BinaryReader br)
         {
             subChunk2Id = br.ReadBytes(4);
@@ -226,45 +237,60 @@ namespace BpsConvWin
 
     public sealed class BpsConv
     {
-        public struct ConvertParams {
+        public class ConvertParams {
             public int newQuantizationBitrate;
             public bool addDither;
             public bool noiseShaping;
         };
 
-        RiffChunkDescriptor rcd;
-        FmtSubChunk fsc;
-        DataSubChunk dsc;
+        RiffChunkDescriptor mRcd;
+        FmtSubChunk mFsc;
+        DataSubChunk mDsc;
 
-        public bool Convert(BinaryReader br, BinaryWriter bw,
-                ConvertParams args) {
-            rcd = new RiffChunkDescriptor();
-            if (!rcd.Read(br)) {
+        public int BitsPerSample {
+            get { return mFsc.bitsPerSample; }
+        }
+
+        public bool ReadFromFile(BinaryReader br) {
+            mRcd = new RiffChunkDescriptor();
+            if (!mRcd.Read(br)) {
                 return false;
             }
 
-            fsc = new FmtSubChunk();
-            if (!fsc.Read(br)) {
+            mFsc = new FmtSubChunk();
+            if (!mFsc.Read(br)) {
                 return false;
             }
 
-            dsc = new DataSubChunk();
-            if (!dsc.Read(br)) {
+            mDsc = new DataSubChunk();
+            if (!mDsc.Read(br)) {
                 return false;
             }
-
-            if (!ReduceBitsPerSample(args)) {
-                return false;
-            }
-
-            rcd.Write(bw);
-            fsc.Write(bw);
-            dsc.Write(bw);
 
             return true;
         }
 
-        public bool ReduceBitsPerSample(ConvertParams args) {
+        public void Convert(ConvertParams args, BinaryWriter bw) {
+            var toDsc = new DataSubChunk();
+            toDsc.Setup(mDsc.subChunk2Size, mDsc.data);
+
+            switch (mFsc.bitsPerSample) {
+            case 16:
+                ReduceBitsPerSample16(args, toDsc);
+                break;
+            case 24:
+                ReduceBitsPerSample24(args, toDsc);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+            mRcd.Write(bw);
+            mFsc.Write(bw);
+            toDsc.Write(bw);
+        }
+
+        private void ReduceBitsPerSample16(ConvertParams args, DataSubChunk toDsc) {
             uint mask = 0xffffffff << (16 - args.newQuantizationBitrate);
             uint maskError = ~mask;
             RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
@@ -272,15 +298,15 @@ namespace BpsConvWin
 
             Console.WriteLine("D: maskErr={0:X}", maskError);
 
-            int bytesPerFrame = fsc.numChannels * fsc.bitsPerSample / 8;
-            int numFrames = dsc.data.Length / bytesPerFrame;
+            int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
+            int numFrames = toDsc.data.Length / bytesPerFrame;
 
-            var errorAcc = new uint[fsc.numChannels];
+            var errorAcc = new uint[mFsc.numChannels];
             
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
-                for (int ch=0; ch < fsc.numChannels; ++ch) {
-                    int sample = dsc.GetSampleValue16(pos);
+                for (int ch=0; ch < mFsc.numChannels; ++ch) {
+                    int sample = toDsc.GetSampleValue16(pos);
 
                     uint error = (uint)sample & maskError;
                     errorAcc[ch] += error;
@@ -307,14 +333,61 @@ namespace BpsConvWin
                         sample = -0x8000;
                     }
 
-                    dsc.SetSampleValue16(pos, (short)sample);
+                    toDsc.SetSampleValue16(pos, (short)sample);
 
-                    pos += fsc.bitsPerSample / 8;
+                    pos += mFsc.bitsPerSample / 8;
                 }
             }
-
-            return true;
         }
 
+        private void ReduceBitsPerSample24(ConvertParams args, DataSubChunk toDsc) {
+            uint mask = 0xffffffff << (24 - args.newQuantizationBitrate);
+            uint maskError = ~mask;
+            RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
+            byte[] randomNumber = new byte[3];
+
+            Console.WriteLine("D: maskErr={0:X}", maskError);
+
+            int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
+            int numFrames = toDsc.data.Length / bytesPerFrame;
+
+            var errorAcc = new uint[mFsc.numChannels];
+
+            int pos = 0;
+            for (int i=0; i < numFrames; ++i) {
+                for (int ch=0; ch < mFsc.numChannels; ++ch) {
+                    int sample = toDsc.GetSampleValue24(pos);
+
+                    uint error = (uint)sample & maskError;
+                    errorAcc[ch] += error;
+
+                    sample = (int)(sample - error);
+
+                    if (args.noiseShaping) {
+                        if (maskError <= errorAcc[ch]) {
+                            errorAcc[ch] -= maskError;
+                            sample += (int)maskError;
+                        }
+                    }
+
+                    if (args.addDither) {
+                        gen.GetBytes(randomNumber);
+                        int randDither = (int)((randomNumber[0]) + (randomNumber[1] << 8) + (randomNumber[2]<<16) & ~mask);
+                        sample += randDither;
+                    }
+
+                    if (0x7fffff < sample) {
+                        sample = 0x7fffff;
+                    }
+                    if (sample < -0x800000) {
+                        sample = -0x800000;
+                    }
+
+                    toDsc.SetSampleValue24(pos, sample);
+
+                    pos += mFsc.bitsPerSample / 8;
+                }
+            }
+        }
     }
 }
