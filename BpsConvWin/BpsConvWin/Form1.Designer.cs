@@ -53,9 +53,9 @@
             // 
             // groupBox1
             // 
+            resources.ApplyResources(this.groupBox1, "groupBox1");
             this.groupBox1.Controls.Add(this.textBoxReadFilePath);
             this.groupBox1.Controls.Add(this.buttonReadFile);
-            resources.ApplyResources(this.groupBox1, "groupBox1");
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.TabStop = false;
             // 
@@ -73,8 +73,8 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.textBoxOutput);
             resources.ApplyResources(this.groupBox2, "groupBox2");
+            this.groupBox2.Controls.Add(this.textBoxOutput);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.TabStop = false;
             // 
@@ -94,10 +94,10 @@
             // 
             // groupBox3
             // 
+            resources.ApplyResources(this.groupBox3, "groupBox3");
             this.groupBox3.Controls.Add(this.radioButton1);
             this.groupBox3.Controls.Add(this.radioButtonNoiseShaping);
             this.groupBox3.Controls.Add(this.radioButtonDither);
-            resources.ApplyResources(this.groupBox3, "groupBox3");
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.TabStop = false;
             // 

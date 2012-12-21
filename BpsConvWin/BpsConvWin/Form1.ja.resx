@@ -121,11 +121,7 @@
     <value>参照(&amp;B)...</value>
   </data>
   <data name="groupBox1.Text" xml:space="preserve">
-    <value>読み込むWAVファイル (16bit PCM形式)</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="textBoxOutput.WordWrap" type="System.Boolean, mscorlib">
-    <value>False</value>
+    <value>読み込むWAVファイル (16bitか24bitのPCM形式)</value>
   </data>
   <data name="groupBox2.Text" xml:space="preserve">
     <value>説明</value>
@@ -140,6 +136,7 @@
   <data name="radioButton1.Size" type="System.Drawing.Size, System.Drawing">
     <value>80, 16</value>
   </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="radioButton1.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
