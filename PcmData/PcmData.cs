@@ -427,14 +427,12 @@ namespace PcmDataLib {
         }
 
         /// <summary>
-        /// サンプル値取得。フォーマットが64bit SFloatの場合のみ使用可能。
+        /// サンプル値取得。フォーマットがなんであっても使用可能。
         /// </summary>
         /// <param name="ch">チャンネル番号</param>
         /// <param name="pos">サンプル番号</param>
         /// <returns>サンプル値。-1.0～+1.0位</returns>
         public double GetSampleValueInDouble(int ch, long pos) {
-            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-            Debug.Assert(ValidBitsPerSample == 64);
             Debug.Assert(0 <= ch && ch < NumChannels);
 
             if (pos < 0 || NumFrames <= pos) {
@@ -444,7 +442,37 @@ namespace PcmDataLib {
             long offset = pos * BitsPerFrame/8 + ch * BitsPerSample/8;
             Debug.Assert(offset <= 0x7fffffffL);
 
-            return BitConverter.ToDouble(m_sampleArray, (int)offset);
+            byte [] data = new byte[BitsPerSample / 8];
+            Array.Copy(m_sampleArray, offset, data, 0, BitsPerSample / 8);
+
+            switch (BitsPerSample) {
+            case 16:
+                data = ConvI16toF64(data);
+                break;
+            case 24:
+                data = ConvI24toF64(data);
+                break;
+            case 32:
+                switch (SampleValueRepresentationType) {
+                case ValueRepresentationType.SInt:
+                    data = ConvI32toF64(data);
+                    break;
+                case ValueRepresentationType.SFloat:
+                    data = ConvF32toF64(data);
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+                break;
+            case 64:
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+
+            return BitConverter.ToDouble(data, 0);
         }
 
         /// <summary>
@@ -467,7 +495,7 @@ namespace PcmDataLib {
         }
 
         /// <summary>
-        /// float サンプル値取得。フォーマットが32bit SFloatの場合のみ使用可能。
+        /// float サンプル値取得。フォーマットが32bit floatの場合のみ使用可能。
         /// </summary>
         /// <param name="ch">チャンネル番号</param>
         /// <param name="pos">サンプル番号</param>
