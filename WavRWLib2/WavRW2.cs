@@ -767,7 +767,8 @@ namespace WavRWLib2
             m_currentDsc = -1;
             m_dscPosFrame = 0;
 
-            return true;
+            // 最初のDSCまでシークする。
+            return ReadStreamSkip(br, 0);
         }
 
 

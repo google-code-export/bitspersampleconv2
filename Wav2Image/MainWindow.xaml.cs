@@ -74,9 +74,6 @@ namespace Wav2Image {
                         return;
                     }
 
-                    // これを呼ぶと最初のDSCまでシークするらしい
-                    wavData.ReadStreamSkip(br, 0);
-
                     mPcmData.SetSampleArray(wavData.ReadStreamReadOne(br, 0x7fffffff));
                     wavData.ReadStreamEnd();
                 }
