@@ -716,7 +716,7 @@ namespace PcmDataLib {
             if (args != null) {
                 noiseShaping = args.noiseShaping;
             }
-            bool noiseShapingPerformed = false;
+            bool noiseShapingCapable = false;
 
             /// @todo 次に項目を増やすときは、2次元のテーブルにリファクタリングする
             if (newBitsPerSample == 64) {
@@ -807,13 +807,13 @@ namespace PcmDataLib {
                         newSampleArray = ConvF32toI24(GetSampleArray());
                     } else {
                         newSampleArray = ConvI32toI24(GetSampleArray(), noiseShaping);
-                        noiseShapingPerformed = true;
+                        noiseShapingCapable = true;
                     }
                     break;
                 case 64:
                     Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
                     newSampleArray = ConvF64toI24(GetSampleArray(), noiseShaping);
-                    noiseShapingPerformed = true;
+                    noiseShapingCapable = true;
                     break;
                 default:
                     Debug.Assert(false);
@@ -826,21 +826,21 @@ namespace PcmDataLib {
                     break;
                 case 24:
                     newSampleArray = ConvI24toI16(GetSampleArray(), noiseShaping);
-                    noiseShapingPerformed = true;
+                    noiseShapingCapable = true;
                     break;
                 case 32:
                     if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
                         newSampleArray = ConvF32toI16(GetSampleArray(), noiseShaping);
-                        noiseShapingPerformed = true;
+                        noiseShapingCapable = true;
                     } else {
                         newSampleArray = ConvI32toI16(GetSampleArray(), noiseShaping);
-                        noiseShapingPerformed = true;
+                        noiseShapingCapable = true;
                     }
                     break;
                 case 64:
                     Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
                     newSampleArray = ConvF64toI16(GetSampleArray(), noiseShaping);
-                    noiseShapingPerformed = true;
+                    noiseShapingCapable = true;
                     break;
                 default:
                     Debug.Assert(false);
@@ -852,7 +852,7 @@ namespace PcmDataLib {
             }
 
             if (args != null) {
-                args.noiseShapingPerformed = noiseShapingPerformed;
+                args.noiseShapingPerformed = noiseShaping && noiseShapingCapable;
             }
 
             // 有効なビット数の計算

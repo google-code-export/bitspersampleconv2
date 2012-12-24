@@ -2493,7 +2493,7 @@ namespace PlayPcmWin
                 m_readFileWorker.ReportProgress((int)progressPercentage,
                     string.Format(CultureInfo.InvariantCulture, "wasapi.AddPlayPcmData(id={0}, frames={1})\r\n", rpi.pcmDataId, rpi.readFrames));
                 if (noiseShaping) {
-                    m_readFileWorker.ReportProgress((int)progressPercentage, "Noise shaping...\r\n");
+                    m_readFileWorker.ReportProgress((int)progressPercentage, "Noise shaping ... done\r\n");
                 }
             }
         }
