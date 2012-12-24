@@ -19,12 +19,58 @@
                     ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
                 </TransformGroup>
             </Grid.LayoutTransform>
-                <GroupBox x:Uid="groupBoxQuantizationBitrate" Header="Quantization bit rate to pass through the WASAPI(Converts on file loading)" Height="68" Margin="12,12,12,0" Name="groupBoxQuantizationBitrate" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Height="112" Margin="12,12,12,0" Name="groupBoxWasapiExclusive" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_3">
-                        <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxOutputFormat" VerticalAlignment="Center" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Margin="6,30,6,0" Name="comboBoxOutputFormat" VerticalAlignment="Top" />
+                        <Label Content="Quantization bit rate to pass through the WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelQuantizationBitrate" VerticalAlignment="Top" />
+                        <CheckBox Content="Perform noise shaping when bits per sample is reduced" Grid.Row="1" HorizontalAlignment="Left" Margin="6,6,0,0" Name="checkBoxNoiseShaping" VerticalAlignment="Top" IsChecked="True" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Height="90" Margin="12,83,190,0" Name="groupBoxCuesheetSettings" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Height="90" Margin="12,127,189,0" Name="groupBoxWasapiShared" VerticalAlignment="Top">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                        <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
+                        <CheckBox Content="Scale maximum amplitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,219,189,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
+                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
+                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Height="59" Margin="12,280,189,0" Name="groupBoxListDisplay" VerticalAlignment="Top">
+                    <Grid x:Uid="Grid_7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="3*" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Uid="checkBoxAlternateBackground" Content="Alternating row background" Margin="6,0,0,0" Name="checkBoxAlternateBackground" VerticalAlignment="Center" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" HorizontalAlignment="Left" />
+                        <Button x:Uid="buttonChangeColor" Content="Change color..." Margin="6,0,6,0" Name="buttonChangeColor" VerticalAlignment="Center" Click="buttonChangeColor_Click" Grid.Column="2" />
+                        <Rectangle x:Uid="rectangleColor" Height="22" Margin="6,6,6,6" Name="rectangleColor" Stroke="Black" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" Grid.Column="1" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Height="90" Margin="12,341,190,0" Name="groupBoxCuesheetSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
@@ -39,31 +85,7 @@
                         <Label Content="Encoding:" Margin="0,0,6,0" Name="labelCueEncoding" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="76" VerticalAlignment="Center" Grid.Row="1" />
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Height="59" Margin="12,175,189,0" Name="groupBoxDeviceBufferFlush" VerticalAlignment="Top">
-                    <Grid x:Uid="Grid_6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="3*" />
-                        </Grid.ColumnDefinitions>
-                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
-                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
-                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Height="59" Margin="12,236,189,0" Name="groupBoxListDisplay" VerticalAlignment="Top">
-                    <Grid x:Uid="Grid_7">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="3*" />
-                        </Grid.ColumnDefinitions>
-                        <CheckBox x:Uid="checkBoxAlternateBackground" Content="Alternating row background" Margin="6,0,0,0" Name="checkBoxAlternateBackground" VerticalAlignment="Center" Checked="checkBoxAlternateBackground_Checked" Unchecked="checkBoxAlternateBackground_Unchecked" HorizontalAlignment="Left" />
-                        <Button x:Uid="buttonChangeColor" Content="Change color..." Margin="6,0,6,0" Name="buttonChangeColor" VerticalAlignment="Center" Click="buttonChangeColor_Click" Grid.Column="2" />
-                        <Rectangle x:Uid="rectangleColor" Height="22" Margin="6,6,6,6" Name="rectangleColor" Stroke="Black" Fill="#FFE0E0E0" MouseUp="rectangleColor_MouseUp" Grid.Column="1" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox x:Uid="groupBoxOtherSettings" Header="Other settings" Height="140" Margin="12,389,12,0" Name="groupBoxOtherSettings" VerticalAlignment="Top">
+                <GroupBox x:Uid="groupBoxOtherSettings" Header="Other settings" Height="140" Margin="12,433,12,0" Name="groupBoxOtherSettings" VerticalAlignment="Top">
                     <Grid x:Uid="Grid_5">
                         <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size"  Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup"  Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
@@ -84,28 +106,12 @@
                         </ComboBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Height="120" Margin="0,83,12,0" Name="groupBoxRenderThreadTaskType" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172">
+                <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Height="120" Margin="0,127,12,0" Name="groupBoxRenderThreadTaskType" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172">
                     <Grid x:Uid="Grid_8">
                         <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" HorizontalAlignment="Left" IsChecked="False" Margin="6,6,0,0" Name="radioButtonTaskAudio" VerticalAlignment="Top" />
                         <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" HorizontalAlignment="Left" Margin="6,28,0,0" Name="radioButtonTaskProAudio" VerticalAlignment="Top" IsChecked="True" />
                         <RadioButton x:Uid="radioButtonTaskNone" Content="Playback" HorizontalAlignment="Left" IsChecked="False" Margin="6,50,0,0" Name="radioButtonTaskNone" VerticalAlignment="Top" Width="98" />
                         <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="6,72,0,0" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Height="90" Margin="12,297,189,0" Name="groupBoxWasapiShared" VerticalAlignment="Top">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="3*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
-                        <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
-                        <CheckBox Content="Scale maximum amplitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
                     </Grid>
                 </GroupBox>
             </Grid>

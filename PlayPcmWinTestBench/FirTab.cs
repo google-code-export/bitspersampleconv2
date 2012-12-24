@@ -436,7 +436,7 @@ namespace PlayPcmWinTestBench {
                 result = string.Format("WAVファイル {0} 読み込み失敗", args.inputPath);
                 return false;
             }
-            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat);
+            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat, null);
 
             PcmData pcmDataOutput;
 
@@ -458,7 +458,7 @@ namespace PlayPcmWinTestBench {
 
             PcmData pcmDataWrite
                     = pcmDataOutput.BitsPerSampleConvertTo(
-                    args.outputBitsPerSample, args.valueRepresentationType);
+                    args.outputBitsPerSample, args.valueRepresentationType, null);
 
             bool writeResult = false;
             try {

@@ -40,8 +40,10 @@ namespace PlayPcmWin {
             groupBoxDeviceBufferFlush.Header = Properties.Resources.SettingsGroupBoxDeviceBufferFlush;
             groupBoxListDisplay.Header = Properties.Resources.SettingsGroupBoxListDisplay;
             groupBoxOtherSettings.Header = Properties.Resources.SettingsGroupBoxOtherSettings;
-            groupBoxQuantizationBitrate.Header = Properties.Resources.SettingsGroupBoxQuantizationBitrate;
-            
+            groupBoxWasapiExclusive.Header = Properties.Resources.SettingsGroupBoxWasapiExclusive;
+            labelQuantizationBitrate.Content = Properties.Resources.SettingsLabelQuantizationBitrate;
+            checkBoxNoiseShaping.Content = Properties.Resources.SettingsCheckBoxPerformNoiseShaping;
+
             groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
             groupBoxWasapiShared.Header = Properties.Resources.SettingsGroupBoxWasapiShared;
 
@@ -128,6 +130,8 @@ namespace PlayPcmWin {
                 comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.AutoSelect;
                 break;
             }
+            checkBoxNoiseShaping.IsChecked =
+                preference.EnableNoiseShaping;
 
             checkBoxPlaceKokomadeAfterIndex00.IsChecked =
                 preference.ReplaceGapWithKokomade;
@@ -267,6 +271,8 @@ namespace PlayPcmWin {
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
                 break;
             }
+            m_preference.EnableNoiseShaping
+                = checkBoxNoiseShaping.IsChecked == true;
 
             m_preference.ReplaceGapWithKokomade
                 = checkBoxPlaceKokomadeAfterIndex00.IsChecked == true;

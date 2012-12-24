@@ -125,7 +125,7 @@ namespace PlayPcmWinTestBench {
         private bool PhaseRotationDo(FirWorkerArgs argsFWA, PcmData pcmDataIn, out PcmData pcmDataOutput) {
             PhaseRotationWorkerArgs args = argsFWA as PhaseRotationWorkerArgs;
 
-            PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat);
+            PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat, null);
 
             pcmDataOutput = new PcmData();
             pcmDataOutput.CopyFrom(pcmDataIn);

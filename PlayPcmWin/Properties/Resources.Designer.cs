@@ -949,6 +949,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Perform noise shaping when bits per sample is reduced に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxPerformNoiseShaping {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxPerformNoiseShaping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Set [Batch read endpoint] flag after INDEX00 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsCheckBoxPlaceKokomadeAterIndex00 {
@@ -1039,20 +1048,20 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Quantization bit rate to pass through the WASAPI(Converts on file loading) に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string SettingsGroupBoxQuantizationBitrate {
-            get {
-                return ResourceManager.GetString("SettingsGroupBoxQuantizationBitrate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Render thread task type に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsGroupBoxRenderThreadTaskType {
             get {
                 return ResourceManager.GetString("SettingsGroupBoxRenderThreadTaskType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   WASAPI exclusive mode settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxWasapiExclusive {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxWasapiExclusive", resourceCulture);
             }
         }
         
@@ -1089,6 +1098,15 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsLabelPlayingTimeFont {
             get {
                 return ResourceManager.GetString("SettingsLabelPlayingTimeFont", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Quantization bit rate to pass through the WASAPI(Converts on file loading) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsLabelQuantizationBitrate {
+            get {
+                return ResourceManager.GetString("SettingsLabelQuantizationBitrate", resourceCulture);
             }
         }
         

@@ -432,7 +432,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxOtherSettings" xml:space="preserve">
     <value>Other settings</value>
   </data>
-  <data name="SettingsGroupBoxQuantizationBitrate" xml:space="preserve">
+  <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
     <value>Quantization bit rate to pass through the WASAPI(Converts on file loading)</value>
   </data>
   <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
@@ -554,5 +554,11 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
     <value>Scale maximum amplitude to 0.98 to soothe limiter APO</value>
+  </data>
+  <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
+    <value>Perform noise shaping when bits per sample is reduced</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
+    <value>WASAPI exclusive mode settings</value>
   </data>
 </root>

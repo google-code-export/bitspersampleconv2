@@ -64,7 +64,7 @@ namespace PlayPcmWin {
         public bool SootheLimiterApo { get; set; }
 
         public int LastPlayItemIndex { get; set; }
-
+        public bool EnableNoiseShaping { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -125,6 +125,7 @@ namespace PlayPcmWin {
             ZeroFlushMillisec = 500;
             TimePeriodHundredNanosec = 10000;
             LastPlayItemIndex = 0;
+            EnableNoiseShaping = true;
 
             MainWindowLeft   = 100;
             MainWindowTop    = 100;

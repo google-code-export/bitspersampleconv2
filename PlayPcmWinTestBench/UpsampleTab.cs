@@ -96,21 +96,21 @@ namespace PlayPcmWinTestBench {
 
             args.convolutionN = 256;
             args.device = ProcessDevice.Cpu;
-            args.sampleSlice = 256;
+            args.sampleSlice = 1;
             if (radioButtonUSCpu16.IsChecked == true) {
                 args.convolutionN = 65536;
             }
             if (radioButtonUSGpu16.IsChecked == true) {
                 args.convolutionN = 65536;
                 args.device = ProcessDevice.Gpu;
-                args.sampleSlice = 32768;
+                args.sampleSlice = 256;
             }
             if (radioButtonUSGpu20.IsChecked == true) {
                 args.convolutionN = 1048576;
                 args.device = ProcessDevice.Gpu;
 
                 // 重いので減らす。
-                args.sampleSlice = 256;
+                args.sampleSlice = 16;
             }
             if (radioButtonUSGpu24.IsChecked == true) {
                 args.convolutionN = 16777216;
@@ -118,7 +118,7 @@ namespace PlayPcmWinTestBench {
 
                 // この条件では一度に32768個処理できない。
                 // 16384以下の値をセットする。
-                args.sampleSlice = 16;
+                args.sampleSlice = 1;
             }
 
             args.addJitter = false;
@@ -495,7 +495,7 @@ namespace PlayPcmWinTestBench {
 
             m_USAQworker.ReportProgress(1);
 
-            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat);
+            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat, null);
             PcmData pcmDataOut = new PcmData();
             pcmDataOut.CopyFrom(pcmDataIn);
             int sampleTotalTo = (int)(args.resampleFrequency * pcmDataIn.NumFrames / pcmDataIn.SampleRate);
@@ -578,7 +578,7 @@ namespace PlayPcmWinTestBench {
 
             if (args.outputVRT != PcmData.ValueRepresentationType.SFloat) {
                 // ビットフォーマット変更。
-                pcmDataOut = pcmDataOut.BitsPerSampleConvertTo(args.outputBitsPerSample, args.outputVRT);
+                pcmDataOut = pcmDataOut.BitsPerSampleConvertTo(args.outputBitsPerSample, args.outputVRT, null);
             }
 
             try {

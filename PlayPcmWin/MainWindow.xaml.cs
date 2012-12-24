@@ -2479,7 +2479,7 @@ namespace PlayPcmWin
             return result;
         }
 
-        private void ReadFileReportProgress(long readFrames) {
+        private void ReadFileReportProgress(long readFrames, bool noiseShaping) {
             lock (m_readFileWorker) {
                 m_readProgressInfo.readFrames += readFrames;
                 var rpi = m_readProgressInfo;
@@ -2492,6 +2492,9 @@ namespace PlayPcmWin
                 double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
                 m_readFileWorker.ReportProgress((int)progressPercentage,
                     string.Format(CultureInfo.InvariantCulture, "wasapi.AddPlayPcmData(id={0}, frames={1})\r\n", rpi.pcmDataId, rpi.readFrames));
+                if (noiseShaping) {
+                    m_readFileWorker.ReportProgress((int)progressPercentage, "Noise shaping...\r\n");
+                }
             }
         }
 
@@ -2520,7 +2523,7 @@ namespace PlayPcmWin
             long wantFramesTotal = endFrame - startFrame;
             pd.SetNumFrames(wantFramesTotal);
             m_readProgressInfo.FileReadStart(pd.Id, startFrame, endFrame);
-            ReadFileReportProgress(0);
+            ReadFileReportProgress(0, false);
 
             {
                 // このトラックのWasapi PCMデータ領域を確保する。
@@ -2601,11 +2604,11 @@ namespace PlayPcmWin
                 part = null;
 
                 // 必要に応じてpartの量子化ビット数の変更処理を行い、pdAfterに新しく確保したPCMデータ配列をセット。
-                // ここでpart配列は不要となる。
 
+                var bpsConvArgs = new PcmData.BitsPerSampleConvArgs(m_preference.EnableNoiseShaping);
                 PcmData pdAfter = null;
                 if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Exclusive) {
-                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupInfo.SampleFormat);
+                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupInfo.SampleFormat, bpsConvArgs);
                     pd.ForgetDataPart();
                 } else {
                     pdAfter = pd;
@@ -2635,7 +2638,7 @@ namespace PlayPcmWin
                 // frameCountを進める
                 frameCount += readFrames;
 
-                ReadFileReportProgress(readFrames);
+                ReadFileReportProgress(readFrames, bpsConvArgs.noiseShapingPerformed);
 
                 if (bw.CancellationPending) {
                     pr.StreamAbort();

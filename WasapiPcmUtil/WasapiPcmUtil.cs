@@ -223,31 +223,31 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <param name="pd">入力PcmData</param>
         /// <returns>変更後PcmData</returns>
-        static public PcmData BitsPerSampleConvAsNeeded(PcmData pd, WasapiCS.SampleFormatType fmt) {
+        static public PcmData BitsPerSampleConvAsNeeded(PcmData pd, WasapiCS.SampleFormatType fmt, PcmData.BitsPerSampleConvArgs args) {
             switch (fmt) {
             case WasapiCS.SampleFormatType.Sfloat:
                 // System.Console.WriteLine("Converting to Sfloat32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat, args);
                 pd.ValidBitsPerSample = 32;
                 break;
             case WasapiCS.SampleFormatType.Sint16:
                 // System.Console.WriteLine("Converting to SInt16bit...");
-                pd = pd.BitsPerSampleConvertTo(16, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(16, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 16;
                 break;
             case WasapiCS.SampleFormatType.Sint24:
                 // System.Console.WriteLine("Converting to SInt24...");
-                pd = pd.BitsPerSampleConvertTo(24, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(24, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 24;
                 break;
             case WasapiCS.SampleFormatType.Sint32V24:
                 // System.Console.WriteLine("Converting to SInt32V24...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 24;
                 break;
             case WasapiCS.SampleFormatType.Sint32:
                 // System.Console.WriteLine("Converting to SInt32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 32;
                 break;
             default:
@@ -262,31 +262,31 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <param name="pd">入力PcmData</param>
         /// <returns>変更後PcmData</returns>
-        static public PcmData BitsPerSampleConvAsNeeded(PcmData pd, byte [] sampleArray, WasapiCS.SampleFormatType fmt) {
+        static public PcmData BitsPerSampleConvAsNeeded(PcmData pd, byte [] sampleArray, WasapiCS.SampleFormatType fmt, PcmData.BitsPerSampleConvArgs args) {
             switch (fmt) {
             case WasapiCS.SampleFormatType.Sfloat:
                 // System.Console.WriteLine("Converting to Sfloat32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat, args);
                 pd.ValidBitsPerSample = 32;
                 break;
             case WasapiCS.SampleFormatType.Sint16:
                 // System.Console.WriteLine("Converting to SInt16bit...");
-                pd = pd.BitsPerSampleConvertTo(16, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(16, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 16;
                 break;
             case WasapiCS.SampleFormatType.Sint24:
                 // System.Console.WriteLine("Converting to SInt24...");
-                pd = pd.BitsPerSampleConvertTo(24, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(24, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 24;
                 break;
             case WasapiCS.SampleFormatType.Sint32V24:
                 // System.Console.WriteLine("Converting to SInt32V24...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 24;
                 break;
             case WasapiCS.SampleFormatType.Sint32:
                 // System.Console.WriteLine("Converting to SInt32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt);
+                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
                 pd.ValidBitsPerSample = 32;
                 break;
             default:

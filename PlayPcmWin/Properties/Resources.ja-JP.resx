@@ -432,14 +432,14 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxOtherSettings" xml:space="preserve">
     <value>その他設定</value>
   </data>
-  <data name="SettingsGroupBoxQuantizationBitrate" xml:space="preserve">
+  <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
     <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換します)</value>
   </data>
   <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
     <value>再生スレッドタスクタイプ</value>
   </data>
   <data name="SettingsGroupBoxWasapiShared" xml:space="preserve">
-    <value>WASAPI共有モード関連の設定</value>
+    <value>WASAPI共有モード設定</value>
   </data>
   <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
     <value>自動選択(ファイルの量子化ビット数が24ビットの場合Int32V24とInt24を試します)</value>
@@ -554,5 +554,11 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
     <value>最大振幅が0.98になるように音量を調整してリミッターAPOによる歪を軽減する</value>
+  </data>
+  <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときにノイズシェイピングする</value>
+  </data>
+  <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
+    <value>WASAPI排他モード設定</value>
   </data>
 </root>

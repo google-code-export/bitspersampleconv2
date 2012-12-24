@@ -369,7 +369,7 @@ namespace PlayPcmWinTestBench {
                 return;
             }
 
-            pcmData = PcmUtil.BitsPerSampleConvAsNeeded(pcmData, m_sampleFormat.GetSampleFormatType());
+            pcmData = PcmUtil.BitsPerSampleConvAsNeeded(pcmData, m_sampleFormat.GetSampleFormatType(), null);
 
             wasapi.ClearPlayList();
             wasapi.AddPlayPcmDataStart();
@@ -411,7 +411,7 @@ namespace PlayPcmWinTestBench {
                 return;
             }
 
-            pcmData = PcmUtil.BitsPerSampleConvAsNeeded(pcmData, m_sampleFormat.GetSampleFormatType());
+            pcmData = PcmUtil.BitsPerSampleConvAsNeeded(pcmData, m_sampleFormat.GetSampleFormatType(), null);
 
             wasapi.ClearPlayList();
             wasapi.AddPlayPcmDataStart();
