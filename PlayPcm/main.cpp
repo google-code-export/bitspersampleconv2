@@ -98,17 +98,50 @@ end:
     return hr;
 }
 
+static HRESULT
+Test(int deviceId)
+{
+    HRESULT hr;
+    WasapiWrap ww;
+
+    HRR(ww.Init());
+    HRG(ww.DoDeviceEnumeration());
+    HRG(ww.ChooseDevice(deviceId));
+
+    ww.PrintMixFormat();
+    WWInspectArg inspectArg;
+
+    inspectArg.Set(16, 44100, 2);
+    ww.Inspect(inspectArg);
+
+    inspectArg.Set(16, 48000, 2);
+    ww.Inspect(inspectArg);
+
+end:
+    ww.Unsetup();
+    ww.Term();
+    return hr;
+}
+
+
 static void
 PrintUsage(void)
 {
     printf(
+        "PlayPcm device inspect version 1.1\n"
         "Usage:\n"
         "    PlayPcm\n"
-        "        Enumerate all available devices\n"
+        "        Print this message and enumerate all available devices\n"
+        "\n"
+        "    PlayPcm -d deviceId\n"
+        "        Test specified device\n"
+        "\n"
+        /*
         "    PlayPcm -d deviceId [-l latencyInMillisec] input_wave_file_name\n"
         "        Play wav file on deviceId device\n"
         "        Example:\n"
         "            PlayPcm -d 1 C:\\audio\\music.wav\n\n"
+        */
         );
 }
 
@@ -120,7 +153,7 @@ main(int argc, char *argv[])
     int latencyInMillisec = LATENCY_MILLISEC_DEFAULT;
     char *filePath = 0;
 
-    if (argc != 4 && argc != 6) {
+    if (argc != 3 && argc != 4 && argc != 6) {
         PrintUsage();
         PrintDeviceList();
         return 0;
@@ -131,6 +164,11 @@ main(int argc, char *argv[])
         return 1;
     }
     deviceId = atoi(argv[2]);
+
+    if (argc == 3) {
+        Test(deviceId);
+        return 0;
+    }
 
     if (argc == 6) {
         if (0 != strcmp("-l", argv[3])) {

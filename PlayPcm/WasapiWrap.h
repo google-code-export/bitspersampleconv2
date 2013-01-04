@@ -28,6 +28,18 @@ struct WWSetupArg {
     int latencyInMillisec;
 };
 
+struct WWInspectArg {
+    int bitsPerSample;
+    int nSamplesPerSec;
+    int nChannels;
+
+    void Set(int bitsPerSample, int nSamplesPerSec, int nChannels) {
+        this->bitsPerSample     = bitsPerSample;
+        this->nSamplesPerSec    = nSamplesPerSec;
+        this->nChannels         = nChannels;
+    }
+};
+
 class WasapiWrap {
 public:
     WasapiWrap(void);
@@ -54,6 +66,9 @@ public:
     bool Run(int millisec);
 
     void Stop(void);
+
+    void PrintMixFormat(void);
+    void Inspect(const WWInspectArg & arg);
 
     int GetPosFrame(void);
     int GetTotalFrameNum(void);

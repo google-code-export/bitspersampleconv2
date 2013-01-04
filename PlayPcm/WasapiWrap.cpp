@@ -10,32 +10,42 @@ static void
 WaveFormatDebug(WAVEFORMATEX *v)
 {
     printf(
-        "  cbSize=%d\n"
-        "  nAvgBytesPerSec=%d\n"
-        "  nBlockAlign=%d\n"
+        "  wFormatTag=0x%x\n"
         "  nChannels=%d\n"
         "  nSamplesPerSec=%d\n"
+        "  nAvgBytesPerSec=%d\n"
+        "  nBlockAlign=%d\n"
         "  wBitsPerSample=%d\n"
-        "  wFormatTag=0x%x\n",
-        v->cbSize,
-        v->nAvgBytesPerSec,
-        v->nBlockAlign,
+        "  cbSize=%d\n",
+        v->wFormatTag,
         v->nChannels,
         v->nSamplesPerSec,
+        v->nAvgBytesPerSec,
+        v->nBlockAlign,
         v->wBitsPerSample,
-        v->wFormatTag);
+        v->cbSize);
 }
 
 static void
-WFEXDebug(WAVEFORMATEXTENSIBLE *v)
+WFExtensibleDebug(WAVEFORMATEXTENSIBLE *v)
 {
     printf(
         "  Samples.wValidBitsPerSample=%d\n"
         "  dwChannelMask=0x%x\n"
-        "  SubFormat=0x%x\n",
+        "  SubFormat=%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n",
         v->Samples.wValidBitsPerSample,
         v->dwChannelMask,
-        v->SubFormat);
+        v->SubFormat.Data1,
+        v->SubFormat.Data2,
+        v->SubFormat.Data3,
+        v->SubFormat.Data4[0],
+        v->SubFormat.Data4[1],
+        v->SubFormat.Data4[2],
+        v->SubFormat.Data4[3],
+        v->SubFormat.Data4[4],
+        v->SubFormat.Data4[5],
+        v->SubFormat.Data4[6],
+        v->SubFormat.Data4[7]);
 }
 
 WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name)
@@ -228,6 +238,92 @@ end:
     return hr;
 }
 
+void
+WasapiWrap::PrintMixFormat(void)
+{
+    HRESULT hr = 0;
+    WAVEFORMATEX *waveFormat = NULL;
+
+    assert(m_deviceToUse);
+    assert(!m_audioClient);
+    HRG(m_deviceToUse->Activate(
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    assert(m_audioClient);
+
+    assert(!waveFormat);
+    HRG(m_audioClient->GetMixFormat(&waveFormat));
+    assert(waveFormat);
+
+    WAVEFORMATEXTENSIBLE * wfext = (WAVEFORMATEXTENSIBLE*)waveFormat;
+
+    printf("WASAPI shared mix format:\n");
+    WaveFormatDebug(waveFormat);
+    if (22 <= waveFormat->cbSize) {
+        WFExtensibleDebug(wfext);
+    }
+
+end:
+    if (waveFormat) {
+        CoTaskMemFree(waveFormat);
+        waveFormat = NULL;
+        wfext = NULL;
+    }
+    SafeRelease(&m_audioClient);
+}
+
+#define IS_FORMAT_SUPPORTED(x)                                                   \
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, x, NULL); \
+    if (AUDCLNT_E_UNSUPPORTED_FORMAT == hr) {                                    \
+        printf("not supported.\n");                                              \
+    } else if (FAILED(hr)) {                                                     \
+        printf("IAudioClient::IsFormatSupported failed: hr = 0x%08x.\n", hr);    \
+    } else {                                                                     \
+        printf("supported.\n");                                                  \
+    }
+
+void
+WasapiWrap::Inspect(const WWInspectArg & arg)
+{
+    HRESULT hr = 0;
+    WAVEFORMATEXTENSIBLE wfext;
+    LPCWAVEFORMATEX pWfex = (LPCWAVEFORMATEX)&wfext;
+
+    assert(m_deviceToUse);
+    assert(!m_audioClient);
+    HRG(m_deviceToUse->Activate(
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    assert(m_audioClient);
+
+    ZeroMemory(&wfext, sizeof wfext);
+    wfext.Format.wFormatTag      = WAVE_FORMAT_EXTENSIBLE;
+    wfext.Format.nChannels       = arg.nChannels;
+    wfext.Format.nSamplesPerSec  = arg.nSamplesPerSec;
+    wfext.Format.nBlockAlign     = (arg.bitsPerSample / 8) * arg.nChannels;
+    wfext.Format.nAvgBytesPerSec = arg.nSamplesPerSec * wfext.Format.nBlockAlign;
+    wfext.Format.wBitsPerSample  = arg.bitsPerSample;
+    wfext.Format.cbSize          = 22;
+
+    wfext.Samples.wValidBitsPerSample = arg.bitsPerSample;
+    wfext.dwChannelMask               = 3;
+    wfext.SubFormat                   = KSDATAFORMAT_SUBTYPE_PCM;
+
+    printf("WAVEFORMATEXTENSIBLE KSFORMAT_SUBTYPE_PCM %dHz %dbit %dch: ",
+        arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
+
+    IS_FORMAT_SUPPORTED(pWfex);
+
+    printf("WAVEFORMATEX         WAVE_FORMAT_PCM      %dHz %dbit %dch: ",
+        arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
+
+    wfext.Format.wFormatTag = WAVE_FORMAT_PCM;
+    wfext.Format.cbSize     = 0;
+
+    IS_FORMAT_SUPPORTED(pWfex);
+
+end:
+    SafeRelease(&m_audioClient);
+}
+
 HRESULT
 WasapiWrap::Setup(const WWSetupArg & arg)
 {
@@ -249,6 +345,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     assert(!m_audioClient);
     HRG(m_deviceToUse->Activate(
         __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    assert(m_audioClient);
 
     assert(!waveFormat);
     HRG(m_audioClient->GetMixFormat(&waveFormat));
@@ -258,7 +355,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
 
     printf("original Mix Format:\n");
     WaveFormatDebug(waveFormat);
-    WFEXDebug(wfex);
+    WFExtensibleDebug(wfex);
 
     if (waveFormat->wFormatTag != WAVE_FORMAT_EXTENSIBLE) {
         printf("E: unsupported device ! mixformat == 0x%08x\n", waveFormat->wFormatTag);
@@ -276,7 +373,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
 
     printf("preferred Format:\n");
     WaveFormatDebug(waveFormat);
-    WFEXDebug(wfex);
+    WFExtensibleDebug(wfex);
     
     HRG(m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE,waveFormat,NULL));
 
