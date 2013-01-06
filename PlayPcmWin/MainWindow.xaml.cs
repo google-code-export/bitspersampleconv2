@@ -2012,6 +2012,11 @@ namespace PlayPcmWin
             if (System.IO.Directory.Exists(path)) {
                 // pathはディレクトリである。直下のファイル一覧を作って足す。再帰的にはたぐらない。
                 var files = System.IO.Directory.GetFiles(path);
+
+                if (m_preference.SortDropFolder) {
+                    files = (from s in files orderby s select s).ToArray();
+                }
+
                 foreach (var file in files) {
                     result += ReadFileHeader1(file, mode, plti);
                 }

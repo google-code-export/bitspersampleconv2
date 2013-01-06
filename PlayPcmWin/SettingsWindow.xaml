@@ -26,7 +26,7 @@
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
                         <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Margin="6,30,6,0" Name="comboBoxOutputFormat" VerticalAlignment="Top" />
-                        <Label Content="Quantization bit rate to pass through the WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelQuantizationBitrate" VerticalAlignment="Top" />
+                        <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelQuantizationBitrate" VerticalAlignment="Top" />
                         <CheckBox Content="Perform noise shaping when bits per sample is reduced" Grid.Row="1" HorizontalAlignment="Left" Margin="6,6,0,0" Name="checkBoxNoiseShaping" VerticalAlignment="Top" IsChecked="True" />
                     </Grid>
                 </GroupBox>
@@ -104,6 +104,7 @@
                             <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
                             <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
                         </ComboBox>
+                        <CheckBox Content="Sort dropped folder items" HorizontalAlignment="Left" IsChecked="False" Margin="520,66,0,0" Name="checkBoxSortDropFolder" VerticalAlignment="Top" />
                     </Grid>
                 </GroupBox>
                 <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Height="120" Margin="0,127,12,0" Name="groupBoxRenderThreadTaskType" VerticalAlignment="Top" HorizontalAlignment="Right" Width="172">

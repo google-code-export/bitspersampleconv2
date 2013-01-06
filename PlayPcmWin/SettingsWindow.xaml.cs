@@ -91,6 +91,8 @@ namespace PlayPcmWin {
             buttonChangeColor.Content = Properties.Resources.SettingsButtonChangeColor;
             buttonOK.Content = Properties.Resources.SettingsButtonOK;
             buttonReset.Content = Properties.Resources.SettingsButtonReset;
+
+            checkBoxSortDropFolder.Content = Properties.Resources.SettingsCheckboxSortDropFolder;
         }
 
         Preference m_preference = null;
@@ -231,6 +233,9 @@ namespace PlayPcmWin {
                     comboBoxCueEncoding.SelectedIndex = pos;
                 }
             }
+
+            checkBoxSortDropFolder.IsChecked =
+                preference.SortDropFolder;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -375,6 +380,8 @@ namespace PlayPcmWin {
                     m_preference.CueEncodingCodePage = encodingInfo.CodePage;
                 }
             }
+
+            m_preference.SortDropFolder = (checkBoxSortDropFolder.IsChecked == true);
 
             Close();
         }

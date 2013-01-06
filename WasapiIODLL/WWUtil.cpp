@@ -30,9 +30,20 @@ WWWFEXDebug(WAVEFORMATEXTENSIBLE *v)
     dprintf(
         "  dwChannelMask=0x%x\n"
         "  Samples.wValidBitsPerSample=%d\n"
-        "  SubFormat=0x%x\n",
+        "  SubFormat=%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x\n",
         v->dwChannelMask,
         v->Samples.wValidBitsPerSample,
-        v->SubFormat);
+        v->SubFormat.Data1,
+        v->SubFormat.Data2,
+        v->SubFormat.Data3,
+        v->SubFormat.Data4[0],
+        v->SubFormat.Data4[1],
+        v->SubFormat.Data4[2],
+        v->SubFormat.Data4[3],
+        v->SubFormat.Data4[4],
+        v->SubFormat.Data4[5],
+        v->SubFormat.Data4[6],
+        v->SubFormat.Data4[7]
+        );
 }
 

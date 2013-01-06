@@ -563,4 +563,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
     <value>WASAPI排他モード設定</value>
   </data>
+  <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
+    <value>フォルダドロップ時に曲順をソート</value>
+  </data>
 </root>

@@ -65,6 +65,7 @@ namespace PlayPcmWin {
 
         public int LastPlayItemIndex { get; set; }
         public bool EnableNoiseShaping { get; set; }
+        public bool SortDropFolder { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -141,6 +142,8 @@ namespace PlayPcmWin {
             SootheLimiterApo = true;
 
             SetDefaultPlayListColumnsOrder();
+
+            SortDropFolder = true;
         }
 
         /// <summary>

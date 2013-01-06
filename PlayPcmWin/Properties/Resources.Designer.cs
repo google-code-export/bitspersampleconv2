@@ -985,6 +985,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Sort dropped folder items に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckboxSortDropFolder {
+            get {
+                return ResourceManager.GetString("SettingsCheckboxSortDropFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Restore the playlist on program startup に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsCheckBoxStorePlaylistContent {

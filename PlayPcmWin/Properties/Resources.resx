@@ -563,4 +563,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
     <value>WASAPI exclusive mode settings</value>
   </data>
+  <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
+    <value>Sort dropped folder items</value>
+  </data>
 </root>
