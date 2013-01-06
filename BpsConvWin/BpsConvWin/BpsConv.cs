@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BpsConvWin
 {
-    struct RiffChunkDescriptor
+    class RiffChunkDescriptor
     {
         public byte[] chunkId;
         public uint   chunkSize;
@@ -14,12 +14,11 @@ namespace BpsConvWin
 
         public bool Read(BinaryReader br)
         {
-            chunkId = br.ReadBytes(4);
-            if (chunkId[0] != 'R' || chunkId[1] != 'I' || chunkId[2] != 'F' || chunkId[3] != 'F') {
-                Console.WriteLine("E: RiffChunkDescriptor.chunkId mismatch. \"{0}{1}{2}{3}\" should be \"RIFF\"",
-                    (char)chunkId[0], (char)chunkId[1], (char)chunkId[2], (char)chunkId[3]);
-                return false;
-            }
+            chunkId = new byte[4];
+            chunkId[0] = (byte)'R';
+            chunkId[1] = (byte)'I';
+            chunkId[2] = (byte)'F';
+            chunkId[3] = (byte)'F';
 
             chunkSize = br.ReadUInt32();
             if (chunkSize < 36) {
@@ -46,7 +45,7 @@ namespace BpsConvWin
         }
     }
 
-    struct FmtSubChunk
+    class FmtSubChunk
     {
         public byte[] subChunk1Id;
         public uint   subChunk1Size;
@@ -68,12 +67,11 @@ namespace BpsConvWin
 
         public bool Read(BinaryReader br)
         {
-            subChunk1Id = br.ReadBytes(4);
-            if (subChunk1Id[0] != 'f' || subChunk1Id[1] != 'm' || subChunk1Id[2] != 't' || subChunk1Id[3] != ' ') {
-                Console.WriteLine("E: FmtSubChunk.subChunk1Id mismatch. \"{0}{1}{2}{3}\" should be \"fmt \"",
-                    (char)subChunk1Id[0], (char)subChunk1Id[1], (char)subChunk1Id[2], (char)subChunk1Id[3]);
-                return false;
-            }
+            subChunk1Id = new byte[4];
+            subChunk1Id[0] = (byte)'f';
+            subChunk1Id[1] = (byte)'m';
+            subChunk1Id[2] = (byte)'t';
+            subChunk1Id[3] = (byte)' ';
 
             subChunk1Size = br.ReadUInt32();
             if (16 != subChunk1Size && 18 != subChunk1Size && 40 != subChunk1Size) {
@@ -82,7 +80,7 @@ namespace BpsConvWin
             }
 
             audioFormat = br.ReadUInt16();
-            if (1 != audioFormat) {
+            if (1 != audioFormat && 65534 != audioFormat) {
                 Console.WriteLine("E: this wave file is not PCM format {0}. Cannot read this file", audioFormat);
                 return false;
             }
@@ -169,7 +167,7 @@ namespace BpsConvWin
         }
     }
 
-    struct DataSubChunk
+    class DataSubChunk
     {
         public byte[] subChunk2Id;
         public uint   subChunk2Size;
@@ -188,12 +186,11 @@ namespace BpsConvWin
 
         public bool Read(BinaryReader br)
         {
-            subChunk2Id = br.ReadBytes(4);
-            if (subChunk2Id[0] != 'd' || subChunk2Id[1] != 'a' || subChunk2Id[2] != 't' || subChunk2Id[3] != 'a') {
-                Console.WriteLine("E: DataSubChunk.subChunk2Id mismatch. \"{0}{1}{2}{3}\" should be \"data\"",
-                    (char)subChunk2Id[0], (char)subChunk2Id[1], (char)subChunk2Id[2], (char)subChunk2Id[3]);
-                return false;
-            }
+            subChunk2Id = new byte[4];
+            subChunk2Id[0] = (byte)'d';
+            subChunk2Id[1] = (byte)'a';
+            subChunk2Id[2] = (byte)'t';
+            subChunk2Id[3] = (byte)'a';
 
             subChunk2Size = br.ReadUInt32();
             Console.WriteLine("D: subChunk2Size={0}", subChunk2Size);
@@ -251,23 +248,52 @@ namespace BpsConvWin
             get { return mFsc.bitsPerSample; }
         }
 
+        private void SkipUnknownChunk(BinaryReader br) {
+            var bytes = br.ReadUInt32();
+            bytes = (uint)((bytes +1) & ~1);
+            for (int i=0; i<bytes; ++i) {
+                br.ReadByte();
+            }
+        }
+
         public bool ReadFromFile(BinaryReader br) {
-            mRcd = new RiffChunkDescriptor();
-            if (!mRcd.Read(br)) {
-                return false;
+            mRcd = null;
+            mFsc = null;
+            mDsc = null;
+
+            try {
+                while (true) {
+                    var subChunk1Id = br.ReadInt32();
+                    switch (subChunk1Id) {
+                    case ((int)('R')) + (((int)('I')) << 8) + (((int)('F')) << 16) + (((int)('F')) << 24):
+                        mRcd = new RiffChunkDescriptor();
+                        if (!mRcd.Read(br)) {
+                            return false;
+                        }
+                        break;
+
+                    case ((int)('f')) + (((int)('m')) << 8) + (((int)('t')) << 16) + (((int)(' ')) << 24):
+                        mFsc = new FmtSubChunk();
+                        if (!mFsc.Read(br)) {
+                            return false;
+                        }
+                        break;
+                    case ((int)('d')) + (((int)('a')) << 8) + (((int)('t')) << 16) + (((int)('a')) << 24):
+                        mDsc = new DataSubChunk();
+                        if (!mDsc.Read(br)) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        SkipUnknownChunk(br);
+                        break;
+                    }
+                }
+            } catch (EndOfStreamException ex) {
+                // 正常終了ｗｗｗｗ
             }
 
-            mFsc = new FmtSubChunk();
-            if (!mFsc.Read(br)) {
-                return false;
-            }
-
-            mDsc = new DataSubChunk();
-            if (!mDsc.Read(br)) {
-                return false;
-            }
-
-            return true;
+            return mRcd != null && mFsc != null && mDsc != null;
         }
 
         public void Convert(ConvertParams args, BinaryWriter bw) {

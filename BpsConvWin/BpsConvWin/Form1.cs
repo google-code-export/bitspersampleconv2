@@ -81,10 +81,10 @@ namespace BpsConvWin
 
             try {
                 using (BinaryReader br = new BinaryReader(File.Open(a.readFileName, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    if (!bpsConv.ReadFromFile(br)) {
-                        e.Result = rm.GetString("ConvFailedByWrongFormat");
-                        return;
-                    }
+                        if (!bpsConv.ReadFromFile(br)) {
+                            e.Result = rm.GetString("ConvFailedByWrongFormat");
+                            return;
+                        }
                 }
 
                 for (int i=1; i < bpsConv.BitsPerSample; ++i) {
