@@ -444,31 +444,22 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>WASAPI shared mode settings</value>
   </data>
   <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
-    <value>Auto select(Try Int32V24 and Int24 when 24bps data arrives)</value>
+    <value>Auto select</value>
   </data>
   <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
-    <value>Always use Float32(IEEE754 single precision floating point format: Supported hardware is very rare)</value>
+    <value>Binary32(IEEE754 single precision floating point format: Supported hardware is very rare)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
-    <value>Always use Int16 format(Truncates lower bits when 24bps or 32bps data arrives)</value>
+    <value>16bit integer(Truncates lower bits when 24bps or 32bps data arrives)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
-    <value>Always use Int24 format(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)</value>
+    <value>24bit integer(Fills 0 to lower bits when 16bps data arrives, Truncates lower bits when 32bps data arrives)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
-    <value>Always use Int32(Fill 0s to lower bits, Valid bits=32bps)</value>
+    <value>32bit integer(Fill 0s to lower bits, Valid bits=32bps)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
-    <value>Always use Int32V24(Int32, Valid bits=24bps)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariable" xml:space="preserve">
-    <value>Auto select Int16,Int32V24,Int32(Suitable for PCI、PCIe、1394 audio devices)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariableSint16Sint24" xml:space="preserve">
-    <value>Auto select Int16,Int24(Suitable for USB audio devices)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariableSint16Sint32V24" xml:space="preserve">
-    <value>Auto select Int16,Int32V24(Suitable for PCI、PCIe、1394 audio devices which do not support 32bps)</value>
+    <value>32bit integer, valid bits=24(Int32, Valid bits=24bps)</value>
   </data>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin detailed settings</value>

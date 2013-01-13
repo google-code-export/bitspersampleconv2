@@ -19,9 +19,6 @@ namespace PlayPcmWin {
     /// </summary>
     public sealed partial class SettingsWindow : Window {
         enum SettingsBitFormatType {
-            Variable,
-            VariableSint16Sint32V24,
-            VariableSint16Sint24,
             Sint16,
             Sint24,
 
@@ -47,9 +44,6 @@ namespace PlayPcmWin {
             groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
             groupBoxWasapiShared.Header = Properties.Resources.SettingsGroupBoxWasapiShared;
 
-            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariable);
-            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint32V24);
-            comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsVariableSint16Sint24);
             comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint16);
             comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSint24);
 
@@ -104,15 +98,6 @@ namespace PlayPcmWin {
 
         private void UpdateUIFromPreference(Preference preference) {
             switch (preference.BitsPerSampleFixType) {
-            case BitsPerSampleFixType.Variable:
-                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Variable;
-                break;
-            case BitsPerSampleFixType.VariableSint16Sint24:
-                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.VariableSint16Sint24;
-                break;
-            case BitsPerSampleFixType.VariableSint16Sint32V24:
-                comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.VariableSint16Sint32V24;
-                break;
             case BitsPerSampleFixType.Sint16:
                 comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint16;
                 break;
@@ -129,6 +114,7 @@ namespace PlayPcmWin {
                 comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.Sint32V24;
                 break;
             case BitsPerSampleFixType.AutoSelect:
+            default:
                 comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.AutoSelect;
                 break;
             }
@@ -247,15 +233,6 @@ namespace PlayPcmWin {
             System.Diagnostics.Debug.Assert(0 <= comboBoxOutputFormat.SelectedIndex);
             var settingsBitFormat = (SettingsBitFormatType)comboBoxOutputFormat.SelectedIndex;
             switch (settingsBitFormat) {
-            case SettingsBitFormatType.Variable:
-                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Variable;
-                break;
-            case SettingsBitFormatType.VariableSint16Sint24:
-                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint24;
-                break;
-            case SettingsBitFormatType.VariableSint16Sint32V24:
-                m_preference.BitsPerSampleFixType = BitsPerSampleFixType.VariableSint16Sint32V24;
-                break;
             case SettingsBitFormatType.Sint16:
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.Sint16;
                 break;

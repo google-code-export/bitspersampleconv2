@@ -444,31 +444,22 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>WASAPI共有モード設定</value>
   </data>
   <data name="SettingsRadioButtonBpsAutoSelect" xml:space="preserve">
-    <value>自動選択(ファイルの量子化ビット数が24ビットの場合Int32V24とInt24を試します)</value>
+    <value>自動選択</value>
   </data>
   <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
-    <value>Float32に固定する(IEEE754単精度浮動小数点数形式:対応ハードウェアは非常に珍しい)</value>
+    <value>IEEE754単精度浮動小数点数形式に固定(対応ハードウェアは非常に珍しい)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
-    <value>Int16に固定する(24bpsや32bpsのデータが来たら下位ビットを切り捨てます)</value>
+    <value>16ビット整数型に固定(24bpsや32bpsのデータが来たら下位ビットを切り捨てます)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
-    <value>Int24に固定する(16bpsのデータは0埋めで水増し、32ビットのデータは下位8ビットを切り捨て)</value>
+    <value>24ビット整数型に固定(16bpsのデータは0埋めで水増し、32ビットのデータは下位8ビットを切り捨て)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
-    <value>Int32に固定する(下位ビットが余る場合は0埋め、有効ビット数32bps)</value>
+    <value>32ビット整数型に固定(下位ビットが余る場合は0埋め、有効ビット数32bps)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
-    <value>Int32V24に固定する(Int32ビット、有効ビット数24bps)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariable" xml:space="preserve">
-    <value>Int16,Int32V24,Int32を自動選択(PCI、PCIe、1394オーディオデバイスに適する)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariableSint16Sint24" xml:space="preserve">
-    <value>Int16,Int24を自動選択(USBオーディオデバイスに適する)</value>
-  </data>
-  <data name="SettingsRadioButtonBpsVariableSint16Sint32V24" xml:space="preserve">
-    <value>Int16,Int32V24を自動選択(32bps非対応のPCI、PCIe、1394オーディオデバイス用)</value>
+    <value>32ビット(有効ビット数24ビット)整数型に固定</value>
   </data>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin 詳細設定</value>

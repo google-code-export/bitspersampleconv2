@@ -327,17 +327,17 @@ namespace Wasapi {
         };
 
         /// <summary>
-        /// サンプルフォーマットタイプ→メモリ上に占めるバイト数(1サンプル1chあたり)
+        /// サンプルフォーマットタイプ→メモリ上に占めるビット数(1サンプル1chあたり)
         /// </summary>
         /// <param name="t">サンプルフォーマットタイプ</param>
-        /// <returns>メモリ上に占めるバイト数(1サンプル1chあたり)</returns>
-        public static int SampleFormatTypeToUseBytesPerSample(SampleFormatType t) {
+        /// <returns>メモリ上に占めるビット数(1サンプル1chあたり)</returns>
+        public static int SampleFormatTypeToUseBitsPerSample(SampleFormatType t) {
             switch (t) {
-            case SampleFormatType.Sint16: return 2;
-            case SampleFormatType.Sint24: return 3;
-            case SampleFormatType.Sint32V24: return 4;
-            case SampleFormatType.Sint32: return 4;
-            case SampleFormatType.Sfloat: return 4;
+            case SampleFormatType.Sint16: return 16;
+            case SampleFormatType.Sint24: return 24;
+            case SampleFormatType.Sint32V24: return 32;
+            case SampleFormatType.Sint32: return 32;
+            case SampleFormatType.Sfloat: return 32;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 0;

@@ -290,7 +290,7 @@ namespace PlayPcmWin
             /// </summary>
             public int UseBytesPerFrame {
                 get {
-                    return NumChannels * WasapiCS.SampleFormatTypeToUseBytesPerSample(sampleFormat);
+                    return NumChannels * WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat) / 8;
                 }
             }
 

@@ -183,6 +183,17 @@ namespace PlayPcmWin {
 
             // (読み込んだ値が都合によりサポートされていない場合、このタイミングでロード後に強制的に上書き出来る)
 
+            // サンプルレートの選択アルゴリズム。廃止された選択肢が選ばれていたらAutoSelectに設定する。
+            switch (p.BitsPerSampleFixType) {
+            case BitsPerSampleFixType.Variable:
+            case BitsPerSampleFixType.VariableSint16Sint24:
+            case BitsPerSampleFixType.VariableSint16Sint32V24:
+                p.BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
+                break;
+            default:
+                break;
+            }
+
             return p;
         }
 

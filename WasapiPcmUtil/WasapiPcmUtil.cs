@@ -10,15 +10,15 @@ namespace WasapiPcmUtil {
     };
 
     public enum BitsPerSampleFixType {
-        Variable,
+        Variable, ///< deprecated
         Sint16,
         Sint32,
         Sfloat32,
         Sint24,
 
         Sint32V24,
-        VariableSint16Sint24,
-        VariableSint16Sint32V24,
+        VariableSint16Sint24,    ///< deprecated
+        VariableSint16Sint32V24, ///< deprecated
         AutoSelect
     }
 
@@ -36,6 +36,30 @@ namespace WasapiPcmUtil {
         public int bitsPerSample;
         public int validBitsPerSample;
         public WasapiCS.BitFormatType bitFormatType;
+
+        private static WasapiCS.SampleFormatType [] mTryFormat16;
+        private static WasapiCS.SampleFormatType [] mTryFormat24;
+        private static WasapiCS.SampleFormatType [] mTryFormat32;
+
+        static SampleFormatInfo() {
+            mTryFormat16 = new WasapiCS.SampleFormatType [] {
+                WasapiCS.SampleFormatType.Sint16,
+                WasapiCS.SampleFormatType.Sint24,
+            };
+ 
+            mTryFormat24 = new WasapiCS.SampleFormatType [] {
+                WasapiCS.SampleFormatType.Sint24,
+                WasapiCS.SampleFormatType.Sint32V24,
+                WasapiCS.SampleFormatType.Sint16,
+            };
+
+            mTryFormat32 = new WasapiCS.SampleFormatType [] {
+                WasapiCS.SampleFormatType.Sint32,
+                WasapiCS.SampleFormatType.Sint24,
+                WasapiCS.SampleFormatType.Sint32V24,
+                WasapiCS.SampleFormatType.Sint16,
+            };
+        }
 
         static public WasapiCS.BitFormatType
         VrtToBft(PcmDataLib.PcmData.ValueRepresentationType vrt) {
@@ -79,19 +103,27 @@ namespace WasapiPcmUtil {
         /// </summary>
         /// <returns>Setup()に設定されうるビットフォーマットの候補の数</returns>
         static public int GetSetupSampleFormatCandidateNum(
-                WasapiSharedOrExclusiveType sharedOrExclusive,
-                BitsPerSampleFixType bitsPerSampleFixType,
-                int pcmDataValidBitsPerSample,
-                PcmDataLib.PcmData.ValueRepresentationType vrt) {
+                    WasapiSharedOrExclusiveType sharedOrExclusive,
+                    BitsPerSampleFixType bitsPerSampleFixType,
+                    int validBitsPerSample,
+                    PcmDataLib.PcmData.ValueRepresentationType vrt) {
             if (bitsPerSampleFixType != BitsPerSampleFixType.AutoSelect ||
-                pcmDataValidBitsPerSample == 16 ||
-                (pcmDataValidBitsPerSample == 32 && vrt == PcmData.ValueRepresentationType.SInt) ||
-                sharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
+                    sharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
+                // 共有モードの場合 1通り
+                // 排他モードで自動選択以外の選択肢の場合 1通り
                 return 1;
             }
 
-            // AutoSelect 24bit 排他モードの場合Sint32V24とSint24を試す。
-            return 2;
+            // 排他モードのAutoSelect
+            switch (validBitsPerSample) {
+            case 16:
+                return mTryFormat16.Length;
+            case 24:
+            default:
+                return mTryFormat24.Length;
+            case 32:
+                return mTryFormat32.Length;
+            }
         }
 
         /// <summary>
@@ -145,67 +177,24 @@ namespace WasapiPcmUtil {
                 sf.bitsPerSample = 32;
                 sf.validBitsPerSample = 32;
                 break;
-            case BitsPerSampleFixType.Variable:
-                if (validBitsPerSample != 16) {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 32;
-                    sf.validBitsPerSample = validBitsPerSample;
-                } else {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 16;
-                    sf.validBitsPerSample = 16;
-                }
-                break;
-            case BitsPerSampleFixType.VariableSint16Sint32V24:
-                if (validBitsPerSample != 16) {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 32;
-                    sf.validBitsPerSample = validBitsPerSample;
-                    if (24 < validBitsPerSample) {
-                        sf.validBitsPerSample = 24;
-                    }
-                } else {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 16;
-                    sf.validBitsPerSample = 16;
-                }
-                break;
-            case BitsPerSampleFixType.VariableSint16Sint24:
-                if (validBitsPerSample != 16) {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 24;
-                    sf.validBitsPerSample = 24;
-                } else {
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = 16;
-                    sf.validBitsPerSample = 16;
-                }
-                break;
             case BitsPerSampleFixType.AutoSelect:
-                if (validBitsPerSample == 16 ||
-                    (validBitsPerSample == 32 && vrt == PcmData.ValueRepresentationType.SInt)) {
-                    // Sint32や16の場合、1通りしか無い。
-                    sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                    sf.bitsPerSample = validBitsPerSample;
-                    sf.validBitsPerSample = validBitsPerSample;
-                } else {
-                    // Sint32V24とSint24を試す。
-                    switch (candidateId) {
-                    case 0:
-                        sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                        sf.bitsPerSample = 32;
-                        sf.validBitsPerSample = 24;
-                        break;
-                    case 1:
-                        sf.bitFormatType = WasapiCS.BitFormatType.SInt;
-                        sf.bitsPerSample = 24;
-                        sf.validBitsPerSample = 24;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.Assert(false);
-                        break;
-                    }
+                WasapiCS.SampleFormatType sampleFormat = WasapiCS.SampleFormatType.Sint16;
+                switch (validBitsPerSample) {
+                case 16:
+                    sampleFormat = mTryFormat16[candidateId];
+                    break;
+                case 24:
+                default: /* ? */
+                    sampleFormat = mTryFormat24[candidateId];
+                    break;
+                case 32:
+                    sampleFormat = mTryFormat32[candidateId];
+                    break;
                 }
+
+                sf.bitFormatType      = WasapiCS.BitFormatType.SInt;
+                sf.bitsPerSample      = WasapiCS.SampleFormatTypeToUseBitsPerSample(sampleFormat);
+                sf.validBitsPerSample = WasapiCS.SampleFormatTypeToValidBitsPerSample(sampleFormat);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
