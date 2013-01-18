@@ -79,6 +79,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WasapiWrap.cpp" />
     <ClCompile Include="WWDsfReader.cpp" />
+    <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWUtil.cpp" />
     <ClCompile Include="WWWavReader.cpp" />
   </ItemGroup>

@@ -132,7 +132,7 @@ static void
 PrintUsage(void)
 {
     printf(
-        "PlayPcm device inspect version 1.1\n"
+        "PlayPcm version 1.2\n"
         "Usage:\n"
         "    PlayPcm\n"
         "        Print this message and enumerate all available devices\n"

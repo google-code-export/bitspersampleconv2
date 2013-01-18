@@ -117,6 +117,12 @@ WWReadWavFile(const char *path)
 
     if (wfi.data) {
         result = new WWPcmData();
+        if (NULL == result) {
+            goto end;
+        }
+
+        result->Init();
+
         result->bitsPerSample  = wfi.bitsPerSample;
         result->validBitsPerSample = wfi.bitsPerSample;
         result->nChannels      = wfi.nChannels;

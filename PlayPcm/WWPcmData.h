@@ -10,9 +10,12 @@ struct WWPcmData {
 
     unsigned char *stream;
 
-    void Init(int samples);
+    void Init(void);
     void Term(void);
 
+    WWPcmData(void) {
+        stream = 0;
+    }
     ~WWPcmData(void);
 };
 

@@ -54,18 +54,6 @@ WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name)
     wcsncpy_s(this->name, _countof(this->name), name, _TRUNCATE);
 }
 
-void
-WWPcmData::Term(void)
-{
-    free(stream);
-    stream = NULL;
-}
-
-WWPcmData::~WWPcmData(void)
-{
-    assert(!stream);
-}
-
 ///////////////////////////////////////////////////////////////////////
 // WasapiWrap class
 

@@ -174,6 +174,8 @@ WWPcmData * WWReadDsfFile(const char *path)
     if (NULL == pcmData) {
         goto end;
     }
+    pcmData->Init();
+
     pcmData->bitsPerSample      = 32;
     pcmData->validBitsPerSample = 24;
     pcmData->nChannels      = fmtChunk.channelNum;
