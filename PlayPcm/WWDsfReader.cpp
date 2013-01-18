@@ -1,5 +1,3 @@
-// 日本語
-
 #include "WWDsfReader.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -201,8 +199,10 @@ WWPcmData * WWReadDsfFile(const char *path)
 
     writePos = 0;
     for (uint32_t block = 0; block < blockNum; ++block) {
-        // 1チャンネル分のデータが4096バイト連続でやってくる。
-        // 4096 x チャンネル数 バイト読み出す。
+        // data is stored in following order:
+        // L channel 4096bytes consecutive data, R channel 4096bytes consecutive data, L channel 4096bytes consecutive data, ...
+        //
+        // read 4096 x numChannels bytes.
         if (fread(blockData, fmtChunk.blockSizePerChannel * fmtChunk.channelNum, 1, fp) < 1) {
             goto end;
         }
