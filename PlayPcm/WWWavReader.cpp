@@ -82,7 +82,7 @@ end:
 }
 
 WWPcmData *
-WWPcmDataWavFileLoad(const char *path)
+WWReadWavFile(const char *path)
 {
     unsigned char buff[12];
     WWPcmData *result = NULL;
@@ -102,7 +102,6 @@ WWPcmDataWavFileLoad(const char *path)
         goto end;
     }
     if (0 != (strncmp("RIFF", (const char*)buff, 4))) {
-        printf("E: RIFF not found\n");
         goto end;
     }
     if (0 != (strncmp("WAVE", (const char*)&buff[8], 4))) {
@@ -119,6 +118,7 @@ WWPcmDataWavFileLoad(const char *path)
     if (wfi.data) {
         result = new WWPcmData();
         result->bitsPerSample  = wfi.bitsPerSample;
+        result->validBitsPerSample = wfi.bitsPerSample;
         result->nChannels      = wfi.nChannels;
         result->nSamplesPerSec = wfi.nSamplesPerSec;
         result->nFrames        = wfi.nFrames;
@@ -131,4 +131,5 @@ end:
     fclose(fp);
     return result;
 }
+
 

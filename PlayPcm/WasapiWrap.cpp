@@ -303,7 +303,7 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
     wfext.Format.wBitsPerSample  = arg.bitsPerSample;
     wfext.Format.cbSize          = 22;
 
-    wfext.Samples.wValidBitsPerSample = arg.bitsPerSample;
+    wfext.Samples.wValidBitsPerSample = arg.validBitsPerSample;
     wfext.dwChannelMask               = 3;
     wfext.SubFormat                   = KSDATAFORMAT_SUBTYPE_PCM;
 
@@ -331,11 +331,8 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     WAVEFORMATEX *waveFormat = NULL;
 
     m_sampleRate = arg.nSamplesPerSec;
-    m_dataBitsPerSample = arg.bitsPerSample;
-    m_deviceBitsPerSample = m_dataBitsPerSample;
-    if (24 == m_deviceBitsPerSample) {
-        m_deviceBitsPerSample = 32;
-    }
+    m_bitsPerSample = arg.bitsPerSample;
+    m_validBitsPerSample = arg.validBitsPerSample;
 
     m_audioSamplesReadyEvent =
         CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
@@ -364,12 +361,12 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     }
 
     wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-    wfex->Format.wBitsPerSample = m_deviceBitsPerSample;
+    wfex->Format.wBitsPerSample = m_bitsPerSample;
     wfex->Format.nSamplesPerSec = arg.nSamplesPerSec;
 
-    wfex->Format.nBlockAlign = (m_deviceBitsPerSample / 8) * waveFormat->nChannels;
+    wfex->Format.nBlockAlign = (m_bitsPerSample / 8) * waveFormat->nChannels;
     wfex->Format.nAvgBytesPerSec = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
-    wfex->Samples.wValidBitsPerSample = m_deviceBitsPerSample;
+    wfex->Samples.wValidBitsPerSample = m_validBitsPerSample;
 
     printf("preferred Format:\n");
     WaveFormatDebug(waveFormat);

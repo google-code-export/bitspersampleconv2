@@ -2,6 +2,7 @@
 
 struct WWPcmData {
     int bitsPerSample;
+    int validBitsPerSample;
     int nSamplesPerSec;
     int nChannels;
     int  nFrames;
@@ -14,6 +15,4 @@ struct WWPcmData {
 
     ~WWPcmData(void);
 };
-
-WWPcmData * WWPcmDataWavFileLoad(const char *path);
 

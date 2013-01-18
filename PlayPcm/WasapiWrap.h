@@ -23,20 +23,31 @@ struct WWDeviceInfo {
 
 struct WWSetupArg {
     int bitsPerSample;
+    int validBitsPerSample;
     int nSamplesPerSec;
     int nChannels;
     int latencyInMillisec;
+
+    void Set(int bitsPerSample, int validBitsPerSample, int nSamplesPerSec, int nChannels, int latencyInMillisec) {
+        this->bitsPerSample      = bitsPerSample;
+        this->validBitsPerSample = validBitsPerSample;
+        this->nSamplesPerSec     = nSamplesPerSec;
+        this->nChannels          = nChannels;
+        this->latencyInMillisec  = latencyInMillisec;
+    }
 };
 
 struct WWInspectArg {
     int bitsPerSample;
+    int validBitsPerSample;
     int nSamplesPerSec;
     int nChannels;
 
-    void Set(int bitsPerSample, int nSamplesPerSec, int nChannels) {
-        this->bitsPerSample     = bitsPerSample;
-        this->nSamplesPerSec    = nSamplesPerSec;
-        this->nChannels         = nChannels;
+    void Set(int bitsPerSample, int validBitsPerSample, int nSamplesPerSec, int nChannels) {
+        this->bitsPerSample      = bitsPerSample;
+        this->validBitsPerSample = validBitsPerSample;
+        this->nSamplesPerSec     = nSamplesPerSec;
+        this->nChannels          = nChannels;
     }
 };
 
@@ -85,8 +96,8 @@ private:
     IAudioClient *m_audioClient;
     int          m_frameBytes;
     UINT32       m_bufferFrameNum;
-    int          m_deviceBitsPerSample;
-    int          m_dataBitsPerSample;
+    int          m_bitsPerSample;
+    int          m_validBitsPerSample;
     int          m_sampleRate;
 
     IAudioRenderClient *m_renderClient;

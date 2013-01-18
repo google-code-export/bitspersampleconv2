@@ -78,13 +78,16 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WasapiWrap.cpp" />
-    <ClCompile Include="WWPcmData.cpp" />
+    <ClCompile Include="WWDsfReader.cpp" />
     <ClCompile Include="WWUtil.cpp" />
+    <ClCompile Include="WWWavReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiWrap.h" />
+    <ClInclude Include="WWDsfReader.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWUtil.h" />
+    <ClInclude Include="WWWavReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

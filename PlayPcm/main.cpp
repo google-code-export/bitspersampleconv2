@@ -1,6 +1,7 @@
 #include "WasapiWrap.h"
 #include "WWUtil.h"
-#include "WWPcmData.h"
+#include "WWWavReader.h"
+#include "WWDsfReader.h"
 
 #include <stdio.h>
 #include <Windows.h>
@@ -78,10 +79,7 @@ Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
     HRG(ww.ChooseDevice(deviceId));
 
     WWSetupArg setupArg;
-    setupArg.bitsPerSample     = pcm.bitsPerSample;
-    setupArg.latencyInMillisec = latencyMillisec;
-    setupArg.nChannels         = pcm.nChannels;
-    setupArg.nSamplesPerSec    = pcm.nSamplesPerSec;
+    setupArg.Set(pcm.bitsPerSample,pcm.validBitsPerSample, pcm.nSamplesPerSec, pcm.nChannels, latencyMillisec);
     HRG(ww.Setup(setupArg));
     ww.SetOutputData(pcm);
     ww.Start();
@@ -111,10 +109,16 @@ Test(int deviceId)
     ww.PrintMixFormat();
     WWInspectArg inspectArg;
 
-    inspectArg.Set(16, 44100, 2);
+    inspectArg.Set(16, 16, 44100, 2);
     ww.Inspect(inspectArg);
 
-    inspectArg.Set(16, 48000, 2);
+    inspectArg.Set(16, 16, 48000, 2);
+    ww.Inspect(inspectArg);
+
+    inspectArg.Set(24, 24, 176400, 2);
+    ww.Inspect(inspectArg);
+
+    inspectArg.Set(32, 24, 176400, 2);
     ww.Inspect(inspectArg);
 
 end:
@@ -136,12 +140,11 @@ PrintUsage(void)
         "    PlayPcm -d deviceId\n"
         "        Test specified device\n"
         "\n"
-        /*
-        "    PlayPcm -d deviceId [-l latencyInMillisec] input_wave_file_name\n"
-        "        Play wav file on deviceId device\n"
+        "    PlayPcm -d deviceId [-l latencyInMillisec] input_pcm_file_name\n"
+        "        Play pcm file on deviceId device\n"
         "        Example:\n"
         "            PlayPcm -d 1 C:\\audio\\music.wav\n\n"
-        */
+        "            PlayPcm -d 1 C:\\audio\\music.dsf\n\n"
         );
 }
 
@@ -179,10 +182,13 @@ main(int argc, char *argv[])
     }
 
     filePath = argv[argc-1];
-    pcmData = WWPcmDataWavFileLoad(filePath);
+    pcmData = WWReadWavFile(filePath);
     if (NULL == pcmData) {
-        printf("E: WWPcmDataWavFileLoad failed %s\n", argv[3]);
-        return 1;
+        pcmData = WWReadDsfFile(filePath);
+        if (NULL == pcmData) {
+            printf("E: read file failed %s\n", argv[3]);
+            return 1;
+        }
     }
 
     HRESULT hr = Run(deviceId, latencyInMillisec, *pcmData);
