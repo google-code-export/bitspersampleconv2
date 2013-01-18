@@ -2,4 +2,4 @@
 
 #include "WWPcmData.h"
 
-WWPcmData * WWReadDsfFile(const char *path);
+WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType);

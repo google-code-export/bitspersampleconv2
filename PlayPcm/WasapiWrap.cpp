@@ -269,7 +269,7 @@ end:
         printf("supported.\n");                                                  \
     }
 
-void
+int
 WasapiWrap::Inspect(const WWInspectArg & arg)
 {
     HRESULT hr = 0;
@@ -300,16 +300,9 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
 
     IS_FORMAT_SUPPORTED(pWfex);
 
-    printf("WAVEFORMATEX         WAVE_FORMAT_PCM      %dHz %dbit %dch: ",
-        arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
-
-    wfext.Format.wFormatTag = WAVE_FORMAT_PCM;
-    wfext.Format.cbSize     = 0;
-
-    IS_FORMAT_SUPPORTED(pWfex);
-
 end:
     SafeRelease(&m_audioClient);
+    return hr;
 }
 
 HRESULT

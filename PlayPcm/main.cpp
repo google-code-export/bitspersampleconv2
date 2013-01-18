@@ -127,12 +127,40 @@ end:
     return hr;
 }
 
+static WWBitsPerSampleType
+InspectDeviceBitsPerSample(int deviceId)
+{
+    HRESULT hr;
+    WWBitsPerSampleType deviceBitsPerSample = WWBpsNone;
+    WasapiWrap ww;
+
+    HRG(ww.Init());
+    HRG(ww.DoDeviceEnumeration());
+    HRG(ww.ChooseDevice(deviceId));
+
+    WWInspectArg inspectArg;
+
+    inspectArg.Set(32, 24, 176400, 2);
+    if (SUCCEEDED(ww.Inspect(inspectArg))) {
+        deviceBitsPerSample = WWBps32_24;
+    }
+
+    inspectArg.Set(24, 24, 176400, 2);
+    if (SUCCEEDED(ww.Inspect(inspectArg))) {
+        deviceBitsPerSample = WWBps24;
+    }
+
+end:
+    ww.Unsetup();
+    ww.Term();
+    return deviceBitsPerSample;
+}
 
 static void
 PrintUsage(void)
 {
     printf(
-        "PlayPcm version 1.2\n"
+        "PlayPcm version 1.3\n"
         "Usage:\n"
         "    PlayPcm\n"
         "        Print this message and enumerate all available devices\n"
@@ -155,6 +183,7 @@ main(int argc, char *argv[])
     int deviceId = -1;
     int latencyInMillisec = LATENCY_MILLISEC_DEFAULT;
     char *filePath = 0;
+    WWBitsPerSampleType bitsPerSampleType = WWBpsNone;
 
     if (argc != 3 && argc != 4 && argc != 6) {
         PrintUsage();
@@ -181,10 +210,12 @@ main(int argc, char *argv[])
         latencyInMillisec = atoi(argv[4]);
     }
 
+    bitsPerSampleType = InspectDeviceBitsPerSample(deviceId);
+
     filePath = argv[argc-1];
     pcmData = WWReadWavFile(filePath);
     if (NULL == pcmData) {
-        pcmData = WWReadDsfFile(filePath);
+        pcmData = WWReadDsfFile(filePath, bitsPerSampleType);
         if (NULL == pcmData) {
             printf("E: read file failed %s\n", argv[3]);
             return 1;

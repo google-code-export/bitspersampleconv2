@@ -1,5 +1,12 @@
 #pragma once
 
+
+enum WWBitsPerSampleType {
+    WWBpsNone,
+    WWBps24,
+    WWBps32_24,
+};
+
 struct WWPcmData {
     int bitsPerSample;
     int validBitsPerSample;

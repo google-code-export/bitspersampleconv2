@@ -79,7 +79,7 @@ public:
     void Stop(void);
 
     void PrintMixFormat(void);
-    void Inspect(const WWInspectArg & arg);
+    int Inspect(const WWInspectArg & arg);
 
     int GetPosFrame(void);
     int GetTotalFrameNum(void);

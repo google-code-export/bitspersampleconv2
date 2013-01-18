@@ -132,7 +132,7 @@ struct DsfDataChunk {
     }
 };
 
-WWPcmData * WWReadDsfFile(const char *path)
+WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
 {
     WWPcmData *pcmData = NULL;
     char fourCC[4];
@@ -144,6 +144,11 @@ WWPcmData * WWReadDsfFile(const char *path)
     uint32_t blockNum;
     unsigned char *blockData = NULL;
     int result = -1;
+
+    if (bitsPerSampleType == WWBpsNone) {
+        printf("E: device does not support DoP\n");
+        return NULL;
+    }
 
     FILE *fp = NULL;
     fopen_s(&fp, path, "rb");
@@ -175,7 +180,7 @@ WWPcmData * WWReadDsfFile(const char *path)
     }
     pcmData->Init();
 
-    pcmData->bitsPerSample      = 32;
+    pcmData->bitsPerSample      = bitsPerSampleType == WWBps32_24 ? 32 : 24;
     pcmData->validBitsPerSample = 24;
     pcmData->nChannels      = fmtChunk.channelNum;
 
@@ -207,18 +212,36 @@ WWPcmData * WWReadDsfFile(const char *path)
             goto end;
         }
 
-        for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
-            for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
-                pcmData->stream[writePos+0] = 0;
-                pcmData->stream[writePos+1] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
-                pcmData->stream[writePos+2] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
-                pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
-                writePos += 4;
-                if (streamBytes <= writePos) {
-                    result = 0;
-                    goto end;
+        switch (bitsPerSampleType) {
+        case WWBps32_24:
+            for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
+                for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
+                    pcmData->stream[writePos+0] = 0;
+                    pcmData->stream[writePos+1] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
+                    pcmData->stream[writePos+2] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
+                    pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
+                    writePos += 4;
+                    if (streamBytes <= writePos) {
+                        result = 0;
+                        goto end;
+                    }
                 }
             }
+            break;
+        case WWBps24:
+            for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
+                for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
+                    pcmData->stream[writePos+0] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
+                    pcmData->stream[writePos+1] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
+                    pcmData->stream[writePos+2] = i & 1 ? 0xfa : 0x05;
+                    writePos += 3;
+                    if (streamBytes <= writePos) {
+                        result = 0;
+                        goto end;
+                    }
+                }
+            }
+            break;
         }
     }
 
