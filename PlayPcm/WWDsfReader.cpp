@@ -1,14 +1,15 @@
+// 日本語
+
 #include "WWDsfReader.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
-// ファイル読み込み処理に手抜きがあるためリトルエンディアンの計算機でないと動きません。
-
 #define DSD_CHUNK_FOURCC  "DSD "
 #define FMT_CHUNK_FOURCC  "fmt "
 #define DATA_CHUNK_FOURCC "data"
 
+// assumed target platform is little endian...
 #define FREAD(to, bytes, fp)               \
     if (fread(to, 1, bytes, fp) < bytes) { \
         return -1;                         \
