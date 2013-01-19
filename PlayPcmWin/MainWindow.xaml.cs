@@ -188,12 +188,18 @@ namespace PlayPcmWin
 
             public string SampleRate {
                 get {
+                    if (mPcmData.IsDsdOverPcm) {
+                        return string.Format(CultureInfo.CurrentCulture, "{0:F1}MHz", (double)mPcmData.SampleRate * 16/1000/1000);
+                    }
                     return string.Format(CultureInfo.CurrentCulture, "{0}kHz", mPcmData.SampleRate * 0.001);
                 }
             }
 
             public string QuantizationBitRate {
                 get {
+                    if (mPcmData.IsDsdOverPcm) {
+                        return "1 bit";
+                    }
                     if (mPcmData.SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
                         return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture)
                                 + " bit (" + Properties.Resources.FloatingPointNumbers + ")";
@@ -204,6 +210,10 @@ namespace PlayPcmWin
 
             public string BitRate {
                 get {
+                    if (mPcmData.IsDsdOverPcm) {
+                        return (mPcmData.SampleRate * 16 / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
+                    }
+
                     return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000)
                             .ToString(CultureInfo.CurrentCulture) + " kbps";
                 }
@@ -1816,6 +1826,39 @@ namespace PlayPcmWin
         }
 
         /// <summary>
+        /// DSFファイルのヘッダ部分を読み込む。
+        /// </summary>
+        /// <returns>読めたらtrue</returns>
+        private bool ReadDsfFileHeader(string path, PlaylistTrackInfo plti) {
+            bool result = false;
+
+            DsfReader r = new DsfReader();
+            try {
+                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                    PcmDataLib.PcmData pd;
+                    DsfReader.ResultType dsfResult = r.ReadHeader(br, out pd);
+                    if (dsfResult == DsfReader.ResultType.Success) {
+                        if (CheckAddPcmData(plti, path, pd)) {
+                            result = true;
+                        }
+                    } else {
+                        string s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSF", dsfResult, path);
+                        AddLogText(s);
+                        LoadErrorMessageAdd(s);
+                    }
+                }
+            } catch (IOException ex) {
+                HandleFileReadException(path, ex);
+            } catch (ArgumentException ex) {
+                HandleFileReadException(path, ex);
+            } catch (UnauthorizedAccessException ex) {
+                HandleFileReadException(path, ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// FLACファイルのヘッダ部分を読み込む。
         /// </summary>
         /// <returns>読めたらtrue</returns>
@@ -1980,6 +2023,11 @@ namespace PlayPcmWin
                 case ".WAVE":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
                         result += ReadWavFileHeader(path, plti) ? 1 : 0;
+                    }
+                    break;
+                case ".DSF":
+                    if (mode != ReadHeaderMode.OnlyMetaFile) {
+                        result += ReadDsfFileHeader(path, plti) ? 1 : 0;
                     }
                     break;
                 case ".JPG":

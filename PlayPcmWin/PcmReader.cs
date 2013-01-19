@@ -9,6 +9,7 @@ namespace PlayPcmWin {
         private PcmData mPcmData;
         private FlacDecodeIF mFlacR;
         private AiffReader mAiffR;
+        private DsfReader mDsfR;
         private WavData mWaveR;
         private BinaryReader mBr;
 
@@ -18,6 +19,7 @@ namespace PlayPcmWin {
             FLAC,
             AIFF,
             WAVE,
+            DSF,
             Unknown
         };
         Format m_format;
@@ -40,6 +42,7 @@ namespace PlayPcmWin {
                 return true;
             case Format.AIFF:
             case Format.WAVE:
+            case Format.DSF:
                 return false;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -60,6 +63,8 @@ namespace PlayPcmWin {
             case ".WAV":
             case ".WAVE":
                 return Format.WAVE;
+            case ".DSF":
+                return Format.DSF;
             default:
                 return Format.Unknown;
             }
@@ -77,17 +82,17 @@ namespace PlayPcmWin {
             try {
                 switch (fmt) {
                 case Format.FLAC:
-                    // FLACファイル読み込み。
                     m_format = Format.FLAC;
                     return StreamBeginFlac(path, startFrame, wantFrames);
                 case Format.AIFF:
-                    // AIFFファイル読み込み。
                     m_format = Format.AIFF;
                     return StreamBeginAiff(path, startFrame);
                 case Format.WAVE:
-                    // WAVEファイル読み込み。
                     m_format = Format.WAVE;
                     return StreamBeginWave(path, startFrame);
+                case Format.DSF:
+                    m_format = Format.DSF;
+                    return StreamBeginDsf(path, startFrame);
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return -1;
@@ -121,6 +126,9 @@ namespace PlayPcmWin {
             case Format.WAVE:
                 result = mWaveR.ReadStreamReadOne(mBr, preferredFrames);
                 break;
+            case Format.DSF:
+                result = mDsfR.ReadStreamReadOne(mBr, preferredFrames);
+                break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 result = new byte[0];
@@ -140,6 +148,12 @@ namespace PlayPcmWin {
             case Format.WAVE:
                 mWaveR.ReadStreamEnd();
                 break;
+            case Format.DSF:
+                mDsfR.ReadStreamEnd();
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
             }
 
             if (null != mBr) {
@@ -150,6 +164,7 @@ namespace PlayPcmWin {
             mFlacR = null;
             mAiffR = null;
             mWaveR = null;
+            mDsfR = null;
         }
 
         /// <summary>
@@ -168,6 +183,12 @@ namespace PlayPcmWin {
             case Format.WAVE:
                 mWaveR.ReadStreamEnd();
                 break;
+            case Format.DSF:
+                mDsfR.ReadStreamEnd();
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
             }
 
             if (null != mBr) {
@@ -178,6 +199,7 @@ namespace PlayPcmWin {
             mFlacR = null;
             mAiffR = null;
             mWaveR = null;
+            mDsfR = null;
 
             return rv;
         }
@@ -216,6 +238,25 @@ namespace PlayPcmWin {
                 NumFrames = mAiffR.NumFrames;
 
                 mAiffR.ReadStreamSkip(mBr, startFrame);
+                ercd = 0;
+            }
+
+            return ercd;
+        }
+
+        private int StreamBeginDsf(string path, long startFrame) {
+            int ercd = -1;
+
+            mDsfR = new DsfReader();
+            mBr = new BinaryReader(
+                File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read));
+
+            DsfReader.ResultType result = mDsfR.ReadStreamBegin(mBr, out mPcmData);
+            if (result == DsfReader.ResultType.Success) {
+
+                NumFrames = mDsfR.NumFrames;
+
+                mDsfR.ReadStreamSkip(mBr, startFrame);
                 ercd = 0;
             }
 

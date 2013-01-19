@@ -53,7 +53,7 @@ namespace PlayPcmWin {
 
         public CompressionType Compression { get; set; }
 
-        private ID3Reader m_Id3Reader = new ID3Reader();
+        private ID3Reader mId3Reader = new ID3Reader();
 
         private ResultType ReadFormChunkHeader(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
@@ -61,7 +61,7 @@ namespace PlayPcmWin {
                 return ResultType.NotAiff;
             }
 
-            mCkSize = ReadBigU32(br);
+            mCkSize = Util.ReadBigU32(br);
             if (0 != (mCkSize & 0x80000000)) {
                 return ResultType.HeaderError;
             }
@@ -76,20 +76,6 @@ namespace PlayPcmWin {
             }
 
             return ResultType.Success;
-        }
-
-        private static UInt16 ReadBigU16(BinaryReader br) {
-            UInt16 result = (UInt16)(((int)br.ReadByte() << 8) + br.ReadByte());
-            return result;
-        }
-
-        private static UInt32 ReadBigU32(BinaryReader br) {
-            UInt32 result = 
-                (UInt32)((UInt32)br.ReadByte() << 24) +
-                (UInt32)((UInt32)br.ReadByte() << 16) +
-                (UInt32)((UInt32)br.ReadByte() << 8) +
-                (UInt32)((UInt32)br.ReadByte() << 0);
-            return result;
         }
         
         /// <summary>
@@ -106,8 +92,8 @@ namespace PlayPcmWin {
                         return true;
                     }
 
-                    long ckSize = ReadBigU32(br);
-                    PcmDataLib.Util.BinaryReaderSkip(br, ChunkSizeWithPad(ckSize));
+                    long ckSize = Util.ReadBigU32(br);
+                    PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize));
                 }
             } catch (System.IO.EndOfStreamException ex) {
                 Console.WriteLine(ex);
@@ -119,12 +105,12 @@ namespace PlayPcmWin {
             if (!SkipToChunk(br, "FVER")) {
                 return ResultType.NotFoundFverHeader;
             }
-            uint ckSize = ReadBigU32(br);
+            uint ckSize = Util.ReadBigU32(br);
             if (4 != ckSize) {
                 return ResultType.HeaderError;
             }
             
-            uint timestamp = ReadBigU32(br);
+            uint timestamp = Util.ReadBigU32(br);
 
             if (0xa2805140 != timestamp) {
                 return ResultType.NotSupportAifcVersion;
@@ -133,21 +119,14 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        /// <summary>
-        /// チャンクサイズが奇数の場合、近い偶数に繰上げ。
-        /// </summary>
-        private static long ChunkSizeWithPad(long ckSize) {
-            return ( ( ~( 1L ) ) & ( ckSize + 1 ) );
-        }
-
         private ResultType ReadCommonChunk(BinaryReader br) {
             if (!SkipToChunk(br, "COMM")) {
                 return ResultType.NotFoundCommHeader;
             }
-            uint ckSize = ReadBigU32(br);
-            NumChannels = ReadBigU16(br);
-            NumFrames = ReadBigU32(br);
-            BitsPerSample = ReadBigU16(br);
+            uint ckSize = Util.ReadBigU32(br);
+            NumChannels = Util.ReadBigU16(br);
+            NumFrames = Util.ReadBigU32(br);
+            BitsPerSample = Util.ReadBigU16(br);
 
             byte[] sampleRate80 = br.ReadBytes(10);
 
@@ -155,7 +134,7 @@ namespace PlayPcmWin {
 
             Compression = CompressionType.None;
             if (4 <= ckSize-readSize) {
-                uint compressionId = ReadBigU32(br); 
+                uint compressionId = Util.ReadBigU32(br); 
                 readSize += 4;
 
                 switch (compressionId) {
@@ -189,9 +168,9 @@ namespace PlayPcmWin {
             if (!SkipToChunk(br, "SSND")) {
                 return ResultType.NotFoundSsndHeader;
             }
-            long ckSize = ReadBigU32(br);
-            long offset = ReadBigU32(br);
-            long blockSize = ReadBigU32(br);
+            long ckSize = Util.ReadBigU32(br);
+            long offset = Util.ReadBigU32(br);
+            long blockSize = Util.ReadBigU32(br);
 
             if (blockSize != 0) {
                 return ResultType.NotSupportBlockSizeNonzero;
@@ -204,7 +183,7 @@ namespace PlayPcmWin {
             } else {
                 // SoundDataチャンクの最後まで移動。
                 // sizeof offset + blockSize == 8
-                PcmDataLib.Util.BinaryReaderSkip(br, ChunkSizeWithPad(ckSize) - 8);
+                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - 8);
             }
 
             return ResultType.Success;
@@ -215,12 +194,12 @@ namespace PlayPcmWin {
                 return ResultType.ReadError;
             }
 
-            long ckSize = ReadBigU32(br);
+            long ckSize = Util.ReadBigU32(br);
             if (ckSize < 10) {
                 return ResultType.ReadError;
             }
 
-            var id3r = m_Id3Reader.Read(br);
+            var id3r = mId3Reader.Read(br);
 
             ResultType result = ResultType.Success;
             switch (id3r) {
@@ -232,7 +211,7 @@ namespace PlayPcmWin {
                 break;
             case ID3Reader.ID3Result.Success:
                 result = ResultType.Success;
-                PcmDataLib.Util.BinaryReaderSkip(br, ChunkSizeWithPad(ckSize) - m_Id3Reader.ReadBytes);
+                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                 break;
             default:
                 // 追加忘れ
@@ -243,19 +222,19 @@ namespace PlayPcmWin {
             return result;
         }
 
-        public string TitleName { get { return m_Id3Reader.TitleName; } }
-        public string AlbumName { get { return m_Id3Reader.AlbumName; } }
-        public string ArtistName { get { return m_Id3Reader.ArtistName; } }
+        public string TitleName { get { return mId3Reader.TitleName; } }
+        public string AlbumName { get { return mId3Reader.AlbumName; } }
+        public string ArtistName { get { return mId3Reader.ArtistName; } }
 
         /// <summary>
         /// 画像データバイト数(無いときは0)
         /// </summary>
-        public int PictureBytes { get { return m_Id3Reader.PictureBytes; } }
+        public int PictureBytes { get { return mId3Reader.PictureBytes; } }
 
         /// <summary>
         /// 画像データ
         /// </summary>
-        public byte[] PictureData { get { return m_Id3Reader.PictureData; } }
+        public byte[] PictureData { get { return mId3Reader.PictureData; } }
         
         private ResultType ReadHeader1(BinaryReader br, out PcmDataLib.PcmData pcmData, ReadHeaderMode mode) {
             pcmData = new PcmDataLib.PcmData();
