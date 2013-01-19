@@ -11,7 +11,7 @@ WWPcmData::Init(void)
 void
 WWPcmData::Term(void)
 {
-    free(stream);
+    delete [] stream;
     stream = NULL;
 }
 

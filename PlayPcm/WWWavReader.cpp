@@ -31,9 +31,9 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
         return false;
     }
 
-    unsigned char *buff = (unsigned char*)malloc(chunkSize);
+    unsigned char *buff = new unsigned char[chunkSize];
     if (NULL == buff) {
-        printf("E: malloc failed\n");
+        printf("E: memory allocation failed\n");
         return false;
     }
     bytes = fread(buff, 1, chunkSize, fp);
@@ -77,7 +77,9 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
     result = true;
 
 end:
-    free(buff);
+    delete [] buff;
+    buff = NULL;
+
     return result;
 }
 

@@ -247,15 +247,12 @@ WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleTyp
 
     result = 0;
 end:
-    delete[] blockData;
+    delete [] blockData;
     blockData = NULL;
 
     if (result < 0) {
         if (pcmData) {
-            if (pcmData->stream) {
-                delete[] pcmData->stream;
-                pcmData->stream = NULL;
-            }
+            pcmData->Term();
             delete pcmData;
             pcmData = NULL;
         }
