@@ -28,8 +28,11 @@ namespace PlayPcmWin {
         }
 
         public int NumChannels { get; set; }
+
+        /// <summary>
+        /// 2822400 (2.8MHz)
+        /// </summary>
         public int SampleRate { get; set; }
-        public int BitsPerSample { get { return 1; } }
 
         /// <summary>
         /// 1フレーム=16ビット(2バイト) x チャンネル数とする
