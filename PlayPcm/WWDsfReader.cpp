@@ -34,12 +34,12 @@ struct DsfDsdChunk {
         FREAD(&medadataOffset, 8, fp);
 
         if (chunkBytes != 28) {
-            printf("DSF DSD chunk bytes != 28 %d\n", chunkBytes);
+            printf("DSF DSD chunkBytes!=28 %llu\n", chunkBytes);
             return -1;
         }
 
         if (0x7fffffff < totalFileBytes) {
-            printf("file too large %d\n", totalFileBytes);
+            printf("file too large %llu\n", totalFileBytes);
             return -1;
         }
 
@@ -74,42 +74,42 @@ struct DsfFmtChunk {
         FREAD(&reserved,            4, fp);
 
         if (chunkBytes != 52) {
-            printf("DSF fmt chunk bytes != 52 %d\n", chunkBytes);
+            printf("DSF fmt chunkBytes!=52 %llu\n", chunkBytes);
             return -1;
         }
 
         if (formatVersion != 1) {
-            printf("DSF fmt version != 1 %d\n", formatVersion);
+            printf("DSF fmt version!=1 %d\n", formatVersion);
             return -1;
         }
 
         if (formatId != 0) {
-            printf("DSF fmt id != 0 %d\n", formatId);
+            printf("DSF fmt formatId!=0 %d\n", formatId);
             return -1;
         }
 
         if (channelType != 2) {
-            printf("DSF fmt channelType != 2 %d\n", channelType);
+            printf("DSF fmt channelType!=2 %d\n", channelType);
             return -1;
         }
 
         if (channelNum != 2) {
-            printf("DSF fmt channelNum != 2 %d\n", channelNum);
+            printf("DSF fmt channelNum!=2 %d\n", channelNum);
             return -1;
         }
 
         if (samplingFrequency != 2822400) {
-            printf("samplingFrequency != 2822400 %d\n", samplingFrequency);
+            printf("samplingFrequency!=2822400 %d\n", samplingFrequency);
             return -1;
         }
 
         if (bitsPerSample != 1) {
-            printf("DSF fmt bitsPerSample != 1 %d\n", bitsPerSample);
+            printf("DSF fmt bitsPerSample!=1 %d\n", bitsPerSample);
             return -1;
         }
 
         if (blockSizePerChannel != 4096) {
-            printf("blockSizePerChannel != 4096 %d\n", blockSizePerChannel);
+            printf("blockSizePerChannel!=4096 %d\n", blockSizePerChannel);
             return -1;
         }
 
@@ -124,7 +124,7 @@ struct DsfDataChunk {
         FREAD(&chunkBytes,     8, fp);
 
         if (0x7fffffff < chunkBytes) {
-            printf("DsfDataChunk too large %d\n", chunkBytes);
+            printf("DsfDataChunk too large %llu\n", chunkBytes);
             return -1;
         }
 
