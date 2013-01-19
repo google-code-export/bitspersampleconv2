@@ -222,6 +222,7 @@ WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleTyp
                     pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
                     writePos += 4;
                     if (streamBytes <= writePos) {
+                        // recorded sample is ended on part of the way of the block
                         result = 0;
                         goto end;
                     }
