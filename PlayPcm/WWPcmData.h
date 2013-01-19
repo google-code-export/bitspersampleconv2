@@ -4,7 +4,7 @@
 enum WWBitsPerSampleType {
     WWBpsNone,
     WWBps24,
-    WWBps32_24,
+    WWBps32v24,
 };
 
 struct WWPcmData {

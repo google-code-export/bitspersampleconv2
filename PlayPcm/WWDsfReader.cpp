@@ -180,9 +180,9 @@ WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleTyp
     }
     pcmData->Init();
 
-    pcmData->bitsPerSample      = bitsPerSampleType == WWBps32_24 ? 32 : 24;
+    pcmData->bitsPerSample      = bitsPerSampleType == WWBps32v24 ? 32 : 24;
     pcmData->validBitsPerSample = 24;
-    pcmData->nChannels      = fmtChunk.channelNum;
+    pcmData->nChannels          = fmtChunk.channelNum;
 
     // DSD 16bit == 1 frame
     pcmData->nFrames        = (int)(fmtChunk.sampleCount/16);
@@ -213,7 +213,7 @@ WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleTyp
         }
 
         switch (bitsPerSampleType) {
-        case WWBps32_24:
+        case WWBps32v24:
             for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
                 for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
                     pcmData->stream[writePos+0] = 0;

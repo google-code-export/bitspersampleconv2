@@ -142,7 +142,7 @@ InspectDeviceBitsPerSample(int deviceId)
 
     inspectArg.Set(32, 24, 176400, 2);
     if (SUCCEEDED(ww.Inspect(inspectArg))) {
-        deviceBitsPerSample = WWBps32_24;
+        deviceBitsPerSample = WWBps32v24;
     }
 
     inspectArg.Set(24, 24, 176400, 2);
