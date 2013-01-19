@@ -47,6 +47,9 @@ namespace PlayPcmWin {
         private ulong mTotalFileBytes;
         private ulong mMetadataOffset;
 
+        /// <summary>
+        /// サンプル数＝データサイズ ÷ チャンネル数
+        /// </summary>
         private long mSampleCount;
         private int  mBlockSizePerChannel;
 
@@ -128,7 +131,7 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportBlockSize;
             }
 
-            NumFrames = mSampleCount / 16 / NumChannels;
+            NumFrames = mSampleCount / 16;
 
             return ResultType.Success;
         }
