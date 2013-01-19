@@ -21,8 +21,6 @@ static const unsigned char gBitReverse[256] =
     R6(0), R6(2), R6(1), R6(3)
 };
 
-///////////////////////////////////////////////////////////////////////
-
 struct DsfDsdChunk {
     uint64_t chunkBytes;
     uint64_t totalFileBytes;
@@ -132,7 +130,8 @@ struct DsfDataChunk {
     }
 };
 
-WWPcmData * WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
+WWPcmData *
+WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
 {
     WWPcmData *pcmData = NULL;
     char fourCC[4];
