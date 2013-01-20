@@ -34,10 +34,10 @@ Big2ToLittle2(uint16_t v)
 static uint32_t
 Big4ToLittle4(uint32_t v)
 {
-    return   (v >> 24) |
-            ((v & 0x00ff0000) >> 8) |
-            ((v & 0x0000ff00) << 8) |
-             (v << 24);
+    return (v >> 24) |
+           ((v & 0x00ff0000) >> 8) |
+           ((v & 0x0000ff00) << 8) |
+           (v << 24);
 }
 
 static uint64_t
