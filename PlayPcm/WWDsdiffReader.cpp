@@ -3,20 +3,20 @@
 #include <stdint.h>
 #include <string.h>
 
-#define FORM_DSD_FORM_TYPE_FOURCC           "DSD "
-#define PROPERTY_CHUNK_PROPERTY_TYPE_FOURCC "SND "
-#define COMPRESSION_UNCOMPRESSED_FOURCC     "DSD "
+#define FORM_DSD_FORM_TYPE           "DSD "
+#define PROPERTY_CHUNK_PROPERTY_TYPE "SND "
+#define COMPRESSION_UNCOMPRESSED     "DSD "
 
 // assumed target platform is little endian...
 
-#define FRM8_FOURCC_LE4 0x384d5246 //< "FRM8"
-#define FVER_FOURCC_LE4 0x52455646 //< "FVER"
-#define PROP_FOURCC_LE4 0x504f5250 //< "PROP"
-#define FS_FOURCC_LE4   0x20205346 //< "FS  "
-#define SND_FOURCC_LE4  0x20444e53 //< "SND "
-#define CHNL_FOURCC_LE4 0x4c4e4843 //< "CHNL"
-#define CMPR_FOURCC_LE4 0x52504d43 //< "CMPR"
-#define DSD_FOURCC_LE4  0x20445344 //< "DSD "
+#define FOURCC_FRM8 0x384d5246 //< "FRM8"
+#define FOURCC_FVER 0x52455646 //< "FVER"
+#define FOURCC_PROP 0x504f5250 //< "PROP"
+#define FOURCC_FS   0x20205346 //< "FS  "
+#define FOURCC_SND  0x20444e53 //< "SND "
+#define FOURCC_CHNL 0x4c4e4843 //< "CHNL"
+#define FOURCC_CMPR 0x52504d43 //< "CMPR"
+#define FOURCC_DSD  0x20445344 //< "DSD "
 
 // assumed target platform is little endian...
 #define FREAD(toPtr, bytes, fp)               \
@@ -27,8 +27,8 @@
 static uint16_t
 Big2ToLittle2(uint16_t v)
 {
-    return ((v<<8)&0xff00) |
-           ((v>>8)&0xff);
+    return (v<<8) |
+           (v>>8);
 }
 
 static uint32_t
@@ -50,7 +50,7 @@ Big8ToLittle8(uint64_t v)
            ((v&0x00000000ff000000)<<8)  |
            ((v&0x0000000000ff0000)<<24) |
            ((v&0x000000000000ff00)<<40) |
-           ((v&0x00000000000000ff)<<56);
+           (v<<56);
 }
 
 #define READ_BIG2(v, fp)           \
@@ -88,7 +88,7 @@ struct DsdiffFormDsdChunk {
             return -1;
         }
 
-        if (0 != memcmp(formType, FORM_DSD_FORM_TYPE_FOURCC, 4)) {
+        if (0 != memcmp(formType, FORM_DSD_FORM_TYPE, 4)) {
             printf("DSDIFF formType != DSD %c%c%c%c\n",
                     formType[0], formType[1], formType[2], formType[3]);
             return -1;
@@ -141,7 +141,7 @@ struct DsdiffPropertyChunk {
             return -1;
         }
 
-        if (0 != memcmp(propType, PROPERTY_CHUNK_PROPERTY_TYPE_FOURCC, 4)) {
+        if (0 != memcmp(propType, PROPERTY_CHUNK_PROPERTY_TYPE, 4)) {
             printf("DSDIFF propertyType != SND %c%c%c%c\n",
                     propType[0], propType[1], propType[2], propType[3]);
             return -1;
@@ -227,7 +227,7 @@ struct DsdiffCompressionTypeChunk {
             return -1;
         }
 
-        if (0 != memcmp(cmprType, COMPRESSION_UNCOMPRESSED_FOURCC, 4)) {
+        if (0 != memcmp(cmprType, COMPRESSION_UNCOMPRESSED, 4)) {
             printf("DSDIFF unsupported compression type %c%c%c%c\n",
                     cmprType[0], cmprType[1], cmprType[2], cmprType[3]);
             return -1;
@@ -344,37 +344,37 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
         }
 
         switch(fourCC) {
-        case FRM8_FOURCC_LE4:
+        case FOURCC_FRM8:
             if (formDsdChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case FVER_FOURCC_LE4:
+        case FOURCC_FVER:
             if (formVersionChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case PROP_FOURCC_LE4:
+        case FOURCC_PROP:
             if (propChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case FS_FOURCC_LE4:
+        case FOURCC_FS:
             if (sampleRateChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case CHNL_FOURCC_LE4:
+        case FOURCC_CHNL:
             if (channelsChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case CMPR_FOURCC_LE4:
+        case FOURCC_CMPR:
             if (cmprChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
             break;
-        case DSD_FOURCC_LE4:
+        case FOURCC_DSD:
             if (dataChunk.ReadFromFile(fp) < 0) {
                 goto end;
             }
