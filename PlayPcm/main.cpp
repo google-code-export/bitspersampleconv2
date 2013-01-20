@@ -2,6 +2,7 @@
 #include "WWUtil.h"
 #include "WWWavReader.h"
 #include "WWDsfReader.h"
+#include "WWDsdiffReader.h"
 
 #include <stdio.h>
 #include <Windows.h>
@@ -10,6 +11,27 @@
 
 #define LATENCY_MILLISEC_DEFAULT (100)
 #define READ_LINE_BYTES          (256)
+
+static void
+PrintUsage(void)
+{
+    printf(
+        "PlayPcm version 1.0.5\n"
+        "Usage:\n"
+        "    PlayPcm\n"
+        "        Print this message and enumerate all available devices\n"
+        "\n"
+        "    PlayPcm -d deviceId\n"
+        "        Test specified device\n"
+        "\n"
+        "    PlayPcm -d deviceId [-l latencyInMillisec] input_pcm_file_name\n"
+        "        Play pcm file on deviceId device\n"
+        "        Example:\n"
+        "            PlayPcm -d 1 C:\\audio\\music.wav\n"
+        "            PlayPcm -d 1 C:\\audio\\music.dsf\n"
+        "            PlayPcm -d 1 C:\\audio\\music.dff\n"
+        );
+}
 
 static HRESULT
 GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
@@ -156,26 +178,6 @@ end:
     return deviceBitsPerSample;
 }
 
-static void
-PrintUsage(void)
-{
-    printf(
-        "PlayPcm version 1.0.4\n"
-        "Usage:\n"
-        "    PlayPcm\n"
-        "        Print this message and enumerate all available devices\n"
-        "\n"
-        "    PlayPcm -d deviceId\n"
-        "        Test specified device\n"
-        "\n"
-        "    PlayPcm -d deviceId [-l latencyInMillisec] input_pcm_file_name\n"
-        "        Play pcm file on deviceId device\n"
-        "        Example:\n"
-        "            PlayPcm -d 1 C:\\audio\\music.wav\n\n"
-        "            PlayPcm -d 1 C:\\audio\\music.dsf\n\n"
-        );
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -217,8 +219,11 @@ main(int argc, char *argv[])
     if (NULL == pcmData) {
         pcmData = WWReadDsfFile(filePath, bitsPerSampleType);
         if (NULL == pcmData) {
-            printf("E: read file failed %s\n", argv[3]);
-            return 1;
+            pcmData = WWReadDsdiffFile(filePath, bitsPerSampleType);
+            if (NULL == pcmData) {
+                printf("E: read file failed %s\n", argv[3]);
+                return 1;
+            }
         }
     }
 

@@ -78,6 +78,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WasapiWrap.cpp" />
+    <ClCompile Include="WWDsdiffReader.cpp" />
     <ClCompile Include="WWDsfReader.cpp" />
     <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWUtil.cpp" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiWrap.h" />
+    <ClInclude Include="WWDsdiffReader.h" />
     <ClInclude Include="WWDsfReader.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWUtil.h" />
