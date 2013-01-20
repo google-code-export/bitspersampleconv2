@@ -434,7 +434,6 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
                 pcmData->stream[writePos+1] = dataChunk.data[readPos+ch+pcmData->nChannels];
                 pcmData->stream[writePos+2] = dataChunk.data[readPos+ch];
                 pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
-
                 writePos += 4;
             }
             readPos  += pcmData->nChannels*2;
