@@ -44,7 +44,7 @@ namespace PlayPcmWin {
         /// </summary>
         private const int STREAM_DATA_OFFSET = 92;
 
-        private ResultType ReadDsdChunk(BinaryReader br) {
+        private static ResultType ReadDsdChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes < 4 || 0x7fffffff < chunkBytes) {
                 return ResultType.NotSupportFileTooLarge;
@@ -58,7 +58,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType ReadFormVersionChunk(BinaryReader br) {
+        private static ResultType ReadFormVersionChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes != 4) {
                 return ResultType.FormVersionChunkSizeError;
@@ -72,7 +72,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType ReadPropertyChunk(BinaryReader br) {
+        private static ResultType ReadPropertyChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes < 4) {
                 return ResultType.PropertyChunkSizeError;
@@ -114,7 +114,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType ReadCompressionTypeChunk(BinaryReader br) {
+        private static ResultType ReadCompressionTypeChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes < 5) {
                 return ResultType.CompressionTypeChunkSizeError;
@@ -142,7 +142,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType SkipUnknownChunk(BinaryReader br) {
+        private static ResultType SkipUnknownChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes == 0 || 0x7fffffff < chunkBytes) {
                 return ResultType.NotSupportFileTooLarge;
@@ -154,25 +154,6 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        public string TitleName { get { return ""; } }
-        public string AlbumName { get { return ""; } }
-        public string ArtistName { get { return ""; } }
-
-        /// <summary>
-        /// 画像データバイト数(無いときは0)
-        /// </summary>
-        public int PictureBytes { get { return 0; } }
-
-        /// <summary>
-        /// 画像データ
-        /// </summary>
-        public byte[] PictureData { get { return new byte[0]; } }
-
-        enum ReadHeaderMode {
-            AllHeaders,
-            ReadStopBeforeSoundData,
-        };
-
         const int FOURCC_FRM8 = 0x384d5246;
         const int FOURCC_FVER = 0x52455646;
         const int FOURCC_PROP = 0x504f5250;
@@ -182,7 +163,7 @@ namespace PlayPcmWin {
         const int FOURCC_CMPR = 0x52504d43;
         const int FOURCC_DSD =  0x20445344;
 
-        private ResultType ReadHeader1(BinaryReader br, out PcmDataLib.PcmData pcmData, ReadHeaderMode mode) {
+        private ResultType ReadHeader1(BinaryReader br, out PcmDataLib.PcmData pcmData) {
             pcmData = new PcmDataLib.PcmData();
             bool done = false;
 
@@ -245,7 +226,7 @@ namespace PlayPcmWin {
         }
 
         public ResultType ReadHeader(BinaryReader br, out PcmDataLib.PcmData pcmData) {
-            return ReadHeader1(br, out pcmData, ReadHeaderMode.AllHeaders);
+            return ReadHeader1(br, out pcmData);
         }
 
         // 1フレームは
@@ -255,7 +236,7 @@ namespace PlayPcmWin {
 
         public ResultType ReadStreamBegin(BinaryReader br, out PcmDataLib.PcmData pcmData) {
             ResultType rt = ResultType.Success;
-            rt = ReadHeader1(br, out pcmData, ReadHeaderMode.ReadStopBeforeSoundData);
+            rt = ReadHeader1(br, out pcmData);
             mPosFrame = 0;
 
             return rt;
