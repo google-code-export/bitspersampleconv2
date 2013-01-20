@@ -198,20 +198,20 @@ namespace PlayPcmWin
             public string QuantizationBitRate {
                 get {
                     if (mPcmData.IsDsdOverPcm) {
-                        return "1 bit";
+                        return "1bit";
                     }
                     if (mPcmData.SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
                         return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture)
-                                + " bit (" + Properties.Resources.FloatingPointNumbers + ")";
+                                + "bit (" + Properties.Resources.FloatingPointNumbers + ")";
                     }
-                    return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture) + " bit";
+                    return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture) + "bit";
                 }
             }
 
             public string BitRate {
                 get {
                     if (mPcmData.IsDsdOverPcm) {
-                        return (mPcmData.SampleRate * 16 / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
+                        return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
                     }
 
                     return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000)
