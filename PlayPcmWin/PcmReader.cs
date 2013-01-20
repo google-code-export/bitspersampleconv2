@@ -10,6 +10,7 @@ namespace PlayPcmWin {
         private FlacDecodeIF mFlacR;
         private AiffReader mAiffR;
         private DsfReader mDsfR;
+        private DsdiffReader mDsdiffR;
         private WavData mWaveR;
         private BinaryReader mBr;
 
@@ -20,6 +21,7 @@ namespace PlayPcmWin {
             AIFF,
             WAVE,
             DSF,
+            DSDIFF,
             Unknown
         };
         Format m_format;
@@ -43,6 +45,7 @@ namespace PlayPcmWin {
             case Format.AIFF:
             case Format.WAVE:
             case Format.DSF:
+            case Format.DSDIFF:
                 return false;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -65,6 +68,8 @@ namespace PlayPcmWin {
                 return Format.WAVE;
             case ".DSF":
                 return Format.DSF;
+            case ".DFF":
+                return Format.DSDIFF;
             default:
                 return Format.Unknown;
             }
@@ -93,6 +98,9 @@ namespace PlayPcmWin {
                 case Format.DSF:
                     m_format = Format.DSF;
                     return StreamBeginDsf(path, startFrame);
+                case Format.DSDIFF:
+                    m_format = Format.DSDIFF;
+                    return StreamBeginDsdiff(path, startFrame);
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     return -1;
@@ -129,6 +137,9 @@ namespace PlayPcmWin {
             case Format.DSF:
                 result = mDsfR.ReadStreamReadOne(mBr, preferredFrames);
                 break;
+            case Format.DSDIFF:
+                result = mDsdiffR.ReadStreamReadOne(mBr, preferredFrames);
+                break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 result = new byte[0];
@@ -150,6 +161,9 @@ namespace PlayPcmWin {
                 break;
             case Format.DSF:
                 mDsfR.ReadStreamEnd();
+                break;
+            case Format.DSDIFF:
+                mDsdiffR.ReadStreamEnd();
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -185,6 +199,9 @@ namespace PlayPcmWin {
                 break;
             case Format.DSF:
                 mDsfR.ReadStreamEnd();
+                break;
+            case Format.DSDIFF:
+                mDsdiffR.ReadStreamEnd();
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -257,6 +274,25 @@ namespace PlayPcmWin {
                 NumFrames = mDsfR.NumFrames;
 
                 mDsfR.ReadStreamSkip(mBr, startFrame);
+                ercd = 0;
+            }
+
+            return ercd;
+        }
+
+        private int StreamBeginDsdiff(string path, long startFrame) {
+            int ercd = -1;
+
+            mDsdiffR = new DsdiffReader();
+            mBr = new BinaryReader(
+                File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read));
+
+            DsdiffReader.ResultType result = mDsdiffR.ReadStreamBegin(mBr, out mPcmData);
+            if (result == DsdiffReader.ResultType.Success) {
+
+                NumFrames = mDsdiffR.NumFrames;
+
+                mDsdiffR.ReadStreamSkip(mBr, startFrame);
                 ercd = 0;
             }
 

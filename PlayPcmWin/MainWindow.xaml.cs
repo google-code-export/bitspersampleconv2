@@ -1836,13 +1836,50 @@ namespace PlayPcmWin
             try {
                 using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
                     PcmDataLib.PcmData pd;
-                    DsfReader.ResultType dsfResult = r.ReadHeader(br, out pd);
-                    if (dsfResult == DsfReader.ResultType.Success) {
+                    DsfReader.ResultType rv = r.ReadHeader(br, out pd);
+                    if (rv == DsfReader.ResultType.Success) {
                         if (CheckAddPcmData(plti, path, pd)) {
                             result = true;
                         }
                     } else {
-                        string s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSF", dsfResult, path);
+                        string s = string.Format(CultureInfo.InvariantCulture,
+                                Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSF",
+                                rv, path);
+                        AddLogText(s);
+                        LoadErrorMessageAdd(s);
+                    }
+                }
+            } catch (IOException ex) {
+                HandleFileReadException(path, ex);
+            } catch (ArgumentException ex) {
+                HandleFileReadException(path, ex);
+            } catch (UnauthorizedAccessException ex) {
+                HandleFileReadException(path, ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// DSDIFFファイルのヘッダ部分を読み込む。
+        /// </summary>
+        /// <returns>読めたらtrue</returns>
+        private bool ReadDsdiffFileHeader(string path, PlaylistTrackInfo plti) {
+            bool result = false;
+
+            DsdiffReader r = new DsdiffReader();
+            try {
+                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                    PcmDataLib.PcmData pd;
+                    DsdiffReader.ResultType rv = r.ReadHeader(br, out pd);
+                    if (rv == DsdiffReader.ResultType.Success) {
+                        if (CheckAddPcmData(plti, path, pd)) {
+                            result = true;
+                        }
+                    } else {
+                        string s = string.Format(CultureInfo.InvariantCulture,
+                                Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSDIFF",
+                                rv, path);
                         AddLogText(s);
                         LoadErrorMessageAdd(s);
                     }
@@ -2028,6 +2065,11 @@ namespace PlayPcmWin
                 case ".DSF":
                     if (mode != ReadHeaderMode.OnlyMetaFile) {
                         result += ReadDsfFileHeader(path, plti) ? 1 : 0;
+                    }
+                    break;
+                case ".DFF":
+                    if (mode != ReadHeaderMode.OnlyMetaFile) {
+                        result += ReadDsdiffFileHeader(path, plti) ? 1 : 0;
                     }
                     break;
                 case ".JPG":

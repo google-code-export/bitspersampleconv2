@@ -28,5 +28,18 @@ namespace PlayPcmWin {
                 (uint)((uint)br.ReadByte() << 0);
             return result;
         }
+
+        public static ulong ReadBigU64(BinaryReader br) {
+            ulong result = 
+                (ulong)((ulong)br.ReadByte() << 56) +
+                (ulong)((ulong)br.ReadByte() << 48) +
+                (ulong)((ulong)br.ReadByte() << 40) +
+                (ulong)((ulong)br.ReadByte() << 32) +
+                (ulong)((ulong)br.ReadByte() << 24) +
+                (ulong)((ulong)br.ReadByte() << 16) +
+                (ulong)((ulong)br.ReadByte() << 8) +
+                (ulong)((ulong)br.ReadByte() << 0);
+            return result;
+        }
     }
 }
