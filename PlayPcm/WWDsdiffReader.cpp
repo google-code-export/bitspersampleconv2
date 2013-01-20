@@ -443,7 +443,7 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     case WWBps24:
         for (int i=0; i<pcmData->nFrames; ++i) {
             for (int ch=0; ch<pcmData->nChannels; ++ch) {
-                pcmData->stream[writePos+1] = dataChunk.data[readPos+ch+pcmData->nChannels];
+                pcmData->stream[writePos+0] = dataChunk.data[readPos+ch+pcmData->nChannels];
                 pcmData->stream[writePos+1] = dataChunk.data[readPos+ch];
                 pcmData->stream[writePos+2] = i & 1 ? 0xfa : 0x05;
                 writePos += 3;
