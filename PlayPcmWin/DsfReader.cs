@@ -57,7 +57,7 @@ namespace PlayPcmWin {
 
         private ID3Reader mId3Reader = new ID3Reader();
 
-        private ResultType ReadDsfChunkHeader(BinaryReader br) {
+        private ResultType ReadDsfChunk(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
             if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "DSD ")) {
                 return ResultType.NotDsf;
@@ -81,7 +81,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType ReadFmtChunkHeader(BinaryReader br) {
+        private ResultType ReadFmtChunk(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
             if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "fmt ")) {
                 return ResultType.NotFoundFmtHeader;
@@ -195,12 +195,12 @@ namespace PlayPcmWin {
         private ResultType ReadHeader1(BinaryReader br, out PcmDataLib.PcmData pcmData, ReadHeaderMode mode) {
             pcmData = new PcmDataLib.PcmData();
 
-            ResultType result = ReadDsfChunkHeader(br);
+            ResultType result = ReadDsfChunk(br);
             if (result != ResultType.Success) {
                 return result;
             }
             
-            result = ReadFmtChunkHeader(br);
+            result = ReadFmtChunk(br);
             if (ResultType.Success != result) {
                 return result;
             }
