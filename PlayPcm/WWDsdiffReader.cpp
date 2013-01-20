@@ -234,7 +234,7 @@ struct DsdiffCompressionTypeChunk {
         }
 
         // skip compressionName
-        if (0 != fseek(fp, (ckDataSize-4)&(~1), SEEK_CUR)) {
+        if (0 != fseek(fp, (ckDataSize-4+1)&(~1), SEEK_CUR)) {
             printf("DSDIFF compressionName skip failed\n");
             return -1;
         }
