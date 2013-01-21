@@ -245,19 +245,12 @@ struct DsdiffCompressionTypeChunk {
 
 struct DsdiffSoundDataChunk {
     uint64_t ckDataSize;
-    unsigned char *data;
 
     DsdiffSoundDataChunk(void) {
         ckDataSize = 0;
-        data = NULL;
     }
 
-    ~DsdiffSoundDataChunk(void) {
-        delete [] data;
-        data = NULL;
-    }
-
-    int ReadFromFile(FILE *fp) {
+    int ReadHeaderFromFile(FILE *fp) {
         READ_BIG8(ckDataSize, fp);
 
         if (ckDataSize == 0 || 0x7fffffff < ckDataSize) {
@@ -265,20 +258,7 @@ struct DsdiffSoundDataChunk {
             return -1;
         }
 
-        data = new unsigned char[(size_t)ckDataSize];
-        if (NULL == data) {
-            printf("DSDIFF SoundDataChunk memory exhausted\n");
-            return -1;
-        }
-        if (ckDataSize != fread(data, 1, (size_t)ckDataSize, fp)) {
-            printf("DSDIFF SoundDataChunk read error\n");
-            return -1;
-        }
-
-        // read pad
-        if (ckDataSize & 1) {
-            fgetc(fp);
-        }
+        // actual DSD data follows
 
         return 0;
     }
@@ -324,8 +304,9 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     DsdiffUnknownChunk         unkChunk;
     uint32_t streamBytes;
     uint32_t writePos;
-    uint32_t readPos;
+    unsigned char *dsdData = NULL;
     int result = -1;
+    bool done = false;
 
     if (bitsPerSampleType == WWBpsNone) {
         printf("E: device does not support DoP\n");
@@ -335,10 +316,11 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     FILE *fp = NULL;
     fopen_s(&fp, path, "rb");
     if (NULL == fp) {
+        printf("file open error %s\n", path);
         return NULL;
     }
 
-    while (1) {
+    while (!done) {
         if (fread(&fourCC, 1, 4, fp) < 4) {
             break;
         }
@@ -375,9 +357,10 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
             }
             break;
         case FOURCC_DSD:
-            if (dataChunk.ReadFromFile(fp) < 0) {
+            if (dataChunk.ReadHeaderFromFile(fp) < 0) {
                 goto end;
             }
+            done = true;
             break;
         default:
             if (unkChunk.ReadFromFile(fp) < 0) {
@@ -393,13 +376,15 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
             sampleRateChunk.ckDataSize == 0 ||
             channelsChunk.ckDataSize == 0 ||
             cmprChunk.ckDataSize == 0 ||
-            dataChunk.ckDataSize == 0) {
-        printf("not supported format\n");
+            dataChunk.ckDataSize == 0 ||
+            !done) {
+        printf("read error or not supported format\n");
         goto end;
     }
 
     pcmData = new WWPcmData();
     if (NULL == pcmData) {
+        printf("no memory\n");
         goto end;
     }
     pcmData->Init();
@@ -416,6 +401,7 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     streamBytes = (pcmData->bitsPerSample/8) * pcmData->nFrames * pcmData->nChannels;
     pcmData->stream = new unsigned char[streamBytes];
     if (NULL == pcmData->stream) {
+        printf("no memory\n");
         goto end;
     }
     memset(pcmData->stream, 0, streamBytes);
@@ -424,36 +410,50 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     // L channel byte, R channel byte, L channel byte ...
     // Most significant bit is the oldest bit in time.
 
+    dsdData = new unsigned char[pcmData->nChannels * 2];
+    if (NULL == dsdData) {
+        printf("no memory\n");
+        goto end;
+    }
+
     writePos = 0;
-    readPos = 0;
     switch (bitsPerSampleType) {
     case WWBps32v24:
         for (int i=0; i<pcmData->nFrames; ++i) {
+            if (1 != fread(dsdData, pcmData->nChannels * 2, 1, fp)) {
+                goto end;
+            }
+
             for (int ch=0; ch<pcmData->nChannels; ++ch) {
                 pcmData->stream[writePos+0] = 0;
-                pcmData->stream[writePos+1] = dataChunk.data[readPos+ch+pcmData->nChannels];
-                pcmData->stream[writePos+2] = dataChunk.data[readPos+ch];
+                pcmData->stream[writePos+1] = dsdData[ch+pcmData->nChannels];
+                pcmData->stream[writePos+2] = dsdData[ch];
                 pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
                 writePos += 4;
             }
-            readPos  += pcmData->nChannels*2;
         }
         break;
     case WWBps24:
         for (int i=0; i<pcmData->nFrames; ++i) {
+            if (1 != fread(dsdData, pcmData->nChannels * 2, 1, fp)) {
+                goto end;
+            }
+
             for (int ch=0; ch<pcmData->nChannels; ++ch) {
-                pcmData->stream[writePos+0] = dataChunk.data[readPos+ch+pcmData->nChannels];
-                pcmData->stream[writePos+1] = dataChunk.data[readPos+ch];
+                pcmData->stream[writePos+0] = dsdData[ch+pcmData->nChannels];
+                pcmData->stream[writePos+1] = dsdData[ch];
                 pcmData->stream[writePos+2] = i & 1 ? 0xfa : 0x05;
                 writePos += 3;
             }
-            readPos  += pcmData->nChannels*2;
         }
         break;
     }
 
     result = 0;
 end:
+    delete [] dsdData;
+    dsdData = NULL;
+
     if (result < 0) {
         if (pcmData) {
             pcmData->Term();
