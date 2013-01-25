@@ -372,7 +372,8 @@ namespace PcmDataLib {
                 && ValidBitsPerSample == other.ValidBitsPerSample
                 && SampleRate    == other.SampleRate
                 && NumChannels   == other.NumChannels
-                && SampleValueRepresentationType == other.SampleValueRepresentationType;
+                && SampleValueRepresentationType == other.SampleValueRepresentationType
+                && IsDsdOverPcm == other.IsDsdOverPcm;
         }
 
         /// <summary>

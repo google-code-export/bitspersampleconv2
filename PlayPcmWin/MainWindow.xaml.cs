@@ -294,6 +294,7 @@ namespace PlayPcmWin
             public WasapiSharedOrExclusiveType SharedOrExclusive { get { return shareMode; } }
             public RenderThreadTaskType ThreadTaskType { get { return threadTaskType; } }
             public int ResamplerConversionQuality { get; set; }
+            public WasapiCS.StreamType StreamType { get; set; }
 
             /// <summary>
             /// 1フレーム(1サンプル全ch)のデータがメモリ上を占める領域(バイト)
@@ -305,15 +306,16 @@ namespace PlayPcmWin
             }
 
             public bool Is(
-                    int samplingRate,
-                    WasapiCS.SampleFormatType fmt,
-                    int numChannels,
-                    int latencyMillisec,
-                    int zeroFlushMillisec,
-                    WasapiDataFeedModeType dfm,
-                    WasapiSharedOrExclusiveType shareMode,
-                    RenderThreadTaskType threadTaskType,
-                    int resamplerConversionQuality) {
+                        int samplingRate,
+                        WasapiCS.SampleFormatType fmt,
+                        int numChannels,
+                        int latencyMillisec,
+                        int zeroFlushMillisec,
+                        WasapiDataFeedModeType dfm,
+                        WasapiSharedOrExclusiveType shareMode,
+                        RenderThreadTaskType threadTaskType,
+                        int resamplerConversionQuality,
+                        WasapiCS.StreamType streamType) {
                 return (this.setuped
                     && this.samplingRate == samplingRate
                     && this.sampleFormat == fmt
@@ -323,19 +325,21 @@ namespace PlayPcmWin
                     && this.dfm == dfm
                     && this.shareMode == shareMode
                     && this.threadTaskType == threadTaskType
-                    && this.ResamplerConversionQuality == resamplerConversionQuality);
+                    && this.ResamplerConversionQuality == resamplerConversionQuality
+                    && this.StreamType == streamType);
             }
 
             public bool CompatibleTo(
-                    int samplingRate,
-                    WasapiCS.SampleFormatType fmt,
-                    int numChannels,
-                    int latencyMillisec,
-                    int zeroFlushMillisec,
-                    WasapiDataFeedModeType dfm,
-                    WasapiSharedOrExclusiveType shareMode,
-                    RenderThreadTaskType threadTaskType,
-                    int resamplerConversionQuality) {
+                        int samplingRate,
+                        WasapiCS.SampleFormatType fmt,
+                        int numChannels,
+                        int latencyMillisec,
+                        int zeroFlushMillisec,
+                        WasapiDataFeedModeType dfm,
+                        WasapiSharedOrExclusiveType shareMode,
+                        RenderThreadTaskType threadTaskType,
+                        int resamplerConversionQuality,
+                        WasapiCS.StreamType streamType) {
                 return (this.setuped
                     && this.samplingRate == samplingRate
                     && SampleFormatIsCompatible(this.sampleFormat, fmt)
@@ -345,7 +349,8 @@ namespace PlayPcmWin
                     && this.dfm == dfm
                     && this.shareMode == shareMode
                     && this.threadTaskType == threadTaskType
-                    && this.ResamplerConversionQuality == resamplerConversionQuality);
+                    && this.ResamplerConversionQuality == resamplerConversionQuality
+                    && this.StreamType == streamType);
             }
 
             private static bool SampleFormatIsCompatible(
@@ -369,7 +374,8 @@ namespace PlayPcmWin
                 WasapiDataFeedModeType dfm,
                 WasapiSharedOrExclusiveType shareMode,
                 RenderThreadTaskType threadTaskType,
-                int resamplerConversionQuality) {
+                int resamplerConversionQuality,
+                WasapiCS.StreamType streamType) {
                     this.setuped = true;
                 this.samplingRate = samplingRate;
                 this.sampleFormat = fmt;
@@ -380,6 +386,7 @@ namespace PlayPcmWin
                 this.shareMode = shareMode;
                 this.threadTaskType = threadTaskType;
                 this.ResamplerConversionQuality = resamplerConversionQuality;
+                this.StreamType = streamType;
             }
 
             /// <summary>
@@ -1155,18 +1162,30 @@ namespace PlayPcmWin
                 slider1.Value = 0;
                 labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
                 break;
-            case State.再生中:
-                UpdateUIToPlayingState();
-                statusBarText.Content =
-                    string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch",
-                        Properties.Resources.MainStatusPlaying,
-                        radioButtonShared.IsChecked == true ?
-                            Properties.Resources.Shared : Properties.Resources.Exclusive,
-                        wasapi.GetDeviceSampleRate()*0.001,
-                        SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
-                        wasapi.GetDeviceNumChannels());
+            case State.再生中: {
+                    UpdateUIToPlayingState();
 
-                progressBar1.Visibility = System.Windows.Visibility.Collapsed;
+                    WasapiCS.StreamType streamType = wasapi.GetStreamType();
+                    if (WasapiCS.StreamType.DoP == streamType) {
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz",
+                            Properties.Resources.MainStatusPlaying,
+                            radioButtonShared.IsChecked == true ?
+                                Properties.Resources.Shared : Properties.Resources.Exclusive,
+                            wasapi.GetDeviceSampleRate() * 0.001,
+                            SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
+                            wasapi.GetDeviceNumChannels(), wasapi.GetDeviceSampleRate() * 0.000016);
+                    } else {
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM",
+                            Properties.Resources.MainStatusPlaying,
+                            radioButtonShared.IsChecked == true ?
+                                Properties.Resources.Shared : Properties.Resources.Exclusive,
+                            wasapi.GetDeviceSampleRate() * 0.001,
+                            SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
+                            wasapi.GetDeviceNumChannels());
+                    }
+
+                    progressBar1.Visibility = System.Windows.Visibility.Collapsed;
+                }
                 break;
             case State.再生一時停止中:
                 UpdateUIToPlayingState();
@@ -1413,6 +1432,7 @@ namespace PlayPcmWin
             wasapi.SetTimePeriodHundredNanosec(m_preference.TimePeriodHundredNanosec);
 
             wasapi.SetResamplerConversionQuality(m_preference.ResamplerConversionQuality);
+            wasapi.SetStreamType(m_deviceSetupInfo.StreamType);
 
             int hr = wasapi.Setup(
                 m_deviceSetupInfo.SampleRate,
@@ -1493,7 +1513,8 @@ namespace PlayPcmWin
                     m_preference.WasapiDataFeedMode,
                     m_preference.WasapiSharedOrExclusive,
                     m_preference.RenderThreadTaskType,
-                    m_preference.ResamplerConversionQuality)) {
+                    m_preference.ResamplerConversionQuality,
+                    startPcmData.IsDsdOverPcm ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
                     // すでにこのフォーマットでSetup完了している。
                     return true;
                 }
@@ -1516,7 +1537,8 @@ namespace PlayPcmWin
                     m_preference.WasapiDataFeedMode,
                     m_preference.WasapiSharedOrExclusive,
                     m_preference.RenderThreadTaskType,
-                    m_preference.ResamplerConversionQuality);
+                    m_preference.ResamplerConversionQuality,
+                    startPcmData.IsDsdOverPcm ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
 
                 int hr = WasapiSetup1();
                 if (0 <= hr) {

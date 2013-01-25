@@ -102,6 +102,8 @@ public:
     void SetZeroFlushMillisec(int zeroFlushMillisec);
     void SetTimePeriodHundredNanosec(int hnanosec);
     int  GetTimePeriodHundredNanosec(void) const { return m_setTimePeriodHundredNanosec; }
+    void SetStreamType(WWStreamType t);
+    WWStreamType GetStreamType(void) const { return m_streamType; }
 
     /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
@@ -208,6 +210,7 @@ private:
     WWSchedulerTaskType m_schedulerTaskType;
     AUDCLNT_SHAREMODE m_shareMode;
     DWORD        m_latencyMillisec;
+    WWStreamType m_streamType;
 
     IAudioRenderClient  *m_renderClient;
     IAudioCaptureClient *m_captureClient;
@@ -272,5 +275,7 @@ private:
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
 
     WWPcmData * GetPcmDataByUsageType(WWPcmDataUsageType t);
+
+    void PrepareBuffers(void);
 };
 

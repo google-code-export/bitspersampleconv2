@@ -21,6 +21,9 @@
 // 100 nanosec * ONE_MILLISEC == one millisec
 #define ONE_MILLISEC (10000)
 
+// DoPマーカーが正しく付いているかチェックする。
+//#define CHECK_DOP_MARKER
+
 // ntdll.lib
 extern "C" {
 NTSYSAPI NTSTATUS NTAPI
@@ -199,6 +202,7 @@ WasapiUser::WasapiUser(void)
     m_schedulerTaskType = WWSTTAudio;
     m_shareMode         = AUDCLNT_SHAREMODE_EXCLUSIVE;
     m_latencyMillisec   = 0;
+    m_streamType        = WWStreamPcm;
 
     m_renderClient     = NULL;
     m_captureClient    = NULL;
@@ -343,6 +347,12 @@ WasapiUser::SetTimePeriodHundredNanosec(int hnanosec)
 {
     assert(0 <= hnanosec);
     m_desiredTimePeriodHundredNanosec = (ULONG)hnanosec;
+}
+
+void
+WasapiUser::SetStreamType(WWStreamType t)
+{
+    m_streamType = t;
 }
 
 static HRESULT
@@ -828,30 +838,7 @@ WasapiUser::Setup(
     switch (m_dataFlow) {
     case eRender:
         HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_renderClient)));
-
-        // 再生前無音0(初回再生用) 再生前無音1(一時停止再開用)、再生後無音の準備。
-        {
-            DWORD startZeroFlushMillisec = m_zeroFlushMillisec;
-            if (startZeroFlushMillisec < m_latencyMillisec) {
-                startZeroFlushMillisec = m_latencyMillisec;
-            }
-            m_startSilenceBuffer0.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
-                1 * (int)((int64_t)m_deviceSampleRate * startZeroFlushMillisec / 1000),
-                m_deviceBytesPerFrame, WWPcmDataContentSilence);
-        }
-        m_startSilenceBuffer1.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
-            1 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000),
-            m_deviceBytesPerFrame, WWPcmDataContentSilence);
-        m_endSilenceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
-            4 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000),
-            m_deviceBytesPerFrame, WWPcmDataContentSilence);
-
-        // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
-        m_spliceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
-            m_deviceSampleRate / 100, m_deviceBytesPerFrame, WWPcmDataContentSplice);
-        // pauseバッファー。ポーズ時の波形つなぎに使われる。spliceバッファーと同様。
-        m_pauseBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
-            m_deviceSampleRate / 100, m_deviceBytesPerFrame, WWPcmDataContentSplice);
+        PrepareBuffers();
         break;
     case eCapture:
         HRG(m_audioClient->GetService(IID_PPV_ARGS(&m_captureClient)));
@@ -869,6 +856,53 @@ end:
     }
 
     return hr;
+}
+
+void
+WasapiUser::PrepareBuffers(void)
+{
+    // 再生前無音0(初回再生用) 再生前無音1(一時停止再開用)、再生後無音の準備。
+    // これらのバッファのフレーム数は8の倍数になるようにする。
+    {
+        DWORD startZeroFlushMillisec = m_zeroFlushMillisec;
+        if (startZeroFlushMillisec < m_latencyMillisec) {
+            startZeroFlushMillisec = m_latencyMillisec;
+        }
+        m_startSilenceBuffer0.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+            (1 * (int)((int64_t)m_deviceSampleRate * startZeroFlushMillisec / 1000) + 1) & (~1),
+            m_deviceBytesPerFrame, WWPcmDataContentSilence);
+    }
+    m_startSilenceBuffer1.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+        (1 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000) + 1) & (~1),
+        m_deviceBytesPerFrame, WWPcmDataContentSilence);
+    m_endSilenceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+        (4 * (int)((int64_t)m_deviceSampleRate * m_latencyMillisec / 1000) + 1) & (~1),
+        m_deviceBytesPerFrame, WWPcmDataContentSilence);
+
+    // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
+    m_spliceBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+        (m_deviceSampleRate / 100 + 1) & (~1),
+        m_deviceBytesPerFrame, WWPcmDataContentSplice);
+    // pauseバッファー。ポーズ時の波形つなぎに使われる。spliceバッファーと同様。
+    m_pauseBuffer.Init(-1, m_deviceSampleFormat, m_deviceNumChannels,
+        (m_deviceSampleRate / 100 + 1) & (~1),
+        m_deviceBytesPerFrame, WWPcmDataContentSplice);
+
+    switch (m_streamType) {
+    case WWStreamPcm:
+        // Init()で0フィルされているので処理不要。
+        break;
+    case WWStreamDop:
+        m_startSilenceBuffer0.FillDopSilentData();
+        m_startSilenceBuffer1.FillDopSilentData();
+        m_endSilenceBuffer.FillDopSilentData();
+        m_spliceBuffer.FillDopSilentData();
+        m_pauseBuffer.FillDopSilentData();
+        break;
+    default:
+        assert(0);
+        break;
+    }
 }
 
 bool
@@ -1039,7 +1073,7 @@ WasapiUser::Pause(void)
         dprintf("%s nowPlaying=%p posFrame=%d splice=%p startSilence=%p %p endSilence=%p pause=%p\n",
             __FUNCTION__, nowPlaying, (nowPlaying) ? nowPlaying->posFrame : -1, &m_spliceBuffer,
             &m_startSilenceBuffer0, &m_startSilenceBuffer1, &m_endSilenceBuffer, &m_pauseBuffer);
-        if (nowPlaying && nowPlaying->contentType == WWPcmDataContentPcmData) {
+        if (nowPlaying && nowPlaying->contentType == WWPcmDataContentMusicData) {
             // 通常データを再生中の場合ポーズが可能。
             // m_nowPlayingPcmDataを
             // pauseBuffer(フェードアウトするPCMデータ)に差し替え、
@@ -1056,8 +1090,8 @@ WasapiUser::Pause(void)
             m_endSilenceBuffer.next = NULL;
 
             m_pauseBuffer.UpdateSpliceDataWithStraightLine(
-                m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
-                &m_endSilenceBuffer, m_endSilenceBuffer.posFrame);
+                *m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
+                m_endSilenceBuffer,   m_endSilenceBuffer.posFrame);
 
             m_nowPlayingPcmData = &m_pauseBuffer;
         }
@@ -1108,8 +1142,8 @@ WasapiUser::Unpause(void)
     m_pauseBuffer.next = m_pauseResumePcmData;
 
     m_pauseBuffer.UpdateSpliceDataWithStraightLine(
-            &m_startSilenceBuffer1, m_startSilenceBuffer1.posFrame,
-            m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
+            m_startSilenceBuffer1, m_startSilenceBuffer1.posFrame,
+            *m_pauseResumePcmData, m_pauseResumePcmData->posFrame);
 
     assert(m_mutex);
     WaitForSingleObject(m_mutex, INFINITE);
@@ -1289,8 +1323,8 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
             // Issue3: いきなり移動するとブチッと言うので
             // splice bufferを経由してなめらかにつなげる。
             int advance = m_spliceBuffer.CreateCrossfadeData(
-                m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
-                &pcmData, pcmData.posFrame);
+                *m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
+                pcmData, pcmData.posFrame);
 
             if (m_nowPlayingPcmData != &pcmData) {
                 // 別の再生曲に移動した場合、
@@ -1298,7 +1332,6 @@ WasapiUser::UpdatePlayPcmDataWhenPlaying(WWPcmData &pcmData)
                 m_nowPlayingPcmData->posFrame = 0;
             }
 
-            m_spliceBuffer.posFrame = 0;
             m_spliceBuffer.next = SkipFrames(&pcmData, advance);
 
             m_nowPlayingPcmData = &m_spliceBuffer;
@@ -1363,25 +1396,34 @@ WasapiUser::SetPosFrame(int64_t v)
         return false;
     }
 
+    if (WWStreamDop == m_streamType) {
+        v &= ~(1LL);
+    }
+
     bool result = false;
 
     assert(m_mutex);
     WaitForSingleObject(m_mutex, INFINITE);
     {
         if (m_nowPlayingPcmData &&
-            m_nowPlayingPcmData->contentType == WWPcmDataContentPcmData && v < m_nowPlayingPcmData->nFrames) {
+            m_nowPlayingPcmData->contentType == WWPcmDataContentMusicData && v < m_nowPlayingPcmData->nFrames) {
             // 再生中。
             // nowPlaying->posFrameをvに移動する。
             // Issue3: いきなり移動するとブチッと言うのでsplice bufferを経由してなめらかにつなげる。
             int advance = m_spliceBuffer.CreateCrossfadeData(
-                m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame, m_nowPlayingPcmData, v);
+                *m_nowPlayingPcmData, m_nowPlayingPcmData->posFrame,
+                *m_nowPlayingPcmData, v);
 
             m_nowPlayingPcmData->posFrame = v;
 
-            m_spliceBuffer.posFrame = 0;
             m_spliceBuffer.next = SkipFrames(m_nowPlayingPcmData, advance);
 
             m_nowPlayingPcmData = &m_spliceBuffer;
+
+#ifdef CHECK_DOP_MARKER
+            m_nowPlayingPcmData->CheckDopMarker();
+#endif // CHECK_DOP_MARKER
+
             result = true;
         } else if (m_pauseResumePcmData && v < m_pauseResumePcmData->nFrames) {
             // pause中。
@@ -1520,6 +1562,7 @@ WasapiUser::AudioSamplesSendProc(void)
         HRGR(m_audioClient->GetCurrentPadding(&padding));
 
         writableFrames = m_bufferFrameNum - padding;
+
         // dprintf("m_bufferFrameNum=%d padding=%d writableFrames=%d\n",
         //     m_bufferFrameNum, padding, writableFrames);
         if (writableFrames <= 0) {

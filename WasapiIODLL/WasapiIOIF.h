@@ -204,3 +204,12 @@ WasapiIO_ScanPcmMaxAbsAmplitude(void);
 extern "C" __declspec(dllexport)
 void __stdcall
 WasapiIO_ScalePcmAmplitude(double scale);
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetStreamType(int t);
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_GetStreamType(void);
+

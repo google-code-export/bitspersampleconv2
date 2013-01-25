@@ -271,7 +271,7 @@ namespace PlayPcmWin {
             DsfReader.ResultType result = mDsfR.ReadStreamBegin(mBr, out mPcmData);
             if (result == DsfReader.ResultType.Success) {
 
-                NumFrames = mDsfR.NumFrames;
+                NumFrames = mDsfR.OutputFrames;
 
                 mDsfR.ReadStreamSkip(mBr, startFrame);
                 ercd = 0;
@@ -290,7 +290,7 @@ namespace PlayPcmWin {
             DsdiffReader.ResultType result = mDsdiffR.ReadStreamBegin(mBr, out mPcmData);
             if (result == DsdiffReader.ResultType.Success) {
 
-                NumFrames = mDsdiffR.NumFrames;
+                NumFrames = mDsdiffR.OutputFrames;
 
                 mDsdiffR.ReadStreamSkip(mBr, startFrame);
                 ercd = 0;

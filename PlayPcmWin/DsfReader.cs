@@ -30,14 +30,22 @@ namespace PlayPcmWin {
         public int NumChannels { get; set; }
 
         /// <summary>
-        /// 2822400 (2.8MHz)
+        /// 2822400 (2.8MHz)か、2822400*2 (5.6MHz)
         /// </summary>
         public int SampleRate { get; set; }
 
         /// <summary>
-        /// 1フレーム=16ビット(2バイト) x チャンネル数とする
+        /// 1フレーム=16ビット(2バイト) x チャンネル数とする。
+        /// 実際にファイルから読み込めるデータのフレーム数DataFrames。
+        /// 奇数個のことがある。
         /// </summary>
-        public long NumFrames { get; set; }
+        private long mDataFrames;
+
+        /// <summary>
+        /// 1フレーム=16ビット(2バイト) x チャンネル数とする。
+        /// 出力するPCMデータのフレーム数OutputFramesは必ず偶数個にする。
+        /// </summary>
+        public long OutputFrames { get; set; }
 
         /// <summary>
         /// stream data offset from the start of the file
@@ -115,11 +123,12 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportNumChannels;
             }
 
-            if (SampleRate != 2822400) {
+            if (2822400   != SampleRate &&
+                2822400*2 != SampleRate) {
                 return ResultType.NotSupportSampleFrequency;
             }
 
-            if (bitsPerSample != 1) {
+            if (1 != bitsPerSample) {
                 return ResultType.NotSupportBitsPerSample;
             }
 
@@ -127,11 +136,11 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportFileTooLarge;
             }
 
-            if (mBlockSizePerChannel != 4096) {
+            if (4096 != mBlockSizePerChannel) {
                 return ResultType.NotSupportBlockSize;
             }
 
-            NumFrames = mSampleCount / 16;
+            mDataFrames = mSampleCount / 16;
 
             return ResultType.Success;
         }
@@ -210,13 +219,21 @@ namespace PlayPcmWin {
                 return result;
             }
 
+            // 読み込めるデータのフレーム数DataFramesと出力するデータのフレーム数OutputFrames。
+            // PCMデータのフレーム数OutputFramesは偶数個にする。
+            OutputFrames = mDataFrames;
+            if (0 != (1 & OutputFrames)) {
+                // OutputFrames must be even number
+                ++OutputFrames;
+            }
+            
             pcmData.SetFormat(
                 NumChannels,
                 24,
                 24,
-                176400,
+                SampleRate/16,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt,
-                NumFrames);
+                OutputFrames);
             pcmData.IsDsdOverPcm = true;
 
             if (mode == ReadHeaderMode.AllHeadersWithID3 &&
@@ -269,9 +286,9 @@ namespace PlayPcmWin {
                 System.Diagnostics.Debug.Assert(false);
             }
 
-            if (NumFrames < mPosFrame + skipFrames) {
+            if (mDataFrames < mPosFrame + skipFrames) {
                 // 最後に移動。
-                skipFrames = NumFrames - mPosFrame;
+                skipFrames = mDataFrames - mPosFrame;
             }
             if (skipFrames == 0) {
                 return 0;
@@ -330,19 +347,26 @@ namespace PlayPcmWin {
         /// </summary>
         /// <returns>読みだしたフレーム</returns>
         public byte[] ReadStreamReadOne(BinaryReader br, int preferredFrames) {
+            bool appendLastFrame = false;
             int readFrames = preferredFrames;
-            if (NumFrames < mPosFrame + readFrames) {
-                readFrames = (int)(NumFrames - mPosFrame);
+            if (mDataFrames < mPosFrame + readFrames) {
+                readFrames = (int)(mDataFrames - mPosFrame);
+                if (mDataFrames != OutputFrames) {
+                    // ファイルの最後まで読み込む場合で、フレーム数が奇数の時
+                    // フレーム数が偶数になるように水増しする。
+                    appendLastFrame = true;
+                }
             }
 
             if (readFrames == 0) {
                 // 1バイトも読めない。
+                // N.B. ReadStreamReadOne()が、DataFrames番目==(OutputFrames-1)番目のフレーム「だけ」を取得しようとすることはない。
                 return new byte[0];
             }
 
             // DoPの1フレーム == 24bit * NumChannels
-            int streamBytes = 3 * readFrames * NumChannels;
-            byte [] stream = new byte[streamBytes];
+            int streamBytes         = 3 * NumChannels *  readFrames;
+            byte [] stream = new byte[3 * NumChannels * (readFrames + (appendLastFrame ? 1:0))];
 
             int blockBytes = mBlockSizePerChannel * NumChannels;
             int blockNum = (int)((streamBytes + blockBytes - 1) / blockBytes);
@@ -364,13 +388,29 @@ namespace PlayPcmWin {
                         writePos += 3;
                         if (streamBytes <= writePos) {
                             // recorded sample is ended on part of the way of the block
-                            return stream;
+                            break;
                         }
                     }
+                    if (streamBytes <= writePos) {
+                        // recorded sample is ended on part of the way of the block
+                        break;
+                    }
+                }
+                if (streamBytes <= writePos) {
+                    // recorded sample is ended on part of the way of the block
+                    break;
                 }
             }
 
-            // coincidentally block size == recorded sample size
+            if (appendLastFrame) {
+                for (int ch=0; ch < NumChannels; ++ch) {
+                    stream[writePos + 0] = stream[writePos - NumChannels * 3 + 0];
+                    stream[writePos + 1] = stream[writePos - NumChannels * 3 + 1];
+                    stream[writePos + 2] = 0xfa;
+                    writePos += 3;
+                }
+            }
+
             return stream;
         }
 

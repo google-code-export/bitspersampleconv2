@@ -207,7 +207,15 @@ namespace Wasapi {
         private extern static void
         WasapiIO_SetResamplerConversionQuality(int quality);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet=CharSet.Unicode)]
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_SetStreamType(int st);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static int
+        WasapiIO_GetStreamType();
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
 
         [DllImport("WasapiIODLL.dll")]
@@ -517,6 +525,19 @@ namespace Wasapi {
 
         public void SetResamplerConversionQuality(int quality) {
             WasapiIO_SetResamplerConversionQuality(quality);
+        }
+
+        public enum StreamType {
+            PCM,
+            DoP,
+        };
+
+        public void SetStreamType(StreamType t) {
+            WasapiIO_SetStreamType((int)t);
+        }
+
+        public StreamType GetStreamType() {
+            return (StreamType)WasapiIO_GetStreamType();
         }
     }
 }

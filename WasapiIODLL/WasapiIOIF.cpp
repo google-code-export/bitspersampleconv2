@@ -621,3 +621,21 @@ WasapiIO_ScalePcmAmplitude(double scale)
     assert(self);
     return self->ScalePcmAmplitude(scale);
 }
+
+extern "C" __declspec(dllexport)
+void __stdcall
+WasapiIO_SetStreamType(int t)
+{
+    assert(self);
+    assert(0 <= t && t < WWStreamNUM);
+    self->wasapi.SetStreamType((WWStreamType)t);
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+WasapiIO_GetStreamType(void)
+{
+    assert(self);
+    return self->wasapi.GetStreamType();
+}
+

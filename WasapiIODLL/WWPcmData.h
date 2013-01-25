@@ -9,7 +9,7 @@
 
 /// PCMデータの用途。
 enum WWPcmDataContentType {
-    WWPcmDataContentPcmData,
+    WWPcmDataContentMusicData,
     WWPcmDataContentSilence,
     WWPcmDataContentSplice,
 };
@@ -37,6 +37,14 @@ bool WWPcmDataSampleFormatTypeIsInt(WWPcmDataSampleFormatType t);
 WWPcmDataSampleFormatType
 WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUID subFormat);
 
+/// PCMデータか、DoPデータか。
+enum WWStreamType {
+    WWStreamPcm,
+    WWStreamDop,
+
+    WWStreamNUM
+};
+
 /*
  * play
  *   pcmData->posFrame: playing position
@@ -46,32 +54,36 @@ WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUI
  *   pcmData->nFrames: recording buffer size
  */
 struct WWPcmData {
-    int       id;
     WWPcmData *next;
-    WWPcmDataSampleFormatType sampleFormat;
-    WWPcmDataContentType contentType;
-    int       nChannels;
 
+    int       id;
+    WWPcmDataSampleFormatType sampleFormat;
+    WWStreamType              streamType;
+    WWPcmDataContentType      contentType;
+    int       nChannels;
     int       bytesPerFrame;
 
     /// used by FillBufferAddData()
     int64_t   filledFrames;
-
     int64_t   nFrames;
     int64_t   posFrame;
+
     BYTE      *stream;
 
     WWPcmData(void) {
-        id       = 0;
-        next     = NULL;
-        sampleFormat   = WWPcmDataSampleFormatUnknown;
-        contentType = WWPcmDataContentPcmData;
-        nChannels = 0;
+        next         = NULL;
 
-        nFrames       = 0;
+        id           = 0;
+        sampleFormat = WWPcmDataSampleFormatUnknown;
+        streamType   = WWStreamPcm;
+        contentType  = WWPcmDataContentMusicData;
+        nChannels    = 0;
         bytesPerFrame = 0;
+
         filledFrames  = 0;
+        nFrames       = 0;
         posFrame      = 0;
+
         stream        = NULL;
     }
 
@@ -80,7 +92,7 @@ struct WWPcmData {
     /// @param bytesPerFrame 1フレームのバイト数。
     ///     (1サンプル1チャンネルのバイト数×チャンネル数)
     bool Init(int id, WWPcmDataSampleFormatType sampleFormat, int nChannels,
-        int64_t nFrames, int bytesPerFrame, WWPcmDataContentType dataType);
+        int64_t nFrames, int bytesPerFrame, WWPcmDataContentType aContentType);
     void Term(void);
 
     void Forget(void) {
@@ -91,13 +103,13 @@ struct WWPcmData {
 
     /** create splice data from the two adjacent sample data */
     int UpdateSpliceDataWithStraightLine(
-        WWPcmData *fromPcmData, int64_t fromPosFrame,
-        WWPcmData *toPcmData,   int64_t toPosFrame);
+        const WWPcmData &fromPcmData, int64_t fromPosFrame,
+        const WWPcmData &toPcmData,   int64_t toPosFrame);
 
     /** @return sample count need to advance */
     int CreateCrossfadeData(
-        WWPcmData *fromPcmData, int64_t fromPosFrame,
-        WWPcmData *toPcmData,   int64_t toPosFrame);
+        const WWPcmData &fromPcmData, int64_t fromPosFrame,
+        const WWPcmData &toPcmData,   int64_t toPosFrame);
 
     int64_t AvailableFrames(void) const {
         return nFrames - posFrame;
@@ -108,30 +120,61 @@ struct WWPcmData {
 
     /// FillBuffer api.
     /// FillBufferStart() and FillBufferAddSampleData() several times and FillBufferEnd()
-    void FillBufferStart(void) { filledFrames = 0; }
+    void FillBufferStart(void);
 
     /// @param data sampleData
     /// @param bytes data bytes
     /// @return added sample bytes. 0 if satistifed and no sample data is consumed
     int FillBufferAddData(const BYTE *data, int bytes);
 
-    void FillBufferEnd(void) { nFrames = filledFrames; }
+    void FillBufferEnd(void);
 
     /// get float sample min/max for volume correction
     void FindSampleValueMinMax(float *minValue_return, float *maxValue_return);
     void ScaleSampleValue(float scale);
 
+    void SetStreamType(WWStreamType t) {
+        streamType = t;
+    }
+
+    void FillDopSilentData(void);
+
+    void DopToPcm(void);
+    void PcmToDop(void);
+
+    void CheckDopMarker(void);
+
 private:
     /** get sample value on posFrame.
      * 24 bit signed int value is returned when Sint32V24
      */
-    int GetSampleValueInt(int ch, int64_t posFrame);
-    float GetSampleValueFloat(int ch, int64_t posFrame);
+    int GetSampleValueInt(int ch, int64_t posFrame) const;
+    float GetSampleValueFloat(int ch, int64_t posFrame) const;
 
     bool SetSampleValueInt(int ch, int64_t posFrame, int value);
     bool SetSampleValueFloat(int ch, int64_t posFrame, float value);
 
-    float GetSampleValueAsFloat(int ch, int64_t posFrame);
+    float GetSampleValueAsFloat(int ch, int64_t posFrame) const;
     bool SetSampleValueAsFloat(int ch, int64_t posFrame, float value);
+
+    /** create splice data from the two adjacent sample data */
+    int UpdateSpliceDataWithStraightLinePcm(
+        const WWPcmData &fromPcm, int64_t fromPosFrame,
+        const WWPcmData &toPcm,   int64_t toPosFrame);
+
+    /** @return sample count need to advance */
+    int CreateCrossfadeDataPcm(
+        const WWPcmData &fromPcm, int64_t fromPosFrame,
+        const WWPcmData &toPcm,   int64_t toPosFrame);
+
+    /** create splice data from the two adjacent sample data */
+    int UpdateSpliceDataWithStraightLineDop(
+        const WWPcmData &fromDop, int64_t fromPosFrame,
+        const WWPcmData &toDop,   int64_t toPosFrame);
+
+    /** @return sample count need to advance */
+    int CreateCrossfadeDataDop(
+        const WWPcmData &fromDop, int64_t fromPosFrame,
+        const WWPcmData &toDop,   int64_t toPosFrame);
 };
 
