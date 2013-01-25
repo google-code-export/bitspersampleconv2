@@ -236,7 +236,7 @@ WWPcmData::GetSampleValueInt(int ch, int64_t posFrame) const
         break;
     case WWPcmDataSampleFormatSint32:
         {
-            // mallocで確保したバッファーなので、bus errorは起きない。
+            // bus errorは起きない。
             int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
             result = *p;
         }
@@ -331,7 +331,7 @@ WWPcmData::SetSampleValueInt(int ch, int64_t posFrame, int value)
         break;
     case WWPcmDataSampleFormatSint32:
         {
-            // mallocで確保したバッファーなので、bus errorは起きない。
+            // bus errorは起きない。
             int *p = (int*)(&stream[4 * (nChannels * posFrame + ch)]);
             *p = value;
         }
