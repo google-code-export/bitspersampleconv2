@@ -907,9 +907,6 @@ CopyStream(const WWPcmData &from, int64_t fromPosFrame, int64_t numFrames, WWPcm
     }
 }
 
-/// DSD変換助走フレーム数。
-#define APPROACH_RUN_FRAMES (4)
-
 int
 WWPcmData::UpdateSpliceDataWithStraightLineDop(
         const WWPcmData &fromDop, int64_t fromPosFrame,
@@ -941,6 +938,11 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
 
     return sampleCount;
 }
+
+// この関数はバグっておりバチッという音が出る。
+/*
+/// DSD変換助走フレーム数。
+#define APPROACH_RUN_FRAMES (4)
 
 // @return クロスフェードデータのためにtoDopのtoPosFrameから消費したフレーム数。
 int
@@ -980,6 +982,7 @@ WWPcmData::CreateCrossfadeDataDop(
 
     return sampleCount;
 }
+*/
 
 int
 WWPcmData::UpdateSpliceDataWithStraightLine(
@@ -1009,7 +1012,7 @@ WWPcmData::CreateCrossfadeData(
     case WWStreamPcm:
         return CreateCrossfadeDataPcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
-        return CreateCrossfadeDataDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
+        return UpdateSpliceDataWithStraightLineDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
     default:
         assert(0);
         return 0;
