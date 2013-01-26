@@ -664,9 +664,9 @@ static const unsigned char gBitsSetTable256[256] =
 /// @param availableBits 0以上64以下の整数。
 /// @return -1.0 to 1.0f
 static float
-DsdStreamToPcmValueFloat(uint64_t v, int availableBits)
+DsdStreamToAmplitudeFloat(uint64_t v, int availableBits)
 {
-    if (0 == availableBits) {
+    if (availableBits <= 0) {
         return 0.0f;
     }
 
@@ -677,8 +677,10 @@ DsdStreamToPcmValueFloat(uint64_t v, int availableBits)
         v >>= 8;
     }
 
-    for (;v;++bitCount) {
-        v &= v-1;
+    int remainBits = availableBits&7;
+    for (int i=0; i<remainBits; ++i) {
+        bitCount += v & 1;
+        v >>= 1;
     }
 
     return (bitCount-availableBits*0.5f)/(availableBits*0.5f);
@@ -687,7 +689,7 @@ DsdStreamToPcmValueFloat(uint64_t v, int availableBits)
 /// @param availableBits 8以上64以下の8の倍数である必要がある。
 /// @return -128 to +127
 static int8_t
-DsdStreamToPcmValueInt8(uint64_t v, int availableBits)
+DsdStreamToAmplitudeInt8(uint64_t v, int availableBits)
 {
     assert(0 < availableBits && (availableBits&7)==0);
     int bitCount = 0;
@@ -737,7 +739,7 @@ WWPcmData::DopToPcm(void)
                     p->availableBits = 64;
                 }
 
-                int8_t pcmValue = DsdStreamToPcmValueInt8(p->dsdStream, p->availableBits);
+                int8_t pcmValue = DsdStreamToAmplitudeInt8(p->dsdStream, p->availableBits);
 
                 stream[pos+0] = 0;
                 stream[pos+1] = 0;
@@ -759,7 +761,7 @@ WWPcmData::DopToPcm(void)
                     p->availableBits = 64;
                 }
 
-                int8_t pcmValue = DsdStreamToPcmValueInt8(p->dsdStream, p->availableBits);
+                int8_t pcmValue = DsdStreamToAmplitudeInt8(p->dsdStream, p->availableBits);
 
                 stream[pos+0] = 0;
                 stream[pos+1] = 0;
@@ -826,14 +828,20 @@ WWPcmData::PcmToDop(void)
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
-                    float currentV = DsdStreamToPcmValueFloat(p->dsdStream, p->availableBits);
+                    int ampBits = p->availableBits;
+                    if (64 == p->availableBits) {
+                        // 今作っている16ビットのDSDデータをp->dsdStreamに詰めると
+                        // 64ビットのデータのうち古いデータ16ビットが押し出されて消えるのでAmplitudeの計算から除外する。
+                        ampBits = 48+c;
+                    }
+
+                    float currentV = DsdStreamToAmplitudeFloat(p->dsdStream, ampBits);
                     p->dsdStream <<= 1;
                     if (currentV < targetV) {
                         p->dsdStream += 1;
                     }
-                    ++p->availableBits;
-                    if (64 < p->availableBits) {
-                        p->availableBits = 64;
+                    if (p->availableBits < 64) {
+                        ++p->availableBits;
                     }
                 }
                 unsigned short dsdValue16 = (unsigned short)p->dsdStream;
@@ -856,14 +864,20 @@ WWPcmData::PcmToDop(void)
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
-                    float currentV = DsdStreamToPcmValueFloat(p->dsdStream, p->availableBits);
+                    int ampBits = p->availableBits;
+                    if (64 == p->availableBits) {
+                        // 今作っている16ビットのDSDデータをp->dsdStreamに詰めると
+                        // 64ビットのデータのうち古いデータ16ビットが押し出されて消えるのでAmplitudeの計算から除外する。
+                        ampBits = 48+c;
+                    }
+
+                    float currentV = DsdStreamToAmplitudeFloat(p->dsdStream, ampBits);
                     p->dsdStream <<= 1;
                     if (currentV < targetV) {
                         p->dsdStream += 1;
                     }
-                    ++p->availableBits;
-                    if (64 < p->availableBits) {
-                        p->availableBits = 64;
+                    if (p->availableBits < 64) {
+                        ++p->availableBits;
                     }
                 }
                 unsigned short dsdValue16 = (unsigned short)p->dsdStream;
@@ -939,8 +953,6 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     return sampleCount;
 }
 
-// この関数はバグっておりバチッという音が出る。
-/*
 /// DSD変換助走フレーム数。
 #define APPROACH_RUN_FRAMES (4)
 
@@ -982,7 +994,6 @@ WWPcmData::CreateCrossfadeDataDop(
 
     return sampleCount;
 }
-*/
 
 int
 WWPcmData::UpdateSpliceDataWithStraightLine(
@@ -1012,7 +1023,7 @@ WWPcmData::CreateCrossfadeData(
     case WWStreamPcm:
         return CreateCrossfadeDataPcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
-        return UpdateSpliceDataWithStraightLineDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
+        return CreateCrossfadeDataDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
     default:
         assert(0);
         return 0;
