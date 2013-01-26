@@ -953,6 +953,9 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     return sampleCount;
 }
 
+// この関数にはバグが残っている。
+/*
+
 /// DSD変換助走フレーム数。
 #define APPROACH_RUN_FRAMES (4)
 
@@ -994,6 +997,7 @@ WWPcmData::CreateCrossfadeDataDop(
 
     return sampleCount;
 }
+*/
 
 int
 WWPcmData::UpdateSpliceDataWithStraightLine(
@@ -1023,7 +1027,7 @@ WWPcmData::CreateCrossfadeData(
     case WWStreamPcm:
         return CreateCrossfadeDataPcm(fromPcm, fromPosFrame, toPcm, toPosFrame);
     case WWStreamDop:
-        return CreateCrossfadeDataDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
+        return UpdateSpliceDataWithStraightLineDop(fromPcm, fromPosFrame, toPcm, toPosFrame);
     default:
         assert(0);
         return 0;
