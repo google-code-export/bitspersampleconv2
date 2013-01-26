@@ -754,6 +754,7 @@ WWPcmData::DopToPcm(void)
         for (int64_t i=0; i<nFrames; ++i) {
             for (int ch=0; ch<nChannels; ++ch) {
                 SmallDsdStreamInfo *p = &dsdStreams[ch];
+
                 p->dsdStream <<= 16;
                 p->dsdStream += (stream[pos+1] << 8) + stream[pos];
                 p->availableBits += 16;
@@ -921,6 +922,8 @@ CopyStream(const WWPcmData &from, int64_t fromPosFrame, int64_t numFrames, WWPcm
     }
 }
 
+#define SPLICE_READ_FRAME_NUM (4)
+
 int
 WWPcmData::UpdateSpliceDataWithStraightLineDop(
         const WWPcmData &fromDop, int64_t fromPosFrame,
@@ -929,19 +932,19 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     WWPcmData fromPcm;
     WWPcmData toPcm;
 
-    fromPcm.Init(-1, sampleFormat, nChannels, 1, bytesPerFrame, contentType);
+    fromPcm.Init(-1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType);
     fromPcm.FillDopSilentData();
-    CopyStream(fromDop, fromPosFrame, 1, fromPcm);
+    CopyStream(fromDop, fromPosFrame, SPLICE_READ_FRAME_NUM, fromPcm);
     fromPcm.DopToPcm();
 
-    toPcm.Init(  -1, sampleFormat, nChannels, 1, bytesPerFrame, contentType);
+    toPcm.Init(  -1, sampleFormat, nChannels, SPLICE_READ_FRAME_NUM, bytesPerFrame, contentType);
     toPcm.FillDopSilentData();
-    CopyStream(toDop,   toPosFrame,   1, toPcm);
+    CopyStream(toDop,   toPosFrame,   SPLICE_READ_FRAME_NUM, toPcm);
     toPcm.DopToPcm();
 
     int sampleCount = UpdateSpliceDataWithStraightLinePcm(
-            fromPcm, 0,
-            toPcm,   0);
+            fromPcm, SPLICE_READ_FRAME_NUM-1,
+            toPcm,   SPLICE_READ_FRAME_NUM-1);
 
     PcmToDop();
 
