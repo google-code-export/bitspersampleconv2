@@ -5,15 +5,16 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define MATH_PI (3.14159265358979f)
+static const float MATH_PI = 3.14159265358979f;
 
-#define OUTPUT_FILENAME "output.dff"
+static const char * const OUTPUT_FILENAME = "output.dff";
 
-#define SIGNAL_FREQUENCY_HZ (882)
+static const float SIGNAL_FREQUENCY_HZ = 1000;
+static const float SIGNAL_AMPLITUDE    = 0.5f;
 
-#define SAMPLE_RATE (2822400)
-#define NUM_CHANNELS (2)
-#define OUTPUT_SECONDS (60)
+static const int SAMPLE_RATE      = 2822400;
+static const int NUM_CHANNELS     = 2;
+static const float OUTPUT_SECONDS =60.0f;
 
 struct SmallDsdStreamInfo {
     uint64_t dsdStream;
@@ -36,7 +37,6 @@ static const unsigned char gBitsSetTable256[256] =
 #undef B4
 #undef B2
 
-/// @return -1.0 to 1.0f
 static float
 DsdStreamToAmplitudeFloat(uint64_t v, int availableBits)
 {
@@ -60,25 +60,56 @@ DsdStreamToAmplitudeFloat(uint64_t v, int availableBits)
     return (bitCount-availableBits*0.5f)/(availableBits*0.5f);
 }
 
+struct OutputSignalProperty {
+    float omega;
+    float angleVelocity;
+    OutputSignalProperty(void) {
+        omega = 0.0f;
+        angleVelocity = 0.0f;
+    }
+};
+
 /// @param nFrames 全チャンネルの8サンプル分の情報を1とする単位。
-static void
+static int
 GenerateDffData(int nFrames, int nChannels, FILE *fp)
 {
+    int result = -1;
     int64_t pos = 0;
-    SmallDsdStreamInfo *dsdStreams = new SmallDsdStreamInfo[nChannels];
+    SmallDsdStreamInfo *dsdStreams = NULL;
+    OutputSignalProperty *signals = NULL;
+
+    dsdStreams = new SmallDsdStreamInfo[nChannels];
     if (NULL == dsdStreams) {
         printf("memory exhausted\n");
-        exit(1);
+        goto end;
     }
 
-    for (int64_t i=0; i<nFrames; ++i) {
-        // 0 <= phase < SAMPLE_RATE/SIGNAL_FREQUENCY_HZ
-        int fraction = SAMPLE_RATE/8/SIGNAL_FREQUENCY_HZ;
-        int phase = i % fraction;
-        float targetV = 0.5f * sinf(2.0f * MATH_PI * phase/fraction);
+    signals = new OutputSignalProperty[nChannels];
+    if (NULL == signals) {
+        printf("memory exhausted\n");
+        goto end;
+    }
 
+    for (int ch=0; ch<nChannels; ++ch) {
+        OutputSignalProperty *s = &signals[ch];
+
+        s->omega         = 0.0f;
+        s->angleVelocity = 2.0f * MATH_PI * 8 * SIGNAL_FREQUENCY_HZ / SAMPLE_RATE;
+        assert(0.0f <= s->angleVelocity);
+    }
+
+
+    for (int64_t i=0; i<nFrames; ++i) {
         for (int ch=0; ch<nChannels; ++ch) {
             SmallDsdStreamInfo *p = &dsdStreams[ch];
+            OutputSignalProperty *s = &signals[ch];
+
+            s->omega += s->angleVelocity;
+            while (MATH_PI < s->omega) {
+                s->omega -= 2.0f * MATH_PI;
+            }
+
+            float targetV = SIGNAL_AMPLITUDE * sinf(s->omega);
 
             for (int c=0; c<8; ++c) {
                 int ampBits = p->availableBits;
@@ -100,13 +131,21 @@ GenerateDffData(int nFrames, int nChannels, FILE *fp)
             }
             if (fputc(p->dsdStream&0xff, fp)<0) {
                 printf("fputc error\n");
-                exit(1);
+                goto end;
             }
         }
     }
 
+    result = 0;
+
+end:
+    delete [] signals;
+    signals = NULL;
+
     delete [] dsdStreams;
     dsdStreams = NULL;
+
+    return result;
 }
 
 #define FORM_DSD_FORM_TYPE           "DSD "
@@ -311,8 +350,17 @@ struct DsdiffSoundDataChunk {
     }
 };
 
-static void CreateDsdiffFile(FILE *fp)
+#define HRR(a)         \
+    result = a;        \
+    if (result < 0) {  \
+        return result; \
+    }
+
+static int
+CreateDsdiffFile(FILE *fp)
 {
+    int result = 0;
+
     DsdiffFormDsdChunk     frm8Chunk;
     DsdiffFormVersionChunk fverChunk;
     DsdiffPropertyChunk    propChunk;
@@ -326,15 +374,15 @@ static void CreateDsdiffFile(FILE *fp)
     propChunk.ckDataSize = 4 + (fsChunk.ckDataSize + 12) + (chnlChunk.ckDataSize + 12) + (cmprChunk.ckDataSize + 12);
     frm8Chunk.ckDataSize = 4 + (fverChunk.ckDataSize + 12) + (propChunk.ckDataSize + 12) + (dataChunk.ckDataSize + 12);
 
-    frm8Chunk.WriteToFile(fp);
-    fverChunk.WriteToFile(fp);
-    propChunk.WriteToFile(fp);
-    fsChunk.WriteToFile(fp);
-    chnlChunk.WriteToFile(fp);
-    cmprChunk.WriteToFile(fp);
-    dataChunk.WriteToFile(fp);
+    HRR(frm8Chunk.WriteToFile(fp));
+    HRR(fverChunk.WriteToFile(fp));
+    HRR(propChunk.WriteToFile(fp));
+    HRR(fsChunk.WriteToFile(fp));
+    HRR(chnlChunk.WriteToFile(fp));
+    HRR(cmprChunk.WriteToFile(fp));
+    HRR(dataChunk.WriteToFile(fp));
 
-    GenerateDffData((SAMPLE_RATE/8) * OUTPUT_SECONDS, NUM_CHANNELS, fp);
+    return GenerateDffData((SAMPLE_RATE/8) * OUTPUT_SECONDS, NUM_CHANNELS, fp);
 }
 
 int main(int argc, char* argv[])
@@ -345,7 +393,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    CreateDsdiffFile(fp);
+    if (CreateDsdiffFile(fp) < 0) {
+        printf("failed\n");
+    }
 
     fclose(fp);
 
