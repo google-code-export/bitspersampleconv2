@@ -25,37 +25,32 @@ struct SmallDsdStreamInfo {
         availableBits = 0;
     }
 };
-
 static const unsigned char gBitsSetTable256[256] = 
 {
-#   define B2(n) n,     n+1,     n+1,     n+2
-#   define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
-#   define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+#define B2(n) n,     n+1,     n+1,     n+2
+#define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+#define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
     B6(0), B6(1), B6(1), B6(2)
-};
 #undef B6
 #undef B4
 #undef B2
+};
 
 static float
-DsdStreamToAmplitudeFloat(uint64_t v, int availableBits)
+DsdStreamToAmplitudeFloat(uint64_t v, uint32_t availableBits)
 {
-    if (availableBits <= 0) {
-        return 0.0f;
-    }
+    v &= 0xFFFFFFFFFFFFFFFFULL >> (64-availableBits);
 
-    int bitCount = 0;
-
-    for (int i=0; i<availableBits/8; ++i) {
-        bitCount += gBitsSetTable256[v&0xff];
-        v >>= 8;
-    }
-
-    int remainBits = availableBits&7;
-    for (int i=0; i<remainBits; ++i) {
-        bitCount += v & 1;
-        v >>= 1;
-    }
+    const unsigned char * p = (unsigned char *) &v;
+    int bitCount = 
+        gBitsSetTable256[p[0]] +
+        gBitsSetTable256[p[1]] +
+        gBitsSetTable256[p[2]] +
+        gBitsSetTable256[p[3]] +
+        gBitsSetTable256[p[4]] +
+        gBitsSetTable256[p[5]] +
+        gBitsSetTable256[p[6]] +
+        gBitsSetTable256[p[7]];
 
     return (bitCount-availableBits*0.5f)/(availableBits*0.5f);
 }
@@ -112,7 +107,7 @@ GenerateDffData(int nFrames, int nChannels, FILE *fp)
             float targetV = SIGNAL_AMPLITUDE * sinf(s->omega);
 
             for (int c=0; c<8; ++c) {
-                int ampBits = p->availableBits;
+                uint32_t ampBits = p->availableBits;
                 if (64 == p->availableBits) {
                     // 今作っている8ビットのDSDデータをp->dsdStreamに詰めると
                     // 64ビットのデータのうち古いデータ8ビットが押し出されて消えるのでAmplitudeの計算から除外する。
