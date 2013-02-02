@@ -664,24 +664,20 @@ static const unsigned char gBitsSetTable256[256] =
 /// @param availableBits 0以上64以下の整数。
 /// @return -1.0 to 1.0f
 static float
-DsdStreamToAmplitudeFloat(uint64_t v, int availableBits)
+DsdStreamToAmplitudeFloat(uint64_t v, uint32_t availableBits)
 {
-    if (availableBits <= 0) {
-        return 0.0f;
-    }
+    v &= 0xFFFFFFFFFFFFFFFFULL >> (64-availableBits);
 
-    int bitCount = 0;
-
-    for (int i=0; i<availableBits/8; ++i) {
-        bitCount += gBitsSetTable256[v&0xff];
-        v >>= 8;
-    }
-
-    int remainBits = availableBits&7;
-    for (int i=0; i<remainBits; ++i) {
-        bitCount += v & 1;
-        v >>= 1;
-    }
+    const unsigned char * p = (unsigned char *) &v;
+    int bitCount = 
+        gBitsSetTable256[p[0]] +
+        gBitsSetTable256[p[1]] +
+        gBitsSetTable256[p[2]] +
+        gBitsSetTable256[p[3]] +
+        gBitsSetTable256[p[4]] +
+        gBitsSetTable256[p[5]] +
+        gBitsSetTable256[p[6]] +
+        gBitsSetTable256[p[7]];
 
     return (bitCount-availableBits*0.5f)/(availableBits*0.5f);
 }
@@ -707,7 +703,7 @@ DsdStreamToAmplitudeInt8(uint64_t v, int availableBits)
 
 struct SmallDsdStreamInfo {
     uint64_t dsdStream;
-    int      availableBits;
+    uint32_t availableBits;
 
     SmallDsdStreamInfo(void) {
         dsdStream = 0;
@@ -829,7 +825,7 @@ WWPcmData::PcmToDop(void)
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
-                    int ampBits = p->availableBits;
+                    uint32_t ampBits = p->availableBits;
                     if (64 == p->availableBits) {
                         // 今作っている16ビットのDSDデータをp->dsdStreamに詰めると
                         // 64ビットのデータのうち古いデータ16ビットが押し出されて消えるのでAmplitudeの計算から除外する。
@@ -865,7 +861,7 @@ WWPcmData::PcmToDop(void)
 
                 float targetV = sv / 32768.0f;
                 for (int c=0; c<16; ++c) {
-                    int ampBits = p->availableBits;
+                    uint32_t ampBits = p->availableBits;
                     if (64 == p->availableBits) {
                         // 今作っている16ビットのDSDデータをp->dsdStreamに詰めると
                         // 64ビットのデータのうち古いデータ16ビットが押し出されて消えるのでAmplitudeの計算から除外する。
