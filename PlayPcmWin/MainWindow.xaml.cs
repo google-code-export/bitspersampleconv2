@@ -188,7 +188,7 @@ namespace PlayPcmWin
 
             public string SampleRate {
                 get {
-                    if (mPcmData.IsDsdOverPcm) {
+                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                         return string.Format(CultureInfo.CurrentCulture, "{0:F1}MHz", (double)mPcmData.SampleRate * 16/1000/1000);
                     }
                     return string.Format(CultureInfo.CurrentCulture, "{0}kHz", mPcmData.SampleRate * 0.001);
@@ -197,7 +197,7 @@ namespace PlayPcmWin
 
             public string QuantizationBitRate {
                 get {
-                    if (mPcmData.IsDsdOverPcm) {
+                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                         return "1bit";
                     }
                     if (mPcmData.SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
@@ -210,7 +210,7 @@ namespace PlayPcmWin
 
             public string BitRate {
                 get {
-                    if (mPcmData.IsDsdOverPcm) {
+                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                         return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
                     }
 
@@ -1514,7 +1514,7 @@ namespace PlayPcmWin
                     m_preference.WasapiSharedOrExclusive,
                     m_preference.RenderThreadTaskType,
                     m_preference.ResamplerConversionQuality,
-                    startPcmData.IsDsdOverPcm ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
+                    startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
                     // すでにこのフォーマットでSetup完了している。
                     return true;
                 }
@@ -1538,7 +1538,7 @@ namespace PlayPcmWin
                     m_preference.WasapiSharedOrExclusive,
                     m_preference.RenderThreadTaskType,
                     m_preference.ResamplerConversionQuality,
-                    startPcmData.IsDsdOverPcm ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
+                    startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
 
                 int hr = WasapiSetup1();
                 if (0 <= hr) {

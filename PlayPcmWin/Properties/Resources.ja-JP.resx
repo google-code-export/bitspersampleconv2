@@ -435,7 +435,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>その他設定</value>
   </data>
   <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
-    <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換します)</value>
+    <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換)</value>
   </data>
   <data name="SettingsGroupBoxRenderThreadTaskType" xml:space="preserve">
     <value>再生スレッドタスクタイプ</value>
@@ -450,16 +450,16 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>IEEE754単精度浮動小数点数形式に固定(対応ハードウェアは非常に珍しい)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
-    <value>16ビット整数型に固定(24bpsや32bpsのデータが来たら下位ビットを切り捨てます)</value>
+    <value>16ビット整数型に固定(24ビットや32ビットのPCMデータは下位ビットを切り捨てます)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
-    <value>24ビット整数型に固定(16bpsのデータは0埋めで水増し、32ビットのデータは下位8ビットを切り捨て)</value>
+    <value>24ビット整数型に固定(16ビットデータは0埋めで水増し、32ビットデータは下位8ビットを切り捨て)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
-    <value>32ビット整数型に固定(下位ビットが余る場合は0埋め、有効ビット数32bps)</value>
+    <value>32ビット整数型に固定(下位ビットが余る場合は0埋め、有効ビット数32ビット)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
-    <value>32ビット(有効ビット数24ビット)整数型に固定</value>
+    <value>32ビット整数型(有効ビット数24ビット)に固定</value>
   </data>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin 詳細設定</value>
@@ -546,7 +546,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>既定のタイマー解像度</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
-    <value>最大振幅が0.98になるように音量を調整してリミッターAPOによる歪を軽減する</value>
+    <value>最大振幅が0.98になるよう調整しリミッターAPOによる歪を軽減</value>
   </data>
   <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
     <value>量子化ビット数を減らすときにノイズシェイピングする</value>

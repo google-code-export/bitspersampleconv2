@@ -234,7 +234,7 @@ namespace PlayPcmWin {
                 SampleRate/16,
                 PcmDataLib.PcmData.ValueRepresentationType.SInt,
                 OutputFrames);
-            pcmData.IsDsdOverPcm = true;
+            pcmData.SampleDataType = PcmDataLib.PcmData.DataType.DoP;
 
             if (mode == ReadHeaderMode.AllHeadersWithID3 &&
                 mMetadataOffset != 0) {

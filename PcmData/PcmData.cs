@@ -118,10 +118,15 @@ namespace PcmDataLib {
         public ValueRepresentationType
             SampleValueRepresentationType { get; set; }
 
+
+        public enum DataType {
+            PCM,
+            DoP
+        };
         /// <summary>
         /// true: DoP false: PCM
         /// </summary>
-        public bool IsDsdOverPcm { get; set; }
+        public DataType SampleDataType { get; set; }
 
         // PCMデータ ////////////////////////////////////////////////////////
 
@@ -245,7 +250,7 @@ namespace PcmDataLib {
             CueSheetIndex = rhs.CueSheetIndex;
             PictureBytes = rhs.PictureBytes;
             PictureData = rhs.PictureData;
-            IsDsdOverPcm = rhs.IsDsdOverPcm;
+            SampleDataType = rhs.SampleDataType;
         }
 
         public PcmData() {
@@ -269,7 +274,7 @@ namespace PcmDataLib {
             CueSheetIndex = 1;
             PictureBytes = 0;
             PictureData = null;
-            IsDsdOverPcm = false;
+            SampleDataType = DataType.PCM;
         }
 
 
@@ -373,7 +378,7 @@ namespace PcmDataLib {
                 && SampleRate    == other.SampleRate
                 && NumChannels   == other.NumChannels
                 && SampleValueRepresentationType == other.SampleValueRepresentationType
-                && IsDsdOverPcm == other.IsDsdOverPcm;
+                && SampleDataType == other.SampleDataType;
         }
 
         /// <summary>
