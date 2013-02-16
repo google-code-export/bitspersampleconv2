@@ -1,6 +1,8 @@
 ﻿<Window x:Uid="SettingsWindow" x:Class="PlayPcmWin.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         Title="PlayPcmWin detailed settings" Height="671" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <FontWeight x:Uid="FontWeight_1" x:Key="FontWeight1">Bold</FontWeight>
@@ -20,6 +22,17 @@
                 </TransformGroup>
             </Grid.LayoutTransform>
                 <WrapPanel>
+                    <i:Interaction.Behaviors>
+                        <ei:FluidMoveBehavior AppliesTo="Children" Duration="0:0:0.5">
+                            <ei:FluidMoveBehavior.EaseY>
+                                <QuadraticEase EasingMode="EaseInOut"/>
+                            </ei:FluidMoveBehavior.EaseY>
+                            <ei:FluidMoveBehavior.EaseX>
+                                <QuadraticEase EasingMode="EaseInOut"/>
+                            </ei:FluidMoveBehavior.EaseX>
+                        </ei:FluidMoveBehavior>
+                    </i:Interaction.Behaviors>
+
                     <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Height="112" Name="groupBoxWasapiExclusive" Width="500">
                     <Grid x:Uid="Grid_3">
                         <Grid.RowDefinitions>
@@ -54,19 +67,7 @@
                         <CheckBox Content="Scale maximum amplitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
                     </Grid>
                 </GroupBox>
-                    <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Margin="4" Height="59" Name="groupBoxDeviceBufferFlush" Width="437">
-                    <Grid x:Uid="Grid_6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
-                        <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
-                        <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
-                    </Grid>
-                </GroupBox>
-                    <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Margin="4" Height="96" Name="groupBoxListDisplay" Width="350">
+                <GroupBox x:Uid="groupBoxListDisplay" Header="List display settings" Margin="4" Height="96" Name="groupBoxListDisplay" Width="350">
                     <Grid x:Uid="Grid_7">
                         <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" />
@@ -97,7 +98,19 @@
                         <Label Content="Encoding:" Margin="0,0,6,0" Name="labelCueEncoding" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="76" VerticalAlignment="Center" Grid.Row="1" />
                     </Grid>
                 </GroupBox>
-                    <GroupBox x:Uid="groupBoxOtherSettings" Header="Other settings" Margin="4" Height="140" Name="groupBoxOtherSettings" >
+                    <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Margin="4" Height="59" Name="groupBoxDeviceBufferFlush" Width="380">
+                        <Grid x:Uid="Grid_6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="9*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="3*" />
+                            </Grid.ColumnDefinitions>
+                            <Label x:Uid="labelZeroFlush" Content="Zero flush period on playback starts:" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Margin="0,0,0,0" Name="labelZeroFlushSeconds" VerticalAlignment="Center" />
+                            <TextBox x:Uid="textBoxZeroFlushSeconds" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxZeroFlushSeconds" VerticalAlignment="Center" Text="0" Grid.Column="1" />
+                            <Label x:Uid="labelZeroFlushUnit" Content="second(s)" HorizontalAlignment="Left" Margin="0,0,0,0" Name="labelZeroFlushUnit" VerticalAlignment="Center" Grid.Column="2" />
+                        </Grid>
+                    </GroupBox>
+                <GroupBox x:Uid="groupBoxOtherSettings" Header="Other settings" Margin="4" Height="140" Name="groupBoxOtherSettings" >
                     <Grid x:Uid="Grid_5">
                         <CheckBox x:Uid="checkBoxManuallySetMainWindowDimension" Content="Remember Window position and size"  Margin="6,6,0,0" Name="checkBoxManuallySetMainWindowDimension" VerticalAlignment="Top" HorizontalAlignment="Left" />
                         <CheckBox x:Uid="checkBoxStorePlaylistContent" Content="Restore the playlist on program startup"  Margin="6,28,0,0" Name="checkBoxStorePlaylistContent" VerticalAlignment="Top" HorizontalAlignment="Left" />
