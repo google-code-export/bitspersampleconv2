@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Security.Cryptography;
 
 namespace PlayPcmWin {
     class FlacDecodeIF : IDisposable {
@@ -25,6 +26,20 @@ namespace PlayPcmWin {
         private long mNumFrames;
         private int mPictureBytes;
         private byte[] mPictureData;
+
+        private MD5 md5;
+        private byte[] mMD5SumOfPcm;
+        private byte[] mMD5SumInMetadata;
+        private byte[] mMD5TmpBuffer;
+        private const int MD5_BYTES = 16;
+
+        public bool CalcMD5 { get; set; }
+        public byte[] MD5SumInMetadata { get { return mMD5SumInMetadata; } }
+        public byte[] MD5SumOfPcm { get { return mMD5SumOfPcm; } }
+
+        public long NumFrames {
+            get { return mNumFrames; }
+        }
 
         public static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
@@ -169,6 +184,8 @@ namespace PlayPcmWin {
             string albumStr = mBinaryReader.ReadString();
             string artistStr = mBinaryReader.ReadString();
 
+            mMD5SumInMetadata = mBinaryReader.ReadBytes(MD5_BYTES);
+
             mPictureBytes = mBinaryReader.ReadInt32();
             mPictureData = new byte[0];
             if (0 < mPictureBytes) {
@@ -227,7 +244,7 @@ namespace PlayPcmWin {
         /// <param name="wantFrames">取得するフレーム数。</param>
         /// <param name="pcmData">出てきたデコード後のPCMデータ。</param>
         /// <returns>0: 成功。負: 失敗。</returns>
-        public int ReadStreamBegin(string flacFilePath, long skipFrames, long wantFrames, out PcmDataLib.PcmData pcmData_return) {
+        public int ReadStreamBegin(string flacFilePath, long skipFrames, long wantFrames, int typicalReadFrames, out PcmDataLib.PcmData pcmData_return) {
             List<FlacCuesheetTrackInfo> cti;
             int rv = ReadStartCommon(ReadMode.HeadereAndData, flacFilePath, skipFrames, wantFrames, out pcmData_return, out cti);
             if (rv != 0) {
@@ -237,6 +254,13 @@ namespace PlayPcmWin {
             }
 
             mBytesPerFrame = pcmData_return.BitsPerFrame / 8;
+
+            if (CalcMD5 && skipFrames == 0 && wantFrames == mNumFrames) {
+                md5 = new MD5CryptoServiceProvider();
+                mMD5SumOfPcm = new byte[MD5_BYTES];
+                mMD5TmpBuffer = new byte[mBytesPerFrame * typicalReadFrames];
+            }
+
             return 0;
         }
 
@@ -257,6 +281,10 @@ namespace PlayPcmWin {
 
             byte [] sampleArray = mBinaryReader.ReadBytes(frameCount * mBytesPerFrame);
 
+            if (md5 != null) {
+                md5.TransformBlock(sampleArray, 0, sampleArray.Length, mMD5TmpBuffer, 0);
+            }
+
             if (preferredFrames < frameCount) {
                 // 欲しいフレーム数よりも多くのサンプルデータが出てきた。CUEシートの場合などで起こる。
                 // データの後ろをtruncateする。
@@ -267,13 +295,17 @@ namespace PlayPcmWin {
             return sampleArray;
         }
 
-        public long NumFrames {
-            get { return mNumFrames; }
-        }
-
         public int ReadStreamEnd()
         {
             int exitCode = StopChildProcess();
+
+            if (md5 != null) {
+                md5.TransformFinalBlock(new byte[0], 0, 0);
+                mMD5SumOfPcm = md5.Hash;
+                md5.Dispose();
+                md5 = null;
+                mMD5TmpBuffer = null;
+            }
 
             mBytesPerFrame = 0;
 
@@ -290,6 +322,12 @@ namespace PlayPcmWin {
 
             mBinaryReader.Close();
             mBinaryReader = null;
+
+            if (md5 != null) {
+                md5.Dispose();
+                md5 = null;
+                mMD5TmpBuffer = null;
+            }
         }
 
     }

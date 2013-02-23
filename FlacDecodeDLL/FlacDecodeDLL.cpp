@@ -30,6 +30,9 @@
 /// 最大トラックインデックス数
 #define FLACDECODE_TRACK_IDX_MAX (99)
 
+/// MD5SUMのバイト数
+#define FLACDECODE_MD5SUM_BYTES (16)
+
 #ifdef _DEBUG
 /*
 #  define dprintf1(fp, x, ...) { \
@@ -131,6 +134,8 @@ struct FlacDecodeInfo {
     int               buffFrames;
     int               retrievedFrames;
     FILE              *logFP;
+
+    char md5sum[FLACDECODE_MD5SUM_BYTES];
 
     wchar_t fromFlacPathUtf16[FLACDECODE_MAXPATH];
     char titleStr[FLACDECODE_MAX_STRSZ];
@@ -342,6 +347,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         fdi->minBlockSize  = metadata->data.stream_info.min_blocksize;
         fdi->maxFrameSize  = metadata->data.stream_info.max_framesize;
         fdi->maxBlockSize  = metadata->data.stream_info.max_blocksize;
+        memcpy(fdi->md5sum, metadata->data.stream_info.md5sum, FLACDECODE_MD5SUM_BYTES);
     }
 
     if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
@@ -1030,6 +1036,17 @@ FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(int id)
     assert(fdi);
 
     return fdi->cueSheetTracks.size();
+}
+
+extern "C" __declspec(dllexport)
+int __stdcall
+FlacDecodeDLL_GetMD5Sum(int id, char *md5_return)
+{
+    FlacDecodeInfo *fdi = FlacDecodeInfoFindById(id);
+    assert(fdi);
+
+    memcpy(md5_return, fdi->md5sum, FLACDECODE_MD5SUM_BYTES);
+    return FLACDECODE_MD5SUM_BYTES;
 }
 
 extern "C" __declspec(dllexport)

@@ -116,7 +116,9 @@ int __stdcall
 FlacDecodeDLL_GetPictureBytes(int id);
 
 /// 画像データ
+/// @param picture_return [out] ここに書き込まれる。pictureBytes確保して渡す
 /// @param offs 元データ列のoffsバイト目からpictureBytesバイトコピーする。
+/// @return コピーしたバイト数
 extern "C" __declspec(dllexport)
 int __stdcall
 FlacDecodeDLL_GetPictureData(int id, int offs, int pictureBytes, char *picture_return);
@@ -125,6 +127,13 @@ FlacDecodeDLL_GetPictureData(int id, int offs, int pictureBytes, char *picture_r
 extern "C" __declspec(dllexport)
 int __stdcall
 FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(int id);
+
+/// MD5Sum
+/// @param md5_return [out] ここに書き込まれる。16バイト確保して渡す
+/// @return コピーしたバイト数(16)
+extern "C" __declspec(dllexport)
+int __stdcall
+FlacDecodeDLL_GetMD5Sum(int id, char *md5_return);
 
 /// 埋め込みCUEシートトラックtrackIdのトラックナンバーtrackNr
 /// @param trackId トラックID (0から連番で付与されている)

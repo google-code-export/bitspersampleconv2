@@ -643,6 +643,26 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   MD5 sum validation failed! File may be corrupted: {0}
+        ///  MD5 in metadata={1}
+        ///  MD5 in PCM data={2} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MD5SumMismatch {
+            get {
+                return ResourceManager.GetString("MD5SumMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   MD5sum validation succeeded. {0} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MD5SumValid {
+            get {
+                return ResourceManager.GetString("MD5SumValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Memory exhausted. Please reduce files on playlist. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MemoryExhausted {
@@ -985,11 +1005,29 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Set [Batch read endpoint] on file drop に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxSetBatchReadEndpoint {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxSetBatchReadEndpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sort dropped folder items に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsCheckboxSortDropFolder {
             get {
                 return ResourceManager.GetString("SettingsCheckboxSortDropFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sort dropped files に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxSortDroppedFiles {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxSortDroppedFiles", resourceCulture);
             }
         }
         
@@ -1008,6 +1046,15 @@ namespace PlayPcmWin.Properties {
         internal static string SettingsCheckBoxTimePeriod1 {
             get {
                 return ResourceManager.GetString("SettingsCheckBoxTimePeriod1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Verify MD5 sum on FLAC file read に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxVerifyFlacMD5Sum {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxVerifyFlacMD5Sum", resourceCulture);
             }
         }
         
@@ -1039,20 +1086,29 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   List display settings に類似しているローカライズされた文字列を検索します。
+        ///   Display settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SettingsGroupBoxListDisplay {
+        internal static string SettingsGroupBoxDisplaySettings {
             get {
-                return ResourceManager.GetString("SettingsGroupBoxListDisplay", resourceCulture);
+                return ResourceManager.GetString("SettingsGroupBoxDisplaySettings", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Other settings に類似しているローカライズされた文字列を検索します。
+        ///   File read settings に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string SettingsGroupBoxOtherSettings {
+        internal static string SettingsGroupBoxFile {
             get {
-                return ResourceManager.GetString("SettingsGroupBoxOtherSettings", resourceCulture);
+                return ResourceManager.GetString("SettingsGroupBoxFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Playback thread settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsGroupBoxPlaybackThread {
+            get {
+                return ResourceManager.GetString("SettingsGroupBoxPlaybackThread", resourceCulture);
             }
         }
         

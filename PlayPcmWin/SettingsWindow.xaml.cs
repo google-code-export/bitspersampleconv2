@@ -35,9 +35,10 @@ namespace PlayPcmWin {
             
             groupBoxCuesheetSettings.Header = Properties.Resources.SettingsGroupBoxCuesheetSettings;
             groupBoxDeviceBufferFlush.Header = Properties.Resources.SettingsGroupBoxDeviceBufferFlush;
-            groupBoxListDisplay.Header = Properties.Resources.SettingsGroupBoxListDisplay;
-            groupBoxOtherSettings.Header = Properties.Resources.SettingsGroupBoxOtherSettings;
+            groupBoxDisplaySettings.Header = Properties.Resources.SettingsGroupBoxDisplaySettings;
             groupBoxWasapiExclusive.Header = Properties.Resources.SettingsGroupBoxWasapiExclusive;
+            groupBoxPlaybackThread.Header = Properties.Resources.SettingsGroupBoxPlaybackThread;
+            groupBoxFileSettings.Header = Properties.Resources.SettingsGroupBoxFile;
             labelQuantizationBitrate.Content = Properties.Resources.SettingsLabelQuantizationBitrate;
             checkBoxNoiseShaping.Content = Properties.Resources.SettingsCheckBoxPerformNoiseShaping;
 
@@ -87,6 +88,9 @@ namespace PlayPcmWin {
             buttonReset.Content = Properties.Resources.SettingsButtonReset;
 
             checkBoxSortDropFolder.Content = Properties.Resources.SettingsCheckboxSortDropFolder;
+            checkBoxSortDroppedFiles.Content = Properties.Resources.SettingsCheckBoxSortDroppedFiles;
+            checkBoxBatchReadEndpointToEveryTrack.Content = Properties.Resources.SettingsCheckBoxSetBatchReadEndpoint;
+            checkBoxVerifyFlacMD5Sum.Content = Properties.Resources.SettingsCheckBoxVerifyFlacMD5Sum;
         }
 
         Preference m_preference = null;
@@ -222,6 +226,15 @@ namespace PlayPcmWin {
 
             checkBoxSortDropFolder.IsChecked =
                 preference.SortDropFolder;
+
+            checkBoxSortDroppedFiles.IsChecked =
+                preference.SortDroppedFiles;
+
+            checkBoxBatchReadEndpointToEveryTrack.IsChecked =
+                preference.BatchReadEndpointToEveryTrack;
+
+            checkBoxVerifyFlacMD5Sum.IsChecked = preference.VerifyFlacMD5Sum;
+            checkBoxVerifyFlacMD5Sum.IsEnabled = preference.ParallelRead == false;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -359,6 +372,9 @@ namespace PlayPcmWin {
             }
 
             m_preference.SortDropFolder = (checkBoxSortDropFolder.IsChecked == true);
+            m_preference.SortDroppedFiles = (checkBoxSortDroppedFiles.IsChecked == true);
+            m_preference.BatchReadEndpointToEveryTrack = (checkBoxBatchReadEndpointToEveryTrack.IsChecked == true);
+            m_preference.VerifyFlacMD5Sum = (checkBoxVerifyFlacMD5Sum.IsChecked == true);
 
             Close();
         }
@@ -469,6 +485,15 @@ namespace PlayPcmWin {
 
         private void rectangleColor_MouseUp(object sender, MouseButtonEventArgs e) {
             buttonChangeColor_Click(sender, e);
+        }
+
+        private void checkBoxParallelRead_Checked(object sender, RoutedEventArgs e) {
+            checkBoxVerifyFlacMD5Sum.IsChecked = false;
+            checkBoxVerifyFlacMD5Sum.IsEnabled = false;
+        }
+
+        private void checkBoxParallelRead_Unchecked(object sender, RoutedEventArgs e) {
+            checkBoxVerifyFlacMD5Sum.IsEnabled = true;
         }
     }
 }

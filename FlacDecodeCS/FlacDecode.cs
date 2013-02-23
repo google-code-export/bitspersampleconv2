@@ -93,6 +93,10 @@ namespace FlacDecodeCS {
 
         [DllImport("FlacDecodeDLL.dll")]
         internal extern static
+        int FlacDecodeDLL_GetMD5Sum(int id, byte[] buff);
+
+        [DllImport("FlacDecodeDLL.dll")]
+        internal extern static
         int FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(int id);
 
         [DllImport("FlacDecodeDLL.dll")]
@@ -124,6 +128,8 @@ namespace FlacDecodeCS {
             DecodeAll,
             DecodeHeaderOnly
         }
+
+        private const int MD5_BYTES = 16;
 
         private static string Base64Decode(string s) {
             byte[] bytes = Convert.FromBase64String(s);
@@ -308,6 +314,10 @@ namespace FlacDecodeCS {
 
             LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne output start"));
 
+            byte [] md5sum = new byte[MD5_BYTES];
+            rv = NativeMethods.FlacDecodeDLL_GetMD5Sum(id, md5sum);
+            System.Diagnostics.Debug.Assert(rv == MD5_BYTES);
+
             bw.Write(nChannels);
             bw.Write(bitsPerSample);
             bw.Write(sampleRate);
@@ -317,6 +327,8 @@ namespace FlacDecodeCS {
             bw.Write(titleStr);
             bw.Write(albumStr);
             bw.Write(artistStr);
+
+            bw.Write(md5sum);
 
             bw.Write(pictureBytes);
             if (0 < pictureBytes) {

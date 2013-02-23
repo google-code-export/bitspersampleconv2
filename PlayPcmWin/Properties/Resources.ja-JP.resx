@@ -428,11 +428,8 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsGroupBoxDeviceBufferFlush" xml:space="preserve">
     <value>DACが安定するまで無音を送出する</value>
   </data>
-  <data name="SettingsGroupBoxListDisplay" xml:space="preserve">
-    <value>リスト表示設定</value>
-  </data>
-  <data name="SettingsGroupBoxOtherSettings" xml:space="preserve">
-    <value>その他設定</value>
+  <data name="SettingsGroupBoxDisplaySettings" xml:space="preserve">
+    <value>表示設定</value>
   </data>
   <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
     <value>WASAPIに渡すPCMデータの量子化ビット数(ファイルをメモリに読み込む際に変換)</value>
@@ -556,5 +553,28 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
     <value>フォルダドロップ時に曲順をソート</value>
+  </data>
+  <data name="SettingsCheckBoxSetBatchReadEndpoint" xml:space="preserve">
+    <value>ドロップ時に[ここまで一括読み込み]を付ける</value>
+  </data>
+  <data name="SettingsCheckBoxSortDroppedFiles" xml:space="preserve">
+    <value>複数ファイルドロップ時にソートする</value>
+  </data>
+  <data name="SettingsGroupBoxFile" xml:space="preserve">
+    <value>ファイル読み込み設定</value>
+  </data>
+  <data name="SettingsGroupBoxPlaybackThread" xml:space="preserve">
+    <value>再生スレッドの設定</value>
+  </data>
+  <data name="SettingsCheckBoxVerifyFlacMD5Sum" xml:space="preserve">
+    <value>FLACファイル読み込み時にMD5値を計算する</value>
+  </data>
+  <data name="MD5SumMismatch" xml:space="preserve">
+    <value>PCMデータについて算出したMD5値とFLACメタデータの示すMD5値が異なります。ファイルが壊れているかもしれません。 {0}
+  MD5 in metadata={1}
+  MD5 in PCM data={2}</value>
+  </data>
+  <data name="MD5SumValid" xml:space="preserve">
+    <value>PCMデータについて算出したMD5値がFLACメタデータの示すMD5値と一致。 {0}</value>
   </data>
 </root>

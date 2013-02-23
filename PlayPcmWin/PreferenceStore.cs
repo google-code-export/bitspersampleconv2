@@ -66,6 +66,9 @@ namespace PlayPcmWin {
         public int LastPlayItemIndex { get; set; }
         public bool EnableNoiseShaping { get; set; }
         public bool SortDropFolder { get; set; }
+        public bool SortDroppedFiles { get; set; }
+        public bool BatchReadEndpointToEveryTrack { get; set; }
+        public bool VerifyFlacMD5Sum { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -144,6 +147,9 @@ namespace PlayPcmWin {
             SetDefaultPlayListColumnsOrder();
 
             SortDropFolder = true;
+            SortDroppedFiles = false;
+            BatchReadEndpointToEveryTrack = false;
+            VerifyFlacMD5Sum = false;
         }
 
         /// <summary>
@@ -192,6 +198,11 @@ namespace PlayPcmWin {
                 break;
             default:
                 break;
+            }
+
+            // 並列読み込みが有効のときはFLACのMD5計算を行わない。
+            if (p.ParallelRead) {
+                p.VerifyFlacMD5Sum = false;
             }
 
             return p;

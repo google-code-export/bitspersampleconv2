@@ -48,6 +48,8 @@ namespace PlayPcmWin
         /// </summary>
         const double SHARED_MAX_AMPLITUDE = 0.98;
 
+        private const int TYPICAL_READ_FRAMES = 4 * 1024 * 1024;
+
         private WasapiCS wasapi;
 
         private Wasapi.WasapiCS.StateChangedCallback m_wasapiStateChangedDelegate;
@@ -1747,11 +1749,13 @@ namespace PlayPcmWin
             if (plti != null) {
                 pli.ReadSeparaterAfter = plti.readSeparatorAfter;
             }
+            if (m_preference.BatchReadEndpointToEveryTrack) {
+                AddKokomade();
+            }
+
             pli.PropertyChanged += new PropertyChangedEventHandler(PlayListItemInfoPropertyChanged);
             m_pcmDataListForDisp.Add(pcmData);
             m_playListItems.Add(pli);
-
-            //m_playListView.RefreshCollection();
 
             // 状態の更新。再生リストにファイル有り。
             ChangeState(State.プレイリストあり);
@@ -2121,6 +2125,7 @@ namespace PlayPcmWin
 
         private int ReadFileHeader(string path, ReadHeaderMode mode, PlaylistTrackInfo plti) {
             int result = 0;
+
             if (System.IO.Directory.Exists(path)) {
                 // pathはディレクトリである。直下のファイル一覧を作って足す。再帰的にはたぐらない。
                 var files = System.IO.Directory.GetFiles(path);
@@ -2168,6 +2173,10 @@ namespace PlayPcmWin
 
             // エラーメッセージを貯めて出す。作りがいまいちだが。
             m_loadErrorMessages = new StringBuilder();
+
+            if (m_preference.SortDroppedFiles) {
+                paths = (from s in paths orderby s select s).ToArray();
+            }
 
             for (int i = 0; i < paths.Length; ++i) {
                 ReadFileHeader(paths[i], ReadHeaderMode.ReadAll, null);
@@ -2338,14 +2347,87 @@ namespace PlayPcmWin
             }
         }
 
-        class ReadFileResultInfo {
-            public int pcmDataId;
-            public long clippedCount;
-            public ReadFileResultInfo(int pcmDataId, long clippedCount) {
-                this.pcmDataId = pcmDataId;
-                this.clippedCount = clippedCount;
-            }
+        abstract class ReadFileResultInfo {
+            public bool IsSucceeded { get; set; }
+            public bool HasMessage { get; set; }
+            public int PcmDataId { get; set; }
+            public abstract string ToString(string fileName);
         }
+
+        class ReadFileResultInfoSuccess : ReadFileResultInfo {
+            public ReadFileResultInfoSuccess(int pcmDataId) {
+                PcmDataId = pcmDataId;
+                IsSucceeded = true;
+                HasMessage = false;
+            }
+
+            public override string ToString(string fileName) {
+                return string.Empty;
+            }
+        };
+
+        class ReadFileResultInfoFailed : ReadFileResultInfo {
+            private string message;
+
+            public ReadFileResultInfoFailed(int pcmDataId, string message) {
+                PcmDataId = pcmDataId;
+                this.message = message;
+                IsSucceeded = false;
+                HasMessage = !String.IsNullOrEmpty(this.message);
+            }
+
+            public override string ToString(string fileName) {
+                return message;
+            }
+        };
+
+        class ReadFileResultInfoClipped : ReadFileResultInfo {
+            private long clippedCount;
+
+            public ReadFileResultInfoClipped(int pcmDataId, long clippedCount) {
+                PcmDataId = pcmDataId;
+                this.clippedCount = clippedCount;
+                IsSucceeded = false;
+                HasMessage = true;
+            }
+
+            public override string ToString(string fileName) {
+                return string.Format(CultureInfo.InvariantCulture, Properties.Resources.ClippedSampleDetected,
+                        fileName, clippedCount);
+            }
+        };
+
+        class ReadFileResultInfoMD5Sum : ReadFileResultInfo {
+            private byte [] md5SumOfPcm;
+            private byte [] md5SumInMetadata;
+
+            public ReadFileResultInfoMD5Sum(int pcmDataId, byte[] md5SumOfPcm, byte[] md5SumInMetadata) {
+                PcmDataId = pcmDataId;
+                this.md5SumOfPcm = md5SumOfPcm;
+                this.md5SumInMetadata = md5SumInMetadata;
+                IsSucceeded = md5SumOfPcm.SequenceEqual(md5SumInMetadata);
+                HasMessage = true;
+            }
+
+            public override string ToString(string fileName) {
+                if (IsSucceeded) {
+                    return string.Format(CultureInfo.InvariantCulture,
+                        Properties.Resources.MD5SumValid, fileName) + "\n";
+                }
+
+                return string.Format(CultureInfo.InvariantCulture,
+                    Properties.Resources.MD5SumMismatch,
+                    fileName,
+                    MD5SumToStr(md5SumInMetadata), MD5SumToStr(md5SumOfPcm)) + "\n";
+            }
+
+            private static string MD5SumToStr(byte[] a) {
+                return string.Format(CultureInfo.InvariantCulture,
+                    "{0:x2}{1:x2}{2:x2}{3:x2}{4:x2}{5:x2}{6:x2}{7:x2}{8:x2}{9:x2}{10:x2}{11:x2}{12:x2}{13:x2}{14:x2}{15:x2}",
+                    a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7],
+                    a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
+            }
+        };
 
         class ReadFileRunWorkerCompletedArgs {
             public string message;
@@ -2413,6 +2495,8 @@ namespace PlayPcmWin
             int readGroupId = (int)args.Argument;
             // Console.WriteLine("D: ReadFileSingleDoWork({0}) started", readGroupId);
 
+            PcmReader.CalcMD5SumIfAvailable = m_preference.VerifyFlacMD5Sum;
+
             ReadFileRunWorkerCompletedArgs r = new ReadFileRunWorkerCompletedArgs();
             try {
                 r.hr = -1;
@@ -2453,7 +2537,7 @@ namespace PlayPcmWin
                     {
                         long clippedCount = PcmData.ReadClippedCounter();
                         if (0 < clippedCount) {
-                            r.individualResultList.Add(new ReadFileResultInfo(pd.Id, clippedCount));
+                            r.individualResultList.Add(new ReadFileResultInfoClipped(pd.Id, clippedCount));
                         }
                     }
 
@@ -2551,7 +2635,15 @@ namespace PlayPcmWin
 
             public void ThreadPoolCallback(Object threadContext) {
                 int threadIndex = (int)threadContext;
-                result = mw.ReadOnePcmFileFragment(bw, pd, readStartFrame, readFrames, writeOffsFrame, ref message);
+                var ri = mw.ReadOnePcmFileFragment(bw, pd, readStartFrame, readFrames, writeOffsFrame);
+                if (ri.HasMessage) {
+                    message += ri.ToString(pd.FileName);
+                }
+                if (!ri.IsSucceeded) {
+                    result = false;
+                    message = ri.ToString(pd.FileName);
+                }
+
                 doneEvent.Set();
             }
 
@@ -2607,8 +2699,7 @@ namespace PlayPcmWin
                 }
 
                 double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
-                m_readFileWorker.ReportProgress((int)progressPercentage,
-                    string.Format(CultureInfo.InvariantCulture, "wasapi.AddPlayPcmData(id={0}, frames={1})\r\n", rpi.pcmDataId, rpi.readFrames));
+                m_readFileWorker.ReportProgress((int)progressPercentage, string.Empty);
                 if (noiseShaping) {
                     m_readFileWorker.ReportProgress((int)progressPercentage, "Noise shaping ... done\r\n");
                 }
@@ -2620,7 +2711,8 @@ namespace PlayPcmWin
                 // endFrameの位置を確定する。
                 // すると、rpi.ReadFramesも確定する。
                 PcmReader pr = new PcmReader();
-                int ercd = pr.StreamBegin(pd.FullPath, 0, 0);
+                
+                int ercd = pr.StreamBegin(pd.FullPath, 0, 0, TYPICAL_READ_FRAMES);
                 pr.StreamEnd();
                 if (ercd < 0) {
                     r.hr = ercd;
@@ -2679,29 +2771,34 @@ namespace PlayPcmWin
                 doneEventArray = null;
             } else {
                 // ファイルのstartFrameからendFrameまでを読み出す。(1スレッド)
-                string message = string.Empty;
-                result = ReadOnePcmFileFragment(bw, pd, startFrame, wantFramesTotal, 0, ref message);
-                if (!result) {
-                    r.message = message;
+                var ri = ReadOnePcmFileFragment(bw, pd, startFrame, wantFramesTotal, 0);
+                if (ri.HasMessage) {
+                    r.individualResultList.Add(ri);
+                }
+                result = ri.IsSucceeded;
+                if (!ri.IsSucceeded) {
+                    r.message += ri.ToString(pd.FileName);
                 }
             }
 
             return result;
         }
 
-        private bool ReadOnePcmFileFragment(BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long wantFramesTotal, long writeOffsFrame, ref string message) {
+        private ReadFileResultInfo ReadOnePcmFileFragment(BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long wantFramesTotal, long writeOffsFrame) {
+            var lowMemoryFailed = new ReadFileResultInfoFailed(pd.Id, "Low memory");
+            ReadFileResultInfo ri = new ReadFileResultInfoSuccess(pd.Id);
+
             PcmReader pr = new PcmReader();
-            int ercd = pr.StreamBegin(pd.FullPath, readStartFrame, wantFramesTotal);
+            int ercd = pr.StreamBegin(pd.FullPath, readStartFrame, wantFramesTotal, TYPICAL_READ_FRAMES);
             if (ercd < 0) {
                 Console.WriteLine("D: ReadOnePcmFileFragment() StreamBegin failed");
-                message = FlacDecodeIF.ErrorCodeToStr(ercd);
-                return false;
+                return new ReadFileResultInfoFailed(pd.Id, FlacDecodeIF.ErrorCodeToStr(ercd));
             }
 
             long frameCount = 0;
             do {
                 // 読み出したいフレーム数wantFrames。
-                int wantFrames = 4 * 1024 * 1024;
+                int wantFrames = TYPICAL_READ_FRAMES;
                 if (wantFramesTotal < frameCount + wantFrames) {
                     wantFrames = (int)(wantFramesTotal - frameCount);
                 }
@@ -2710,8 +2807,7 @@ namespace PlayPcmWin
                 if (null == part) {
                     pr.StreamEnd();
                     Console.WriteLine("D: ReadOnePcmFileFragment() lowmemory");
-                    message = "Low memory";
-                    return false;
+                    return lowMemoryFailed;
                 }
 
                 // 実際に読み出されたフレーム数readFrames。
@@ -2759,16 +2855,21 @@ namespace PlayPcmWin
 
                 if (bw.CancellationPending) {
                     pr.StreamAbort();
-                    message = string.Empty;
-                    return false;
+                    return new ReadFileResultInfoFailed(pd.Id, string.Empty);
                 }
             } while (frameCount < wantFramesTotal);
 
             ercd = pr.StreamEnd();
             if (ercd < 0) {
-                message = string.Format(CultureInfo.InvariantCulture, "{0}: {1}", FlacDecodeIF.ErrorCodeToStr(ercd), pd.FullPath);
+                return new ReadFileResultInfoFailed(pd.Id,
+                    string.Format(CultureInfo.InvariantCulture, "{0}: {1}", FlacDecodeIF.ErrorCodeToStr(ercd), pd.FullPath));
             }
-            return 0 <= ercd;
+
+            if (pr.MD5SumOfPcm != null) {
+                ri = new ReadFileResultInfoMD5Sum(pd.Id, pr.MD5SumOfPcm, pr.MD5SumInMetadata);
+            }
+
+            return ri;
         }
 
         private void ReadFileWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
@@ -2815,8 +2916,7 @@ namespace PlayPcmWin
 
             if (0 < r.individualResultList.Count) {
                 foreach (var fileResult in r.individualResultList) {
-                    AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ClippedSampleDetected,
-                        FindPcmDataById(m_pcmDataListForPlay, fileResult.pcmDataId).FileName, fileResult.clippedCount));
+                    AddLogText(fileResult.ToString(FindPcmDataById(m_pcmDataListForPlay, fileResult.PcmDataId).FileName));
                 }
             }
 

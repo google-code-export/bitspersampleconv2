@@ -80,15 +80,15 @@ namespace PlayPcmWin {
         /// </summary>
         /// <param name="path">ファイルパス。</param>
         /// <param name="startFrame">読み出し開始フレーム</param>
-        /// <param name="wantFrames">取得したいフレーム数。-1: 最後まで。0: 取得しない。</param>
+        /// <param name="wantFrames">取得したいフレーム数。負の数: 最後まで。0: 取得しない。</param>
         /// <returns>0以上: 成功。負: 失敗。</returns>
-        public int StreamBegin(string path, long startFrame, long wantFrames) {
+        public int StreamBegin(string path, long startFrame, long wantFrames, int typicalReadFrames) {
             var fmt = GuessFileFormatFromFilePath(path);
             try {
                 switch (fmt) {
                 case Format.FLAC:
                     m_format = Format.FLAC;
-                    return StreamBeginFlac(path, startFrame, wantFrames);
+                    return StreamBeginFlac(path, startFrame, wantFrames, typicalReadFrames);
                 case Format.AIFF:
                     m_format = Format.AIFF;
                     return StreamBeginAiff(path, startFrame);
@@ -187,9 +187,15 @@ namespace PlayPcmWin {
         /// <returns>Error code</returns>
         public int StreamEnd() {
             int rv = 0;
+
+            mMD5SumInMetadata = null;
+            mMD5SumOfPcm = null;
+
             switch (m_format) {
             case Format.FLAC:
                 rv = mFlacR.ReadStreamEnd();
+                mMD5SumInMetadata = mFlacR.MD5SumInMetadata;
+                mMD5SumOfPcm = mFlacR.MD5SumOfPcm;
                 break;
             case Format.AIFF:
                 mAiffR.ReadStreamEnd();
@@ -221,6 +227,12 @@ namespace PlayPcmWin {
             return rv;
         }
 
+        private byte [] mMD5SumOfPcm;
+        private byte [] mMD5SumInMetadata;
+
+        public byte[] MD5SumOfPcm { get { return mMD5SumOfPcm; } }
+        public byte[] MD5SumInMetadata { get { return mMD5SumInMetadata; } }
+
         /// <summary>
         /// StreamEndの戻り値を文字列に変換。
         /// </summary>
@@ -228,11 +240,14 @@ namespace PlayPcmWin {
             return FlacDecodeIF.ErrorCodeToStr(ercd);
         }
 
-        private int StreamBeginFlac(string path, long startFrame, long wantFrames)
+        public static bool CalcMD5SumIfAvailable { get; set; }
+
+        private int StreamBeginFlac(string path, long startFrame, long wantFrames, int typicalReadFrames)
         {
             // m_pcmData = new PcmDataLib.PcmData();
             mFlacR = new FlacDecodeIF();
-            int ercd = mFlacR.ReadStreamBegin(path, startFrame, wantFrames, out mPcmData);
+            mFlacR.CalcMD5 = CalcMD5SumIfAvailable;
+            int ercd = mFlacR.ReadStreamBegin(path, startFrame, wantFrames, typicalReadFrames, out mPcmData);
             if (ercd < 0) {
                 return ercd;
             }
