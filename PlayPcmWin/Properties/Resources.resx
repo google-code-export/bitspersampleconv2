@@ -571,8 +571,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="MD5SumMismatch" xml:space="preserve">
     <value>MD5 sum validation failed! File may be corrupted: {0}
-  MD5 in metadata={1}
-  MD5 in PCM data={2}</value>
+  MD5 in metadata  ={1}
+  MD5 from PCM data={2}</value>
   </data>
   <data name="MD5SumValid" xml:space="preserve">
     <value>MD5sum validation succeeded. {0}</value>

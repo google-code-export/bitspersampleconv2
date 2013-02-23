@@ -571,8 +571,8 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="MD5SumMismatch" xml:space="preserve">
     <value>PCMデータについて算出したMD5値とFLACメタデータの示すMD5値が異なります。ファイルが壊れているかもしれません。 {0}
-  MD5 in metadata={1}
-  MD5 in PCM data={2}</value>
+  MD5 in metadata  ={1}
+  MD5 from PCM data={2}</value>
   </data>
   <data name="MD5SumValid" xml:space="preserve">
     <value>PCMデータについて算出したMD5値がFLACメタデータの示すMD5値と一致。 {0}</value>

@@ -644,8 +644,8 @@ namespace PlayPcmWin.Properties {
         
         /// <summary>
         ///   MD5 sum validation failed! File may be corrupted: {0}
-        ///  MD5 in metadata={1}
-        ///  MD5 in PCM data={2} に類似しているローカライズされた文字列を検索します。
+        ///  MD5 in metadata  ={1}
+        ///  MD5 from PCM data={2} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MD5SumMismatch {
             get {
