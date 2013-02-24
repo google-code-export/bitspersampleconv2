@@ -543,7 +543,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Default timer resolution</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
-    <value>Scale maximum amplitude to 0.98 to soothe limiter APO</value>
+    <value>Scale maximum magnitude to 0.98 to soothe limiter APO</value>
   </data>
   <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
     <value>Perform noise shaping when bits per sample is reduced</value>
@@ -571,8 +571,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="MD5SumMismatch" xml:space="preserve">
     <value>MD5 sum validation failed! File may be corrupted: {0}
-  MD5 in metadata  ={1}
-  MD5 from PCM data={2}</value>
+  MD5 in metadata    = {1}
+  MD5 from PCM data= {2}</value>
   </data>
   <data name="MD5SumValid" xml:space="preserve">
     <value>MD5sum validation succeeded. {0}</value>
