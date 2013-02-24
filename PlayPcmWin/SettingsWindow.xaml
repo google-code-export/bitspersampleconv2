@@ -69,7 +69,7 @@
                         </Grid.RowDefinitions>
                         <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
                         <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
-                        <CheckBox Content="Scale maximum amplitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
+                        <CheckBox Content="Scale maximum magnitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
                     </Grid>
                 </GroupBox>
                     <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Margin="4" Height="90" Name="groupBoxCuesheetSettings" Width="360">
