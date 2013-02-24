@@ -90,6 +90,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   Some kind of data is dropped but the data is not file nor folder. Failed to process dropped items. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DroppedDataIsNotFile {
+            get {
+                return ResourceManager.GetString("DroppedDataIsNotFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Error に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string Error {

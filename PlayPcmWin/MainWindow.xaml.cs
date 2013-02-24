@@ -2159,12 +2159,16 @@ namespace PlayPcmWin
         private void MainWindowDragDrop(object sender, DragEventArgs e)
         {
             var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-            /*
-            Console.WriteLine("D: Form1_DragDrop() {0}", paths.Length);
-            for (int i = 0; i < paths.Length; ++i) {
-                Console.WriteLine("   {0}", paths[i]);
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "\n    {0}", format));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
             }
-            */
 
             if (State.デバイスSetup完了 <= m_state) {
                 // 追加不可。
