@@ -69,6 +69,7 @@ namespace PlayPcmWin {
         public bool SortDroppedFiles { get; set; }
         public bool BatchReadEndpointToEveryTrack { get; set; }
         public bool VerifyFlacMD5Sum { get; set; }
+        public bool GpuRendering { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -150,6 +151,7 @@ namespace PlayPcmWin {
             SortDroppedFiles = false;
             BatchReadEndpointToEveryTrack = false;
             VerifyFlacMD5Sum = false;
+            GpuRendering = true;
         }
 
         /// <summary>

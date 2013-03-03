@@ -960,6 +960,15 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   GPU rendering に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string SettingsCheckBoxGpuRendering {
+            get {
+                return ResourceManager.GetString("SettingsCheckBoxGpuRendering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Remember Window position and size に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsCheckBoxManuallySetMainWindowDimension {

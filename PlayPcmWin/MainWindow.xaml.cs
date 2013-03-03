@@ -22,7 +22,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
-using System.Windows.Data;
+using System.Windows.Interop;
 
 namespace PlayPcmWin
 {
@@ -3586,6 +3586,9 @@ namespace PlayPcmWin
         /// SettingsWindowによって変更された表示情報をUIに反映する。
         /// </summary>
         void UpdateWindowSettings() {
+            RenderOptions.ProcessRenderMode =
+                    m_preference.GpuRendering ? RenderMode.Default :RenderMode.SoftwareOnly;
+
             var ffc = new FontFamilyConverter();
             var ff = ffc.ConvertFromString(m_preference.PlayingTimeFontName) as FontFamily;
             if (null != ff) {

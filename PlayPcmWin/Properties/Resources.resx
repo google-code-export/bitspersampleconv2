@@ -580,4 +580,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="DroppedDataIsNotFile" xml:space="preserve">
     <value>Some kind of data is dropped but the data is not file nor folder. Failed to process dropped items.</value>
   </data>
+  <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
+    <value>GPU rendering</value>
+  </data>
 </root>

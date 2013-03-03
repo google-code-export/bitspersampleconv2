@@ -580,4 +580,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="DroppedDataIsNotFile" xml:space="preserve">
     <value>何かがドロップされましたが、ファイルでもフォルダでもないため処理できませんでした。</value>
   </data>
+  <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
+    <value>GPUで描画する</value>
+  </data>
 </root>

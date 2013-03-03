@@ -91,6 +91,7 @@ namespace PlayPcmWin {
             checkBoxSortDroppedFiles.Content = Properties.Resources.SettingsCheckBoxSortDroppedFiles;
             checkBoxBatchReadEndpointToEveryTrack.Content = Properties.Resources.SettingsCheckBoxSetBatchReadEndpoint;
             checkBoxVerifyFlacMD5Sum.Content = Properties.Resources.SettingsCheckBoxVerifyFlacMD5Sum;
+            checkBoxGpuRendering.Content = Properties.Resources.SettingsCheckBoxGpuRendering;
         }
 
         Preference m_preference = null;
@@ -235,6 +236,8 @@ namespace PlayPcmWin {
 
             checkBoxVerifyFlacMD5Sum.IsChecked = preference.VerifyFlacMD5Sum;
             checkBoxVerifyFlacMD5Sum.IsEnabled = preference.ParallelRead == false;
+
+            checkBoxGpuRendering.IsChecked = preference.GpuRendering;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -375,6 +378,8 @@ namespace PlayPcmWin {
             m_preference.SortDroppedFiles = (checkBoxSortDroppedFiles.IsChecked == true);
             m_preference.BatchReadEndpointToEveryTrack = (checkBoxBatchReadEndpointToEveryTrack.IsChecked == true);
             m_preference.VerifyFlacMD5Sum = (checkBoxVerifyFlacMD5Sum.IsChecked == true);
+
+            m_preference.GpuRendering = (checkBoxGpuRendering.IsChecked == true);
 
             Close();
         }
