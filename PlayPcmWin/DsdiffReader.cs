@@ -30,7 +30,8 @@ namespace PlayPcmWin {
         public int NumChannels { get; set; }
 
         /// <summary>
-        /// 2822400 (2.8MHz) か、2822400*2 (5.6MHz)
+        /// 2822400(2.8MHz)か、5644800(5.6MHz)か、11289600(11.2MHz)か、22579200(22.5MHz)か、
+        /// 3072000(3.0MHz)か、6144000(6.1MHz)か、12288000(12.2MHz)か、24576000(24.5MHz)か、…
         /// </summary>
         public int SampleRate { get; set; }
 
@@ -101,8 +102,9 @@ namespace PlayPcmWin {
             }
 
             SampleRate = (int)Util.ReadBigU32(br);
-            if (2822400   != SampleRate &&
-                2822400*2 != SampleRate) {
+            if (0 == SampleRate ||
+                    (0 != (SampleRate % 2822400) &&
+                     0 != (SampleRate % 3072000))) {
                 return ResultType.NotSupportSampleRate;
             }
 
@@ -217,7 +219,7 @@ namespace PlayPcmWin {
             }
 
             if (!done ||
-                0 == SampleRate ||
+                0 == SampleRate ||   // SampleRateChunkが存在しないとき。
                 2 != NumChannels ||
                 0 == mDataFrames) {
                 return ResultType.ReadError;
