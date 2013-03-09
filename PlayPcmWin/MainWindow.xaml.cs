@@ -596,7 +596,6 @@ namespace PlayPcmWin
         public MainWindow()
         {
             InitializeComponent();
-
             SetLocalizedTextToUI();
 
             this.AddHandler(Slider.MouseLeftButtonDownEvent,
@@ -625,8 +624,8 @@ namespace PlayPcmWin
                     }
                 }
                 if (inScreen) {
-                    Left   = m_preference.MainWindowLeft;
-                    Top    = m_preference.MainWindowTop;
+                    Left = m_preference.MainWindowLeft;
+                    Top = m_preference.MainWindowTop;
                     if (100 <= m_preference.MainWindowWidth) {
                         Width = m_preference.MainWindowWidth;
                     }
@@ -640,30 +639,9 @@ namespace PlayPcmWin
                 expanderSettings.IsExpanded = false;
             }
 
-            // 再生リスト読み出し
-
-            PlayListItemInfo.SetNextRowId(1);
-            m_groupIdNextAdd = 0;
-
-            if (m_preference.StorePlaylistContent) {
-                // display error MessageBox on Window_Loaded()
-                m_loadErrorMessages = new StringBuilder();
-                ReadPpwPlaylist(string.Empty);
-            }
-
-            RestorePlaylistColumnOrderFromPreference();
-
             AddLogText(string.Format(CultureInfo.InvariantCulture, "PlayPcmWin {0} {1}\r\n",
                     AssemblyVersion,
                     IntPtr.Size == 8 ? "64bit" : "32bit"));
-
-            dataGridPlayList.ItemsSource = m_playListItems;
-
-            if (0 <= m_preference.LastPlayItemIndex &&
-                    m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
-                dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
-                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
-            }
 
             int hr = 0;
             wasapi = new WasapiCS();
@@ -701,25 +679,47 @@ namespace PlayPcmWin
 
             UpdatePlaymodeComboBoxFromPreference();
 
+            UpdateDeviceList();
+        }
+
+        private void Window_Loaded(object wSender, RoutedEventArgs we) {
+            // 再生リスト読み出し
+
+            PlayListItemInfo.SetNextRowId(1);
+            m_groupIdNextAdd = 0;
+
+            if (m_preference.StorePlaylistContent) {
+                // display error MessageBox on Window_Loaded()
+                m_loadErrorMessages = new StringBuilder();
+                ReadPpwPlaylist(string.Empty);
+            }
+
+            RestorePlaylistColumnOrderFromPreference();
+
+            dataGridPlayList.ItemsSource = m_playListItems;
+
+            if (0 <= m_preference.LastPlayItemIndex &&
+                    m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
+                dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
+                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+            }
+
             SetupBackgroundWorkers();
 
-            UpdateDeviceList();
             UpdateWindowSettings();
 
             {
                 // slider1のTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
                 slider1.ApplyTemplate();
-                (slider1.Template.FindName("PART_Track", slider1) as Track).Thumb.MouseEnter += new MouseEventHandler((sender, e) => {
-                    if (e.LeftButton == MouseButtonState.Pressed && e.MouseDevice.Captured == null) {
-                        var args = new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left);
+                (slider1.Template.FindName("PART_Track", slider1) as Track).Thumb.MouseEnter += new MouseEventHandler((sliderSender, se) => {
+                    if (se.LeftButton == MouseButtonState.Pressed && se.MouseDevice.Captured == null) {
+                        var args = new MouseButtonEventArgs(se.MouseDevice, se.Timestamp, MouseButton.Left);
                         args.RoutedEvent = MouseLeftButtonDownEvent;
-                        (sender as Thumb).RaiseEvent(args);
+                        (sliderSender as Thumb).RaiseEvent(args);
                     }
                 });
             }
-        }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e) {
             // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
             if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
                 MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
