@@ -1024,7 +1024,7 @@ namespace PlayPcmWin
             menuItemFileSaveCueAs.IsEnabled  = false;
             menuItemPlayListClear.IsEnabled = false;
             menuItemPlayListItemEditMode.IsEnabled = true;
-            
+
             buttonPlay.IsEnabled             = false;
             buttonStop.IsEnabled             = false;
             buttonPause.IsEnabled            = false;
@@ -1036,7 +1036,13 @@ namespace PlayPcmWin
 
             buttonClearPlayList.IsEnabled    = false;
             buttonDelistSelected.IsEnabled = false;
-            buttonInspectDevice.IsEnabled    = true;
+
+            if (0 == listBoxDevices.Items.Count) {
+                // 再生デバイスが全く存在しない時
+                buttonInspectDevice.IsEnabled = false;
+            } else {
+                buttonInspectDevice.IsEnabled = true;
+            }
 
             buttonSettings.IsEnabled = true;
             menuItemToolSettings.IsEnabled = true;
@@ -1052,7 +1058,14 @@ namespace PlayPcmWin
             menuItemFileSaveCueAs.IsEnabled = true;
             menuItemPlayListClear.IsEnabled = true;
             menuItemPlayListItemEditMode.IsEnabled = true;
-            buttonPlay.IsEnabled = true;
+
+            if (0 == listBoxDevices.Items.Count) {
+                // 再生デバイスが全く存在しない時
+                buttonPlay.IsEnabled = false;
+            } else {
+                buttonPlay.IsEnabled = true;
+            }
+
             buttonStop.IsEnabled = false;
             buttonPause.IsEnabled = false;
             comboBoxPlayMode.IsEnabled = true;
