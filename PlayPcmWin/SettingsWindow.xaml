@@ -1,8 +1,6 @@
 ﻿<Window x:Uid="SettingsWindow" x:Class="PlayPcmWin.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         Title="PlayPcmWin detailed settings" Height="671" Width="800" Loaded="Window_Loaded" VerticalAlignment="Top" HorizontalAlignment="Left" MouseWheel="Window_MouseWheel" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <FontWeight x:Uid="FontWeight_1" x:Key="FontWeight1">Bold</FontWeight>
@@ -22,17 +20,6 @@
                 </TransformGroup>
             </Grid.LayoutTransform>
                 <WrapPanel>
-                    <i:Interaction.Behaviors>
-                        <ei:FluidMoveBehavior AppliesTo="Children" Duration="0:0:0.5">
-                            <ei:FluidMoveBehavior.EaseY>
-                                <QuadraticEase EasingMode="EaseInOut"/>
-                            </ei:FluidMoveBehavior.EaseY>
-                            <ei:FluidMoveBehavior.EaseX>
-                                <QuadraticEase EasingMode="EaseInOut"/>
-                            </ei:FluidMoveBehavior.EaseX>
-                        </ei:FluidMoveBehavior>
-                    </i:Interaction.Behaviors>
-
                     <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Name="groupBoxWasapiExclusive" Width="500">
                     <StackPanel>
                             <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelQuantizationBitrate" VerticalAlignment="Center" />
