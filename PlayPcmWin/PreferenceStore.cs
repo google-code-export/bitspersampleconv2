@@ -70,6 +70,7 @@ namespace PlayPcmWin {
         public bool BatchReadEndpointToEveryTrack { get; set; }
         public bool VerifyFlacMD5Sum { get; set; }
         public bool GpuRendering { get; set; }
+        public bool DwmEnableMmcss { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -131,6 +132,7 @@ namespace PlayPcmWin {
             TimePeriodHundredNanosec = 10000;
             LastPlayItemIndex = 0;
             EnableNoiseShaping = true;
+            DwmEnableMmcss = true;
 
             MainWindowLeft   = 100;
             MainWindowTop    = 100;

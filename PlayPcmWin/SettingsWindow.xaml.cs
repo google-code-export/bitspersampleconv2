@@ -42,6 +42,7 @@ namespace PlayPcmWin {
             labelQuantizationBitrate.Content = Properties.Resources.SettingsLabelQuantizationBitrate;
             checkBoxNoiseShaping.Content = Properties.Resources.SettingsCheckBoxPerformNoiseShaping;
 
+            groupBoxTimerResolution.Header = Properties.Resources.SettingsGroupBoxTimerResolution;
             groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
             groupBoxWasapiShared.Header = Properties.Resources.SettingsGroupBoxWasapiShared;
 
@@ -53,11 +54,11 @@ namespace PlayPcmWin {
             comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsSfloat32);
             comboBoxOutputFormat.Items.Add(Properties.Resources.SettingsRadioButtonBpsAutoSelect);
 
-            radioButtonTaskAudio.Content = Properties.Resources.SettingsRadioButtonTaskAudio;
+            cbItemTaskAudio.Content = Properties.Resources.SettingsRadioButtonTaskAudio;
 
-            radioButtonTaskNone.Content = Properties.Resources.SettingsRadioButtonTaskNone;
-            radioButtonTaskPlayback.Content = Properties.Resources.SettingsRadioButtonTaskPlayback;
-            radioButtonTaskProAudio.Content = Properties.Resources.SettingsRadioButtonTaskProAudio;
+            cbItemTaskNone.Content = Properties.Resources.SettingsRadioButtonTaskNone;
+            cbItemTaskPlayback.Content = Properties.Resources.SettingsRadioButtonTaskPlayback;
+            cbItemTaskProAudio.Content = Properties.Resources.SettingsRadioButtonTaskProAudio;
 
             checkBoxAlternateBackground.Content = Properties.Resources.SettingsCheckBoxAlternateBackground;
 
@@ -204,16 +205,17 @@ namespace PlayPcmWin {
 
             switch (preference.RenderThreadTaskType) {
             case RenderThreadTaskType.Audio:
-                radioButtonTaskAudio.IsChecked = true;
+                comboBoxRenderThreadTaskType.SelectedItem = cbItemTaskAudio;
                 break;
             case RenderThreadTaskType.None:
-                radioButtonTaskNone.IsChecked = true;
+                comboBoxRenderThreadTaskType.SelectedItem = cbItemTaskNone;
                 break;
             case RenderThreadTaskType.Playback:
-                radioButtonTaskPlayback.IsChecked = true;
+                comboBoxRenderThreadTaskType.SelectedItem = cbItemTaskPlayback;
                 break;
             case RenderThreadTaskType.ProAudio:
-                radioButtonTaskProAudio.IsChecked = true;
+            default:
+                comboBoxRenderThreadTaskType.SelectedItem = cbItemTaskProAudio;
                 break;
             }
 
@@ -238,6 +240,8 @@ namespace PlayPcmWin {
             checkBoxVerifyFlacMD5Sum.IsEnabled = preference.ParallelRead == false;
 
             checkBoxGpuRendering.IsChecked = preference.GpuRendering;
+
+            checkBoxDwmEnableMMCSS.IsChecked = preference.DwmEnableMmcss;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -353,16 +357,16 @@ namespace PlayPcmWin {
                     = mPlaylistAlternateBackgroundArgb;
             }
 
-            if (true == radioButtonTaskAudio.IsChecked) {
+            if (comboBoxRenderThreadTaskType.SelectedItem == cbItemTaskAudio) {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.Audio;
             }
-            if (true == radioButtonTaskNone.IsChecked) {
+            if (comboBoxRenderThreadTaskType.SelectedItem == cbItemTaskNone) {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.None;
             }
-            if (true == radioButtonTaskPlayback.IsChecked) {
+            if (comboBoxRenderThreadTaskType.SelectedItem == cbItemTaskPlayback) {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.Playback;
             }
-            if (true == radioButtonTaskProAudio.IsChecked) {
+            if (comboBoxRenderThreadTaskType.SelectedItem == cbItemTaskProAudio) {
                 m_preference.RenderThreadTaskType = RenderThreadTaskType.ProAudio;
             }
 
@@ -380,6 +384,8 @@ namespace PlayPcmWin {
             m_preference.VerifyFlacMD5Sum = (checkBoxVerifyFlacMD5Sum.IsChecked == true);
 
             m_preference.GpuRendering = (checkBoxGpuRendering.IsChecked == true);
+
+            m_preference.DwmEnableMmcss = (checkBoxDwmEnableMMCSS.IsChecked == true);
 
             Close();
         }

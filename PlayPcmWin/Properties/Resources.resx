@@ -583,4 +583,10 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
     <value>GPU rendering</value>
   </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>Reading playlist...</value>
+  </data>
+  <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
+    <value>Timer resolution</value>
+  </data>
 </root>

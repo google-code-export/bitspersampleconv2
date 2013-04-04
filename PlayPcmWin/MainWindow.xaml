@@ -67,7 +67,7 @@
                     DragLeave="dataGridPlayList_CheckDropTarget"
                     DragOver="dataGridPlayList_CheckDropTarget"
                     Drop="dataGridPlayList_Drop"
-                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow" Background="{x:Null}">
+                    MouseMove="dataGridPlayList_MouseMove" AllowDrop="True" SelectedCellsChanged="dataGridPlayList_SelectedCellsChanged" IsReadOnly="True" LoadingRow="dataGrid1_LoadingRow" Background="{x:Null}" IsEnabled="False">
                     
                     <DataGrid.RowHeaderStyle>
                         <Style x:Uid="Style_1" TargetType="{x:Type DataGridRowHeader}">

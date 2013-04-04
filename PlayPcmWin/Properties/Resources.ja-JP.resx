@@ -583,4 +583,10 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsCheckBoxGpuRendering" xml:space="preserve">
     <value>GPUで描画する</value>
   </data>
+  <data name="MainStatusReadingPlaylist" xml:space="preserve">
+    <value>再生リストを読み込み中…</value>
+  </data>
+  <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
+    <value>タイマー解像度</value>
+  </data>
 </root>

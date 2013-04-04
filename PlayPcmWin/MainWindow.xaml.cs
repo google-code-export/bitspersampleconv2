@@ -23,9 +23,15 @@ using System.Threading;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace PlayPcmWin
 {
+    internal static class NativeMethods {
+        [DllImport("dwmapi.dll")]
+        internal static extern int DwmEnableMMCSS([MarshalAs(UnmanagedType.Bool)] bool fEnable);
+    }
+
     public sealed partial class MainWindow : Window
     {
         /// <summary>
@@ -113,7 +119,7 @@ namespace PlayPcmWin
         private List<PcmDataLib.PcmData> m_pcmDataListForPlay = new List<PcmDataLib.PcmData>();
 
         /// <summary>
-        /// プレイリスト1項目の情報。
+        /// 再生リスト1項目の情報。
         /// dataGridPlayList.Itemsの項目と一対一に対応する。
         /// </summary>
         class PlayListItemInfo : INotifyPropertyChanged {
@@ -252,12 +258,14 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// プレイリスト項目情報。
+        /// 再生リスト項目情報。
         /// </summary>
         private ObservableCollection<PlayListItemInfo> m_playListItems = new ObservableCollection<PlayListItemInfo>();
 
         private BackgroundWorker m_playWorker;
         private BackgroundWorker m_readFileWorker;
+        private BackgroundWorker m_playlistReadWorker;
+
         private System.Diagnostics.Stopwatch m_sw = new System.Diagnostics.Stopwatch();
         private bool m_playListMouseDown = false;
 
@@ -462,8 +470,9 @@ namespace PlayPcmWin
 
         enum State {
             未初期化,
+            再生リスト読み込み中,
             初期化完了,
-            プレイリストあり,
+            再生リストあり,
 
             // これ以降の状態にいる場合、再生リストに新しいファイルを追加できない。
             デバイスSetup完了,
@@ -515,10 +524,10 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// 指定されたWavDataIdの、プレイリスト位置番号(プレイリスト内のindex)を戻す。
+        /// 指定されたWavDataIdの、再生リスト位置番号(再生リスト内のindex)を戻す。
         /// </summary>
-        /// <param name="wavDataId">プレイリスト位置番号を知りたいWaveDataのId</param>
-        /// <returns>プレイリスト位置番号(プレイリスト内のindex)。見つからないときは-1</returns>
+        /// <param name="wavDataId">再生リスト位置番号を知りたいWaveDataのId</param>
+        /// <returns>再生リスト位置番号(再生リスト内のindex)。見つからないときは-1</returns>
         private int GetPlayListIndexOfWaveDataId(int wavDataId) {
             for (int i = 0; i < m_playListItems.Count(); ++i) {
                 if (m_playListItems[i].PcmData() != null
@@ -530,10 +539,110 @@ namespace PlayPcmWin
             return -1;
         }
 
+        private class PlaylistReadWorkerArg {
+            public PlaylistSave pl;
+            public bool restorePlaylistOnLoad;
+            public PlaylistReadWorkerArg(PlaylistSave pl, bool restorePlaylistOnLoad) {
+                this.pl                    = pl;
+                this.restorePlaylistOnLoad = restorePlaylistOnLoad;
+            }
+        };
+
+        /// <summary>
+        /// ノンブロッキング版 PPW再生リスト読み込み。
+        /// 読み込みを開始した時点で制御が戻り、再生リスト読み込み中状態になる。
+        /// その後、バックグラウンドで再生リストを読み込む。完了すると再生リストあり状態に遷移する。
+        /// </summary>
+        /// <param name="path">string.Emptyのとき: IsolatedStorageに保存された再生リストを読む。</param>
+        private void ReadPpwPlaylistStart(string path, bool restorePlaylistOnLoad) {
+            ChangeState(State.再生リスト読み込み中);
+            UpdateUIStatus();
+
+            m_loadErrorMessages = new StringBuilder();
+
+            PlaylistSave pl;
+            if (path.Length == 0) {
+                pl = PpwPlaylistRW.Load();
+            } else {
+                pl = PpwPlaylistRW.LoadFrom(path);
+            }
+
+            m_playlistReadWorker.RunWorkerAsync(new PlaylistReadWorkerArg(pl, restorePlaylistOnLoad));
+        }
+
+        /// <summary>
+        /// Playlist read worker thread
+        /// </summary>
+        /// <param name="sender">not used</param>
+        /// <param name="e">PlaylistSave instance</param>
+        void PlaylistReadWorker_DoWork(object sender, DoWorkEventArgs e) {
+            var arg = e.Argument as PlaylistReadWorkerArg;
+            e.Result = arg;
+
+            if (null == arg.pl) {
+                return;
+            }
+
+            int count=0;
+            foreach (var p in arg.pl.Items) {
+                int rv = ReadFileHeader(p.PathName, ReadHeaderMode.OnlyConcreteFile, null);
+                if (1 == rv) {
+                    // 読み込み成功。読み込んだPcmDataの曲名、アーティスト名、アルバム名、startTick等を上書きする。
+
+                    // pcmDataのメンバ。
+                    var pcmData = m_pcmDataListForDisp.Last();
+                    pcmData.DisplayName = p.Title;
+                    pcmData.AlbumTitle = p.AlbumName;
+                    pcmData.ArtistName = p.ArtistName;
+                    pcmData.StartTick = p.StartTick;
+                    pcmData.EndTick = p.EndTick;
+                    pcmData.CueSheetIndex = p.CueSheetIndex;
+
+                    // playList表のメンバ。
+                    var playListItem = m_playListItems[count];
+                    playListItem.ReadSeparaterAfter = p.ReadSeparaterAfter;
+                }
+                count += rv;
+            }
+        }
+
+        void PlaylistReadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            var arg = e.Result as PlaylistReadWorkerArg;
+
+            if (arg.restorePlaylistOnLoad) {
+                dataGridPlayList.IsEnabled = true;
+                dataGridPlayList.ItemsSource = m_playListItems;
+
+                if (0 <= m_preference.LastPlayItemIndex &&
+                        m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
+                    dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
+                    dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+                }
+            }
+
+            // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
+            if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
+                MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            m_loadErrorMessages = null;
+
+            if (0 < m_playListItems.Count) {
+                ChangeState(State.再生リストあり);
+            } else {
+                ChangeState(State.初期化完了);
+            }
+            UpdateUIStatus();
+        }
+
+        void PlaylistReadWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        }
+
         /// <summary>
         /// 保存してあった再生リストを読んでm_pcmDataListとm_playListItemsに足す。
         /// UpdateUIは行わない。
         /// </summary>
+        /// <param name="path">string.Emptyのとき: IsolatedStorageに保存された再生リストを読む。</param>
+        /// <returns>読み込まれたファイルの数。</returns>
         private int ReadPpwPlaylist(string path) {
             int count = 0;
 
@@ -680,34 +789,18 @@ namespace PlayPcmWin
             UpdatePlaymodeComboBoxFromPreference();
 
             UpdateDeviceList();
-        }
 
-        private void Window_Loaded(object wSender, RoutedEventArgs we) {
-            // 再生リスト読み出し
+            RestorePlaylistColumnOrderFromPreference();
+
+            SetupBackgroundWorkers();
 
             PlayListItemInfo.SetNextRowId(1);
             m_groupIdNextAdd = 0;
 
-            if (m_preference.StorePlaylistContent) {
-                // display error MessageBox on Window_Loaded()
-                m_loadErrorMessages = new StringBuilder();
-                ReadPpwPlaylist(string.Empty);
-            }
+            PreferenceUpdated();
+        }
 
-            RestorePlaylistColumnOrderFromPreference();
-
-            dataGridPlayList.ItemsSource = m_playListItems;
-
-            if (0 <= m_preference.LastPlayItemIndex &&
-                    m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
-                dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
-                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
-            }
-
-            SetupBackgroundWorkers();
-
-            UpdateWindowSettings();
-
+        private void Window_Loaded(object wSender, RoutedEventArgs we) {
             {
                 // slider1のTrackをクリックしてThumbがクリック位置に移動した時Thumbがつままれた状態になるようにする
                 slider1.ApplyTemplate();
@@ -720,11 +813,9 @@ namespace PlayPcmWin
                 });
             }
 
-            // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
-            if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
-                MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
+            if (m_preference.StorePlaylistContent) {
+                ReadPpwPlaylistStart(string.Empty, true);
             }
-            m_loadErrorMessages = null;
         }
 
         /// <summary>
@@ -929,6 +1020,13 @@ namespace PlayPcmWin
             m_playWorker.ProgressChanged += new ProgressChangedEventHandler(PlayProgressChanged);
             m_playWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(PlayRunWorkerCompleted);
             m_playWorker.WorkerSupportsCancellation = true;
+
+            m_playlistReadWorker = new BackgroundWorker();
+            m_playlistReadWorker.WorkerReportsProgress = true;
+            m_playlistReadWorker.DoWork += new DoWorkEventHandler(PlaylistReadWorker_DoWork);
+            m_playlistReadWorker.ProgressChanged += new ProgressChangedEventHandler(PlaylistReadWorker_ProgressChanged);
+            m_playlistReadWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(PlaylistReadWorker_RunWorkerCompleted);
+            m_playlistReadWorker.WorkerSupportsCancellation = false;
         }
 
         private void Window_Closed(object sender, EventArgs e) {
@@ -1155,7 +1253,11 @@ namespace PlayPcmWin
                 UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.MainStatusPleaseCreatePlaylist;
                 break;
-            case State.プレイリストあり:
+            case State.再生リスト読み込み中:
+                UpdateUIToInitialState();
+                statusBarText.Content = Properties.Resources.MainStatusReadingPlaylist;
+                break;
+            case State.再生リストあり:
                 if (0 < dataGridPlayList.Items.Count &&
                         dataGridPlayList.SelectedIndex < 0) {
                     // プレイリストに項目があり、選択されている曲が存在しない時、最初の曲を選択状態にする
@@ -1291,7 +1393,7 @@ namespace PlayPcmWin
             }
 
             if (0 < m_pcmDataListForDisp.Count) {
-                ChangeState(State.プレイリストあり);
+                ChangeState(State.再生リストあり);
             } else {
                 ChangeState(State.初期化完了);
             }
@@ -1694,30 +1796,21 @@ namespace PlayPcmWin
         /// </summary>
         private bool CheckAddPcmData(PlaylistTrackInfo plti, string path, PcmDataLib.PcmData pcmData) {
             if (31 < pcmData.NumChannels) {
-                string s = string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch\r\n",
-                    Properties.Resources.TooManyChannels,
-                    path, pcmData.NumChannels);
-                AddLogText(s);
-                LoadErrorMessageAdd(s);
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch\r\n", Properties.Resources.TooManyChannels, path, pcmData.NumChannels));
                 return false;
             }
 
             if (pcmData.BitsPerSample != 16
-             && pcmData.BitsPerSample != 24
-             && pcmData.BitsPerSample != 32) {
-                var s = string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit\r\n",
-                    Properties.Resources.NotSupportedQuantizationBitRate,
-                    path, pcmData.BitsPerSample);
-                AddLogText(s);
-                LoadErrorMessageAdd(s);
+                    && pcmData.BitsPerSample != 24
+                    && pcmData.BitsPerSample != 32) {
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit\r\n", Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample));
                 return false;
             }
 
             if (0 < m_pcmDataListForDisp.Count
-                && !m_pcmDataListForDisp[m_pcmDataListForDisp.Count - 1].IsSameFormat(pcmData)) {
-                /* データフォーマットが変わった。
-                 * Setupのやり直しになるのでファイルグループ番号を変える。
-                 */
+                    && !m_pcmDataListForDisp[m_pcmDataListForDisp.Count - 1].IsSameFormat(pcmData)) {
+                // データフォーマットが変わった。
+                // Setupのやり直しになるのでファイルグループ番号を変える。
                 ++m_groupIdNextAdd;
             }
 
@@ -1771,15 +1864,11 @@ namespace PlayPcmWin
             m_pcmDataListForDisp.Add(pcmData);
             m_playListItems.Add(pli);
 
-            // 状態の更新。再生リストにファイル有り。
-            ChangeState(State.プレイリストあり);
             return true;
         }
 
         private void HandleFileReadException(string path, Exception ex) {
-            var s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + "\r\n{0}\r\n\r\n{1}", "WAV", path, ex);
-            AddLogText(s);
-            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}", "WAV", path));
+            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n{2}", "WAV", path, ex));
         }
 
         /// <summary>
@@ -1815,10 +1904,7 @@ namespace PlayPcmWin
                         }
                         result = CheckAddPcmData(plti, path, pd);
                     } else {
-                        var s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n",
-                            "WAV", path);
-                        AddLogText(s);
-                        LoadErrorMessageAdd(s);
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n", "WAV", path));
                     }
                 }
             } catch (IOException ex) {
@@ -1849,9 +1935,7 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        string s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "AIFF", aiffResult, path);
-                        AddLogText(s);
-                        LoadErrorMessageAdd(s);
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "AIFF", aiffResult, path));
                     }
                 }
             } catch (IOException ex) {
@@ -1882,11 +1966,9 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        string s = string.Format(CultureInfo.InvariantCulture,
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture,
                                 Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSF",
-                                rv, path);
-                        AddLogText(s);
-                        LoadErrorMessageAdd(s);
+                                rv, path));
                     }
                 }
             } catch (IOException ex) {
@@ -1917,11 +1999,9 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        var s = string.Format(CultureInfo.InvariantCulture,
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture,
                                 Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSDIFF",
-                                rv, path);
-                        AddLogText(s);
-                        LoadErrorMessageAdd(s);
+                                rv, path));
                     }
                 }
             } catch (IOException ex) {
@@ -1994,15 +2074,8 @@ namespace PlayPcmWin
                 readResult = true;
             } else {
                 // FLACヘッダ部分読み込み失敗。
-                string s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}\r\n",
-                    "FLAC",
-                    path,
-                    FlacDecodeIF.ErrorCodeToStr(flacErcd));
-                AddLogText(s);
                 LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}",
-                    "FLAC",
-                    path,
-                    FlacDecodeIF.ErrorCodeToStr(flacErcd)));
+                        "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd)));
             }
 
             return readResult;
@@ -2029,10 +2102,8 @@ namespace PlayPcmWin
 
             bool result = plr.ReadFromFile(path);
             if (!result) {
-                string s = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n",
-                        Path.GetExtension(path), path);
-                AddLogText(s);
-                LoadErrorMessageAdd(s);
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n",
+                        Path.GetExtension(path), path));
                 return 0;
             }
 
@@ -2118,12 +2189,8 @@ namespace PlayPcmWin
                 case ".BMP":
                     // 読まないで無視する。
                     break;
-                default: {
-                        string s = string.Format(CultureInfo.InvariantCulture, "{0}: {1}\r\n",
-                                Properties.Resources.NotSupportedFileFormat, path);
-                        AddLogText(s);
-                        LoadErrorMessageAdd(s);
-                    }
+                default:
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}\r\n", Properties.Resources.NotSupportedFileFormat, path));
                     break;
                 }
             } catch (IOException ex) {
@@ -2206,6 +2273,9 @@ namespace PlayPcmWin
             
             m_loadErrorMessages = null;
 
+            if (0 < m_playListItems.Count) {
+                ChangeState(State.再生リストあり);
+            }
             UpdateUIStatus();
         }
 
@@ -2320,6 +2390,10 @@ namespace PlayPcmWin
                 }
 
                 m_loadErrorMessages = null;
+
+                if (0 < m_playListItems.Count) {
+                    ChangeState(State.再生リストあり);
+                }
                 UpdateUIStatus();
             }
 
@@ -3064,7 +3138,7 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// 全曲が表示順に並んでいるプレイリストm_pcmDataListForPlayを作成。
+        /// 全曲が表示順に並んでいる再生リストm_pcmDataListForPlayを作成。
         /// </summary>
         private void CreateAllTracksPlayList() {
             m_pcmDataListForPlay = new List<PcmData>();
@@ -3596,11 +3670,16 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// SettingsWindowによって変更された表示情報をUIに反映する。
+        /// SettingsWindowによって変更された表示情報をUIに反映し、設定を反映する。
         /// </summary>
-        void UpdateWindowSettings() {
+        void PreferenceUpdated() {
+            {
+                int hr = NativeMethods.DwmEnableMMCSS(m_preference.DwmEnableMmcss);
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}\r\n", m_preference.DwmEnableMmcss, hr));
+            }
+
             RenderOptions.ProcessRenderMode =
-                    m_preference.GpuRendering ? RenderMode.Default :RenderMode.SoftwareOnly;
+                    m_preference.GpuRendering ? RenderMode.Default : RenderMode.SoftwareOnly;
 
             var ffc = new FontFamilyConverter();
             var ff = ffc.ConvertFromString(m_preference.PlayingTimeFontName) as FontFamily;
@@ -3788,7 +3867,7 @@ namespace PlayPcmWin
             sw.SetPreference(m_preference);
             sw.ShowDialog();
 
-            UpdateWindowSettings();
+            PreferenceUpdated();
         }
 
         private void radioButtonExclusive_Checked(object sender, RoutedEventArgs e) {
@@ -3891,7 +3970,7 @@ namespace PlayPcmWin
         }
 
         private void dataGridPlayList_RowMouseDoubleClick(object sender, MouseButtonEventArgs e) {
-            if (m_state == State.プレイリストあり && e.ChangedButton == MouseButton.Left && dataGridPlayList.IsReadOnly) {
+            if (m_state == State.再生リストあり && e.ChangedButton == MouseButton.Left && dataGridPlayList.IsReadOnly) {
                 // 再生されていない状態で、再生リスト再生モードで項目左ボタンダブルクリックされたら再生開始する
                 buttonPlay_Click(sender, e);
             }
@@ -3919,7 +3998,7 @@ namespace PlayPcmWin
         private void dataGridPlayList_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             UpdateCoverart();
 
-            if (m_state == State.プレイリストあり && 0 <= dataGridPlayList.SelectedIndex) {
+            if (m_state == State.再生リストあり && 0 <= dataGridPlayList.SelectedIndex) {
                 buttonDelistSelected.IsEnabled = true;
             } else {
                 buttonDelistSelected.IsEnabled = false;
@@ -4025,7 +4104,8 @@ namespace PlayPcmWin
                     case State.未初期化:
                         return;
                     case State.初期化完了:
-                    case State.プレイリストあり:
+                    case State.再生リスト読み込み中:
+                    case State.再生リストあり:
                         // 再生中ではない場合、デバイス一覧を更新する。
                         // DeviceDeselect();
                         UpdateDeviceList();

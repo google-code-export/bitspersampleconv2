@@ -28,20 +28,23 @@
                         </StackPanel>
                 </GroupBox>
                     <GroupBox x:Uid="groupBoxPlaybackThread" Header="Playback thread settings" Margin="4" Name="groupBoxPlaybackThread">
-                        <StackPanel >
-                            <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Margin="6,6,6,0" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213">
-                                <ComboBoxItem x:Uid="cbItemTimerResolutionDefault" Content="Default timer resolution" Name="cbItemTimerResolutionDefault" />
-                                <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
-                                <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
-                            </ComboBox>
-                        <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Margin="4,4,4,4" Name="groupBoxRenderThreadTaskType" Width="213">
-                            <StackPanel>
-                                <RadioButton x:Uid="radioButtonTaskAudio" Content="Audio" HorizontalAlignment="Left" IsChecked="False" Margin="3" Name="radioButtonTaskAudio" VerticalAlignment="Top" />
-                                <RadioButton x:Uid="radioButtonTaskProAudio" Content="Pro Audio" HorizontalAlignment="Left" Margin="3" Name="radioButtonTaskProAudio" VerticalAlignment="Top" IsChecked="True" />
-                                <RadioButton x:Uid="radioButtonTaskNone" Content="Playback" HorizontalAlignment="Left" IsChecked="False" Margin="3" Name="radioButtonTaskNone" VerticalAlignment="Top" Width="98" />
-                                <RadioButton x:Uid="radioButtonTaskPlayback" Content="None" HorizontalAlignment="Left" IsChecked="False" Margin="3" Name="radioButtonTaskPlayback" VerticalAlignment="Top" Width="98" />
-                                </StackPanel>
-                        </GroupBox>
+                        <StackPanel>
+                            <GroupBox x:Uid="groupBoxTimerResolution" Header="Timer resolution" Margin="4" Name="groupBoxTimerResolution" >
+                                <ComboBox x:Uid="comboBoxTimePeriod" HorizontalAlignment="Left" Name="comboBoxTimePeriod" VerticalAlignment="Top" Width="213">
+                                    <ComboBoxItem x:Uid="cbItemTimerResolutionDefault" Content="Default timer resolution" Name="cbItemTimerResolutionDefault" />
+                                    <ComboBoxItem x:Uid="cbItemTimerResolution1Millisec" Content="Timer resolution = 1 ms" Name="cbItemTimerResolution1Millisec"  />
+                                    <ComboBoxItem x:Uid="cbItemTimerResolution500Microsec" Content="Timer resolution = 0.5 ms" Name="cbItemTimerResolution500Microsec"  />
+                                </ComboBox>
+                            </GroupBox>
+                            <GroupBox x:Uid="groupBoxRenderThreadTaskType" Header="Render thread task type" Margin="4" Name="groupBoxRenderThreadTaskType">
+                                <ComboBox x:Uid="comboBoxRenderThreadTaskType" Name="comboBoxRenderThreadTaskType" VerticalAlignment="Top">
+                                    <ComboBoxItem x:Uid="cbItemTaskAudio" Content="Audio" Name="cbItemTaskAudio" />
+                                    <ComboBoxItem x:Uid="cbItemTaskProAudio" Content="Pro Audio" Name="cbItemTaskProAudio" />
+                                    <ComboBoxItem x:Uid="cbItemTaskNone" Content="None" Name="cbItemTaskNone" />
+                                    <ComboBoxItem x:Uid="cbItemTaskPlayback" Content="Playback" Name="cbItemTaskPlayback" />
+                                </ComboBox>
+                            </GroupBox>
+                            <CheckBox Name="checkBoxDwmEnableMMCSS" IsChecked="False" Content="DwmEnableMMCSS()" Margin="4" />
                         </StackPanel>
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Margin="4" Height="90" Name="groupBoxWasapiShared" Width="400">

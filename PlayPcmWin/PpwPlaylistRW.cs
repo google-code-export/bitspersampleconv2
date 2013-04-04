@@ -77,7 +77,7 @@ namespace PlayPcmWin {
     }
 
     /// <summary>
-    ///  @todo PreferenceStoreクラスと同じなので、1個にまとめる。
+    ///  @todo PreferenceStoreクラスと同様なので、1個にまとめる。
     /// </summary>
     class PpwPlaylistRW {
         private PpwPlaylistRW() {
