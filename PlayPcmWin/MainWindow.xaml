@@ -101,6 +101,7 @@
                     </DataGrid.Columns>
 
                 </DataGrid>
+                <Label Content="Loading playlist..." Name="labelLoadingPlaylist" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
         <DockPanel x:Uid="DockPanel_1" Height="109" Margin="0,0,0,26" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >

@@ -901,6 +901,7 @@ namespace PlayPcmWin
             dataGridColumnSampleRate.Header = Properties.Resources.MainDataGridColumnSampleRate;
             dataGridColumnTitle.Header = Properties.Resources.MainDataGridColumnTitle;
 
+            labelLoadingPlaylist.Content = Properties.Resources.MainStatusReadingPlaylist;
         }
 
         private bool IsPlayModeAllTracks() {
@@ -1144,6 +1145,8 @@ namespace PlayPcmWin
 
             buttonSettings.IsEnabled = true;
             menuItemToolSettings.IsEnabled = true;
+
+            labelLoadingPlaylist.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         // 再生リストあり。再生していない状態。
@@ -1178,6 +1181,8 @@ namespace PlayPcmWin
 
             buttonSettings.IsEnabled = true;
             menuItemToolSettings.IsEnabled = true;
+
+            labelLoadingPlaylist.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         // 再生リストあり。再生開始処理中。
@@ -1205,6 +1210,8 @@ namespace PlayPcmWin
 
             buttonSettings.IsEnabled = false;
             menuItemToolSettings.IsEnabled = false;
+
+            labelLoadingPlaylist.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         // 再生中。
@@ -1233,6 +1240,8 @@ namespace PlayPcmWin
 
             buttonSettings.IsEnabled = false;
             menuItemToolSettings.IsEnabled = false;
+
+            labelLoadingPlaylist.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         private void UpdateUIStatus() {
@@ -1256,6 +1265,7 @@ namespace PlayPcmWin
             case State.再生リスト読み込み中:
                 UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.MainStatusReadingPlaylist;
+                labelLoadingPlaylist.Visibility = System.Windows.Visibility.Visible;
                 break;
             case State.再生リストあり:
                 if (0 < dataGridPlayList.Items.Count &&
