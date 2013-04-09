@@ -71,6 +71,8 @@ namespace PlayPcmWin {
                 return "NumFrame is not aligned (internal error)";
             case (int)FlacDecodeCS.DecodeResultType.RecvBufferSizeInsufficient:
                 return "Recv bufer size is insufficient (internal error)";
+            case (int)FlacDecodeCS.DecodeResultType.FileOpenReadError:
+                return "File open or read error";
             case (int)FlacDecodeCS.DecodeResultType.OtherError:
             default:
                 return "Other error";
@@ -125,17 +127,24 @@ namespace PlayPcmWin {
         }
 
         private int StopChildProcess() {
-            System.Diagnostics.Debug.Assert(null != mChildProcess);
-            mChildProcess.WaitForExit();
-            int exitCode = mChildProcess.ExitCode;
-            mChildProcess.Close();
-            mChildProcess = null;
+            int exitCode = (int)FlacDecodeCS.DecodeResultType.FileOpenReadError;
 
-            mPipeServerStream.Close();
-            mPipeServerStream = null;
+            if (null != mChildProcess) {
+                mChildProcess.WaitForExit();
+                exitCode = mChildProcess.ExitCode;
+                mChildProcess.Close();
+                mChildProcess = null;
+            }
 
-            mBinaryReader.Close();
-            mBinaryReader = null;
+            if (null != mPipeServerStream) {
+                mPipeServerStream.Close();
+                mPipeServerStream = null;
+            }
+
+            if (null != mBinaryReader) {
+                mBinaryReader.Close();
+                mBinaryReader = null;
+            }
 
             return exitCode;
         }

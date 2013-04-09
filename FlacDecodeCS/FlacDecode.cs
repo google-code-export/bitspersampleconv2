@@ -28,7 +28,7 @@ namespace FlacDecodeCS {
         NumFrameIsNotAligned = -11,
         RecvBufferSizeInsufficient = -12,
         OtherError = -13,
-        FileOpenError = -14,
+        FileOpenReadError = -14,
     };
 
     internal static class NativeMethods {

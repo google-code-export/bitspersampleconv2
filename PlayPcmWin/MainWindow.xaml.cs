@@ -1806,14 +1806,14 @@ namespace PlayPcmWin
         /// </summary>
         private bool CheckAddPcmData(PlaylistTrackInfo plti, string path, PcmDataLib.PcmData pcmData) {
             if (31 < pcmData.NumChannels) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch\r\n", Properties.Resources.TooManyChannels, path, pcmData.NumChannels));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch{3}", Properties.Resources.TooManyChannels, path, pcmData.NumChannels, Environment.NewLine));
                 return false;
             }
 
             if (pcmData.BitsPerSample != 16
                     && pcmData.BitsPerSample != 24
                     && pcmData.BitsPerSample != 32) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit\r\n", Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit{3}", Environment.NewLine, Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample, Environment.NewLine));
                 return false;
             }
 
@@ -1878,7 +1878,7 @@ namespace PlayPcmWin
         }
 
         private void HandleFileReadException(string path, Exception ex) {
-            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n{2}", "WAV", path, ex));
+            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{3}{2}{3}", "WAV", path, ex, Environment.NewLine));
         }
 
         /// <summary>
@@ -1914,7 +1914,7 @@ namespace PlayPcmWin
                         }
                         result = CheckAddPcmData(plti, path, pd);
                     } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n", "WAV", path));
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}", "WAV", path, Environment.NewLine));
                     }
                 }
             } catch (IOException ex) {
@@ -1945,7 +1945,7 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "AIFF", aiffResult, path));
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "AIFF", aiffResult, path, Environment.NewLine));
                     }
                 }
             } catch (IOException ex) {
@@ -1976,9 +1976,7 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture,
-                                Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSF",
-                                rv, path));
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "DSF", rv, path, Environment.NewLine));
                     }
                 }
             } catch (IOException ex) {
@@ -2009,9 +2007,7 @@ namespace PlayPcmWin
                             result = true;
                         }
                     } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture,
-                                Properties.Resources.ReadFileFailed + " {1}: {2}\r\n", "DSDIFF",
-                                rv, path));
+                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "DSDIFF", rv, path, Environment.NewLine));
                     }
                 }
             } catch (IOException ex) {
@@ -2084,8 +2080,7 @@ namespace PlayPcmWin
                 readResult = true;
             } else {
                 // FLACヘッダ部分読み込み失敗。
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}",
-                        "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd)));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}{3}", "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd), Environment.NewLine));
             }
 
             return readResult;
@@ -2112,8 +2107,7 @@ namespace PlayPcmWin
 
             bool result = plr.ReadFromFile(path);
             if (!result) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}\r\n",
-                        Path.GetExtension(path), path));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}", Path.GetExtension(path), path, Environment.NewLine));
                 return 0;
             }
 
@@ -2200,7 +2194,7 @@ namespace PlayPcmWin
                     // 読まないで無視する。
                     break;
                 default:
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}\r\n", Properties.Resources.NotSupportedFileFormat, path));
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}{2}", Properties.Resources.NotSupportedFileFormat, path, Environment.NewLine));
                     break;
                 }
             } catch (IOException ex) {
@@ -2448,15 +2442,15 @@ namespace PlayPcmWin
             }
         }
 
-        abstract class ReadFileResultInfo {
+        abstract class ReadFileResult {
             public bool IsSucceeded { get; set; }
             public bool HasMessage { get; set; }
             public int PcmDataId { get; set; }
             public abstract string ToString(string fileName);
         }
 
-        class ReadFileResultInfoSuccess : ReadFileResultInfo {
-            public ReadFileResultInfoSuccess(int pcmDataId) {
+        class ReadFileResultSuccess : ReadFileResult {
+            public ReadFileResultSuccess(int pcmDataId) {
                 PcmDataId = pcmDataId;
                 IsSucceeded = true;
                 HasMessage = false;
@@ -2467,10 +2461,10 @@ namespace PlayPcmWin
             }
         };
 
-        class ReadFileResultInfoFailed : ReadFileResultInfo {
+        class ReadFileResultFailed : ReadFileResult {
             private string message;
 
-            public ReadFileResultInfoFailed(int pcmDataId, string message) {
+            public ReadFileResultFailed(int pcmDataId, string message) {
                 PcmDataId = pcmDataId;
                 this.message = message;
                 IsSucceeded = false;
@@ -2482,10 +2476,10 @@ namespace PlayPcmWin
             }
         };
 
-        class ReadFileResultInfoClipped : ReadFileResultInfo {
+        class ReadFileResultClipped : ReadFileResult {
             private long clippedCount;
 
-            public ReadFileResultInfoClipped(int pcmDataId, long clippedCount) {
+            public ReadFileResultClipped(int pcmDataId, long clippedCount) {
                 PcmDataId = pcmDataId;
                 this.clippedCount = clippedCount;
                 IsSucceeded = false;
@@ -2498,11 +2492,11 @@ namespace PlayPcmWin
             }
         };
 
-        class ReadFileResultInfoMD5Sum : ReadFileResultInfo {
+        class ReadFileResultMD5Sum : ReadFileResult {
             private byte [] md5SumOfPcm;
             private byte [] md5SumInMetadata;
 
-            public ReadFileResultInfoMD5Sum(int pcmDataId, byte[] md5SumOfPcm, byte[] md5SumInMetadata) {
+            public ReadFileResultMD5Sum(int pcmDataId, byte[] md5SumOfPcm, byte[] md5SumInMetadata) {
                 PcmDataId = pcmDataId;
                 this.md5SumOfPcm = md5SumOfPcm;
                 this.md5SumInMetadata = md5SumInMetadata;
@@ -2533,7 +2527,7 @@ namespace PlayPcmWin
         class ReadFileRunWorkerCompletedArgs {
             public string message;
             public int hr;
-            public List<ReadFileResultInfo> individualResultList = new List<ReadFileResultInfo>();
+            public List<ReadFileResult> individualResultList = new List<ReadFileResult>();
 
             public ReadFileRunWorkerCompletedArgs Update(string msg, int resultCode) {
                 message = msg;
@@ -2638,7 +2632,7 @@ namespace PlayPcmWin
                     {
                         long clippedCount = PcmData.ReadClippedCounter();
                         if (0 < clippedCount) {
-                            r.individualResultList.Add(new ReadFileResultInfoClipped(pd.Id, clippedCount));
+                            r.individualResultList.Add(new ReadFileResultClipped(pd.Id, clippedCount));
                         }
                     }
 
@@ -2690,6 +2684,8 @@ namespace PlayPcmWin
             } catch (ArgumentException ex) {
                 args.Result = r.Update(ex.ToString(), -1);
             } catch (UnauthorizedAccessException ex) {
+                args.Result = r.Update(ex.ToString(), -1);
+            } catch (NullReferenceException ex) {
                 args.Result = r.Update(ex.ToString(), -1);
             }
         }
@@ -2817,10 +2813,11 @@ namespace PlayPcmWin
                 pr.StreamEnd();
                 if (ercd < 0) {
                     r.hr = ercd;
-                    r.message = string.Format(CultureInfo.InvariantCulture, "{0}. {1}\r\n{2} {3}(0x{3:X8})。{4}",
-                        Properties.Resources.ReadError,
-                        Properties.Resources.ErrorCode,
-                        pd.FullPath, ercd, FlacDecodeIF.ErrorCodeToStr(ercd));
+                    r.message = string.Format(CultureInfo.InvariantCulture, "{0}! {1}\r\n{2}\r\n{3}: {4} (0x{4:X8})",
+                            Properties.Resources.ReadError,
+                            pd.FullPath,
+                            FlacDecodeIF.ErrorCodeToStr(ercd),
+                            Properties.Resources.ErrorCode, ercd);
                     Console.WriteLine("D: ReadFileSingleDoWork() !readSuccess");
                     return false;
                 }
@@ -2885,15 +2882,15 @@ namespace PlayPcmWin
             return result;
         }
 
-        private ReadFileResultInfo ReadOnePcmFileFragment(BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long wantFramesTotal, long writeOffsFrame) {
-            var lowMemoryFailed = new ReadFileResultInfoFailed(pd.Id, "Low memory");
-            ReadFileResultInfo ri = new ReadFileResultInfoSuccess(pd.Id);
+        private ReadFileResult ReadOnePcmFileFragment(BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long wantFramesTotal, long writeOffsFrame) {
+            var lowMemoryFailed = new ReadFileResultFailed(pd.Id, "Low memory");
+            ReadFileResult ri = new ReadFileResultSuccess(pd.Id);
 
             PcmReader pr = new PcmReader();
             int ercd = pr.StreamBegin(pd.FullPath, readStartFrame, wantFramesTotal, TYPICAL_READ_FRAMES);
             if (ercd < 0) {
                 Console.WriteLine("D: ReadOnePcmFileFragment() StreamBegin failed");
-                return new ReadFileResultInfoFailed(pd.Id, FlacDecodeIF.ErrorCodeToStr(ercd));
+                return new ReadFileResultFailed(pd.Id, FlacDecodeIF.ErrorCodeToStr(ercd));
             }
 
             long frameCount = 0;
@@ -2956,18 +2953,18 @@ namespace PlayPcmWin
 
                 if (bw.CancellationPending) {
                     pr.StreamAbort();
-                    return new ReadFileResultInfoFailed(pd.Id, string.Empty);
+                    return new ReadFileResultFailed(pd.Id, string.Empty);
                 }
             } while (frameCount < wantFramesTotal);
 
             ercd = pr.StreamEnd();
             if (ercd < 0) {
-                return new ReadFileResultInfoFailed(pd.Id,
+                return new ReadFileResultFailed(pd.Id,
                     string.Format(CultureInfo.InvariantCulture, "{0}: {1}", FlacDecodeIF.ErrorCodeToStr(ercd), pd.FullPath));
             }
 
             if (pr.MD5SumOfPcm != null) {
-                ri = new ReadFileResultInfoMD5Sum(pd.Id, pr.MD5SumOfPcm, pr.MD5SumInMetadata);
+                ri = new ReadFileResultMD5Sum(pd.Id, pr.MD5SumOfPcm, pr.MD5SumInMetadata);
             }
 
             return ri;
