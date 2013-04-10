@@ -539,12 +539,17 @@ namespace PlayPcmWin
             return -1;
         }
 
+        enum ReadPpwPlaylistMode {
+            RestorePlaylistOnLoad,
+            AppendLoad,
+        };
+
         private class PlaylistReadWorkerArg {
             public PlaylistSave pl;
-            public bool restorePlaylistOnLoad;
-            public PlaylistReadWorkerArg(PlaylistSave pl, bool restorePlaylistOnLoad) {
-                this.pl                    = pl;
-                this.restorePlaylistOnLoad = restorePlaylistOnLoad;
+            public ReadPpwPlaylistMode mode;
+            public PlaylistReadWorkerArg(PlaylistSave pl, ReadPpwPlaylistMode mode) {
+                this.pl   = pl;
+                this.mode = mode;
             }
         };
 
@@ -554,7 +559,7 @@ namespace PlayPcmWin
         /// その後、バックグラウンドで再生リストを読み込む。完了すると再生リストあり状態に遷移する。
         /// </summary>
         /// <param name="path">string.Emptyのとき: IsolatedStorageに保存された再生リストを読む。</param>
-        private void ReadPpwPlaylistStart(string path, bool restorePlaylistOnLoad) {
+        private void ReadPpwPlaylistStart(string path, ReadPpwPlaylistMode mode) {
             ChangeState(State.再生リスト読み込み中);
             UpdateUIStatus();
 
@@ -567,7 +572,8 @@ namespace PlayPcmWin
                 pl = PpwPlaylistRW.LoadFrom(path);
             }
 
-            m_playlistReadWorker.RunWorkerAsync(new PlaylistReadWorkerArg(pl, restorePlaylistOnLoad));
+            progressBar1.Visibility = System.Windows.Visibility.Visible;
+            m_playlistReadWorker.RunWorkerAsync(new PlaylistReadWorkerArg(pl, mode));
         }
 
         /// <summary>
@@ -583,7 +589,8 @@ namespace PlayPcmWin
                 return;
             }
 
-            int count=0;
+            int readAttemptCount = 0;
+            int readSuccessCount=0;
             foreach (var p in arg.pl.Items) {
                 int rv = ReadFileHeader(p.PathName, ReadHeaderMode.OnlyConcreteFile, null);
                 if (1 == rv) {
@@ -599,17 +606,25 @@ namespace PlayPcmWin
                     pcmData.CueSheetIndex = p.CueSheetIndex;
 
                     // playList表のメンバ。
-                    var playListItem = m_playListItems[count];
+                    var playListItem = m_playListItems[readSuccessCount];
                     playListItem.ReadSeparaterAfter = p.ReadSeparaterAfter;
+                    ++readSuccessCount;
                 }
-                count += rv;
+
+                ++readAttemptCount;
+                m_playlistReadWorker.ReportProgress(100 * readAttemptCount / arg.pl.Items.Count);
             }
+        }
+
+        void PlaylistReadWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            progressBar1.Value = e.ProgressPercentage;
         }
 
         void PlaylistReadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var arg = e.Result as PlaylistReadWorkerArg;
 
-            if (arg.restorePlaylistOnLoad) {
+            switch (arg.mode) {
+            case  ReadPpwPlaylistMode.RestorePlaylistOnLoad:
                 dataGridPlayList.IsEnabled = true;
                 dataGridPlayList.ItemsSource = m_playListItems;
 
@@ -618,6 +633,9 @@ namespace PlayPcmWin
                     dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
                     dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
                 }
+                break;
+            case ReadPpwPlaylistMode.AppendLoad:
+                break;
             }
 
             // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
@@ -632,9 +650,7 @@ namespace PlayPcmWin
                 ChangeState(State.初期化完了);
             }
             UpdateUIStatus();
-        }
-
-        void PlaylistReadWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            progressBar1.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         /// <summary>
@@ -814,7 +830,7 @@ namespace PlayPcmWin
             }
 
             if (m_preference.StorePlaylistContent) {
-                ReadPpwPlaylistStart(string.Empty, true);
+                ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnLoad);
             }
         }
 
@@ -1265,16 +1281,18 @@ namespace PlayPcmWin
             case State.再生リスト読み込み中:
                 UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.MainStatusReadingPlaylist;
-                labelLoadingPlaylist.Visibility = System.Windows.Visibility.Visible;
+                dataGridPlayList.IsEnabled = false;
+                if (0 == dataGridPlayList.Items.Count) {
+                    labelLoadingPlaylist.Visibility = System.Windows.Visibility.Visible;
+                }
                 break;
             case State.再生リストあり:
+                UpdateUIToEditableState();
                 if (0 < dataGridPlayList.Items.Count &&
                         dataGridPlayList.SelectedIndex < 0) {
                     // プレイリストに項目があり、選択されている曲が存在しない時、最初の曲を選択状態にする
                     dataGridPlayList.SelectedIndex = 0;
                 }
-
-                UpdateUIToEditableState();
                 statusBarText.Content = Properties.Resources.MainStatusPressPlayButton;
                 break;
             case State.デバイスSetup完了:
