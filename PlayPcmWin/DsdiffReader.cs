@@ -250,7 +250,7 @@ namespace PlayPcmWin {
         }
 
         // 1フレームは
-        // DSFファイルを読み込む時 16ビット x チャンネル数
+        // DFFファイルを読み込む時 16ビット x チャンネル数
         // DoPデータとしては 24ビット x チャンネル数
         private long mPosFrame;
 

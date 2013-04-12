@@ -736,7 +736,7 @@ FlacDecodeDLL_GetTitleStr(int id, LPWSTR name, int nameBytes)
         return false;
     }
 
-    MultiByteToWideChar(CP_UTF8, 0, fdi->titleStr, -1, name, (nameBytes-1)/2);
+    MultiByteToWideChar(CP_UTF8, 0, fdi->titleStr, -1, name, nameBytes/2-1);
     return true;
 }
 
@@ -754,7 +754,7 @@ FlacDecodeDLL_GetAlbumStr(int id, LPWSTR name, int nameBytes)
         return false;
     }
 
-    MultiByteToWideChar(CP_UTF8, 0, fdi->albumStr, -1, name, (nameBytes-1)/2);
+    MultiByteToWideChar(CP_UTF8, 0, fdi->albumStr, -1, name, nameBytes/2-1);
     return true;
 }
 
@@ -772,7 +772,7 @@ FlacDecodeDLL_GetArtistStr(int id, LPWSTR name, int nameBytes)
         return false;
     }
 
-    MultiByteToWideChar(CP_UTF8, 0, fdi->artistStr, -1, name, (nameBytes-1)/2);
+    MultiByteToWideChar(CP_UTF8, 0, fdi->artistStr, -1, name, nameBytes/2-1);
     return true;
 }
 
