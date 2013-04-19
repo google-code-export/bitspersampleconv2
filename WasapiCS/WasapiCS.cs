@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Runtime.InteropServices;
+using System;
 
 namespace Wasapi {
     public class WasapiCS {
@@ -12,22 +13,6 @@ namespace Wasapi {
         WasapiIO_Term();
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetSchedulerTaskType(int t);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetShareMode(int sm);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetDataFeedMode(int dfm);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetLatencyMillisec(int ms);
-
-        [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_DoDeviceEnumeration(int deviceType);
 
@@ -35,13 +20,18 @@ namespace Wasapi {
         private extern static int
         WasapiIO_GetDeviceCount();
 
-        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
-        private extern static bool
-        WasapiIO_GetDeviceName(int id, System.Text.StringBuilder name, int nameBytes);
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet=CharSet.Unicode)]
+        internal struct WasapiIoDeviceAttributes {
+            public int    deviceId;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public String name;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public String deviceIdString;
+        };
 
-        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
+        [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_GetDeviceIdString(int id, System.Text.StringBuilder idStr, int idStrBytes);
+        WasapiIO_GetDeviceAttributes(int id, out WasapiIoDeviceAttributes attr);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -56,20 +46,26 @@ namespace Wasapi {
         WasapiIO_UnchooseDevice();
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetUseDeviceId();
-
-        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
         private extern static bool
-        WasapiIO_GetUseDeviceName(System.Text.StringBuilder name, int nameBytes);
+        WasapiIO_GetUseDeviceAttributes(out WasapiIoDeviceAttributes attr);
 
-        [DllImport("WasapiIODLL.dll", CharSet = CharSet.Auto)]
-        private extern static bool
-        WasapiIO_GetUseDeviceIdString(System.Text.StringBuilder idStr, int idStrBytes);
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct SetupArgs {
+            public int streamType;
+            public int sampleRate;
+            public int sampleFormat;
+            public int numChannels;
+            public int shareMode;
+            public int schedulerTask;
+            public int dataFeedMode;
+            public int latencyMillisec;
+            public int timePeriodHandledNanosec;
+            public int zeroFlushMillisec;
+        };
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Setup(int sampleRate, int format, int numChannels);
+        WasapiIO_Setup(ref SetupArgs args);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -89,7 +85,11 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_ResampleIfNeeded();
+        WasapiIO_ResampleIfNeeded(int conversionQuality);
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static bool
+        WasapiIO_AddPlayPcmDataEnd();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static double
@@ -98,10 +98,6 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll")]
         private extern static void
         WasapiIO_ScalePcmAmplitude(double scale);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static bool
-        WasapiIO_AddPlayPcmDataEnd();
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -192,24 +188,8 @@ namespace Wasapi {
         WasapiIO_GetDeviceNumChannels();
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetZeroFlushMillisec(int millisec);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetTimePeriodHundredNanosec(int hnanosec);
-
-        [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_GetTimePeriodHundredNanosec();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetResamplerConversionQuality(int quality);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_SetStreamType(int st);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
@@ -221,18 +201,6 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll")]
         public static extern void WasapiIO_RegisterCallback(StateChangedCallback callback);
 
-        public int Init() {
-            return WasapiIO_Init();
-        }
-
-        public void Term() {
-            WasapiIO_Term();
-        }
-
-        public void RegisterCallback(StateChangedCallback callback) {
-            WasapiIO_RegisterCallback(callback);
-        }
-
         public enum SchedulerTaskType {
             None,
             Audio,
@@ -240,31 +208,15 @@ namespace Wasapi {
             Playback
         };
 
-        public void SetSchedulerTaskType(SchedulerTaskType t) {
-            WasapiIO_SetSchedulerTaskType((int)t);
-        }
-
         public enum ShareMode {
             Shared,
             Exclusive
         };
 
-        public void SetShareMode(ShareMode t) {
-            WasapiIO_SetShareMode((int)t);
-        }
-
         public enum DataFeedMode {
             EventDriven,
             TimerDriven,
         };
-
-        public void SetDataFeedMode(DataFeedMode t) {
-            WasapiIO_SetDataFeedMode((int)t);
-        }
-
-        public void SetLatencyMillisec(int ms) {
-            WasapiIO_SetLatencyMillisec(ms);
-        }
 
         public enum DeviceType {
             Play,
@@ -276,55 +228,6 @@ namespace Wasapi {
             SFloat
         };
 
-        public int DoDeviceEnumeration(DeviceType t) {
-            return WasapiIO_DoDeviceEnumeration((int)t);
-        }
-
-        public int GetDeviceCount() {
-            return WasapiIO_GetDeviceCount();
-        }
-
-        public string GetDeviceName(int id) {
-            StringBuilder buf = new StringBuilder(64);
-            WasapiIO_GetDeviceName(id, buf, buf.Capacity*2);
-            return buf.ToString();
-        }
-
-        public string GetDeviceIdString(int id) {
-            StringBuilder buf = new StringBuilder(256);
-            WasapiIO_GetDeviceIdString(id, buf, buf.Capacity * 2);
-            return buf.ToString();
-        }
-
-        public int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
-            return WasapiIO_InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
-        }
-
-        public int ChooseDevice(int id) {
-            return WasapiIO_ChooseDevice(id);
-        }
-
-        public void UnchooseDevice() {
-            WasapiIO_UnchooseDevice();
-        }
-
-        public int GetUseDeviceId() {
-            return WasapiIO_GetUseDeviceId();
-        }
-
-        public string GetUseDeviceName() {
-            StringBuilder buf = new StringBuilder(64);
-            WasapiIO_GetUseDeviceName(buf, buf.Capacity * 2);
-            return buf.ToString();
-        }
-
-        public string GetUseDeviceIdString()
-        {
-            StringBuilder buf = new StringBuilder(256);
-            WasapiIO_GetUseDeviceIdString(buf, buf.Capacity * 2);
-            return buf.ToString();
-        }
-
         public enum SampleFormatType {
             Unknown = -1,
             Sint16,
@@ -334,6 +237,11 @@ namespace Wasapi {
             Sfloat,
         };
 
+        public enum StreamType {
+            PCM,
+            DoP,
+        };
+
         /// <summary>
         /// サンプルフォーマットタイプ→メモリ上に占めるビット数(1サンプル1chあたり)
         /// </summary>
@@ -341,11 +249,16 @@ namespace Wasapi {
         /// <returns>メモリ上に占めるビット数(1サンプル1chあたり)</returns>
         public static int SampleFormatTypeToUseBitsPerSample(SampleFormatType t) {
             switch (t) {
-            case SampleFormatType.Sint16: return 16;
-            case SampleFormatType.Sint24: return 24;
-            case SampleFormatType.Sint32V24: return 32;
-            case SampleFormatType.Sint32: return 32;
-            case SampleFormatType.Sfloat: return 32;
+            case SampleFormatType.Sint16:
+                return 16;
+            case SampleFormatType.Sint24:
+                return 24;
+            case SampleFormatType.Sint32V24:
+                return 32;
+            case SampleFormatType.Sint32:
+                return 32;
+            case SampleFormatType.Sfloat:
+                return 32;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 0;
@@ -375,8 +288,98 @@ namespace Wasapi {
             }
         }
 
-        public int Setup(int sampleRate, SampleFormatType format, int numChannels) {
-            return WasapiIO_Setup(sampleRate, (int)format, numChannels);
+        public int Init() {
+            return WasapiIO_Init();
+        }
+
+        public void Term() {
+            WasapiIO_Term();
+        }
+
+        public void RegisterCallback(StateChangedCallback callback) {
+            WasapiIO_RegisterCallback(callback);
+        }
+
+        public int DoDeviceEnumeration(DeviceType t) {
+            return WasapiIO_DoDeviceEnumeration((int)t);
+        }
+
+        public int GetDeviceCount() {
+            return WasapiIO_GetDeviceCount();
+        }
+
+        public class DeviceAttributes {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string DeviceIdString { get; set; }
+
+            public DeviceAttributes(int id, string name, string deviceIdString) {
+                Id = id;
+                Name = name;
+                DeviceIdString = deviceIdString;
+            }
+        };
+
+        public DeviceAttributes GetDeviceAttributes(int id) {
+            var a = new WasapiIoDeviceAttributes();
+            if (!WasapiIO_GetDeviceAttributes(id, out a)) {
+                return null;
+            }
+            return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
+        }
+
+        public int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
+            return WasapiIO_InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
+        }
+
+        public int ChooseDevice(int id) {
+            return WasapiIO_ChooseDevice(id);
+        }
+
+        public void UnchooseDevice() {
+            WasapiIO_UnchooseDevice();
+        }
+
+        /*
+        public int GetUseDeviceId() {
+            return WasapiIO_GetUseDeviceId();
+        }
+
+        public string GetUseDeviceName() {
+            StringBuilder buf = new StringBuilder(64);
+            WasapiIO_GetUseDeviceName(buf, buf.Capacity * 2);
+            return buf.ToString();
+        }
+
+        public string GetUseDeviceIdString()
+        {
+            StringBuilder buf = new StringBuilder(256);
+            WasapiIO_GetUseDeviceIdString(buf, buf.Capacity * 2);
+            return buf.ToString();
+        }
+        */
+        public DeviceAttributes GetUseDeviceAttributes() {
+            var a = new WasapiIoDeviceAttributes();
+            if (!WasapiIO_GetUseDeviceAttributes(out a)) {
+                return null;
+            }
+            return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
+        }
+
+        public int Setup(StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
+                SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
+                int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
+            var args = new SetupArgs();
+            args.streamType = (int)streamType;
+            args.sampleRate = sampleRate;
+            args.sampleFormat = (int)format;
+            args.numChannels = numChannels;
+            args.schedulerTask = (int)schedulerTask;
+            args.shareMode = (int)shareMode;
+            args.dataFeedMode = (int)dataFeedMode;
+            args.latencyMillisec = latencyMillisec;
+            args.timePeriodHandledNanosec = timePeriodHandredNanosec;
+            return WasapiIO_Setup(ref args);
         }
 
         public void Unsetup() {
@@ -399,9 +402,13 @@ namespace Wasapi {
             return WasapiIO_AddPlayPcmDataSetPcmFragment(id, posBytes, data, data.Length);
         }
 
+        /// <summary>
+        /// perform resample on shared mode. blocking call.
+        /// </summary>
+        /// <param name="conversionQuality">1(minimum quality) to 60(maximum quality)</param>
         /// <returns>HRESULT</returns>
-        public int ResampleIfNeeded() {
-            return WasapiIO_ResampleIfNeeded();
+        public int ResampleIfNeeded(int conversionQuality) {
+            return WasapiIO_ResampleIfNeeded(conversionQuality);
         }
 
         public double ScanPcmMaxAbsAmplitude() {
@@ -509,31 +516,9 @@ namespace Wasapi {
             return (SampleFormatType)WasapiIO_GetDeviceSampleFormat();
         }
 
-        public void SetZeroFlushMillisec(int millisec) {
-            WasapiIO_SetZeroFlushMillisec(millisec);
-        }
-
-        /// @param hnanosec x 100 nanoseconds
-        public void SetTimePeriodHundredNanosec(int hnanosec) {
-            WasapiIO_SetTimePeriodHundredNanosec(hnanosec);
-        }
-
         /// @return hnanosec x 100 nanoseconds
         public int GetTimePeriodHundredNanosec() {
             return WasapiIO_GetTimePeriodHundredNanosec();
-        }
-
-        public void SetResamplerConversionQuality(int quality) {
-            WasapiIO_SetResamplerConversionQuality(quality);
-        }
-
-        public enum StreamType {
-            PCM,
-            DoP,
-        };
-
-        public void SetStreamType(StreamType t) {
-            WasapiIO_SetStreamType((int)t);
         }
 
         public StreamType GetStreamType() {

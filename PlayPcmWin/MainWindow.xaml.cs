@@ -71,8 +71,7 @@ namespace PlayPcmWin
                 Width = width;
             }
         };
-        private PlayListColumnInfo[] m_playlistColumnDefaults =
-        {
+        private PlayListColumnInfo[] m_playlistColumnDefaults = {
             new PlayListColumnInfo("Title", DataGridLength.Auto),
             new PlayListColumnInfo("Duration", DataGridLength.Auto),
             new PlayListColumnInfo("Artist", DataGridLength.Auto),
@@ -86,27 +85,22 @@ namespace PlayPcmWin
             new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
         };
 
-
-
         class DeviceInfo
         {
             public int Idx { get; set; }
             public string Name { get; set; }
             public string DeviceIdStr { get; set; }
 
-            public DeviceInfo(int idx, string name, string deviceIdStr)
-            {
+            public DeviceInfo(int idx, string name, string deviceIdStr) {
                 Idx = idx;
                 Name = name;
                 DeviceIdStr = deviceIdStr;
             }
 
-            public override string ToString()
-            {
+            public override string ToString() {
                 return string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Idx, Name);
             }
         }
-
 
         /// <summary>
         /// PcmDataの表示用リスト。
@@ -133,66 +127,42 @@ namespace PlayPcmWin
             }
 
             public int RowId {
-                get {
-                    return mRowId;
-                }
-                set {
-                    mRowId = value;
-                }
+                get { return mRowId; }
+                set { mRowId = value; }
             }
 
             public string Id {
-                get {
-                    return mPcmData.Id.ToString(CultureInfo.CurrentCulture);
-                }
+                get { return mPcmData.Id.ToString(CultureInfo.CurrentCulture); }
             }
 
             public string Title {
-                get {
-                    return mPcmData.DisplayName;
-                }
-                set {
-                    mPcmData.DisplayName = value;
-                }
+                get { return mPcmData.DisplayName; }
+                set { mPcmData.DisplayName = value; }
             }
 
             public string ArtistName {
-                get {
-                    return mPcmData.ArtistName;
-                }
-                set {
-                    mPcmData.ArtistName = value;
-                }
+                get { return mPcmData.ArtistName; }
+                set { mPcmData.ArtistName = value; }
             }
 
             public string AlbumTitle {
-                get {
-                    return mPcmData.AlbumTitle;
-                }
-                set {
-                    mPcmData.AlbumTitle = value;
-                }
+                get { return mPcmData.AlbumTitle; }
+                set { mPcmData.AlbumTitle = value; }
             }
 
             /// <summary>
             /// 長さ表示用文字列
             /// </summary>
             public string Duration {
-                get {
-                    return SecondsToHMSString(mPcmData.DurationSeconds);
-                }
+                get { return SecondsToHMSString(mPcmData.DurationSeconds); }
             }
 
             public int NumChannels {
-                get {
-                    return mPcmData.NumChannels;
-                }
+                get { return mPcmData.NumChannels; }
             }
 
             public int IndexNr {
-                get {
-                    return mPcmData.CueSheetIndex;
-                }
+                get { return mPcmData.CueSheetIndex; }
             }
 
             public string SampleRate {
@@ -222,9 +192,7 @@ namespace PlayPcmWin
                     if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
                         return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
                     }
-
-                    return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000)
-                            .ToString(CultureInfo.CurrentCulture) + " kbps";
+                    return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
                 }
             }
 
@@ -286,7 +254,7 @@ namespace PlayPcmWin
         /// <summary>
         /// デバイスのセットアップ情報
         /// </summary>
-        struct DeviceSetupInfo {
+        struct DeviceSetupParams {
             bool setuped;
             int samplingRate;
             WasapiCS.SampleFormatType sampleFormat;
@@ -419,7 +387,7 @@ namespace PlayPcmWin
         /// <summary>
         /// デバイスSetup情報。サンプリングレート、量子化ビット数…。
         /// </summary>
-        DeviceSetupInfo m_deviceSetupInfo = new DeviceSetupInfo();
+        DeviceSetupParams m_deviceSetupParams = new DeviceSetupParams();
 
         // 再生停止完了後に行うタスク。
         enum TaskType {
@@ -1391,17 +1359,15 @@ namespace PlayPcmWin
 
             int nDevices = wasapi.GetDeviceCount();
             for (int i = 0; i < nDevices; ++i) {
-                var deviceName = wasapi.GetDeviceName(i);
-                var deviceIdStr = wasapi.GetDeviceIdString(i);
-
-                listBoxDevices.Items.Add(new DeviceInfo(i, deviceName, deviceIdStr));
+                var attr = wasapi.GetDeviceAttributes(i);
+                listBoxDevices.Items.Add(new DeviceInfo(i, attr.Name, attr.DeviceIdString));
 
                 if (0 < m_preference.PreferredDeviceName.Length
-                        && 0 == string.CompareOrdinal(m_preference.PreferredDeviceName, deviceName)) {
+                        && 0 == string.CompareOrdinal(m_preference.PreferredDeviceName, attr.Name)) {
                     // PreferredDeviceIdStringは3.0.60で追加されたので、存在しないことがある
                     // 存在するときだけチェックする
                     if (0 < m_preference.PreferredDeviceIdString.Length
-                            && 0 != string.CompareOrdinal(m_preference.PreferredDeviceIdString, deviceIdStr)) {
+                            && 0 != string.CompareOrdinal(m_preference.PreferredDeviceIdString, attr.DeviceIdString)) {
                         continue;
                     }
 
@@ -1540,68 +1506,13 @@ namespace PlayPcmWin
         /// 既にUnsetup状態の場合は、空振りする。
         /// </summary>
         private void UnsetupDevice() {
-            if (!m_deviceSetupInfo.IsSetuped()) {
+            if (!m_deviceSetupParams.IsSetuped()) {
                 return;
             }
 
             wasapi.Unsetup();
             AddLogText("wasapi.Unsetup()\r\n");
-            m_deviceSetupInfo.Unsetuped();
-        }
-
-        /// <summary>
-        /// m_deviceSetupInfoにしたがってWasapiをSetupする。
-        /// </summary>
-        /// <returns>WasapiのSetup HRESULT。</returns>
-        private int WasapiSetup1() {
-            wasapi.SetShareMode(
-                PreferenceShareModeToWasapiCSShareMode(
-                    m_deviceSetupInfo.SharedOrExclusive));
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.SetShareMode({0})\r\n",
-                m_deviceSetupInfo.SharedOrExclusive));
-
-            wasapi.SetSchedulerTaskType(
-                PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(
-                    m_deviceSetupInfo.ThreadTaskType));
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.SetSchedulerTaskType({0})\r\n",
-                m_deviceSetupInfo.ThreadTaskType));
-
-            wasapi.SetDataFeedMode(PreferenceDataFeedModeToWasapiCS(m_deviceSetupInfo.DataFeedMode));
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.SetDataFeedMode({0})\r\n",
-                PreferenceDataFeedModeToWasapiCS(m_deviceSetupInfo.DataFeedMode)));
-
-            wasapi.SetLatencyMillisec(m_deviceSetupInfo.LatencyMillisec);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.SetLatencyMillisec({0})\r\n",
-                m_deviceSetupInfo.LatencyMillisec));
-
-            wasapi.SetZeroFlushMillisec(m_deviceSetupInfo.ZeroFlushMillisec);
-            wasapi.SetTimePeriodHundredNanosec(m_preference.TimePeriodHundredNanosec);
-
-            wasapi.SetResamplerConversionQuality(m_preference.ResamplerConversionQuality);
-            wasapi.SetStreamType(m_deviceSetupInfo.StreamType);
-
-            int hr = wasapi.Setup(
-                m_deviceSetupInfo.SampleRate,
-                m_deviceSetupInfo.SampleFormat,
-                m_deviceSetupInfo.NumChannels);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1} {2}) {3:X8}\r\n",
-                m_deviceSetupInfo.SampleRate,
-                m_deviceSetupInfo.SampleFormat,
-                m_deviceSetupInfo.NumChannels, hr));
-            if (hr < 0) {
-                UnsetupDevice();
-
-                string s = string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1} {2} {3} {4} {5}) failed {6:X8}\r\n",
-                    m_deviceSetupInfo.SampleRate,
-                    m_deviceSetupInfo.SampleFormat,
-                    m_deviceSetupInfo.NumChannels,
-                    m_deviceSetupInfo.LatencyMillisec,
-                    m_deviceSetupInfo.DataFeedMode,
-                    ShareModeToStr(m_preference.WasapiSharedOrExclusive), hr);
-                AddLogText(s);
-                return hr;
-            }
-            return hr;
+            m_deviceSetupParams.Unsetuped();
         }
 
         private static int PcmChannelsToSetupChannels(int numChannels) {
@@ -1637,30 +1548,30 @@ namespace PlayPcmWin
             // 1つのフォーマットに対して複数のSetup()設定選択肢がありうる。
 
             int candidateNum = SampleFormatInfo.GetSetupSampleFormatCandidateNum(
-                m_preference.WasapiSharedOrExclusive,
-                m_preference.BitsPerSampleFixType,
-                startPcmData.ValidBitsPerSample,
-                startPcmData.SampleValueRepresentationType);
-            for (int i = 0; i < candidateNum; ++i) {
-                SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
                     m_preference.WasapiSharedOrExclusive,
                     m_preference.BitsPerSampleFixType,
-                    startPcmData.BitsPerSample,
                     startPcmData.ValidBitsPerSample,
-                    startPcmData.SampleValueRepresentationType,
-                    i);
+                    startPcmData.SampleValueRepresentationType);
+            for (int i = 0; i < candidateNum; ++i) {
+                SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
+                        m_preference.WasapiSharedOrExclusive,
+                        m_preference.BitsPerSampleFixType,
+                        startPcmData.BitsPerSample,
+                        startPcmData.ValidBitsPerSample,
+                        startPcmData.SampleValueRepresentationType,
+                        i);
 
-                if (m_deviceSetupInfo.Is(
-                    startPcmData.SampleRate,
-                    sf.GetSampleFormatType(),
-                    PcmChannelsToSetupChannels(startPcmData.NumChannels),
-                    latencyMillisec,
-                    m_preference.ZeroFlushMillisec,
-                    m_preference.WasapiDataFeedMode,
-                    m_preference.WasapiSharedOrExclusive,
-                    m_preference.RenderThreadTaskType,
-                    m_preference.ResamplerConversionQuality,
-                    startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
+                if (m_deviceSetupParams.Is(
+                        startPcmData.SampleRate,
+                        sf.GetSampleFormatType(),
+                        PcmChannelsToSetupChannels(startPcmData.NumChannels),
+                        latencyMillisec,
+                        m_preference.ZeroFlushMillisec,
+                        m_preference.WasapiDataFeedMode,
+                        m_preference.WasapiSharedOrExclusive,
+                        m_preference.RenderThreadTaskType,
+                        m_preference.ResamplerConversionQuality,
+                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM)) {
                     // すでにこのフォーマットでSetup完了している。
                     return true;
                 }
@@ -1668,45 +1579,54 @@ namespace PlayPcmWin
 
             for (int i = 0; i < candidateNum; ++i) {
                 SampleFormatInfo sf = SampleFormatInfo.CreateSetupSampleFormat(
-                    m_preference.WasapiSharedOrExclusive,
-                    m_preference.BitsPerSampleFixType,
-                    startPcmData.BitsPerSample,
-                    startPcmData.ValidBitsPerSample,
-                    startPcmData.SampleValueRepresentationType, i);
+                        m_preference.WasapiSharedOrExclusive,
+                        m_preference.BitsPerSampleFixType,
+                        startPcmData.BitsPerSample,
+                        startPcmData.ValidBitsPerSample,
+                        startPcmData.SampleValueRepresentationType, i);
 
-                m_deviceSetupInfo.Set(
-                    startPcmData.SampleRate,
-                    sf.GetSampleFormatType(),
-                    PcmChannelsToSetupChannels(startPcmData.NumChannels),
-                    latencyMillisec,
-                    m_preference.ZeroFlushMillisec,
-                    m_preference.WasapiDataFeedMode,
-                    m_preference.WasapiSharedOrExclusive,
-                    m_preference.RenderThreadTaskType,
-                    m_preference.ResamplerConversionQuality,
-                    startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
+                m_deviceSetupParams.Set(
+                        startPcmData.SampleRate,
+                        sf.GetSampleFormatType(),
+                        PcmChannelsToSetupChannels(startPcmData.NumChannels),
+                        latencyMillisec,
+                        m_preference.ZeroFlushMillisec,
+                        m_preference.WasapiDataFeedMode,
+                        m_preference.WasapiSharedOrExclusive,
+                        m_preference.RenderThreadTaskType,
+                        m_preference.ResamplerConversionQuality,
+                        startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
 
-                int hr = WasapiSetup1();
+                int hr = wasapi.Setup(
+                        m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate, m_deviceSetupParams.SampleFormat,
+                        m_deviceSetupParams.NumChannels, PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
+                        PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}\r\n",
+                        m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate*0.001, m_deviceSetupParams.SampleFormat,
+                        m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec*0.0001, hr));
                 if (0 <= hr) {
                     // 成功
                     break;
                 }
 
                 // 失敗
+                UnsetupDevice();
                 if (i == (candidateNum-1)) {
-                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1}Hz {2} {3}ch {4} {5}ms {6} {7}) {8} {9:X8}\n\n{10}",
-                        Properties.Resources.Error,
-                        startPcmData.SampleRate,
-                        sf.GetSampleFormatType(),
-                        PcmChannelsToSetupChannels(startPcmData.NumChannels),
-                        Properties.Resources.Latency,
-
-                        latencyMillisec,
-                        DfmToStr(m_preference.WasapiDataFeedMode),
-                        ShareModeToStr(m_preference.WasapiSharedOrExclusive),
-                        Properties.Resources.Failed,
-                        hr,
-                        Properties.Resources.SetupFailAdvice);
+                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8}\n\n{11}",
+                            Properties.Resources.Error,
+                            m_deviceSetupParams.StreamType,
+                            startPcmData.SampleRate*0.001,
+                            sf.GetSampleFormatType(),
+                            PcmChannelsToSetupChannels(startPcmData.NumChannels),
+                            Properties.Resources.Latency,
+                            latencyMillisec,
+                            DfmToStr(m_preference.WasapiDataFeedMode),
+                            ShareModeToStr(m_preference.WasapiSharedOrExclusive),
+                            Properties.Resources.Failed,
+                            hr,
+                            Properties.Resources.SetupFailAdvice);
                     MessageBox.Show(s);
                     return false;
                 }
@@ -2668,9 +2588,9 @@ namespace PlayPcmWin
                 if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
                     m_readFileWorker.ReportProgress(90, string.Format(CultureInfo.InvariantCulture, "Resampling...\r\n"));
                 }
-                r.hr = wasapi.ResampleIfNeeded();
+                r.hr = wasapi.ResampleIfNeeded(m_deviceSetupParams.ResamplerConversionQuality);
                 if (r.hr < 0) {
-                    r.message = "Resample failed! " + string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", r.hr);
+                    r.message = "Resample({0}) failed! " + string.Format(CultureInfo.InvariantCulture, "0x{1:X8}", m_deviceSetupParams.ResamplerConversionQuality, r.hr);
                     args.Result = r;
                     return;
                 }
@@ -2852,7 +2772,7 @@ namespace PlayPcmWin
 
             {
                 // このトラックのWasapi PCMデータ領域を確保する。
-                long allocBytes = wantFramesTotal * m_deviceSetupInfo.UseBytesPerFrame;
+                long allocBytes = wantFramesTotal * m_deviceSetupParams.UseBytesPerFrame;
                 if (!wasapi.AddPlayPcmDataAllocateMemory(pd.Id, allocBytes)) {
                     //ClearPlayList(PlayListClearMode.ClearWithoutUpdateUI); //< メモリを空ける：効果があるか怪しい
                     r.message = string.Format(CultureInfo.InvariantCulture, Properties.Resources.MemoryExhausted);
@@ -2937,7 +2857,7 @@ namespace PlayPcmWin
                 var bpsConvArgs = new PcmData.BitsPerSampleConvArgs(m_preference.EnableNoiseShaping);
                 PcmData pdAfter = null;
                 if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Exclusive) {
-                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupInfo.SampleFormat, bpsConvArgs);
+                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupParams.SampleFormat, bpsConvArgs);
                     pd.ForgetDataPart();
                 } else {
                     pdAfter = pd;
@@ -3071,18 +2991,18 @@ namespace PlayPcmWin
         private bool UseDevice()
         {
             var di = listBoxDevices.SelectedItem as DeviceInfo;
-            var chosenDeviceId    = wasapi.GetUseDeviceId();
-            var chosenDeviceIdStr = wasapi.GetUseDeviceIdString();
+            var attr = wasapi.GetUseDeviceAttributes();
+            if (null != attr) {
+                if (0 == string.CompareOrdinal(di.DeviceIdStr, attr.DeviceIdString)) {
+                    // このデバイスが既に指定されている場合は、空振りする。
+                    return true;
+                }
 
-            if (0 == string.CompareOrdinal(di.DeviceIdStr, chosenDeviceIdStr)) {
-                // このデバイスが既に指定されている場合は、空振りする。
-                return true;
-            }
-
-            if (0 <= chosenDeviceId) {
-                // 別のデバイスが選択されている場合、Unchooseする。
-                wasapi.UnchooseDevice();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice()\r\n"));
+                if (0 <= attr.Id) {
+                    // 別のデバイスが選択されている場合、Unchooseする。
+                    wasapi.UnchooseDevice();
+                    AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice()\r\n"));
+                }
             }
 
             // このデバイスを選択。
@@ -3662,10 +3582,9 @@ namespace PlayPcmWin
             };
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
-            var dn = wasapi.GetDeviceName(listBoxDevices.SelectedIndex);
-            var did = wasapi.GetDeviceIdString(listBoxDevices.SelectedIndex);
+            var attr = wasapi.GetDeviceAttributes(listBoxDevices.SelectedIndex);
 
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", dn, did));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", attr.Name, attr.DeviceIdString));
             AddLogText("++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n");
             for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
                 var sb = new StringBuilder();
@@ -4143,10 +4062,9 @@ namespace PlayPcmWin
                     case State.再生停止開始:
                         // 再生に使用しているデバイスの状態が変化した場合、再生停止する。
                         // そうではない場合、ここでは何もしない。再生停止時に兎に角デバイス一覧が更新される。
-                        var useDeviceIdStr = wasapi.GetUseDeviceIdString();
-                        var useDeviceName  = wasapi.GetUseDeviceName();
-                        if (0 == string.Compare(useDeviceIdStr, idStr.ToString(), StringComparison.Ordinal)) {
-                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + "\r\n", useDeviceName, useDeviceIdStr));
+                        var attr = wasapi.GetUseDeviceAttributes();
+                        if (0 == string.Compare(attr.DeviceIdString, idStr.ToString(), StringComparison.Ordinal)) {
+                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + "\r\n", attr.Name, attr.DeviceIdString));
                             StopBlocking();
                             DeviceDeselect();
                             UpdateDeviceList();

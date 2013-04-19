@@ -84,8 +84,8 @@ namespace PlayPcmWinTestBench {
 
             int nDevices = wasapi.GetDeviceCount();
             for (int i = 0; i < nDevices; ++i) {
-                string deviceName = wasapi.GetDeviceName(i);
-                comboBox.Items.Add(deviceName);
+                var attr = wasapi.GetDeviceAttributes(i);
+                comboBox.Items.Add(attr.Name);
             }
 
             if (0 <= selectedIdx && selectedIdx < nDevices) {
@@ -315,15 +315,10 @@ namespace PlayPcmWinTestBench {
                     pcmDataBitsPerSample,
                     pcmDataValidBitsPerSample, vrt, i);
 
-                wasapi.SetDataFeedMode(
-                    isEventDriven ?
-                        WasapiCS.DataFeedMode.EventDriven :
-                        WasapiCS.DataFeedMode.TimerDriven);
-
-                wasapi.SetLatencyMillisec(latencyMillisec);
-
-                hr = wasapi.Setup(
-                    sampleRate, sf.GetSampleFormatType(), 2);
+                hr = wasapi.Setup(WasapiCS.StreamType.PCM, sampleRate, sf.GetSampleFormatType(), 2,
+                        WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                        isEventDriven ? WasapiCS.DataFeedMode.EventDriven : WasapiCS.DataFeedMode.TimerDriven,
+                        latencyMillisec, 500, 10000);
                 if (0 <= hr) {
                     m_sampleFormat = sf;
                     return hr;

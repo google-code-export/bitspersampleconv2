@@ -4,212 +4,192 @@
 #include "WasapiUser.h"
 #include <stdint.h>
 
-extern "C" __declspec(dllexport)
+extern "C" {
+
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_Init(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_Term(void);
 
-/// @param type WWSchedulerTaskType
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetSchedulerTaskType(int type);
-
-/// @param sm WWShareMode
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetShareMode(int sm);
-
-/// @param dfm WWDataFeedMode
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetDataFeedMode(int dfm);
-
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetLatencyMillisec(int ms);
-
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_DoDeviceEnumeration(int deviceType);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetDeviceCount(void);
 
-extern "C" __declspec(dllexport)
-bool __stdcall
-WasapiIO_GetDeviceName(int id, LPWSTR name, int nameBytes);
+#define WASAPI_IO_DEVICE_STR_COUNT (256)
 
-extern "C" __declspec(dllexport)
-bool __stdcall
-WasapiIO_GetDeviceIdString(int id, LPWSTR idStr, int idStrBytes);
+#pragma pack(push, 4)
+struct WasapiIoDeviceAttributes {
+    int   deviceId;
+    WCHAR name[WASAPI_IO_DEVICE_STR_COUNT];
+    WCHAR deviceIdString[WASAPI_IO_DEVICE_STR_COUNT];
+};
+#pragma pack(pop)
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
+bool __stdcall
+WasapiIO_GetDeviceAttributes(int id, WasapiIoDeviceAttributes &attr_return);
+
+__declspec(dllexport)
 int __stdcall
 WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_ChooseDevice(int id);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_UnchooseDevice(void);
 
-extern "C" __declspec(dllexport)
-int __stdcall
-WasapiIO_GetUseDeviceId(void);
-
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
-WasapiIO_GetUseDeviceName(LPWSTR name, int nameBytes);
+WasapiIO_GetUseDeviceAttributes(WasapiIoDeviceAttributes &attr_return);
 
-extern "C" __declspec(dllexport)
-bool __stdcall
-WasapiIO_GetUseDeviceIdString(LPWSTR idStr, int idStrBytes);
+#pragma pack(push, 4)
+struct WasapiIoSetupArgs {
+    int streamType;
+    int sampleRate;
+    int sampleFormat;    ///< WWPcmDataSampleFormatType
+    int numChannels;
+    int shareMode;
+    int schedulerTask;
+    int dataFeedMode;
+    int latencyMillisec;
+    int timePeriodHandledNanosec;
+    int zeroFlushMillisec;
+};
+#pragma pack(pop)
 
-/// @param sampleFormat WWPcmDataSampleFormatType
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(int sampleRate, int sampleFormat, int numChannels);
+WasapiIO_Setup(const WasapiIoSetupArgs &args);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_Unsetup(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_AddPlayPcmDataStart(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_AddPlayPcmData(int id, unsigned char *data, int64_t bytes);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *data, int64_t bytes);
 
 /// @return HRESULT
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
-WasapiIO_ResampleIfNeeded(void);
+WasapiIO_ResampleIfNeeded(int conversionQuality);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_AddPlayPcmDataEnd(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_ClearPlayList(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_SetPlayRepeat(bool b);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetPcmDataId(int usageType);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_SetNowPlayingPcmDataId(int id);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_SetupCaptureBuffer(int64_t bytes);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int64_t __stdcall
 WasapiIO_GetCapturedData(unsigned char *data, int64_t bytes);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int64_t __stdcall
 WasapiIO_GetCaptureGlitchCount(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_Start(int wavDataId);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 bool __stdcall
 WasapiIO_Run(int millisec);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_Stop(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_Pause(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_Unpause(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int64_t __stdcall
 WasapiIO_GetPosFrame(int usageType);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int64_t __stdcall
 WasapiIO_GetTotalFrameNum(int usageType);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetDeviceSampleRate(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetDeviceSampleFormat(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetPcmDataSampleRate(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetPcmDataFrameBytes(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetDeviceNumChannels(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_RegisterCallback(WWStateChanged callback);
 
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetZeroFlushMillisec(int zeroFlushMillisec);
-
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetTimePeriodHundredNanosec(int hnanosec);
-
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetTimePeriodHundredNanosec(void);
 
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetResamplerConversionQuality(int quality);
-
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 double __stdcall
 WasapiIO_ScanPcmMaxAbsAmplitude(void);
 
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 void __stdcall
 WasapiIO_ScalePcmAmplitude(double scale);
 
-extern "C" __declspec(dllexport)
-void __stdcall
-WasapiIO_SetStreamType(int t);
-
-extern "C" __declspec(dllexport)
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetStreamType(void);
 
+}; // extern "C"
