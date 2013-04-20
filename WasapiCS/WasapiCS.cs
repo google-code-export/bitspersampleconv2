@@ -156,44 +156,34 @@ namespace Wasapi {
         WasapiIO_Unpause();
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static long
-        WasapiIO_GetPosFrame(int usageType);
+        private extern static bool
+        WasapiIO_SetPosFrame(long v);
 
-        [DllImport("WasapiIODLL.dll")]
-        private extern static long
-        WasapiIO_GetTotalFrameNum(int usageType);
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct WasapiIoSessionStatus {
+            public int streamType;
+            public int pcmDataSampleRate;
+            public int deviceSampleRate;
+            public int deviceSampleFormat;
+            public int deviceBytesPerFrame;
+            public int deviceNumChannels;
+            public int timePeriodHandledNanosec;
+            public int bufferFrameNum;
+        };
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_SetPosFrame(long v);
-        
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetDeviceSampleRate();
+        WasapiIO_GetSessionStatus(out WasapiIoSessionStatus a);
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct WasapiIoCursorLocation {
+            public long posFrame;
+            public long totalFrameNum;
+        };
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetDeviceSampleFormat();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetPcmDataSampleRate();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetDeviceBytesPerFrame();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetDeviceNumChannels();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetTimePeriodHundredNanosec();
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_GetStreamType();
+        private extern static bool
+        WasapiIO_GetPlayCursorPosition(int usageType, out WasapiIoCursorLocation a);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
@@ -340,24 +330,6 @@ namespace Wasapi {
             WasapiIO_UnchooseDevice();
         }
 
-        /*
-        public int GetUseDeviceId() {
-            return WasapiIO_GetUseDeviceId();
-        }
-
-        public string GetUseDeviceName() {
-            StringBuilder buf = new StringBuilder(64);
-            WasapiIO_GetUseDeviceName(buf, buf.Capacity * 2);
-            return buf.ToString();
-        }
-
-        public string GetUseDeviceIdString()
-        {
-            StringBuilder buf = new StringBuilder(256);
-            WasapiIO_GetUseDeviceIdString(buf, buf.Capacity * 2);
-            return buf.ToString();
-        }
-        */
         public DeviceAttributes GetUseDeviceAttributes() {
             var a = new WasapiIoDeviceAttributes();
             if (!WasapiIO_GetUseDeviceAttributes(out a)) {
@@ -492,37 +464,57 @@ namespace Wasapi {
             return WasapiIO_Unpause();
         }
 
-        public long GetPosFrame(PcmDataUsageType t) {
-            return WasapiIO_GetPosFrame((int)t);
-        }
-
-        public long GetTotalFrameNum(PcmDataUsageType t) {
-            return WasapiIO_GetTotalFrameNum((int)t);
-        }
-
         public bool SetPosFrame(long v) {
             return WasapiIO_SetPosFrame(v);
         }
 
-        public int GetDeviceSampleRate() {
-            return WasapiIO_GetDeviceSampleRate();
+        public class SessionStatus {
+            public StreamType StreamType { get; set; }
+            public int PcmDataSampleRate { get; set; }
+            public int DeviceSampleRate { get; set; }
+            public SampleFormatType DeviceSampleFormat { get; set; }
+            public int DeviceBytesPerFrame { get; set; }
+            public int DeviceNumChannels { get; set; }
+            public int TimePeriodHandledNanosec { get; set; }
+            public int EndpointBufferFrameNum { get; set; }
+
+            public SessionStatus(StreamType streamType, int pcmDataSampleRate, int deviceSampleRate, SampleFormatType deviceSampleFormat,
+                    int deviceBytesPerFrame, int deviceNumChannels, int timePeriodHandledNanosec, int bufferFrameNum) {
+                StreamType = streamType;
+                PcmDataSampleRate = pcmDataSampleRate;
+                DeviceSampleRate = deviceSampleRate;
+                DeviceSampleFormat = deviceSampleFormat;
+                DeviceBytesPerFrame = deviceBytesPerFrame;
+                DeviceNumChannels = deviceNumChannels;
+                TimePeriodHandledNanosec = timePeriodHandledNanosec;
+                EndpointBufferFrameNum = bufferFrameNum;
+            }
+        };
+
+        public SessionStatus GetSessionStatus() {
+            var s = new WasapiIoSessionStatus();
+            if (!WasapiIO_GetSessionStatus(out s)) {
+                return null;
+            }
+            return new SessionStatus((StreamType)s.streamType, s.pcmDataSampleRate, s.deviceSampleRate, (SampleFormatType)s.deviceSampleFormat,
+                    s.deviceBytesPerFrame, s.deviceNumChannels, s.timePeriodHandledNanosec, s.bufferFrameNum);
         }
 
-        public int GetDeviceNumChannels() {
-            return WasapiIO_GetDeviceNumChannels();
-        }
+        public class CursorLocation {
+            public long PosFrame { get; set; }
+            public long TotalFrameNum { get; set; }
+            public CursorLocation(long posFrame, long totalFrameNum) {
+                PosFrame = posFrame;
+                TotalFrameNum = totalFrameNum;
+            }
+        };
 
-        public SampleFormatType GetDeviceSampleFormat() {
-            return (SampleFormatType)WasapiIO_GetDeviceSampleFormat();
-        }
-
-        /// @return hnanosec x 100 nanoseconds
-        public int GetTimePeriodHundredNanosec() {
-            return WasapiIO_GetTimePeriodHundredNanosec();
-        }
-
-        public StreamType GetStreamType() {
-            return (StreamType)WasapiIO_GetStreamType();
+        public CursorLocation GetPlayCursorPosition(PcmDataUsageType usageType) {
+            var p = new WasapiIoCursorLocation();
+            if (!WasapiIO_GetPlayCursorPosition((int)usageType, out p)) {
+                return null;
+            }
+            return new CursorLocation(p.posFrame, p.totalFrameNum);
         }
     }
 }

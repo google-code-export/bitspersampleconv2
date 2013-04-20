@@ -132,6 +132,8 @@ public:
     int GetDeviceBytesPerFrame(void) const   { return m_deviceBytesPerFrame; }
     WWPcmDataSampleFormatType GetDeviceSampleFormat(void) const { return m_deviceSampleFormat; }
 
+    int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
+
     /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 

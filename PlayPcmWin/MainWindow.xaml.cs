@@ -1279,23 +1279,23 @@ namespace PlayPcmWin
             case State.再生中: {
                     UpdateUIToPlayingState();
 
-                    WasapiCS.StreamType streamType = wasapi.GetStreamType();
-                    if (WasapiCS.StreamType.DoP == streamType) {
-                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz",
+                    var stat = wasapi.GetSessionStatus();
+                    if (WasapiCS.StreamType.DoP == stat.StreamType) {
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz.",
                             Properties.Resources.MainStatusPlaying,
                             radioButtonShared.IsChecked == true ?
                                 Properties.Resources.Shared : Properties.Resources.Exclusive,
-                            wasapi.GetDeviceSampleRate() * 0.001,
-                            SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
-                            wasapi.GetDeviceNumChannels(), wasapi.GetDeviceSampleRate() * 0.000016);
+                            stat.DeviceSampleRate * 0.001,
+                            SampleFormatTypeToStr(stat.DeviceSampleFormat),
+                            stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016);
                     } else {
-                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM",
+                        statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM.",
                             Properties.Resources.MainStatusPlaying,
                             radioButtonShared.IsChecked == true ?
                                 Properties.Resources.Shared : Properties.Resources.Exclusive,
-                            wasapi.GetDeviceSampleRate() * 0.001,
-                            SampleFormatTypeToStr(wasapi.GetDeviceSampleFormat()),
-                            wasapi.GetDeviceNumChannels());
+                            stat.DeviceSampleRate * 0.001,
+                            SampleFormatTypeToStr(stat.DeviceSampleFormat),
+                            stat.DeviceNumChannels);
                     }
 
                     progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -1531,7 +1531,7 @@ namespace PlayPcmWin
         /// <param name="loadGroupId">再生するグループ番号。この番号のWAVファイルのフォーマットでSetupする。</param>
         /// <returns>false: デバイスSetup失敗。よく起こる。</returns>
         private bool SetupDevice(int loadGroupId) {
-            
+
             int latencyMillisec = 0;
             if (!Int32.TryParse(textBoxLatency.Text, NumberStyles.Number,
                     CultureInfo.CurrentCulture, out latencyMillisec) || latencyMillisec <= 0) {
@@ -1603,9 +1603,9 @@ namespace PlayPcmWin
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
                         m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}\r\n",
-                        m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate*0.001, m_deviceSetupParams.SampleFormat,
+                        m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate * 0.001, m_deviceSetupParams.SampleFormat,
                         m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
-                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec*0.0001, hr));
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, hr));
                 if (0 <= hr) {
                     // 成功
                     break;
@@ -1613,11 +1613,11 @@ namespace PlayPcmWin
 
                 // 失敗
                 UnsetupDevice();
-                if (i == (candidateNum-1)) {
+                if (i == (candidateNum - 1)) {
                     string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8}\n\n{11}",
                             Properties.Resources.Error,
                             m_deviceSetupParams.StreamType,
-                            startPcmData.SampleRate*0.001,
+                            startPcmData.SampleRate * 0.001,
                             sf.GetSampleFormatType(),
                             PcmChannelsToSetupChannels(startPcmData.NumChannels),
                             Properties.Resources.Latency,
@@ -1630,6 +1630,12 @@ namespace PlayPcmWin
                     MessageBox.Show(s);
                     return false;
                 }
+            }
+
+            {
+                var stat = wasapi.GetSessionStatus();
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "Endpoint buffer size = {0} frames.\r\n",
+                        stat.EndpointBufferFrameNum));
             }
 
             ChangeState(State.デバイスSetup完了);
@@ -3392,19 +3398,17 @@ namespace PlayPcmWin
 
                 PcmDataLib.PcmData pcmData = FindPcmDataById(m_pcmDataListForPlay, pcmDataId);
 
-                var totalFrameNum = wasapi.GetTotalFrameNum(usageType);
-                var playingFrame  = wasapi.GetPosFrame(usageType);
+                var stat    = wasapi.GetSessionStatus();
+                var playPos = wasapi.GetPlayCursorPosition(usageType);
 
-                slider1.Maximum = totalFrameNum;
-                if (!mSliderSliding || totalFrameNum <= slider1.Value) {
-                    slider1.Value = playingFrame;
+                slider1.Maximum = playPos.TotalFrameNum;
+                if (!mSliderSliding || playPos.TotalFrameNum <= slider1.Value) {
+                    slider1.Value = playPos.PosFrame;
                 }
 
-                var sampleRate = wasapi.GetDeviceSampleRate();
-
                 labelPlayingTime.Content = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
-                    SecondsToHMSString((int)(slider1.Value / sampleRate)),
-                    SecondsToHMSString((int)(totalFrameNum / sampleRate)));
+                    SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
+                    SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
             }
         }
 

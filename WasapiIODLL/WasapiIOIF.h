@@ -144,33 +144,33 @@ __declspec(dllexport)
 int __stdcall
 WasapiIO_Unpause(void);
 
-__declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetPosFrame(int usageType);
+#pragma pack(push, 4)
+struct WasapiIoSessionStatus {
+    int streamType;
+    int pcmDataSampleRate;
+    int deviceSampleRate;
+    int deviceSampleFormat;
+    int deviceBytesPerFrame;
+    int deviceNumChannels;
+    int timePeriodHandledNanosec;
+    int bufferFrameNum;
+};
+#pragma pack(pop)
 
 __declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetTotalFrameNum(int usageType);
+bool __stdcall
+WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return);
+
+#pragma pack(push, 8)
+struct WasapiIoCursorLocation {
+    int64_t posFrame;
+    int64_t totalFrameNum;
+};
+#pragma pack(pop)
 
 __declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceSampleRate(void);
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceSampleFormat(void);
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetPcmDataSampleRate(void);
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetPcmDataFrameBytes(void);
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceNumChannels(void);
+bool __stdcall
+WasapiIO_GetPlayCursorPosition(int usageType, WasapiIoCursorLocation &pos_return);
 
 __declspec(dllexport)
 void __stdcall
@@ -187,9 +187,5 @@ WasapiIO_ScanPcmMaxAbsAmplitude(void);
 __declspec(dllexport)
 void __stdcall
 WasapiIO_ScalePcmAmplitude(double scale);
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetStreamType(void);
 
 }; // extern "C"

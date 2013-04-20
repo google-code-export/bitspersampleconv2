@@ -458,19 +458,13 @@ WasapiIO_Unpause(void)
 }
 
 __declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetPosFrame(int usageType)
+bool __stdcall
+WasapiIO_GetPlayCursorPosition(int usageType, WasapiIoCursorLocation &pos_return)
 {
     assert(self);
-    return self->wasapi.GetPosFrame((WWPcmDataUsageType)usageType);
-}
-
-__declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetTotalFrameNum(int usageType)
-{
-    assert(self);
-    return self->wasapi.GetTotalFrameNum((WWPcmDataUsageType)usageType);
+    pos_return.posFrame      = self->wasapi.GetPosFrame(     (WWPcmDataUsageType)usageType);
+    pos_return.totalFrameNum = self->wasapi.GetTotalFrameNum((WWPcmDataUsageType)usageType);
+    return true;
 }
 
 __declspec(dllexport)
@@ -482,43 +476,22 @@ WasapiIO_SetPosFrame(int64_t v)
 }
 
 __declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceSampleRate(void)
+bool __stdcall
+WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return)
 {
     assert(self);
-    return self->wasapi.GetDeviceSampleRate();
-}
 
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceSampleFormat(void)
-{
-    assert(self);
-    return self->wasapi.GetDeviceSampleFormat();
-}
+    stat_return.streamType          = self->wasapi.GetStreamType();
+    stat_return.pcmDataSampleRate   = self->wasapi.GetPcmDataSampleRate();
+    stat_return.deviceSampleRate    = self->wasapi.GetDeviceSampleRate();
+    stat_return.deviceSampleFormat  = self->wasapi.GetDeviceSampleFormat();
+    stat_return.deviceBytesPerFrame = self->wasapi.GetDeviceBytesPerFrame();
 
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetPcmDataSampleRate(void)
-{
-    assert(self);
-    return self->wasapi.GetPcmDataSampleRate();
-}
+    stat_return.deviceNumChannels        = self->wasapi.GetDeviceNumChannels();
+    stat_return.timePeriodHandledNanosec = self->wasapi.GetTimePeriodHundredNanosec();
+    stat_return.bufferFrameNum      = self->wasapi.GetEndpointBufferFrameNum();
 
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceBytesPerFrame(void)
-{
-    assert(self);
-    return self->wasapi.GetDeviceBytesPerFrame();
-}
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetDeviceNumChannels(void)
-{
-    assert(self);
-    return self->wasapi.GetDeviceNumChannels();
+    return true;
 }
 
 __declspec(dllexport)
@@ -527,14 +500,6 @@ WasapiIO_RegisterCallback(WWStateChanged callback)
 {
     assert(self);
     self->wasapi.RegisterCallback(callback);
-}
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetTimePeriodHundredNanosec(void)
-{
-    assert(self);
-    return self->wasapi.GetTimePeriodHundredNanosec();
 }
 
 __declspec(dllexport)
@@ -551,14 +516,6 @@ WasapiIO_ScalePcmAmplitude(double scale)
 {
     assert(self);
     return self->ScalePcmAmplitude(scale);
-}
-
-__declspec(dllexport)
-int __stdcall
-WasapiIO_GetStreamType(void)
-{
-    assert(self);
-    return self->wasapi.GetStreamType();
 }
 
 }; // extern "C"
