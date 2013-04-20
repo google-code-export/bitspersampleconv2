@@ -489,7 +489,7 @@ WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return)
 
     stat_return.deviceNumChannels        = self->wasapi.GetDeviceNumChannels();
     stat_return.timePeriodHandledNanosec = self->wasapi.GetTimePeriodHundredNanosec();
-    stat_return.bufferFrameNum      = self->wasapi.GetEndpointBufferFrameNum();
+    stat_return.bufferFrameNum           = self->wasapi.GetEndpointBufferFrameNum();
 
     return true;
 }
