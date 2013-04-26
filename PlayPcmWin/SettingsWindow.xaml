@@ -44,7 +44,11 @@
                                     <ComboBoxItem x:Uid="cbItemTaskPlayback" Content="Playback" Name="cbItemTaskPlayback" />
                                 </ComboBox>
                             </GroupBox>
-                            <CheckBox Name="checkBoxDwmEnableMMCSS" IsChecked="False" Content="DwmEnableMMCSS()" Margin="4" />
+                            <ComboBox x:Uid="comboBoxDwmEnableMMCSS" Name="comboBoxDwmEnableMMCSS" Margin="10" VerticalAlignment="Top">
+                                <ComboBoxItem x:Uid="cbItemDemDoNotCall" Content="Do not call DwmEnableMMCSS" Name="cbItemDemDoNotCall" />
+                                <ComboBoxItem x:Uid="cbItemDemTrue" Content="DwmEnableMMCSS(True)" Name="cbItemDemTrue" />
+                                <ComboBoxItem x:Uid="cbItemDemFalse" Content="DwmEnableMMCSS(False)" Name="cbItemDemFalse" />
+                            </ComboBox>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Margin="4" Height="90" Name="groupBoxWasapiShared" Width="400">

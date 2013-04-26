@@ -3585,7 +3585,7 @@ namespace PlayPcmWin
         /// SettingsWindowによって変更された表示情報をUIに反映し、設定を反映する。
         /// </summary>
         void PreferenceUpdated() {
-            {
+            if (m_preference.DwmEnableMmcssCall) {
                 int hr = NativeMethods.DwmEnableMMCSS(m_preference.DwmEnableMmcss);
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}{2}", m_preference.DwmEnableMmcss, hr, Environment.NewLine));
             }

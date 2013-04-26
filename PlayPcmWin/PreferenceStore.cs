@@ -71,6 +71,7 @@ namespace PlayPcmWin {
         public bool VerifyFlacMD5Sum { get; set; }
         public bool GpuRendering { get; set; }
         public bool DwmEnableMmcss { get; set; }
+        public bool DwmEnableMmcssCall { get; set; }
 
         private List<string> playListColumnsOrder = new List<string>();
         public Collection<string> PlayListColumnsOrder {
@@ -133,6 +134,7 @@ namespace PlayPcmWin {
             LastPlayItemIndex = 0;
             EnableNoiseShaping = true;
             DwmEnableMmcss = true;
+            DwmEnableMmcssCall = false;
 
             MainWindowLeft   = 100;
             MainWindowTop    = 100;
