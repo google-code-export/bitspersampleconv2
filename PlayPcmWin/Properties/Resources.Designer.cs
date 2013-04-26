@@ -879,7 +879,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Read {0} file failed に類似しているローカライズされた文字列を検索します。
+        ///   Read {0} file failed  に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ReadFileFailed {
             get {

@@ -172,7 +172,7 @@
     <value>Read failed files</value>
   </data>
   <data name="ReadFileFailed" xml:space="preserve">
-    <value>Read {0} file failed</value>
+    <value>Read {0} file failed </value>
   </data>
   <data name="MainStatusReadingFiles" xml:space="preserve">
     <value>Setup device completed. Now reading files to main memory...</value>

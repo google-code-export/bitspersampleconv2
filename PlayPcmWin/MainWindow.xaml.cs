@@ -668,8 +668,8 @@ namespace PlayPcmWin
                 var playListItem = m_playListItems[i];
 
                 s.Add(new PlaylistItemSave().Set(
-                    p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
-                    p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter));
+                        p.DisplayName, p.AlbumTitle, p.ArtistName, p.FullPath,
+                        p.CueSheetIndex, p.StartTick, p.EndTick, playListItem.ReadSeparaterAfter));
             }
 
             if (path.Length == 0) {
@@ -692,9 +692,9 @@ namespace PlayPcmWin
             SetLocalizedTextToUI();
 
             this.AddHandler(Slider.MouseLeftButtonDownEvent,
-                new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
+                    new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
             this.AddHandler(Slider.MouseLeftButtonUpEvent,
-                new MouseButtonEventHandler(slider1_MouseLeftButtonUp), true);
+                    new MouseButtonEventHandler(slider1_MouseLeftButtonUp), true);
 
             // InitializeComponent()によって、チェックボックスのチェックイベントが発生し
             // m_preferenceの内容が変わるので、InitializeComponent()の後にロードする。
@@ -704,10 +704,10 @@ namespace PlayPcmWin
             if (m_preference.ManuallySetMainWindowDimension) {
                 // 記録されているウィンドウ形状が、一部分でも画面に入っていたらOKとする
                 var windowRect = new System.Drawing.Rectangle(
-                    (int)m_preference.MainWindowLeft,
-                    (int)m_preference.MainWindowTop,
-                    (int)m_preference.MainWindowWidth,
-                    (int)m_preference.MainWindowHeight);
+                        (int)m_preference.MainWindowLeft,
+                        (int)m_preference.MainWindowTop,
+                        (int)m_preference.MainWindowWidth,
+                        (int)m_preference.MainWindowHeight);
 
                 bool inScreen = false;
                 foreach (var screen in System.Windows.Forms.Screen.AllScreens) {
@@ -732,14 +732,13 @@ namespace PlayPcmWin
                 expanderSettings.IsExpanded = false;
             }
 
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "PlayPcmWin {0} {1}\r\n",
-                    AssemblyVersion,
-                    IntPtr.Size == 8 ? "64bit" : "32bit"));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "PlayPcmWin {0} {1}{2}",
+                    AssemblyVersion, IntPtr.Size == 8 ? "64bit" : "32bit", Environment.NewLine));
 
             int hr = 0;
             wasapi = new WasapiCS();
             hr = wasapi.Init();
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Init() {0:X8}\r\n", hr));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Init() {0:X8}{1}", hr, Environment.NewLine));
 
             m_wasapiStateChangedDelegate = new Wasapi.WasapiCS.StateChangedCallback(WasapiStatusChanged);
             wasapi.RegisterCallback(m_wasapiStateChangedDelegate);
@@ -1282,20 +1281,18 @@ namespace PlayPcmWin
                     var stat = wasapi.GetSessionStatus();
                     if (WasapiCS.StreamType.DoP == stat.StreamType) {
                         statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch DoP DSD {5:F1}MHz.",
-                            Properties.Resources.MainStatusPlaying,
-                            radioButtonShared.IsChecked == true ?
-                                Properties.Resources.Shared : Properties.Resources.Exclusive,
-                            stat.DeviceSampleRate * 0.001,
-                            SampleFormatTypeToStr(stat.DeviceSampleFormat),
-                            stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016);
+                                Properties.Resources.MainStatusPlaying,
+                                radioButtonShared.IsChecked == true ? Properties.Resources.Shared : Properties.Resources.Exclusive,
+                                stat.DeviceSampleRate * 0.001,
+                                SampleFormatTypeToStr(stat.DeviceSampleFormat),
+                                stat.DeviceNumChannels, stat.DeviceSampleRate * 0.000016);
                     } else {
                         statusBarText.Content = string.Format(CultureInfo.InvariantCulture, "{0} WASAPI{1} {2}kHz {3} {4}ch PCM.",
-                            Properties.Resources.MainStatusPlaying,
-                            radioButtonShared.IsChecked == true ?
-                                Properties.Resources.Shared : Properties.Resources.Exclusive,
-                            stat.DeviceSampleRate * 0.001,
-                            SampleFormatTypeToStr(stat.DeviceSampleFormat),
-                            stat.DeviceNumChannels);
+                                Properties.Resources.MainStatusPlaying,
+                                radioButtonShared.IsChecked == true ? Properties.Resources.Shared : Properties.Resources.Exclusive,
+                                stat.DeviceSampleRate * 0.001,
+                                SampleFormatTypeToStr(stat.DeviceSampleFormat),
+                                stat.DeviceNumChannels);
                     }
 
                     progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -1336,8 +1333,7 @@ namespace PlayPcmWin
 
             if (m_preference.AlternatingRowBackground) {
                 dataGridPlayList.AlternatingRowBackground
-                    = new SolidColorBrush(Util.ColorFromArgb(
-                        m_preference.AlternatingRowBackgroundArgb));
+                        = new SolidColorBrush(Util.ColorFromArgb(m_preference.AlternatingRowBackgroundArgb));
             } else {
                 dataGridPlayList.AlternatingRowBackground = null;
             }
@@ -1355,7 +1351,7 @@ namespace PlayPcmWin
             listBoxDevices.Items.Clear();
 
             hr = wasapi.DoDeviceEnumeration(WasapiCS.DeviceType.Play);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.DoDeviceEnumeration(Play) {0:X8}\r\n", hr));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.DoDeviceEnumeration(Play) {0:X8}{1}", hr, Environment.NewLine));
 
             int nDevices = wasapi.GetDeviceCount();
             for (int i = 0; i < nDevices; ++i) {
@@ -1386,7 +1382,7 @@ namespace PlayPcmWin
                 buttonInspectDevice.IsEnabled = true;
             }
 
-            if (0 < m_pcmDataListForDisp.Count) {
+            if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
                 ChangeState(State.初期化完了);
@@ -1424,8 +1420,8 @@ namespace PlayPcmWin
             while (m_playWorker.IsBusy)
             {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                    System.Windows.Threading.DispatcherPriority.Background,
-                    new System.Threading.ThreadStart(delegate { }));
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new System.Threading.ThreadStart(delegate { }));
 
                 System.Threading.Thread.Sleep(100);
             }
@@ -1433,8 +1429,8 @@ namespace PlayPcmWin
             while (m_readFileWorker.IsBusy)
             {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
-                    System.Windows.Threading.DispatcherPriority.Background,
-                    new System.Threading.ThreadStart(delegate { }));
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new System.Threading.ThreadStart(delegate { }));
                 System.Threading.Thread.Sleep(100);
             }
         }
@@ -1451,7 +1447,7 @@ namespace PlayPcmWin
 
             if (wasapi != null) {
                 wasapi.UnchooseDevice();
-                AddLogText("wasapi.UnchooseDevice()\r\n");
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice(){0}", Environment.NewLine));
             }
 
             m_loadedGroupId = -1;
@@ -1469,11 +1465,7 @@ namespace PlayPcmWin
                 wasapi = null;
 
                 // ウィンドウの位置とサイズを保存
-                m_preference.SetMainWindowLeftTopWidthHeight(
-                    Left,
-                    Top,
-                    Width,
-                    Height);
+                m_preference.SetMainWindowLeftTopWidthHeight(Left, Top, Width, Height);
 
                 // 再生リピート設定を保存
                 SetPreferencePlaymodeFromComboBox();
@@ -1511,14 +1503,15 @@ namespace PlayPcmWin
             }
 
             wasapi.Unsetup();
-            AddLogText("wasapi.Unsetup()\r\n");
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Unsetup(){0}", Environment.NewLine));
             m_deviceSetupParams.Unsetuped();
         }
 
         private static int PcmChannelsToSetupChannels(int numChannels) {
+            // モノラル1chのPCMデータはMonoToStereo()によってステレオ2chに変換してから再生する。
             switch (numChannels) {
             case 1:
-                return 2; //< モノラル1chのPCMデータはMonoToStereo()によってステレオ2chに変換してから再生する。
+                return 2;
             default:
                 return numChannels;
             }
@@ -1602,10 +1595,10 @@ namespace PlayPcmWin
                         m_deviceSetupParams.NumChannels, PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
                         m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}\r\n",
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}{11}",
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate * 0.001, m_deviceSetupParams.SampleFormat,
                         m_deviceSetupParams.NumChannels, m_deviceSetupParams.ThreadTaskType, m_deviceSetupParams.SharedOrExclusive, m_deviceSetupParams.DataFeedMode,
-                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, hr));
+                        m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec * 0.0001, hr, Environment.NewLine));
                 if (0 <= hr) {
                     // 成功
                     break;
@@ -1614,7 +1607,7 @@ namespace PlayPcmWin
                 // 失敗
                 UnsetupDevice();
                 if (i == (candidateNum - 1)) {
-                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8}\n\n{11}",
+                    string s = string.Format(CultureInfo.InvariantCulture, "{0}: wasapi.Setup({1} {2}kHz {3} {4}ch {5} {6}ms {7} {8}) {9} {10:X8}{12}{12}{11}",
                             Properties.Resources.Error,
                             m_deviceSetupParams.StreamType,
                             startPcmData.SampleRate * 0.001,
@@ -1626,7 +1619,8 @@ namespace PlayPcmWin
                             ShareModeToStr(m_preference.WasapiSharedOrExclusive),
                             Properties.Resources.Failed,
                             hr,
-                            Properties.Resources.SetupFailAdvice);
+                            Properties.Resources.SetupFailAdvice,
+                            Environment.NewLine);
                     MessageBox.Show(s);
                     return false;
                 }
@@ -1634,8 +1628,8 @@ namespace PlayPcmWin
 
             {
                 var stat = wasapi.GetSessionStatus();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "Endpoint buffer size = {0} frames.\r\n",
-                        stat.EndpointBufferFrameNum));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "Endpoint buffer size = {0} frames.{1}",
+                        stat.EndpointBufferFrameNum, Environment.NewLine));
             }
 
             ChangeState(State.デバイスSetup完了);
@@ -1655,7 +1649,7 @@ namespace PlayPcmWin
         private StringBuilder m_loadErrorMessages;
 
         private void LoadErrorMessageAdd(string s) {
-            s = "*" + s.TrimEnd('\n').TrimEnd('\r') + ". ";
+            s = "*" + s.TrimEnd('\r', '\n') + ". ";
             m_loadErrorMessages.Append(s);
         }
 
@@ -1668,7 +1662,7 @@ namespace PlayPcmWin
             wasapi.ClearPlayList();
 
             m_groupIdNextAdd = 0;
-            m_loadedGroupId = -1;
+            m_loadedGroupId  = -1;
             m_loadingGroupId = -1;
 
             GC.Collect();
@@ -1701,8 +1695,7 @@ namespace PlayPcmWin
 
             if (System.IO.File.Exists(path)) {
                 // ファイルが存在する。
-                using (var br = new BinaryReader(
-                        File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
                     if (br.BaseStream.Length <= 0x7fffffff) {
                         result = br.ReadBytes((int)br.BaseStream.Length);
                     }
@@ -1721,23 +1714,28 @@ namespace PlayPcmWin
                 return true;
             }
 
-            var dirPath = System.IO.Path.GetDirectoryName(path);
+            try {
+                var dirPath = System.IO.Path.GetDirectoryName(path);
 
-            var pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}.jpg", dirPath,
-                System.IO.Path.GetFileNameWithoutExtension(path)));
-            if (0 < pictureData.Length) {
-                // ファイル名.jpgが存在。
-                pcmData.SetPicture(pictureData.Length, pictureData);
-                return true;
-            }
-
-            foreach (string albumImageFilename in ALBUM_IMAGE_FILENAMES) {
-                pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", dirPath, albumImageFilename));
+                var pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}.jpg", dirPath,
+                        System.IO.Path.GetFileNameWithoutExtension(path)));
                 if (0 < pictureData.Length) {
-                    // アルバムのカバーアート画像(folder.jpg等)が存在。
+                    // ファイル名.jpgが存在。
                     pcmData.SetPicture(pictureData.Length, pictureData);
                     return true;
                 }
+
+                foreach (string albumImageFilename in ALBUM_IMAGE_FILENAMES) {
+                    pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", dirPath, albumImageFilename));
+                    if (0 < pictureData.Length) {
+                        // アルバムのカバーアート画像(folder.jpg等)が存在。
+                        pcmData.SetPicture(pictureData.Length, pictureData);
+                        return true;
+                    }
+                }
+            } catch (Exception ex) {
+                // エラーが起きたら読まない。
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "W: coverart image read failed: {0}", ex));
             }
 
             return false;
@@ -1750,19 +1748,21 @@ namespace PlayPcmWin
         /// </summary>
         private bool CheckAddPcmData(PlaylistTrackInfo plti, string path, PcmDataLib.PcmData pcmData) {
             if (31 < pcmData.NumChannels) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch{3}", Properties.Resources.TooManyChannels, path, pcmData.NumChannels, Environment.NewLine));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch{3}",
+                        Properties.Resources.TooManyChannels, path, pcmData.NumChannels, Environment.NewLine));
                 return false;
             }
 
             if (pcmData.BitsPerSample != 16
                     && pcmData.BitsPerSample != 24
                     && pcmData.BitsPerSample != 32) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit{3}", Environment.NewLine, Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample, Environment.NewLine));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit{3}",
+                        Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample, Environment.NewLine));
                 return false;
             }
 
             if (0 < m_pcmDataListForDisp.Count
-                    && !m_pcmDataListForDisp[m_pcmDataListForDisp.Count - 1].IsSameFormat(pcmData)) {
+                    && !m_pcmDataListForDisp.Last().IsSameFormat(pcmData)) {
                 // データフォーマットが変わった。
                 // Setupのやり直しになるのでファイルグループ番号を変える。
                 ++m_groupIdNextAdd;
@@ -1770,9 +1770,9 @@ namespace PlayPcmWin
 
             pcmData.FullPath = path;
             pcmData.FileName = System.IO.Path.GetFileName(path);
-            pcmData.Id = m_pcmDataListForDisp.Count();
-            pcmData.Ordinal = pcmData.Id;
-            pcmData.GroupId = m_groupIdNextAdd;
+            pcmData.Id       = m_pcmDataListForDisp.Count();
+            pcmData.Ordinal  = pcmData.Id;
+            pcmData.GroupId  = m_groupIdNextAdd;
             // PCMファイルにタイトル名が埋め込まれていない時、ファイル名をタイトル名にする。
             if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
                 pcmData.DisplayName = pcmData.FileName;
@@ -1781,12 +1781,12 @@ namespace PlayPcmWin
             // CUEシートの情報をセットする。
             if (null == plti) {
                 // startTickとendTickは、既にセットされていることもあるので、ここではセットしない。
-                // pcmData.StartTick = 0;
-                // pcmData.EndTick = -1;
+                // pcmData.StartTick     = 0;
+                // pcmData.EndTick       = -1;
                 // pcmData.CueSheetIndex = 1;
             } else {
-                pcmData.StartTick = plti.startTick;
-                pcmData.EndTick = plti.endTick;
+                pcmData.StartTick     = plti.startTick;
+                pcmData.EndTick       = plti.endTick;
                 pcmData.CueSheetIndex = plti.indexId;
 
                 // 再生リストにタイトル名情報がある時は、再生リストのタイトル名をタイトル名にする。
@@ -1822,7 +1822,8 @@ namespace PlayPcmWin
         }
 
         private void HandleFileReadException(string path, Exception ex) {
-            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{3}{2}{3}", "WAV", path, ex, Environment.NewLine));
+            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{3}{2}{3}",
+                    "WAV", path, ex, Environment.NewLine));
         }
 
         /// <summary>
@@ -1834,39 +1835,32 @@ namespace PlayPcmWin
             bool result = false;
 
             var wavData = new WavData();
-            try {
-                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    if (wavData.ReadHeader(br)) {
-                        // WAVヘッダ読み込み成功。PcmDataを作って再生リストに足す。
+            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                if (wavData.ReadHeader(br)) {
+                    // WAVヘッダ読み込み成功。PcmDataを作って再生リストに足す。
 
-                        var pd = new PcmDataLib.PcmData();
-                        pd.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.ValidBitsPerSample,
+                    var pd = new PcmDataLib.PcmData();
+                    pd.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.ValidBitsPerSample,
                             wavData.SampleRate, wavData.SampleValueRepresentationType, wavData.NumFrames);
-                        if ("RIFFINFO_INAM".Equals(wavData.Title) &&
+                    if ("RIFFINFO_INAM".Equals(wavData.Title) &&
                             "RIFFINFO_IART".Equals(wavData.ArtistName)) {
-                            // Issue 79 workaround
-                        } else {
-                            if (wavData.Title != null) {
-                                pd.DisplayName = wavData.Title;
-                            }
-                            if (wavData.AlbumName != null) {
-                                pd.AlbumTitle = wavData.AlbumName;
-                            }
-                            if (wavData.ArtistName != null) {
-                                pd.ArtistName = wavData.ArtistName;
-                            }
-                        }
-                        result = CheckAddPcmData(plti, path, pd);
+                        // Issue 79 workaround
                     } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}", "WAV", path, Environment.NewLine));
+                        if (wavData.Title != null) {
+                            pd.DisplayName = wavData.Title;
+                        }
+                        if (wavData.AlbumName != null) {
+                            pd.AlbumTitle = wavData.AlbumName;
+                        }
+                        if (wavData.ArtistName != null) {
+                            pd.ArtistName = wavData.ArtistName;
+                        }
                     }
+                    result = CheckAddPcmData(plti, path, pd);
+                } else {
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}",
+                            "WAV", path, Environment.NewLine));
                 }
-            } catch (IOException ex) {
-                HandleFileReadException(path, ex);
-            } catch (ArgumentException ex) {
-                HandleFileReadException(path, ex);
-            } catch (UnauthorizedAccessException ex) {
-                HandleFileReadException(path, ex);
             }
 
             return result;
@@ -1880,24 +1874,17 @@ namespace PlayPcmWin
             bool result = false;
 
             var ar = new AiffReader();
-            try {
-                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    PcmDataLib.PcmData pd;
-                    var aiffResult = ar.ReadHeader(br, out pd);
-                    if (aiffResult == AiffReader.ResultType.Success) {
-                        if (CheckAddPcmData(plti, path, pd)) {
-                            result = true;
-                        }
-                    } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "AIFF", aiffResult, path, Environment.NewLine));
+            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                PcmDataLib.PcmData pd;
+                var aiffResult = ar.ReadHeader(br, out pd);
+                if (aiffResult == AiffReader.ResultType.Success) {
+                    if (CheckAddPcmData(plti, path, pd)) {
+                        result = true;
                     }
+                } else {
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
+                        "AIFF", aiffResult, path, Environment.NewLine));
                 }
-            } catch (IOException ex) {
-                HandleFileReadException(path, ex);
-            } catch (ArgumentException ex) {
-                HandleFileReadException(path, ex);
-            } catch (UnauthorizedAccessException ex) {
-                HandleFileReadException(path, ex);
             }
 
             return result;
@@ -1911,24 +1898,17 @@ namespace PlayPcmWin
             bool result = false;
 
             var r = new DsfReader();
-            try {
-                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    PcmDataLib.PcmData pd;
-                    var rv = r.ReadHeader(br, out pd);
-                    if (rv == DsfReader.ResultType.Success) {
-                        if (CheckAddPcmData(plti, path, pd)) {
-                            result = true;
-                        }
-                    } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "DSF", rv, path, Environment.NewLine));
+            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                PcmDataLib.PcmData pd;
+                var rv = r.ReadHeader(br, out pd);
+                if (rv == DsfReader.ResultType.Success) {
+                    if (CheckAddPcmData(plti, path, pd)) {
+                        result = true;
                     }
+                } else {
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
+                            "DSF", rv, path, Environment.NewLine));
                 }
-            } catch (IOException ex) {
-                HandleFileReadException(path, ex);
-            } catch (ArgumentException ex) {
-                HandleFileReadException(path, ex);
-            } catch (UnauthorizedAccessException ex) {
-                HandleFileReadException(path, ex);
             }
 
             return result;
@@ -1942,24 +1922,17 @@ namespace PlayPcmWin
             bool result = false;
 
             var r = new DsdiffReader();
-            try {
-                using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    PcmDataLib.PcmData pd;
-                    var rv = r.ReadHeader(br, out pd);
-                    if (rv == DsdiffReader.ResultType.Success) {
-                        if (CheckAddPcmData(plti, path, pd)) {
-                            result = true;
-                        }
-                    } else {
-                        LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}", "DSDIFF", rv, path, Environment.NewLine));
+            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+                PcmDataLib.PcmData pd;
+                var rv = r.ReadHeader(br, out pd);
+                if (rv == DsdiffReader.ResultType.Success) {
+                    if (CheckAddPcmData(plti, path, pd)) {
+                        result = true;
                     }
+                } else {
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
+                            "DSDIFF", rv, path, Environment.NewLine));
                 }
-            } catch (IOException ex) {
-                HandleFileReadException(path, ex);
-            } catch (ArgumentException ex) {
-                HandleFileReadException(path, ex);
-            } catch (UnauthorizedAccessException ex) {
-                HandleFileReadException(path, ex);
             }
 
             return result;
@@ -2024,7 +1997,8 @@ namespace PlayPcmWin
                 readResult = true;
             } else {
                 // FLACヘッダ部分読み込み失敗。
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}{3}", "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd), Environment.NewLine));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}{3}",
+                        "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd), Environment.NewLine));
             }
 
             return readResult;
@@ -2051,7 +2025,8 @@ namespace PlayPcmWin
 
             bool result = plr.ReadFromFile(path);
             if (!result) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}", Path.GetExtension(path), path, Environment.NewLine));
+                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}",
+                        Path.GetExtension(path), path, Environment.NewLine));
                 return 0;
             }
 
@@ -2061,8 +2036,8 @@ namespace PlayPcmWin
                 readCount += ReadFileHeader1(plti.path, ReadHeaderMode.OnlyConcreteFile, plti);
 
                 if ((plti.indexId == 0 &&
-                    m_preference.ReplaceGapWithKokomade) ||
-                    plti.readSeparatorAfter) {
+                        m_preference.ReplaceGapWithKokomade) ||
+                        plti.readSeparatorAfter) {
                     // INDEX 00 == gap しかも gapのかわりに[ここまで読みこみ]を追加するの場合
                     // または、CUEシートにREM KOKOMADEが書いてある場合。
                     AddKokomade();
@@ -2138,7 +2113,8 @@ namespace PlayPcmWin
                     // 読まないで無視する。
                     break;
                 default:
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}{2}", Properties.Resources.NotSupportedFileFormat, path, Environment.NewLine));
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}{2}",
+                            Properties.Resources.NotSupportedFileFormat, path, Environment.NewLine));
                     break;
                 }
             } catch (IOException ex) {
@@ -2146,6 +2122,9 @@ namespace PlayPcmWin
             } catch (ArgumentException ex) {
                 HandleFileReadException(path, ex);
             } catch (UnauthorizedAccessException ex) {
+                HandleFileReadException(path, ex);
+            } catch (Exception ex) {
+                // 未知のエラー。
                 HandleFileReadException(path, ex);
             }
 
@@ -2192,7 +2171,7 @@ namespace PlayPcmWin
 
                 var formats = e.Data.GetFormats(false);
                 foreach (var format in formats) {
-                    sb.Append(string.Format(CultureInfo.InvariantCulture, "\n    {0}", format));
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "{1}    {0}", format, Environment.NewLine));
                 }
                 MessageBox.Show(sb.ToString());
                 return;
@@ -2279,8 +2258,7 @@ namespace PlayPcmWin
             }
 
             if (result != true) {
-                MessageBox.Show(
-                    string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Properties.Resources.SaveFileFailed, dlg.FileName));
+                MessageBox.Show(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Properties.Resources.SaveFileFailed, dlg.FileName));
             }
         }
 
@@ -2300,8 +2278,7 @@ namespace PlayPcmWin
             var result = dlg.ShowDialog();
             if (result == true) {
                 if (!SavePpwPlaylist(dlg.FileName)) {
-                    MessageBox.Show(
-                        string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Properties.Resources.SaveFileFailed, dlg.FileName));
+                    MessageBox.Show(string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Properties.Resources.SaveFileFailed, dlg.FileName));
                 }
             }
         }
@@ -2333,8 +2310,8 @@ namespace PlayPcmWin
 
                 if (0 < m_loadErrorMessages.Length) {
                     MessageBox.Show(m_loadErrorMessages.ToString(),
-                        Properties.Resources.ReadFailedFiles,
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                            Properties.Resources.ReadFailedFiles,
+                            MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 m_loadErrorMessages = null;
@@ -2349,10 +2326,8 @@ namespace PlayPcmWin
 
         private void MenuItemHelpAbout_Click(object sender, RoutedEventArgs e) {
             MessageBox.Show(
-                string.Format(CultureInfo.InvariantCulture, "PlayPcmWin {0} {1}\r\n\r\n{2}",
-                    Properties.Resources.Version,
-                    AssemblyVersion,
-                    Properties.Resources.LicenseText));
+                string.Format(CultureInfo.InvariantCulture, "PlayPcmWin {0} {1}{3}{3}{2}",
+                        Properties.Resources.Version, AssemblyVersion, Properties.Resources.LicenseText, Environment.NewLine));
         }
 
         private void MenuItemHelpWeb_Click(object sender, RoutedEventArgs e) {
@@ -2450,21 +2425,18 @@ namespace PlayPcmWin
 
             public override string ToString(string fileName) {
                 if (IsSucceeded) {
-                    return string.Format(CultureInfo.InvariantCulture,
-                        Properties.Resources.MD5SumValid, fileName) + "\n";
+                    return string.Format(CultureInfo.InvariantCulture, Properties.Resources.MD5SumValid, fileName) + Environment.NewLine;
                 }
 
-                return string.Format(CultureInfo.InvariantCulture,
-                    Properties.Resources.MD5SumMismatch,
-                    fileName,
-                    MD5SumToStr(md5SumInMetadata), MD5SumToStr(md5SumOfPcm)) + "\n";
+                return string.Format(CultureInfo.InvariantCulture, Properties.Resources.MD5SumMismatch,
+                        fileName, MD5SumToStr(md5SumInMetadata), MD5SumToStr(md5SumOfPcm)) + Environment.NewLine;
             }
 
             private static string MD5SumToStr(byte[] a) {
                 return string.Format(CultureInfo.InvariantCulture,
-                    "{0:x2}{1:x2}{2:x2}{3:x2}{4:x2}{5:x2}{6:x2}{7:x2}{8:x2}{9:x2}{10:x2}{11:x2}{12:x2}{13:x2}{14:x2}{15:x2}",
-                    a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7],
-                    a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
+                        "{0:x2}{1:x2}{2:x2}{3:x2}{4:x2}{5:x2}{6:x2}{7:x2}{8:x2}{9:x2}{10:x2}{11:x2}{12:x2}{13:x2}{14:x2}{15:x2}",
+                        a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7],
+                        a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
             }
         };
 
@@ -2545,7 +2517,7 @@ namespace PlayPcmWin
                 sw.Start();
 
                 m_readProgressInfo = new ReadProgressInfo(
-                    0, 0, 0, 0, CountWaveDataOnPlayGroup(m_pcmDataListForPlay, readGroupId));
+                        0, 0, 0, 0, CountWaveDataOnPlayGroup(m_pcmDataListForPlay, readGroupId));
 
                 wasapi.ClearPlayList();
                 wasapi.AddPlayPcmDataStart();
@@ -2592,7 +2564,7 @@ namespace PlayPcmWin
                 GC.Collect();
 
                 if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Shared) {
-                    m_readFileWorker.ReportProgress(90, string.Format(CultureInfo.InvariantCulture, "Resampling...\r\n"));
+                    m_readFileWorker.ReportProgress(90, string.Format(CultureInfo.InvariantCulture, "Resampling...{0}", Environment.NewLine));
                 }
                 r.hr = wasapi.ResampleIfNeeded(m_deviceSetupParams.ResamplerConversionQuality);
                 if (r.hr < 0) {
@@ -2606,8 +2578,8 @@ namespace PlayPcmWin
                     // Limiter APO対策の音量制限。
                     double maxAmplitude = wasapi.ScanPcmMaxAbsAmplitude();
                     if (SHARED_MAX_AMPLITUDE < maxAmplitude) {
-                        m_readFileWorker.ReportProgress(95, string.Format(CultureInfo.InvariantCulture, "Scaling amplitude by {0:0.000}dB ({1:0.000}x) to soothe Limiter APO...\r\n",
-                                20.0 * Math.Log10(SHARED_MAX_AMPLITUDE / maxAmplitude), SHARED_MAX_AMPLITUDE / maxAmplitude));
+                        m_readFileWorker.ReportProgress(95, string.Format(CultureInfo.InvariantCulture, "Scaling amplitude by {0:0.000}dB ({1:0.000}x) to soothe Limiter APO...{2}",
+                                20.0 * Math.Log10(SHARED_MAX_AMPLITUDE / maxAmplitude), SHARED_MAX_AMPLITUDE / maxAmplitude, Environment.NewLine));
                         wasapi.ScalePcmAmplitude(SHARED_MAX_AMPLITUDE / maxAmplitude);
                     }
                 }
@@ -2616,7 +2588,7 @@ namespace PlayPcmWin
 
                 // 成功。
                 sw.Stop();
-                r.message = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadPlayGroupNCompleted + "\r\n", readGroupId, sw.ElapsedMilliseconds);
+                r.message = string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadPlayGroupNCompleted + Environment.NewLine, readGroupId, sw.ElapsedMilliseconds);
                 r.hr = 0;
                 args.Result = r;
 
@@ -2742,7 +2714,7 @@ namespace PlayPcmWin
                 double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
                 m_readFileWorker.ReportProgress((int)progressPercentage, string.Empty);
                 if (noiseShaping) {
-                    m_readFileWorker.ReportProgress((int)progressPercentage, "Noise shaping ... done\r\n");
+                    m_readFileWorker.ReportProgress((int)progressPercentage, string.Format(CultureInfo.InvariantCulture, "Noise shaping ... done{0}", Environment.NewLine));
                 }
             }
         }
@@ -2757,11 +2729,8 @@ namespace PlayPcmWin
                 pr.StreamEnd();
                 if (ercd < 0) {
                     r.hr = ercd;
-                    r.message = string.Format(CultureInfo.InvariantCulture, "{0}! {1}\r\n{2}\r\n{3}: {4} (0x{4:X8})",
-                            Properties.Resources.ReadError,
-                            pd.FullPath,
-                            FlacDecodeIF.ErrorCodeToStr(ercd),
-                            Properties.Resources.ErrorCode, ercd);
+                    r.message = string.Format(CultureInfo.InvariantCulture, "{0}! {1}{5}{2}{5}{3}: {4} (0x{4:X8})",
+                            Properties.Resources.ReadError, pd.FullPath, FlacDecodeIF.ErrorCodeToStr(ercd), Properties.Resources.ErrorCode, ercd, Environment.NewLine);
                     Console.WriteLine("D: ReadFileSingleDoWork() !readSuccess");
                     return false;
                 }
@@ -2804,7 +2773,7 @@ namespace PlayPcmWin
 
                 for (int i=0; i < rri.Count; ++i) {
                     if (!rri[i].result) {
-                        r.message += rri[i].message + "\r\n";
+                        r.message += rri[i].message + Environment.NewLine;
                         result = false;
                     }
                     rri[i].End();
@@ -2870,7 +2839,7 @@ namespace PlayPcmWin
                 }
 
                 if (pdAfter.GetSampleArray() == null ||
-                    0 == pdAfter.GetSampleArray().Length) {
+                        0 == pdAfter.GetSampleArray().Length) {
                     // サンプルが存在しないのでWasapiにAddしない。
                     break;
                 }
@@ -2903,8 +2872,7 @@ namespace PlayPcmWin
 
             ercd = pr.StreamEnd();
             if (ercd < 0) {
-                return new ReadFileResultFailed(pd.Id,
-                    string.Format(CultureInfo.InvariantCulture, "{0}: {1}", FlacDecodeIF.ErrorCodeToStr(ercd), pd.FullPath));
+                return new ReadFileResultFailed(pd.Id, string.Format(CultureInfo.InvariantCulture, "{0}: {1}", FlacDecodeIF.ErrorCodeToStr(ercd), pd.FullPath));
             }
 
             if (pr.MD5SumOfPcm != null) {
@@ -2930,7 +2898,7 @@ namespace PlayPcmWin
             // 1曲リピートか(全曲リピート再生で、GroupIdが0しかない場合)、WASAPI再生スレッドのリピート設定が可能。
             ComboBoxPlayModeType playMode = (ComboBoxPlayModeType)comboBoxPlayMode.SelectedIndex;
             if (playMode == ComboBoxPlayModeType.OneTrackRepeat
-                || (playMode == ComboBoxPlayModeType.AllTracksRepeat
+                    || (playMode == ComboBoxPlayModeType.AllTracksRepeat
                     && 0 == CountWaveDataOnPlayGroup(m_pcmDataListForPlay, 1))) {
                 repeat = true;
             }
@@ -3007,13 +2975,13 @@ namespace PlayPcmWin
                 if (0 <= attr.Id) {
                     // 別のデバイスが選択されている場合、Unchooseする。
                     wasapi.UnchooseDevice();
-                    AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice()\r\n"));
+                    AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice(){0}", Environment.NewLine));
                 }
             }
 
             // このデバイスを選択。
             int hr = wasapi.ChooseDevice(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.ChooseDevice({0}) {1:X8}\r\n", di.Name, hr));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.ChooseDevice({0}) {1:X8}{2}", di.Name, hr, Environment.NewLine));
             if (hr < 0) {
                 return false;
             }
@@ -3161,7 +3129,7 @@ namespace PlayPcmWin
             switch (m_state) {
             case State.再生中:
                 hr = wasapi.Pause();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Pause() {0:X8}\r\n", hr));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Pause() {0:X8}{1}", hr, Environment.NewLine));
                 if (0 <= hr) {
                     ChangeState(State.再生一時停止中);
                     UpdateUIStatus();
@@ -3171,7 +3139,7 @@ namespace PlayPcmWin
                 break;
             case State.再生一時停止中:
                 hr = wasapi.Unpause();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Unpause() {0:X8}\r\n", hr));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Unpause() {0:X8}{1}", hr, Environment.NewLine));
                 if (0 <= hr) {
                     ChangeState(State.再生中);
                     UpdateUIStatus();
@@ -3270,9 +3238,7 @@ namespace PlayPcmWin
             int nextGroupId = m_loadedGroupId + 1;
 
             if (0 < CountWaveDataOnPlayGroup(m_pcmDataListForPlay, nextGroupId)) {
-                m_task.Set(TaskType.PlaySpecifiedGroup, 
-                    nextGroupId,
-                    GetFirstWavDataIdOnGroup(m_pcmDataListForPlay, nextGroupId));
+                m_task.Set(TaskType.PlaySpecifiedGroup, nextGroupId, GetFirstWavDataIdOnGroup(m_pcmDataListForPlay, nextGroupId));
                 return;
             }
 
@@ -3304,8 +3270,7 @@ namespace PlayPcmWin
             m_sw.Start();
 
             int hr = wasapi.StartPlayback(wavDataId);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}\r\n",
-                wavDataId, hr));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));
             if (hr < 0) {
                 MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}", hr));
                 Exit();
@@ -3371,8 +3336,8 @@ namespace PlayPcmWin
 
             /* {
                 long hnano = wasapi.GetTimePeriodHundredNanosec();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, " timer resolution = {0} microsec\r\n",
-                    hnano * 0.1));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, " timer resolution = {0} microsec{1}",
+                    hnano * 0.1, Environment.NewLine));
             } */
 
 
@@ -3407,8 +3372,8 @@ namespace PlayPcmWin
                 }
 
                 labelPlayingTime.Content = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
-                    SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
-                    SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                        SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
+                        SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
             }
         }
 
@@ -3469,8 +3434,7 @@ namespace PlayPcmWin
         /// </summary>
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
             m_sw.Stop();
-            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}\r\n",
-                m_sw.Elapsed));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayCompletedElapsedTimeIs + " {0}{1}", m_sw.Elapsed, Environment.NewLine));
 
             PerformPlayCompletedTask();
         }
@@ -3481,7 +3445,7 @@ namespace PlayPcmWin
 
             // 停止ボタンで停止した場合は、停止後何もしない。
             StopAsync(new Task(TaskType.None));
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Stop()\r\n"));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Stop(){0}", Environment.NewLine));
         }
 
         private long mLastSliderValue = 0;
@@ -3528,10 +3492,10 @@ namespace PlayPcmWin
             public int validBitsPerSample;
             public int bitFormat; // 0:Int, 1:Float
             public InspectFormat(int sr, int bps, int vbps, int bf) {
-                sampleRate = sr;
-                bitsPerSample = bps;
+                sampleRate         = sr;
+                bitsPerSample      = bps;
                 validBitsPerSample = vbps;
-                bitFormat = bf;
+                bitFormat          = bf;
             }
         };
 
@@ -3539,46 +3503,46 @@ namespace PlayPcmWin
         const int TEST_BIT_REPRESENTATION_NUM = 5;
 
         static readonly InspectFormat [] gInspectFormats = new InspectFormat [] {
-                new InspectFormat(44100, 16, 16, 0),
-                new InspectFormat(48000, 16, 16, 0),
-                new InspectFormat(88200, 16, 16, 0),
-                new InspectFormat(96000, 16, 16, 0),
+                new InspectFormat(44100,  16, 16, 0),
+                new InspectFormat(48000,  16, 16, 0),
+                new InspectFormat(88200,  16, 16, 0),
+                new InspectFormat(96000,  16, 16, 0),
                 new InspectFormat(176400, 16, 16, 0),
                 new InspectFormat(192000, 16, 16, 0),
                 new InspectFormat(352800, 16, 16, 0),
                 new InspectFormat(384000, 16, 16, 0),
 
-                new InspectFormat(44100, 24, 24, 0),
-                new InspectFormat(48000, 24, 24, 0),
-                new InspectFormat(88200, 24, 24, 0),
-                new InspectFormat(96000, 24, 24, 0),
+                new InspectFormat(44100,  24, 24, 0),
+                new InspectFormat(48000,  24, 24, 0),
+                new InspectFormat(88200,  24, 24, 0),
+                new InspectFormat(96000,  24, 24, 0),
                 new InspectFormat(176400, 24, 24, 0),
                 new InspectFormat(192000, 24, 24, 0),
                 new InspectFormat(352800, 24, 24, 0),
                 new InspectFormat(384000, 24, 24, 0),
 
-                new InspectFormat(44100, 32, 24, 0),
-                new InspectFormat(48000, 32, 24, 0),
-                new InspectFormat(88200, 32, 24, 0),
-                new InspectFormat(96000, 32, 24, 0),
+                new InspectFormat(44100,  32, 24, 0),
+                new InspectFormat(48000,  32, 24, 0),
+                new InspectFormat(88200,  32, 24, 0),
+                new InspectFormat(96000,  32, 24, 0),
                 new InspectFormat(176400, 32, 24, 0),
                 new InspectFormat(192000, 32, 24, 0),
                 new InspectFormat(352800, 32, 24, 0),
                 new InspectFormat(384000, 32, 24, 0),
 
-                new InspectFormat(44100, 32, 32, 0),
-                new InspectFormat(48000, 32, 32, 0),
-                new InspectFormat(88200, 32, 32, 0),
-                new InspectFormat(96000, 32, 32, 0),
+                new InspectFormat(44100,  32, 32, 0),
+                new InspectFormat(48000,  32, 32, 0),
+                new InspectFormat(88200,  32, 32, 0),
+                new InspectFormat(96000,  32, 32, 0),
                 new InspectFormat(176400, 32, 32, 0),
                 new InspectFormat(192000, 32, 32, 0),
                 new InspectFormat(352800, 32, 32, 0),
                 new InspectFormat(384000, 32, 32, 0),
 
-                new InspectFormat(44100, 32, 32, 1),
-                new InspectFormat(48000, 32, 32, 1),
-                new InspectFormat(88200, 32, 32, 1),
-                new InspectFormat(96000, 32, 32, 1),
+                new InspectFormat(44100,  32, 32, 1),
+                new InspectFormat(48000,  32, 32, 1),
+                new InspectFormat(88200,  32, 32, 1),
+                new InspectFormat(96000,  32, 32, 1),
                 new InspectFormat(176400, 32, 32, 1),
                 new InspectFormat(192000, 32, 32, 1),
                 new InspectFormat(352800, 32, 32, 1),
@@ -3588,32 +3552,32 @@ namespace PlayPcmWin
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
             var attr = wasapi.GetDeviceAttributes(listBoxDevices.SelectedIndex);
 
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}\r\n", attr.Name, attr.DeviceIdString));
-            AddLogText("++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n");
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.InspectDevice()\r\nDeviceFriendlyName={0}\r\nDeviceIdString={1}{2}", attr.Name, attr.DeviceIdString, Environment.NewLine));
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
             for (int fmt = 0; fmt < TEST_BIT_REPRESENTATION_NUM; ++fmt) {
                 var sb = new StringBuilder();
                 for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
                     int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
                     System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    InspectFormat ifmt = gInspectFormats[idx];
+                    var ifmt = gInspectFormats[idx];
                     sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0,3}kHz {1}{2}V{3}",
-                        ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
-                        ifmt.bitsPerSample, ifmt.validBitsPerSample));
+                            ifmt.sampleRate / 1000, ifmt.bitFormat == 0 ? "i" : "f",
+                            ifmt.bitsPerSample, ifmt.validBitsPerSample));
                 }
-                sb.Append("||\r\n");
+                sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
                 AddLogText(sb.ToString());
 
                 sb.Clear();
                 for (int sr =0; sr < TEST_SAMPLE_RATE_NUM; ++sr) {
                     int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
                     System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
-                    InspectFormat ifmt = gInspectFormats[idx];
+                    var ifmt = gInspectFormats[idx];
                     int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat);
                     sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
                 }
-                sb.Append("||\r\n");
+                sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));
                 AddLogText(sb.ToString());
-                AddLogText("++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++\r\n");
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "++-------------++-------------++-------------++-------------++-------------++-------------++-------------++-------------++{0}", Environment.NewLine));
             }
         }
 
@@ -3623,7 +3587,7 @@ namespace PlayPcmWin
         void PreferenceUpdated() {
             {
                 int hr = NativeMethods.DwmEnableMMCSS(m_preference.DwmEnableMmcss);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}\r\n", m_preference.DwmEnableMmcss, hr));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}{2}", m_preference.DwmEnableMmcss, hr, Environment.NewLine));
             }
 
             RenderOptions.ProcessRenderMode =
@@ -3635,9 +3599,7 @@ namespace PlayPcmWin
                 labelPlayingTime.FontFamily = ff;
             }
             labelPlayingTime.FontSize = m_preference.PlayingTimeSize;
-            labelPlayingTime.FontWeight = m_preference.PlayingTimeFontBold
-                ? FontWeights.Bold
-                : FontWeights.Normal;
+            labelPlayingTime.FontWeight = m_preference.PlayingTimeFontBold ? FontWeights.Bold : FontWeights.Normal;
 
             sliderWindowScaling.Value = m_preference.WindowScale;
 
@@ -3694,8 +3656,7 @@ namespace PlayPcmWin
                 // 再生中でなく、ロード中の場合。
                 // ロード完了後ReadFileRunWorkerCompleted()で再生する曲を切り替えるための
                 // 情報をセットする。
-                m_pliUpdatedByUserSelectWhileLoading
-                    = m_playListItems[dataGridPlayList.SelectedIndex];
+                m_pliUpdatedByUserSelectWhileLoading = m_playListItems[dataGridPlayList.SelectedIndex];
                 return;
             }
 
@@ -3723,8 +3684,7 @@ namespace PlayPcmWin
             if (playPcmData.GroupId == groupId) {
                 // 同一ファイルグループのファイルの場合、すぐにこの曲が再生可能。
                 wasapi.UpdatePlayPcmDataById(wavDataId);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UpdatePlayPcmDataById({0})\r\n",
-                    wavDataId));
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UpdatePlayPcmDataById({0}){1}", wavDataId, Environment.NewLine));
             } else {
                 // ファイルグループが違う場合、再生を停止し、グループを読み直し、再生を再開する。
                 StopAsync(new Task(TaskType.PlaySpecifiedGroup, groupId, wavDataId));
@@ -3742,7 +3702,7 @@ namespace PlayPcmWin
                 return;
             }
 
-            m_playListItems[m_playListItems.Count() - 1].ReadSeparaterAfter = true;
+            m_playListItems.Last().ReadSeparaterAfter = true;
 
             //m_playListView.RefreshCollection();
             ++m_groupIdNextAdd;
@@ -4013,11 +3973,11 @@ namespace PlayPcmWin
 
         private void menu1_MouseMove(object sender, MouseEventArgs e) {
             if (IsWindowMoveMode(e)) {
-                var pos = e.GetPosition(this);
+                var pos   = e.GetPosition(this);
                 var delta = new Point(pos.X - mPrevPos.X, pos.Y - mPrevPos.Y);
 
                 Left += delta.X;
-                Top += delta.Y;
+                Top  += delta.Y;
             } else {
                 mPrevPos = e.GetPosition(this);
             }
@@ -4046,7 +4006,7 @@ namespace PlayPcmWin
         private void WasapiStatusChanged(StringBuilder idStr) {
             Console.WriteLine("WasapiStatusChanged {0}", idStr);
             Dispatcher.BeginInvoke(new Action(delegate() {
-                // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + "\r\n", idStr));
+                // AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.DeviceStateChanged + Environment.NewLine, idStr));
                 switch (m_state)
                 {
                     case State.未初期化:
@@ -4068,7 +4028,7 @@ namespace PlayPcmWin
                         // そうではない場合、ここでは何もしない。再生停止時に兎に角デバイス一覧が更新される。
                         var attr = wasapi.GetUseDeviceAttributes();
                         if (0 == string.Compare(attr.DeviceIdString, idStr.ToString(), StringComparison.Ordinal)) {
-                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + "\r\n", attr.Name, attr.DeviceIdString));
+                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + Environment.NewLine, attr.Name, attr.DeviceIdString));
                             StopBlocking();
                             DeviceDeselect();
                             UpdateDeviceList();
