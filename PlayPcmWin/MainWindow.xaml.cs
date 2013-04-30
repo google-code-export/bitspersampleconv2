@@ -588,29 +588,34 @@ namespace PlayPcmWin
             progressBar1.Value = e.ProgressPercentage;
         }
 
+        private void EnableDataGridPlaylist() {
+            dataGridPlayList.IsEnabled = true;
+            dataGridPlayList.ItemsSource = m_playListItems;
+
+            if (0 <= m_preference.LastPlayItemIndex &&
+                    m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
+                dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
+                dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+            }
+        }
+
         void PlaylistReadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             var arg = e.Result as PlaylistReadWorkerArg;
-
-            switch (arg.mode) {
-            case  ReadPpwPlaylistMode.RestorePlaylistOnLoad:
-                dataGridPlayList.IsEnabled = true;
-                dataGridPlayList.ItemsSource = m_playListItems;
-
-                if (0 <= m_preference.LastPlayItemIndex &&
-                        m_preference.LastPlayItemIndex < dataGridPlayList.Items.Count) {
-                    dataGridPlayList.SelectedIndex = m_preference.LastPlayItemIndex;
-                    dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
-                }
-                break;
-            case ReadPpwPlaylistMode.AppendLoad:
-                break;
-            }
 
             // Showing error MessageBox must be delayed until Window Loaded state because SplashScreen closes all MessageBoxes whose owner is DesktopWindow
             if (null != m_loadErrorMessages && 0 < m_loadErrorMessages.Length) {
                 MessageBox.Show(m_loadErrorMessages.ToString(), Properties.Resources.RestoreFailedFiles, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             m_loadErrorMessages = null;
+            progressBar1.Visibility = System.Windows.Visibility.Collapsed;
+
+            switch (arg.mode) {
+            case ReadPpwPlaylistMode.RestorePlaylistOnLoad:
+                EnableDataGridPlaylist();
+                break;
+            default:
+                break;
+            }
 
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
@@ -618,7 +623,6 @@ namespace PlayPcmWin
                 ChangeState(State.初期化完了);
             }
             UpdateUIStatus();
-            progressBar1.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         /// <summary>
@@ -798,6 +802,11 @@ namespace PlayPcmWin
 
             if (m_preference.StorePlaylistContent) {
                 ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnLoad);
+            } else {
+                // Issue 130
+                EnableDataGridPlaylist();
+                ChangeState(State.初期化完了);
+                UpdateUIStatus();
             }
         }
 
