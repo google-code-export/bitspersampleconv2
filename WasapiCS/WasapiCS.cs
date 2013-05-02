@@ -351,6 +351,7 @@ namespace Wasapi {
             args.dataFeedMode = (int)dataFeedMode;
             args.latencyMillisec = latencyMillisec;
             args.timePeriodHandledNanosec = timePeriodHandredNanosec;
+            args.zeroFlushMillisec = zeroFlushMillisec;
             return WasapiIO_Setup(ref args);
         }
 
