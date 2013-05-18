@@ -1515,8 +1515,8 @@ WasapiUser::CreateWritableFrames(BYTE *pData_return, int wantFrames)
             copyFrames = (int)(pcmData->nFrames - pcmData->posFrame);
         }
 
-        dprintf("pcmData=%p next=%p posFrame=%lld copyFrames=%d nFrames=%lld\n",
-            pcmData, pcmData->next, pcmData->posFrame, copyFrames, pcmData->nFrames);
+        dprintf("pcmData=%p next=%p posFrame/nframes=%lld/%lld copyFrames=%d\n",
+            pcmData, pcmData->next, pcmData->posFrame, pcmData->nFrames, copyFrames);
 
         CopyMemory(&pData_return[pos*m_deviceBytesPerFrame],
             &pcmData->stream[pcmData->posFrame * m_deviceBytesPerFrame],

@@ -217,26 +217,22 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
 
     (void)decoder;
 
-    dprintf(fdi->logFP, "%s fdi->totalFrames=%lld errorCode=%d\n", __FUNCTION__,
-        fdi->totalFrames, fdi->errorCode);
-
+    // dprintf(fdi->logFP, "%s fdi->totalFrames=%lld errorCode=%d\n", __FUNCTION__, fdi->totalFrames, fdi->errorCode);
     if(fdi->totalFrames == 0) {
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
-    dprintf(fdi->logFP, "%s frame->header.number.sample_number=%d\n", __FUNCTION__,
-        frame->header.number.sample_number);
+    // dprintf(fdi->logFP, "%s frame->header.number.sample_number=%d\n", __FUNCTION__, frame->header.number.sample_number);
     if(frame->header.number.sample_number == 0) {
         fdi->numFramesPerBlock = frame->header.blocksize;
 
         // 最初のデータが来た。ここでいったん待ち状態になる。
-        dprintf(fdi->logFP, "%s first data come. numFramesPerBlock=%d. set commandCompleteEvent\n",
-            __FUNCTION__, fdi->numFramesPerBlock);
+        // dprintf(fdi->logFP, "%s first data arrived. numFramesPerBlock=%d. set commandCompleteEvent\n", __FUNCTION__, fdi->numFramesPerBlock);
         SetEvent(fdi->commandCompleteEvent);
         WaitForSingleObject(fdi->commandEvent, INFINITE);
 
         // 起きた。要因をチェックする。
-        dprintf(fdi->logFP, "%s event received1. %d\n", __FUNCTION__, fdi->command);
+        // dprintf(fdi->logFP, "%s event received1. %d\n", __FUNCTION__, fdi->command);
         if (fdi->command == FDC_Shutdown) {
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
@@ -244,8 +240,7 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
 
     if (fdi->errorCode != FDRT_Success) {
         // デコードエラーが起きた。ここでいったん待ち状態になる。
-        dprintf(fdi->logFP, "%s decode error %d. set commandCompleteEvent\n",
-            __FUNCTION__, fdi->errorCode);
+        dprintf(fdi->logFP, "%s decode error %d. set commandCompleteEvent\n", __FUNCTION__, fdi->errorCode);
         SetEvent(fdi->commandCompleteEvent);
         WaitForSingleObject(fdi->commandEvent, INFINITE);
 
@@ -255,16 +250,13 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
     }
 
     // データが来た。ブロック数は frame->header.blocksize
-    dprintf(fdi->logFP, "%s fdi->numFramesPerBlock=%d frame->header.blocksize=%d\n", __FUNCTION__,
-        fdi->numFramesPerBlock, frame->header.blocksize);
+    // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock=%d frame->header.blocksize=%d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
     if (fdi->numFramesPerBlock != (int)frame->header.blocksize) {
-        dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n",
-            __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
+        // dprintf(fdi->logFP, "%s fdi->numFramesPerBlock changed %d to %d\n", __FUNCTION__, fdi->numFramesPerBlock, frame->header.blocksize);
         fdi->numFramesPerBlock = frame->header.blocksize;
     }
 
-    dprintf(fdi->logFP, "%s fdi->buffFrames=%d fdi->retrievedFrames=%d fdi->numFramesPerBlock=%d\n", __FUNCTION__,
-        fdi->buffFrames, fdi->retrievedFrames, fdi->numFramesPerBlock);
+    // dprintf(fdi->logFP, "%s fdi->buffFrames=%d fdi->retrievedFrames=%d fdi->numFramesPerBlock=%d\n", __FUNCTION__, fdi->buffFrames, fdi->retrievedFrames, fdi->numFramesPerBlock);
     if ((fdi->buffFrames - fdi->retrievedFrames) < fdi->numFramesPerBlock) {
         // このブロックを収容する場所がない。データ詰め終わり。
         fdi->errorCode       = FDRT_Success;
@@ -272,8 +264,7 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
         WaitForSingleObject(fdi->commandEvent, INFINITE);
 
         // 起きた。要因をチェックする。
-        dprintf(fdi->logFP, "%s event received3. %d fdi->errorCode=%d\n",
-            __FUNCTION__, fdi->command, fdi->errorCode);
+        // dprintf(fdi->logFP, "%s event received3. %d fdi->errorCode=%d\n", __FUNCTION__, fdi->command, fdi->errorCode);
         if (fdi->command == FDC_Shutdown) {
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
@@ -282,12 +273,10 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
         // いったんバッファをフラッシュしたのに、まだ足りない場合はデータが詰められない。
         if ((fdi->buffFrames - fdi->retrievedFrames) < fdi->numFramesPerBlock) {
             fdi->errorCode = FDRT_RecvBufferSizeInsufficient;
-            dprintf(fdi->logFP, "D: bufferSize insufficient %d < %d\n",
-                fdi->buffFrames, fdi->numFramesPerBlock);
+            dprintf(fdi->logFP, "D: bufferSize insufficient %d < %d\n", fdi->buffFrames, fdi->numFramesPerBlock);
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
-        dprintf(fdi->logFP, "%s fdi->buffFrames=%d fdi->retrievedFrames=%d fdi->numFramesPerBlock=%d\n", __FUNCTION__,
-            fdi->buffFrames, fdi->retrievedFrames, fdi->numFramesPerBlock);
+        // dprintf(fdi->logFP, "%s fdi->buffFrames=%d fdi->retrievedFrames=%d fdi->numFramesPerBlock=%d\n", __FUNCTION__, fdi->buffFrames, fdi->retrievedFrames, fdi->numFramesPerBlock);
     }
 
     {
@@ -302,9 +291,7 @@ WriteCallback1(const FLAC__StreamDecoder *decoder,
         }
     }
 
-    dprintf(fdi->logFP, "%s set %d frame. fdi->errorCode=%d set commandCompleteEvent\n",
-        __FUNCTION__, fdi->numFramesPerBlock, fdi->errorCode);
-
+    // dprintf(fdi->logFP, "%s set %d frame. fdi->errorCode=%d set commandCompleteEvent\n", __FUNCTION__, fdi->numFramesPerBlock, fdi->errorCode);
     fdi->retrievedFrames += fdi->numFramesPerBlock;
 
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;

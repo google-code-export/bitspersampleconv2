@@ -269,7 +269,7 @@ WWPlayPcmGroup::DoResample(
             DWORD consumedBytes = 0;
 
             int buffBytes = pFrom->GetBufferData(posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buff);
-            dprintf("D: pFrom->GetBufferData posBytes=%lld bytes=%d rv=%d\n",
+            dprintf("D: pFrom->GetBufferData posBytes=%Iu bytes=%d rv=%d\n",
                     posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buffBytes);
             if (0 == buffBytes) {
                 break;
