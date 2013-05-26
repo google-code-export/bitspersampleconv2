@@ -12,7 +12,7 @@ namespace BpsConvWin {
             double rD = 0.0;
 
             do {
-                const double dDiv   = 1.0 / ((double)UInt32.MaxValue+1.0);
+                const double dDiv = 1.0 / ((double)UInt32.MaxValue+1.0);
                 byte[] b4 = new byte[4];
 
                 mRng.GetNonZeroBytes(b4);
