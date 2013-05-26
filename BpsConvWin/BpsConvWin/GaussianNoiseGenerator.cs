@@ -6,7 +6,7 @@ namespace BpsConvWin {
         private RNGCryptoServiceProvider mRng = new RNGCryptoServiceProvider();
 
         /// <summary>
-        /// returns white gaussian noise σ^2 = 1 / sqrt(12)
+        /// returns white gaussian noise σ^2 = 1 / 12
         /// </summary>
         private float NextFloatBoxMuller() {
             const double dDiv = 1.0 / ((double)UInt32.MaxValue + 1.0);
@@ -27,7 +27,7 @@ namespace BpsConvWin {
         }
 
         /// <summary>
-        /// returns white gaussian noise σ^2 = 1 / sqrt(12) in the range of [-1 1)
+        /// returns white gaussian noise σ^2 = 1 / 12 in the range of [-1 1)
         /// </summary>
         private float NextFloatBoxMullerM1P1() {
             double rD;
