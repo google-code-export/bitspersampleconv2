@@ -343,12 +343,12 @@ namespace BpsConvWin
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                    int sample = toDsc.GetSampleValue16(pos);
+                    double sample = toDsc.GetSampleValue16(pos);
 
                     uint error = (uint)sample & maskError;
                     errorAcc[ch] += error;
 
-                    sample = (int)(sample - error);
+                    sample = sample - error;
 
                     switch (args.ditherType) {
                     case ConvertParams.DitherType.Truncate:
@@ -407,12 +407,12 @@ namespace BpsConvWin
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                    int sample = toDsc.GetSampleValue24(pos);
+                    double sample = toDsc.GetSampleValue24(pos);
 
                     uint error = (uint)sample & maskError;
                     errorAcc[ch] += error;
 
-                    sample = (int)(sample - error);
+                    sample = sample - error;
 
                     switch (args.ditherType) {
                     case ConvertParams.DitherType.Truncate:
@@ -445,7 +445,7 @@ namespace BpsConvWin
                         sample = -0x800000;
                     }
 
-                    toDsc.SetSampleValue24(pos, sample);
+                    toDsc.SetSampleValue24(pos, (int)sample);
 
                     pos += mFsc.bitsPerSample / 8;
                 }
