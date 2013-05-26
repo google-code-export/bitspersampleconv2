@@ -130,6 +130,12 @@
     <value>変換開始(&amp;S)</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="radioButtonGaussianDither.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 16</value>
+  </data>
+  <data name="radioButtonGaussianDither.Text" xml:space="preserve">
+    <value>ガウシアンディザ  低速 (&amp;G)</value>
+  </data>
   <data name="radioButton1.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 18</value>
   </data>
@@ -156,13 +162,10 @@
     <value>12, 40</value>
   </data>
   <data name="radioButtonDither.Size" type="System.Drawing.Size, System.Drawing">
-    <value>66, 16</value>
+    <value>128, 16</value>
   </data>
   <data name="radioButtonDither.Text" xml:space="preserve">
-    <value>ディザ(&amp;D)</value>
-  </data>
-  <data name="groupBox3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>207, 96</value>
+    <value>RPDFディザ 低速 (&amp;D)</value>
   </data>
   <data name="groupBox3.Text" xml:space="preserve">
     <value>オプション</value>

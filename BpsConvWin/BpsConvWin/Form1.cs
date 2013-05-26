@@ -24,10 +24,26 @@ namespace BpsConvWin
             Text = string.Format(CultureInfo.CurrentCulture, "BpsConvWin {0}", AssemblyVersion);
         }
 
+        private static string DitherTypeToString(BpsConv.ConvertParams.DitherType dt) {
+            switch (dt) {
+            case BpsConv.ConvertParams.DitherType.Truncate:
+                return "";
+            case BpsConv.ConvertParams.DitherType.RpdfDither:
+                return "_Dither";
+            case BpsConv.ConvertParams.DitherType.NoiseShaping:
+                return "_NS";
+            case BpsConv.ConvertParams.DitherType.GaussianDither:
+                return "_Gaussian";
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return "";
+            }
+        }
+
         private static string ReadFileNameToWriteFileName(string readFileName, BpsConv.ConvertParams a)
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}_{3}.wav",
-                readFileName, a.addDither ? "_Dither" : "", a.noiseShaping ? "_NS" : "",
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}_{2}.wav",
+                readFileName, DitherTypeToString(a.ditherType),
                 a.newQuantizationBitrate);
         }
 
@@ -89,8 +105,17 @@ namespace BpsConvWin
 
                 for (int i=1; i < bpsConv.BitsPerSample; ++i) {
                     var cp = new BpsConv.ConvertParams();
-                    cp.addDither = radioButtonDither.Checked;
-                    cp.noiseShaping = radioButtonNoiseShaping.Checked;
+                    cp.ditherType = BpsConv.ConvertParams.DitherType.Truncate;
+
+                    if (radioButtonDither.Checked) {
+                        cp.ditherType = BpsConv.ConvertParams.DitherType.RpdfDither;
+                    }
+                    if (radioButtonNoiseShaping.Checked) {
+                        cp.ditherType = BpsConv.ConvertParams.DitherType.NoiseShaping;
+                    }
+                    if (radioButtonGaussianDither.Checked) {
+                        cp.ditherType = BpsConv.ConvertParams.DitherType.GaussianDither;
+                    }
                     cp.newQuantizationBitrate = i;
 
                     var writeFileName = ReadFileNameToWriteFileName(mReadFileName, cp);

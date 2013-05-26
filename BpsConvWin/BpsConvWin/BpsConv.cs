@@ -236,8 +236,15 @@ namespace BpsConvWin
     {
         public class ConvertParams {
             public int newQuantizationBitrate;
-            public bool addDither;
-            public bool noiseShaping;
+
+            public enum DitherType {
+                Truncate,
+                RpdfDither,
+                GaussianDither,
+                NoiseShaping,
+            };
+
+            public DitherType ditherType;
         };
 
         RiffChunkDescriptor mRcd;
@@ -322,6 +329,10 @@ namespace BpsConvWin
             RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
             byte[] randomNumber = new byte[2];
 
+            int noiseMagnitude = (int)Math.Pow(2, (16 - args.newQuantizationBitrate))/2;
+
+            GaussianNoiseGenerator gng = new GaussianNoiseGenerator();
+
             Console.WriteLine("D: maskErr={0:X}", maskError);
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -339,18 +350,30 @@ namespace BpsConvWin
 
                     sample = (int)(sample - error);
 
-                    if (args.noiseShaping) {
+                    switch (args.ditherType) {
+                    case ConvertParams.DitherType.Truncate:
+                        break;
+                    case ConvertParams.DitherType.NoiseShaping:
                         if (maskError <= errorAcc[ch]) {
                             errorAcc[ch] -= maskError;
                             sample += (int)maskError;
                         }
-                    }
-
-                    if (args.addDither) {
+                        break;
+                    case ConvertParams.DitherType.RpdfDither:
                         gen.GetBytes(randomNumber);
                         ushort randDither = (ushort)((ushort)((randomNumber[0] << 8) + randomNumber[1]) & (ushort)(~mask));
                         sample += randDither;
+                        break;
+                    case ConvertParams.DitherType.GaussianDither:
+                        float noise = gng.NextFloat();
+                        noise *= noiseMagnitude;
+                        sample += (int)noise;
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        break;
                     }
+
 
                     if (0x7fff < sample) {
                         sample = 0x7fff;
@@ -370,7 +393,9 @@ namespace BpsConvWin
             uint mask = 0xffffffff << (24 - args.newQuantizationBitrate);
             uint maskError = ~mask;
             RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
+            GaussianNoiseGenerator gng = new GaussianNoiseGenerator();
             byte[] randomNumber = new byte[3];
+            int noiseMagnitude = (int)Math.Pow(2, (24 - args.newQuantizationBitrate))/2;
 
             Console.WriteLine("D: maskErr={0:X}", maskError);
 
@@ -389,17 +414,28 @@ namespace BpsConvWin
 
                     sample = (int)(sample - error);
 
-                    if (args.noiseShaping) {
+                    switch (args.ditherType) {
+                    case ConvertParams.DitherType.Truncate:
+                        break;
+                    case ConvertParams.DitherType.NoiseShaping:
                         if (maskError <= errorAcc[ch]) {
                             errorAcc[ch] -= maskError;
                             sample += (int)maskError;
                         }
-                    }
-
-                    if (args.addDither) {
+                        break;
+                    case ConvertParams.DitherType.RpdfDither:
                         gen.GetBytes(randomNumber);
                         int randDither = (int)((randomNumber[0]) + (randomNumber[1] << 8) + (randomNumber[2]<<16) & ~mask);
                         sample += randDither;
+                        break;
+                    case ConvertParams.DitherType.GaussianDither:
+                        float noise = gng.NextFloat();
+                        noise *= noiseMagnitude;
+                        sample += (int)noise;
+                        break;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        break;
                     }
 
                     if (0x7fffff < sample) {

@@ -36,6 +36,7 @@
             this.buttonConvStart = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.radioButtonGaussianDither = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButtonNoiseShaping = new System.Windows.Forms.RadioButton();
             this.radioButtonDither = new System.Windows.Forms.RadioButton();
@@ -95,11 +96,19 @@
             // groupBox3
             // 
             resources.ApplyResources(this.groupBox3, "groupBox3");
+            this.groupBox3.Controls.Add(this.radioButtonGaussianDither);
             this.groupBox3.Controls.Add(this.radioButton1);
             this.groupBox3.Controls.Add(this.radioButtonNoiseShaping);
             this.groupBox3.Controls.Add(this.radioButtonDither);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.TabStop = false;
+            // 
+            // radioButtonGaussianDither
+            // 
+            resources.ApplyResources(this.radioButtonGaussianDither, "radioButtonGaussianDither");
+            this.radioButtonGaussianDither.Name = "radioButtonGaussianDither";
+            this.radioButtonGaussianDither.TabStop = true;
+            this.radioButtonGaussianDither.UseVisualStyleBackColor = true;
             // 
             // radioButton1
             // 
@@ -155,6 +164,7 @@
         private System.Windows.Forms.RadioButton radioButtonNoiseShaping;
         private System.Windows.Forms.RadioButton radioButtonDither;
         private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.RadioButton radioButtonGaussianDither;
     }
 }
 
