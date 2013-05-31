@@ -34,6 +34,8 @@ namespace BpsConvWin
                 return "_NS";
             case BpsConv.ConvertParams.DitherType.GaussianDither:
                 return "_Gaussian";
+            case BpsConv.ConvertParams.DitherType.NoiseShaping2:
+                return "_NS2";
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return "";
@@ -103,7 +105,7 @@ namespace BpsConvWin
                         }
                 }
 
-                for (int i=1; i < bpsConv.BitsPerSample; ++i) {
+                for (int i=bpsConv.BitsPerSample-1; 1 <= i; --i) {
                     var cp = new BpsConv.ConvertParams();
                     cp.ditherType = BpsConv.ConvertParams.DitherType.Truncate;
 
@@ -115,6 +117,9 @@ namespace BpsConvWin
                     }
                     if (radioButtonGaussianDither.Checked) {
                         cp.ditherType = BpsConv.ConvertParams.DitherType.GaussianDither;
+                    }
+                    if (radioButton2ndOrderNS.Checked) {
+                        cp.ditherType = BpsConv.ConvertParams.DitherType.NoiseShaping2;
                     }
                     cp.newQuantizationBitrate = i;
 

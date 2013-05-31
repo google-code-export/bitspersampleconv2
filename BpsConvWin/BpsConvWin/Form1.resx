@@ -131,8 +131,8 @@
   <data name="textBoxReadFilePath.Size" type="System.Drawing.Size, System.Drawing">
     <value>346, 19</value>
   </data>
-  <data name="groupBox3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>452, 96</value>
+  <data name="radioButton2ndOrderNS.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
   </data>
   <data name="radioButtonDither.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -153,23 +153,26 @@
   <data name="&gt;&gt;groupBox3.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="radioButton1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 18</value>
+  <data name="&gt;&gt;radioButton1.Parent" xml:space="preserve">
+    <value>groupBox3</value>
   </data>
   <data name="&gt;&gt;radioButtonDither.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;radioButtonGaussianDither.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
-  <data name="&gt;&gt;radioButton1.Parent" xml:space="preserve">
-    <value>groupBox3</value>
+  <data name="groupBox3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>452, 96</value>
   </data>
   <data name="&gt;&gt;textBoxReadFilePath.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <data name="&gt;&gt;radioButtonNoiseShaping.Name" xml:space="preserve">
     <value>radioButtonNoiseShaping</value>
+  </data>
+  <data name="radioButton2ndOrderNS.Text" xml:space="preserve">
+    <value>&amp;2nd order noise shaping</value>
   </data>
   <data name="radioButtonGaussianDither.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -201,11 +204,14 @@
   <data name="&gt;&gt;textBoxOutput.Name" xml:space="preserve">
     <value>textBoxOutput</value>
   </data>
+  <data name="radioButton2ndOrderNS.Location" type="System.Drawing.Point, System.Drawing">
+    <value>229, 36</value>
+  </data>
   <data name="radioButtonDither.Size" type="System.Drawing.Size, System.Drawing">
     <value>123, 16</value>
   </data>
-  <data name="&gt;&gt;textBoxReadFilePath.Parent" xml:space="preserve">
-    <value>groupBox1</value>
+  <data name="buttonReadFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 23</value>
   </data>
   <data name="&gt;&gt;backgroundWorker1.Name" xml:space="preserve">
     <value>backgroundWorker1</value>
@@ -241,7 +247,10 @@
     <value>12, 70</value>
   </data>
   <data name="&gt;&gt;radioButton1.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
+  </data>
+  <data name="radioButton1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 18</value>
   </data>
   <data name="&gt;&gt;textBoxOutput.Parent" xml:space="preserve">
     <value>groupBox2</value>
@@ -255,8 +264,8 @@
   <data name="&gt;&gt;radioButton1.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="buttonReadFile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>88, 23</value>
+  <data name="&gt;&gt;radioButton2ndOrderNS.Parent" xml:space="preserve">
+    <value>groupBox3</value>
   </data>
   <data name="groupBox2.Text" xml:space="preserve">
     <value>Description</value>
@@ -275,9 +284,6 @@
   </data>
   <data name="&gt;&gt;groupBox3.Type" xml:space="preserve">
     <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;radioButtonDither.ZOrder" xml:space="preserve">
-    <value>3</value>
   </data>
   <data name="&gt;&gt;buttonConvStart.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -306,6 +312,9 @@
   <data name="&gt;&gt;buttonReadFile.Name" xml:space="preserve">
     <value>buttonReadFile</value>
   </data>
+  <data name="radioButton2ndOrderNS.Size" type="System.Drawing.Size, System.Drawing">
+    <value>194, 24</value>
+  </data>
   <data name="groupBox1.Size" type="System.Drawing.Size, System.Drawing">
     <value>452, 52</value>
   </data>
@@ -323,6 +332,9 @@
   </data>
   <data name="radioButton1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="&gt;&gt;radioButton2ndOrderNS.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="radioButtonGaussianDither.Location" type="System.Drawing.Point, System.Drawing">
     <value>229, 18</value>
@@ -358,7 +370,7 @@
     <value>6, 18</value>
   </data>
   <data name="&gt;&gt;radioButtonNoiseShaping.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="groupBox2.Size" type="System.Drawing.Size, System.Drawing">
     <value>452, 349</value>
@@ -387,8 +399,14 @@
   <data name="groupBox2.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
+  <data name="&gt;&gt;radioButton2ndOrderNS.Name" xml:space="preserve">
+    <value>radioButton2ndOrderNS</value>
+  </data>
   <data name="radioButtonDither.Text" xml:space="preserve">
     <value>RPDF &amp;Dither (slow)</value>
+  </data>
+  <data name="&gt;&gt;textBoxReadFilePath.Parent" xml:space="preserve">
+    <value>groupBox1</value>
   </data>
   <data name="radioButtonDither.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -404,6 +422,12 @@
   </data>
   <data name="radioButtonNoiseShaping.Text" xml:space="preserve">
     <value>Simple &amp;Noise shaping</value>
+  </data>
+  <data name="radioButtonNoiseShaping.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;radioButton2ndOrderNS.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>476, 562</value>
@@ -423,19 +447,19 @@
   <data name="textBoxOutput.Multiline" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="radioButtonNoiseShaping.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="&gt;&gt;radioButtonDither.ZOrder" xml:space="preserve">
+    <value>4</value>
   </data>
   <data name="buttonConvStart.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
   </data>
-  <metadata name="$this.Language" type="System.Globalization.CultureInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>ja</value>
-  </metadata>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="backgroundWorker1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
+  </metadata>
+  <metadata name="$this.Language" type="System.Globalization.CultureInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>ja</value>
   </metadata>
 </root>

@@ -78,6 +78,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="GaussianNoiseGenerator.cs" />
+    <Compile Include="NoiseShaper2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.ja.resx">
