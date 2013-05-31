@@ -246,6 +246,9 @@ namespace BpsConvWin
             };
 
             public DitherType ditherType;
+
+            public int order;
+            public double [] filter;
         };
 
         RiffChunkDescriptor mRcd;
@@ -310,17 +313,36 @@ namespace BpsConvWin
 
             switch (mFsc.bitsPerSample) {
             case 16:
-                if (args.ditherType == ConvertParams.DitherType.NoiseShaping2) {
+                switch (args.ditherType) {
+                case ConvertParams.DitherType.NoiseShaping:
+                    args.order = 1;
+                    args.filter = new double[] {1, -1};
                     ReduceBitsPerSample16Ns2(args, toDsc);
-                } else {
+                    break;
+                case ConvertParams.DitherType.NoiseShaping2:
+                    break;
+                default:
+                    args.order = 2;
+                    args.filter = new double[] {1, -2, 1};
                     ReduceBitsPerSample16Other(args, toDsc);
+                    break;
                 }
                 break;
             case 24:
-                if (args.ditherType == ConvertParams.DitherType.NoiseShaping2) {
+                switch (args.ditherType) {
+                case ConvertParams.DitherType.NoiseShaping:
+                    args.order = 1;
+                    args.filter = new double[] {1, -1};
                     ReduceBitsPerSample24Ns2(args, toDsc);
-                } else {
-                    ReduceBitsPerSample24(args, toDsc);
+                    break;
+                case ConvertParams.DitherType.NoiseShaping2:
+                    args.order = 2;
+                    args.filter = new double[] {1, -2, 1};
+                    ReduceBitsPerSample24Ns2(args, toDsc);
+                    break;
+                default:
+                    ReduceBitsPerSample24Other(args, toDsc);
+                    break;
                 }
                 break;
             default:
@@ -335,7 +357,7 @@ namespace BpsConvWin
         private void ReduceBitsPerSample16Ns2(ConvertParams args, DataSubChunk toDsc) {
             NoiseShaper2 [] mash = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch<mFsc.numChannels; ++ch) {
-                mash[ch] = new NoiseShaper2(2, new double[] {1, -2, 1});
+                mash[ch] = new NoiseShaper2(args.order, args.filter);
             }
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -359,7 +381,7 @@ namespace BpsConvWin
         private void ReduceBitsPerSample24Ns2(ConvertParams args, DataSubChunk toDsc) {
             NoiseShaper2 [] mash = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                mash[ch] = new NoiseShaper2(2, new double[] {1, -2, 1});
+                mash[ch] = new NoiseShaper2(args.order, args.filter);
             }
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -395,26 +417,13 @@ namespace BpsConvWin
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
             int numFrames = toDsc.data.Length / bytesPerFrame;
 
-            var errorAcc = new uint[mFsc.numChannels];
-            
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     double sample = toDsc.GetSampleValue16(pos);
 
-                    uint error = (uint)((int)sample & maskError);
-                    errorAcc[ch] += error;
-
-                    sample = sample - error;
-
                     switch (args.ditherType) {
                     case ConvertParams.DitherType.Truncate:
-                        break;
-                    case ConvertParams.DitherType.NoiseShaping:
-                        if (maskError <= errorAcc[ch]) {
-                            errorAcc[ch] -= maskError;
-                            sample += (int)maskError;
-                        }
                         break;
                     case ConvertParams.DitherType.RpdfDither:
                         gen.GetBytes(randomNumber);
@@ -446,7 +455,7 @@ namespace BpsConvWin
             }
         }
 
-        private void ReduceBitsPerSample24(ConvertParams args, DataSubChunk toDsc) {
+        private void ReduceBitsPerSample24Other(ConvertParams args, DataSubChunk toDsc) {
             uint mask = 0xffffffff << (24 - args.newQuantizationBitrate);
             uint maskError = ~mask;
             RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
@@ -459,26 +468,13 @@ namespace BpsConvWin
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
             int numFrames = toDsc.data.Length / bytesPerFrame;
 
-            var errorAcc = new uint[mFsc.numChannels];
-
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     double sample = toDsc.GetSampleValue24(pos);
 
-                    uint error = (uint)sample & maskError;
-                    errorAcc[ch] += error;
-
-                    sample = sample - error;
-
                     switch (args.ditherType) {
                     case ConvertParams.DitherType.Truncate:
-                        break;
-                    case ConvertParams.DitherType.NoiseShaping:
-                        if (maskError <= errorAcc[ch]) {
-                            errorAcc[ch] -= maskError;
-                            sample += (int)maskError;
-                        }
                         break;
                     case ConvertParams.DitherType.RpdfDither:
                         gen.GetBytes(randomNumber);
