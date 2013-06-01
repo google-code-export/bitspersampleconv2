@@ -4,9 +4,8 @@
 
 \renewcommand\Re{\operatorname{\mathfrak{Re}}}
 \renewcommand\Im{\operatorname{\mathfrak{Im}}}
-
-\section{1次のノイズシェイピングの量子化雑音のF特}
-
+\section{ノイズシェイピングの量子化雑音のF特}
+\subsection{1次のノイズシェイピングの量子化雑音のF特}
 出力量子化雑音の伝達関数 \( H_1(z) \)は
 \begin{eqnarray}
 H_1(z) = 1 - z^{-1}
@@ -29,17 +28,13 @@ H_1(z) = 1 - z^{-1}
 \end{eqnarray*}
 \( \cos^2(\omega) + \sin^2(\omega) = 1,\, 1-\cos(\omega) = \sin^2(\frac{\omega}{2}) \) より
 \begin{eqnarray*}
-|H_1(\mathrm{e}^{j\omega})| &=& \sqrt{ 2 -2\cos(\omega) } \\
-                 &=& \sqrt{ 2(1 -\cos(\omega)) } \\
-                 &=& \sqrt{ 4\sin^2(\frac{\omega}{2})) } \\
-                 &=& 2|\sin(\frac{\omega}{2})|
+|H_1(\mathrm{e}^{j\omega})| &=& \sqrt{ 2 -2\cos(\omega) } = \sqrt{ 2(1 -\cos(\omega)) } = \sqrt{ 4\sin^2(\frac{\omega}{2})) } = 2|\sin(\frac{\omega}{2})|
 \end{eqnarray*}
 \begin{eqnarray}
 \therefore |H_1(\mathrm{e}^{j\omega})| = 2|\sin(\frac{\omega}{2})|
 \end{eqnarray}
 
-\section{2次のノイズシェイピングの量子化雑音のF特}
-
+\subsection{2次のノイズシェイピングの量子化雑音のF特}
 出力量子化雑音の伝達関数 \( H_2(z) \)は
 \begin{eqnarray}
 H_2(z) = 1 - 2z^{-1} + z^{-2}
@@ -54,11 +49,10 @@ H_2(z) = 1 - 2z^{-1} + z^{-2}
 \begin{eqnarray*}
 |H_2(\mathrm{e}^{j\omega})| &=& \sqrt{ \left\{ 1-2\cos(\omega)+2\cos^2(\omega)-1 \right\}^2 + \left\{ 2\sin(\omega) - 2\sin(\omega)\cos(\omega) \right\}^2 } \\
                             &=& \sqrt{ \left\{ 2\cos(\omega)(1-\cos(\omega))\right\}^2 + \left\{ 2\sin(\omega)(1-\cos(\omega)) \right\}^2 } \\
-                            &=& \sqrt{ (1-\cos(\omega))^2(4\cos^2(\omega) + 4\sin^2(\omega)) } \\
-                            &=& \sqrt{ 4(1-\cos(\omega))^2 } \\
-                            &=& 2|1-\cos(\omega)|
+                            &=& \sqrt{ (1-\cos(\omega))^2(4\cos^2(\omega) + 4\sin^2(\omega)) } = \sqrt{ 4(1-\cos(\omega))^2 } = 2|1-\cos(\omega)|
 \end{eqnarray*}
 \begin{eqnarray}
 \therefore |H_2(\mathrm{e}^{j\omega})| = 2-2\cos(\omega)
 \end{eqnarray}
+
 \end{document}
