@@ -45,7 +45,7 @@ namespace BpsConvWin {
             int sampleY = (int)(((int)y1q) & mMask);
             mDelayY = sampleY;
 
-            mQuantizationError = (x - sampleY) / 256;
+            mQuantizationError = (sampleY - x) / 256;
 
             return sampleY / 256;
         }
