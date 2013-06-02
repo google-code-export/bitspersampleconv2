@@ -107,10 +107,7 @@ namespace BpsConvWin
                         }
                 }
 
-                //for (int i=bpsConv.BitsPerSample-1; 1 <= i; --i) {
-                {
-                    int i = 8;
-
+                for (int i=bpsConv.BitsPerSample-1; 1 <= i; --i) {
                     var cp = new BpsConv.ConvertParams();
                     cp.ditherType = BpsConv.ConvertParams.DitherType.Truncate;
 
