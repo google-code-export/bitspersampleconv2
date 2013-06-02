@@ -19,7 +19,7 @@ namespace BpsConvWin {
         }
 
         public double QuantizationError() {
-            return mQuantizationError / 256;
+            return mQuantizationError;
         }
 
         /// <summary>
@@ -28,21 +28,24 @@ namespace BpsConvWin {
         /// <param name="sampleFrom">input data. 24bit signed (-2^23 to +2^23-1)</param>
         /// <returns>filtered value. 24bit signed</returns>
         public int Filter24(double sampleFrom) {
-            // convert quantized bit rate to 32bit
+            // convert quantized bit rate to 32bit integer
             sampleFrom *= 256;
 
-            mDelayX += sampleFrom - mDelayY;
-            if (mDelayX > Int32.MaxValue) {
-                mDelayX = Int32.MaxValue;
+            double x = sampleFrom + mDelayX - mDelayY;
+            mDelayX = x;
+
+            double y1q = x;
+            if (y1q > Int32.MaxValue) {
+                y1q = Int32.MaxValue;
             }
-            if (mDelayX < Int32.MinValue) {
-                mDelayX = Int32.MinValue;
+            if (y1q < Int32.MinValue) {
+                y1q = Int32.MinValue;
             }
 
-            int sampleY = (int)(((int)mDelayX) & mMask);
+            int sampleY = (int)(((int)y1q) & mMask);
             mDelayY = sampleY;
 
-            mQuantizationError = mDelayX - sampleY;
+            mQuantizationError = (x - sampleY) / 256;
 
             return sampleY / 256;
         }
