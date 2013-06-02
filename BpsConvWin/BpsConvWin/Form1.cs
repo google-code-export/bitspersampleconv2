@@ -36,6 +36,8 @@ namespace BpsConvWin
                 return "_Gaussian";
             case BpsConv.ConvertParams.DitherType.NoiseShaping2:
                 return "_NS2";
+            case BpsConv.ConvertParams.DitherType.NoiseShapingMash2:
+                return "_MASH2";
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return "";
@@ -120,6 +122,9 @@ namespace BpsConvWin
                     }
                     if (radioButton2ndOrderNS.Checked) {
                         cp.ditherType = BpsConv.ConvertParams.DitherType.NoiseShaping2;
+                    }
+                    if (radioButtonMash2.Checked) {
+                        cp.ditherType = BpsConv.ConvertParams.DitherType.NoiseShapingMash2;
                     }
                     cp.newQuantizationBitrate = i;
 

@@ -243,6 +243,7 @@ namespace BpsConvWin
                 GaussianDither,
                 NoiseShaping,
                 NoiseShaping2,
+                NoiseShapingMash2,
             };
 
             public DitherType ditherType;
@@ -320,7 +321,13 @@ namespace BpsConvWin
                     ReduceBitsPerSample16Ns2(args, toDsc);
                     break;
                 case ConvertParams.DitherType.NoiseShaping2:
+                    args.order = 2;
+                    args.filter = new double[] {1, -2, 1};
+                    ReduceBitsPerSample16Ns2(args, toDsc);
                     break;
+                case ConvertParams.DitherType.NoiseShapingMash2:
+                    // not implemented
+                    throw new NotImplementedException();
                 default:
                     args.order = 2;
                     args.filter = new double[] {1, -2, 1};
@@ -340,6 +347,9 @@ namespace BpsConvWin
                     args.filter = new double[] {1, -2, 1};
                     ReduceBitsPerSample24Ns2(args, toDsc);
                     break;
+                case ConvertParams.DitherType.NoiseShapingMash2:
+                    ReduceBitsPerSample24Mash2(args, toDsc);
+                    break;
                 default:
                     ReduceBitsPerSample24Other(args, toDsc);
                     break;
@@ -355,9 +365,9 @@ namespace BpsConvWin
         }
 
         private void ReduceBitsPerSample16Ns2(ConvertParams args, DataSubChunk toDsc) {
-            NoiseShaper2 [] mash = new NoiseShaper2[mFsc.numChannels];
+            NoiseShaper2 [] ns = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch<mFsc.numChannels; ++ch) {
-                mash[ch] = new NoiseShaper2(args.order, args.filter);
+                ns[ch] = new NoiseShaper2(args.order, args.filter);
             }
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -369,7 +379,7 @@ namespace BpsConvWin
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     short sample = 0;
 
-                    sample = mash[ch].Filter16(toDsc.GetSampleValue16(readPos), args.newQuantizationBitrate);
+                    sample = ns[ch].Filter16(toDsc.GetSampleValue16(readPos), args.newQuantizationBitrate);
                     readPos += mFsc.bitsPerSample / 8;
 
                     toDsc.SetSampleValue16(writePos, sample);
@@ -379,9 +389,9 @@ namespace BpsConvWin
         }
 
         private void ReduceBitsPerSample24Ns2(ConvertParams args, DataSubChunk toDsc) {
-            NoiseShaper2 [] mash = new NoiseShaper2[mFsc.numChannels];
+            NoiseShaper2 [] ns = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                mash[ch] = new NoiseShaper2(args.order, args.filter);
+                ns[ch] = new NoiseShaper2(args.order, args.filter);
             }
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -393,11 +403,43 @@ namespace BpsConvWin
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     int sample = 0;
 
-                    sample = mash[ch].Filter24(toDsc.GetSampleValue24(readPos), args.newQuantizationBitrate);
+                    sample = ns[ch].Filter24(toDsc.GetSampleValue24(readPos), args.newQuantizationBitrate);
                     readPos += mFsc.bitsPerSample / 8;
 
                     toDsc.SetSampleValue24(writePos, sample);
                     writePos += mFsc.bitsPerSample / 8;
+                }
+            }
+        }
+
+        private void ReduceBitsPerSample24Mash2(ConvertParams args, DataSubChunk toDsc) {
+            NoiseShaperMash [] mash = new NoiseShaperMash[mFsc.numChannels];
+            for (int ch=0; ch < mFsc.numChannels; ++ch) {
+                mash[ch] = new NoiseShaperMash(args.newQuantizationBitrate);
+            }
+
+            int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
+            int numFrames = toDsc.data.Length / bytesPerFrame;
+
+            int readPos = 0;
+            int writePos = 0;
+
+            // 2サンプル遅延するので…。
+            for (int i=0; i < numFrames + 2; ++i) {
+                for (int ch=0; ch < mFsc.numChannels; ++ch) {
+                    int sample = 0;
+
+                    if (i < numFrames) {
+                        sample = mash[ch].Filter24(toDsc.GetSampleValue24(readPos));
+                        readPos += mFsc.bitsPerSample / 8;
+                    } else {
+                        sample = mash[ch].Filter24(0);
+                    }
+
+                    if (2 <= i) {
+                        toDsc.SetSampleValue24(writePos, sample);
+                        writePos += mFsc.bitsPerSample / 8;
+                    }
                 }
             }
         }

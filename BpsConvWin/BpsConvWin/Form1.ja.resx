@@ -129,10 +129,16 @@
   <data name="buttonConvStart.Text" xml:space="preserve">
     <value>変換開始(&amp;S)</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="radioButtonMash2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>217, 24</value>
+  </data>
+  <data name="radioButtonMash2.Text" xml:space="preserve">
+    <value>2次 MASH (&amp;M)</value>
+  </data>
   <data name="radioButton2ndOrderNS.Text" xml:space="preserve">
     <value>2次ノイズシェイピング(&amp;2)</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="radioButtonGaussianDither.Size" type="System.Drawing.Size, System.Drawing">
     <value>149, 16</value>
   </data>
@@ -156,10 +162,10 @@
     <value>12, 62</value>
   </data>
   <data name="radioButtonNoiseShaping.Size" type="System.Drawing.Size, System.Drawing">
-    <value>153, 16</value>
+    <value>147, 16</value>
   </data>
   <data name="radioButtonNoiseShaping.Text" xml:space="preserve">
-    <value>簡単なノイズシェイピング(&amp;N)</value>
+    <value>1次のノイズシェイピング(&amp;N)</value>
   </data>
   <data name="radioButtonDither.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 40</value>
