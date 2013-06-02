@@ -424,8 +424,8 @@ namespace BpsConvWin
             int readPos = 0;
             int writePos = 0;
 
-            // 2サンプル遅延するので…。
-            for (int i=0; i < numFrames + 2; ++i) {
+            // 1サンプル遅延するので…。
+            for (int i=0; i < numFrames + 1; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     int sample = 0;
 
@@ -436,7 +436,7 @@ namespace BpsConvWin
                         sample = mash[ch].Filter24(0);
                     }
 
-                    if (2 <= i) {
+                    if (1 <= i) {
                         toDsc.SetSampleValue24(writePos, sample);
                         writePos += mFsc.bitsPerSample / 8;
                     }
