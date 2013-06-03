@@ -363,7 +363,7 @@ namespace BpsConvWin
         private void ReduceBitsPerSample24Ns2(ConvertParams args, DataSubChunk toDsc) {
             NoiseShaper2 [] ns = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                ns[ch] = new NoiseShaper2(args.order, args.filter);
+                ns[ch] = new NoiseShaper2(args.order, args.filter, args.newQuantizationBitrate);
             }
 
             int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
@@ -375,7 +375,7 @@ namespace BpsConvWin
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     int sample = 0;
 
-                    sample = ns[ch].Filter24(ReadSampleValue24(toDsc, readPos), args.newQuantizationBitrate);
+                    sample = ns[ch].Filter24(ReadSampleValue24(toDsc, readPos));
                     readPos += mFsc.bitsPerSample / 8;
 
                     WriteSampleValue24(toDsc, writePos, sample);
