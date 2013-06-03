@@ -312,79 +312,51 @@ namespace BpsConvWin
             var toDsc = new DataSubChunk();
             toDsc.Setup(mDsc.subChunk2Size, mDsc.data);
 
-            switch (mFsc.bitsPerSample) {
-            case 16:
-                switch (args.ditherType) {
-                case ConvertParams.DitherType.NoiseShaping:
-                    args.order = 1;
-                    args.filter = new double[] {1, -1};
-                    ReduceBitsPerSample16Ns2(args, toDsc);
-                    break;
-                case ConvertParams.DitherType.NoiseShaping2:
-                    args.order = 2;
-                    args.filter = new double[] {1, -2, 1};
-                    ReduceBitsPerSample16Ns2(args, toDsc);
-                    break;
-                case ConvertParams.DitherType.NoiseShapingMash2:
-                    // not implemented
-                    throw new NotImplementedException();
-                default:
-                    args.order = 2;
-                    args.filter = new double[] {1, -2, 1};
-                    ReduceBitsPerSample16Other(args, toDsc);
-                    break;
-                }
+            switch (args.ditherType) {
+            case ConvertParams.DitherType.NoiseShaping:
+                args.order = 1;
+                args.filter = new double[] {1, -1};
+                ReduceBitsPerSample24Ns2(args, toDsc);
                 break;
-            case 24:
-                switch (args.ditherType) {
-                case ConvertParams.DitherType.NoiseShaping:
-                    args.order = 1;
-                    args.filter = new double[] {1, -1};
-                    ReduceBitsPerSample24Ns2(args, toDsc);
-                    break;
-                case ConvertParams.DitherType.NoiseShaping2:
-                    args.order = 2;
-                    args.filter = new double[] {1, -2, 1};
-                    ReduceBitsPerSample24Ns2(args, toDsc);
-                    break;
-                case ConvertParams.DitherType.NoiseShapingMash2:
-                    ReduceBitsPerSample24Mash2(args, toDsc);
-                    break;
-                default:
-                    ReduceBitsPerSample24Other(args, toDsc);
-                    break;
-                }
+            case ConvertParams.DitherType.NoiseShaping2:
+                args.order = 2;
+                args.filter = new double[] {1, -2, 1};
+                ReduceBitsPerSample24Ns2(args, toDsc);
+                break;
+            case ConvertParams.DitherType.NoiseShapingMash2:
+                ReduceBitsPerSample24Mash2(args, toDsc);
                 break;
             default:
-                System.Diagnostics.Debug.Assert(false);
+                ReduceBitsPerSample24Other(args, toDsc);
                 break;
             }
+
             mRcd.Write(bw);
             mFsc.Write(bw);
             toDsc.Write(bw);
         }
 
-        private void ReduceBitsPerSample16Ns2(ConvertParams args, DataSubChunk toDsc) {
-            NoiseShaper2 [] ns = new NoiseShaper2[mFsc.numChannels];
-            for (int ch=0; ch<mFsc.numChannels; ++ch) {
-                ns[ch] = new NoiseShaper2(args.order, args.filter);
+        private int ReadSampleValue24(DataSubChunk fromDsc, int pos) {
+            switch (mFsc.bitsPerSample) {
+            case 16:
+                return 256 * fromDsc.GetSampleValue16(pos);
+            case 24:
+                return fromDsc.GetSampleValue24(pos);
+            default:
+                throw new NotImplementedException();
             }
+        }
 
-            int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
-            int numFrames = toDsc.data.Length / bytesPerFrame;
-
-            int readPos = 0;
-            int writePos = 0;
-            for (int i=0; i < numFrames; ++i) {
-                for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                    short sample = 0;
-
-                    sample = ns[ch].Filter16(toDsc.GetSampleValue16(readPos), args.newQuantizationBitrate);
-                    readPos += mFsc.bitsPerSample / 8;
-
-                    toDsc.SetSampleValue16(writePos, sample);
-                    writePos += mFsc.bitsPerSample / 8;
-                }
+        private void WriteSampleValue24(DataSubChunk toDsc, int pos, int value24) {
+            switch (mFsc.bitsPerSample) {
+            case 16:
+                toDsc.SetSampleValue16(pos, (short)(value24 / 256));
+                break;
+            case 24:
+                toDsc.SetSampleValue24(pos, value24);
+                break;
+            default:
+                throw new NotImplementedException();
             }
         }
 
@@ -403,10 +375,10 @@ namespace BpsConvWin
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
                     int sample = 0;
 
-                    sample = ns[ch].Filter24(toDsc.GetSampleValue24(readPos), args.newQuantizationBitrate);
+                    sample = ns[ch].Filter24(ReadSampleValue24(toDsc, readPos), args.newQuantizationBitrate);
                     readPos += mFsc.bitsPerSample / 8;
 
-                    toDsc.SetSampleValue24(writePos, sample);
+                    WriteSampleValue24(toDsc, writePos, sample);
                     writePos += mFsc.bitsPerSample / 8;
                 }
             }
@@ -430,71 +402,16 @@ namespace BpsConvWin
                     int sample = 0;
 
                     if (i < numFrames) {
-                        sample = mash[ch].Filter24(toDsc.GetSampleValue24(readPos));
+                        sample = mash[ch].Filter24(ReadSampleValue24(toDsc, readPos));
                         readPos += mFsc.bitsPerSample / 8;
                     } else {
                         sample = mash[ch].Filter24(0);
                     }
 
                     if (1 <= i) {
-                        toDsc.SetSampleValue24(writePos, sample);
+                        WriteSampleValue24(toDsc, writePos, sample);
                         writePos += mFsc.bitsPerSample / 8;
                     }
-                }
-            }
-        }
-
-        private void ReduceBitsPerSample16Other(ConvertParams args, DataSubChunk toDsc) {
-            uint mask = 0xffffffff << (16 - args.newQuantizationBitrate);
-            uint maskError = ~mask;
-            RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
-            byte[] randomNumber = new byte[2];
-
-            int noiseMagnitude = (int)Math.Pow(2, (16 - args.newQuantizationBitrate))/2;
-
-            GaussianNoiseGenerator gng = new GaussianNoiseGenerator();
-
-            Console.WriteLine("D: maskErr={0:X}", maskError);
-
-            int bytesPerFrame = mFsc.numChannels * mFsc.bitsPerSample / 8;
-            int numFrames = toDsc.data.Length / bytesPerFrame;
-
-            int pos = 0;
-            for (int i=0; i < numFrames; ++i) {
-                for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                    double sample = toDsc.GetSampleValue16(pos);
-
-                    sample = ((int)sample & mask);
-
-                    switch (args.ditherType) {
-                    case ConvertParams.DitherType.Truncate:
-                        break;
-                    case ConvertParams.DitherType.RpdfDither:
-                        gen.GetBytes(randomNumber);
-                        ushort randDither = (ushort)((ushort)((randomNumber[0] << 8) + randomNumber[1]) & (ushort)(~mask));
-                        sample += randDither;
-                        break;
-                    case ConvertParams.DitherType.GaussianDither:
-                        float noise = gng.NextFloat();
-                        noise *= noiseMagnitude;
-                        sample += (int)noise;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.Assert(false);
-                        break;
-                    }
-
-
-                    if (0x7fff < sample) {
-                        sample = 0x7fff;
-                    }
-                    if (sample < -0x8000) {
-                        sample = -0x8000;
-                    }
-
-                    toDsc.SetSampleValue16(pos, (short)sample);
-
-                    pos += mFsc.bitsPerSample / 8;
                 }
             }
         }
@@ -515,7 +432,7 @@ namespace BpsConvWin
             int pos = 0;
             for (int i=0; i < numFrames; ++i) {
                 for (int ch=0; ch < mFsc.numChannels; ++ch) {
-                    double sample = toDsc.GetSampleValue24(pos);
+                    double sample = ReadSampleValue24(toDsc, pos);
                     uint error = (uint)sample & maskError;
                     sample -= error;
 
@@ -544,7 +461,7 @@ namespace BpsConvWin
                         sample = -0x800000;
                     }
 
-                    toDsc.SetSampleValue24(pos, (int)sample);
+                    WriteSampleValue24(toDsc, pos, (int)sample);
 
                     pos += mFsc.bitsPerSample / 8;
                 }
