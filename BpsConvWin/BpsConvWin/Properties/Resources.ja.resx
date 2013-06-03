@@ -136,7 +136,7 @@
     <value>出力ファイル名: {0}</value>
   </data>
   <data name="PleasePressBrowseButton" xml:space="preserve">
-    <value>[参照]ボタンを押して、入力するWAVファイル(16bit PCM形式)を選択してください。</value>
+    <value>[参照]ボタンを押して、入力するWAVファイルを選択してください。</value>
   </data>
   <data name="PleasePressConvButton" xml:space="preserve">
     <value>[変換開始]ボタンを押してください。</value>
