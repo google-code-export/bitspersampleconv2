@@ -361,7 +361,7 @@ namespace BpsConvWin
         }
 
         private void ReduceBitsPerSample24Ns2(ConvertParams args, DataSubChunk toDsc) {
-            NoiseShaper2 [] ns = new NoiseShaper2[mFsc.numChannels];
+            var ns = new NoiseShaper2[mFsc.numChannels];
             for (int ch=0; ch < mFsc.numChannels; ++ch) {
                 ns[ch] = new NoiseShaper2(args.order, args.filter, args.newQuantizationBitrate);
             }
@@ -385,7 +385,7 @@ namespace BpsConvWin
         }
 
         private void ReduceBitsPerSample24Mash2(ConvertParams args, DataSubChunk toDsc) {
-            NoiseShaperMash [] mash = new NoiseShaperMash[mFsc.numChannels];
+            var mash = new NoiseShaperMash[mFsc.numChannels];
             for (int ch=0; ch < mFsc.numChannels; ++ch) {
                 mash[ch] = new NoiseShaperMash(args.newQuantizationBitrate);
             }
@@ -419,9 +419,9 @@ namespace BpsConvWin
         private void ReduceBitsPerSample24Other(ConvertParams args, DataSubChunk toDsc) {
             uint mask = 0xffffffff << (24 - args.newQuantizationBitrate);
             uint maskError = ~mask;
-            RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();
-            GaussianNoiseGenerator gng = new GaussianNoiseGenerator();
-            byte[] randomNumber = new byte[3];
+            var gen = new RNGCryptoServiceProvider();
+            var gng = new GaussianNoiseGenerator();
+            var randomNumber = new byte[3];
             int noiseMagnitude = (int)Math.Pow(2, (24 - args.newQuantizationBitrate))/2;
 
             Console.WriteLine("D: maskErr={0:X}", maskError);
