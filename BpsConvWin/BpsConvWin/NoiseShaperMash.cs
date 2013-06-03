@@ -11,8 +11,11 @@ namespace BpsConvWin {
         /// <summary>
         /// SigmaDelta noise shaping system
         /// </summary>
-        /// <param name="quantizedBit">quantizer parameter</param>
+        /// <param name="quantizedBit">quantizer parameter. 1 to 23</param>
         public SigmaDelta(int quantizedBit) {
+            if (quantizedBit < 1 || 23 < quantizedBit) {
+                throw new System.ArgumentException();
+            }
             mQuantizedBit = quantizedBit;
 
             mMask = 0xffffff00U << (24 - mQuantizedBit);

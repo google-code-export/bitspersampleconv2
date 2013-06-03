@@ -13,7 +13,7 @@ namespace BpsConvWin {
         /// </summary>
         /// <param name="order">filter order</param>
         /// <param name="coefficients">filter coefficients. element count == filter order+1</param>
-        /// <param name="quantizedBit">target quantized bit. 1 to 15</param>
+        /// <param name="quantizedBit">target quantized bit. 1 to 23</param>
         public NoiseShaper2(int order, double[] coefficients, int quantizedBit) {
             if (order < 1) {
                 throw new System.ArgumentException();
