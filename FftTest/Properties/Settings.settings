@@ -51,7 +51,7 @@
       <Value Profile="(Default)">-0.5</Value>
     </Setting>
     <Setting Name="SampleCount" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4</Value>
+      <Value Profile="(Default)">8</Value>
     </Setting>
   </Settings>
 </SettingsFile>

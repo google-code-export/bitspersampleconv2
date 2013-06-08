@@ -323,18 +323,18 @@ namespace FftTest {
             }
             mMagnitudeGraph.points.Clear();
 
-            double pointIntervalX = (canvasWaveFormFR.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() + 1);
+            double pointIntervalX = (canvasWaveFormFR.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
 
-            for (int i=0; i < SampleCount(); ++i) {
+            for (int i=0; i < SampleCount()/2+1; ++i) {
                 double x = GRAPH_YAXIS_POS_X + pointIntervalX * i;
                 double y = canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X - (canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X) * freqDomain[i].Magnitude() / SampleCount();
 
                 var el = new Ellipse();
-                el.Width = 4;
-                el.Height = 4;
+                el.Width = 6;
+                el.Height = 6;
                 el.Fill = Brushes.Black;
                 canvasWaveFormFR.Children.Add(el);
-                CanvasSetLeftTop(el, x - 2, y - 2);
+                CanvasSetLeftTop(el, x - 3, y - 3);
 
                 var la = new Label();
                 la.Content = string.Format("{0:0.00}", freqDomain[i].Magnitude());
@@ -378,18 +378,18 @@ namespace FftTest {
             }
             mPhaseGraph.points.Clear();
 
-            double pointIntervalX = (canvasWaveFormPhase.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() + 1);
+            double pointIntervalX = (canvasWaveFormPhase.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
 
-            for (int i=0; i < SampleCount(); ++i) {
+            for (int i=0; i < SampleCount() / 2 + 1; ++i) {
                 double x = GRAPH_YAXIS_POS_X + pointIntervalX * i;
                 double y = canvasWaveFormPhase.ActualHeight/2 - (canvasWaveFormPhase.ActualHeight-GRAPH_YAXIS_POS_X*2)/2/Math.PI * freqDomain[i].Phase();
 
                 var el = new Ellipse();
-                el.Width = 4;
-                el.Height = 4;
+                el.Width = 6;
+                el.Height = 6;
                 el.Fill = Brushes.Black;
                 canvasWaveFormPhase.Children.Add(el);
-                CanvasSetLeftTop(el, x - 2, y - 2);
+                CanvasSetLeftTop(el, x - 3, y - 3);
 
                 var la = new Label();
                 la.Content = string.Format("{0:0.00}", freqDomain[i].Phase());
