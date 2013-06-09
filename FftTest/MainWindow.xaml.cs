@@ -484,7 +484,7 @@ namespace FftTest {
             }
             mUpsampleGraph.points.Clear();
 
-            // オリジナルPCMデータをFFTする
+            // オリジナルPCMデータtimeDomainOrigをFFTして周波数ドメインデータfreqDomainOrigを得る
             var timeDomainOrig = new WWComplex[SampleCount()];
             for (int i=0; i < timeDomainOrig.Length; ++i) {
                 timeDomainOrig[i] = new WWComplex(mSLArray[i].Value, 0);
