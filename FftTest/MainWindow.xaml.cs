@@ -333,6 +333,8 @@ namespace FftTest {
         MagnitudeGraph mMagnitudeGraph = new MagnitudeGraph();
 
         private void UpdateMagnitude(WWComplex [] freqDomain) {
+            double pointIntervalX = (canvasWaveFormFR.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
+
             LineSetX1Y1X2Y2(lineFRX,
                 GRAPH_YAXIS_POS_X, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X,
                 canvasWaveFormFR.ActualWidth, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X);
@@ -349,9 +351,16 @@ namespace FftTest {
                     GRAPH_YAXIS_POS_X - 4, 0,
                     GRAPH_YAXIS_POS_X,     0);
 
+            LineSetX1Y1X2Y2(lineFRTickXPi,
+                    canvasWaveFormFR.ActualWidth - pointIntervalX, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X - 4,
+                    canvasWaveFormFR.ActualWidth - pointIntervalX, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X);
+
             CanvasSetLeftTop(labelFRPMax, 0, -labelFRPMax.ActualHeight / 2);
             CanvasSetLeftTop(labelFRPHalf, 0, (canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X) / 2 - labelFRPHalf.ActualHeight/2);
             CanvasSetLeftTop(labelFR0, 0, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X-labelFR0.ActualHeight/2);
+            CanvasSetLeftTop(labelFRXPi,
+                    canvasWaveFormFR.ActualWidth - pointIntervalX - labelFRXPi.ActualWidth / 2, canvasWaveFormFR.ActualHeight - GRAPH_YAXIS_POS_X);
+
             labelFRPMax.Content  = string.Format("{0}", SampleCount());
             labelFRPHalf.Content = string.Format("{0}", SampleCount()/2);
 
@@ -360,8 +369,6 @@ namespace FftTest {
                 canvasWaveFormFR.Children.Remove(t.Item2);
             }
             mMagnitudeGraph.points.Clear();
-
-            double pointIntervalX = (canvasWaveFormFR.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
 
             for (int i=0; i < SampleCount()/2+1; ++i) {
                 double x = GRAPH_YAXIS_POS_X + pointIntervalX * i;
@@ -390,6 +397,8 @@ namespace FftTest {
         PhaseGraph mPhaseGraph = new PhaseGraph();
 
         private void UpdatePhase(WWComplex[] freqDomain) {
+            double pointIntervalX = (canvasWaveFormPhase.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
+
             LineSetX1Y1X2Y2(linePX,
                 GRAPH_YAXIS_POS_X,               canvasWaveFormPhase.ActualHeight / 2,
                 canvasWaveFormPhase.ActualWidth, canvasWaveFormPhase.ActualHeight / 2);
@@ -398,17 +407,23 @@ namespace FftTest {
                     GRAPH_YAXIS_POS_X, 0,
                     GRAPH_YAXIS_POS_X, canvasWaveFormPhase.ActualHeight);
 
-            LineSetX1Y1X2Y2(linePTickPPI,
-                    GRAPH_YAXIS_POS_X - 4, GRAPH_YAXIS_POS_X,
-                    GRAPH_YAXIS_POS_X,     GRAPH_YAXIS_POS_X);
+            LineSetX1Y1X2Y2(linePTickPPi,
+                    GRAPH_YAXIS_POS_X - 4, 0,
+                    GRAPH_YAXIS_POS_X,     0);
 
-            LineSetX1Y1X2Y2(linePTickMPI,
-                    GRAPH_YAXIS_POS_X - 4, canvasWaveFormPhase.ActualHeight - GRAPH_YAXIS_POS_X,
-                    GRAPH_YAXIS_POS_X,     canvasWaveFormPhase.ActualHeight - GRAPH_YAXIS_POS_X);
+            LineSetX1Y1X2Y2(linePTickMPi,
+                    GRAPH_YAXIS_POS_X - 4, canvasWaveFormPhase.ActualHeight-1,
+                    GRAPH_YAXIS_POS_X,     canvasWaveFormPhase.ActualHeight-1);
 
-            CanvasSetLeftTop(labelPPPI, 0, GRAPH_YAXIS_POS_X - labelPPPI.ActualHeight / 2);
-            CanvasSetLeftTop(labelPMPI, 0, canvasWaveFormPhase.ActualHeight - GRAPH_YAXIS_POS_X - labelPMPI.ActualHeight/2);
-            CanvasSetLeftTop(labelP0, 0, canvasWaveFormPhase.ActualHeight / 2 - labelPMPI.ActualHeight / 2);
+            LineSetX1Y1X2Y2(linePTickXPi,
+                    canvasWaveFormPhase.ActualWidth - pointIntervalX, canvasWaveFormPhase.ActualHeight / 2 - 4,
+                    canvasWaveFormPhase.ActualWidth - pointIntervalX, canvasWaveFormPhase.ActualHeight / 2);
+
+            CanvasSetLeftTop(labelPPPi, 0, 0 - labelPPPi.ActualHeight / 2);
+            CanvasSetLeftTop(labelPMPi, 0, canvasWaveFormPhase.ActualHeight - labelPMPi.ActualHeight/2);
+            CanvasSetLeftTop(labelP0, 0, canvasWaveFormPhase.ActualHeight / 2 - labelPMPi.ActualHeight / 2);
+            CanvasSetLeftTop(labelPXPi,
+                    canvasWaveFormPhase.ActualWidth - pointIntervalX - labelPXPi.ActualWidth/2, canvasWaveFormPhase.ActualHeight / 2);
 
             foreach (var t in mPhaseGraph.points) {
                 canvasWaveFormPhase.Children.Remove(t.Item1);
@@ -416,11 +431,9 @@ namespace FftTest {
             }
             mPhaseGraph.points.Clear();
 
-            double pointIntervalX = (canvasWaveFormPhase.ActualWidth - GRAPH_YAXIS_POS_X) / (SampleCount() / 2 + 1);
-
             for (int i=0; i < SampleCount() / 2 + 1; ++i) {
                 double x = GRAPH_YAXIS_POS_X + pointIntervalX * i;
-                double y = canvasWaveFormPhase.ActualHeight/2 - (canvasWaveFormPhase.ActualHeight-GRAPH_YAXIS_POS_X*2)/2/Math.PI * freqDomain[i].Phase();
+                double y = canvasWaveFormPhase.ActualHeight/2 - (canvasWaveFormPhase.ActualHeight)/2/Math.PI * freqDomain[i].Phase();
 
                 var el = new Ellipse();
                 el.Width = 6;

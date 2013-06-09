@@ -187,18 +187,22 @@
             <Line Name="lineFRX" Stroke="Gray" X1="32" Y1="100" X2="300" Y2="100" />
             <Line Name="lineFRTickPMax" Stroke="Gray" X1="28" Y1="25" X2="32" Y2="25" />
             <Line Name="lineFRTickPHalf" Stroke="Gray" X1="28" Y1="50" X2="32" Y2="50" />
+            <Line Name="lineFRTickXPi" Stroke="Gray" X1="200" Y1="100" X2="200" Y2="96" />
             <Label Canvas.Left="0" Canvas.Top="0" Content="8" Name="labelFRPMax" Width="32" HorizontalContentAlignment="Right" />
             <Label Canvas.Left="0" Canvas.Top="50" Content="4" Name="labelFRPHalf" Width="32" HorizontalContentAlignment="Right" />
             <Label Canvas.Left="0" Canvas.Top="100" Content="0" Name="labelFR0" Width="32" HorizontalContentAlignment="Right" />
+            <Label Canvas.Left="200" Canvas.Top="100" Content="π" Name="labelFRXPi" Width="32" HorizontalContentAlignment="Center" />
         </Canvas>
         <Canvas Grid.Row="5" Grid.Column="1" Margin="6" Name="canvasWaveFormPhase">
             <Line Name="linePY" Stroke="Gray" X1="32" Y1="0" X2="32" Y2="100" />
             <Line Name="linePX" Stroke="Gray" X1="32" Y1="50" X2="300" Y2="50" />
-            <Line Name="linePTickPPI" Stroke="Gray" X1="28" Y1="25" X2="32" Y2="25" />
-            <Line Name="linePTickMPI" Stroke="Gray" X1="28" Y1="80" X2="32" Y2="80" />
+            <Line Name="linePTickPPi" Stroke="Gray" X1="28" Y1="25" X2="32" Y2="25" />
+            <Line Name="linePTickMPi" Stroke="Gray" X1="28" Y1="80" X2="32" Y2="80" />
+            <Line Name="linePTickXPi" Stroke="Gray" X1="200" Y1="50" X2="200" Y2="46" />
             <Label Canvas.Left="0" Canvas.Top="50" Content="0" Name="labelP0" Width="32" HorizontalContentAlignment="Right" />
-            <Label Canvas.Left="0" Canvas.Top="20" Content="π" Name="labelPPPI" Width="32" HorizontalContentAlignment="Right" />
-            <Label Canvas.Left="0" Canvas.Top="80" Content="-π" Name="labelPMPI" Width="32" HorizontalContentAlignment="Right" />
+            <Label Canvas.Left="0" Canvas.Top="20" Content="π" Name="labelPPPi" Width="32" HorizontalContentAlignment="Right" />
+            <Label Canvas.Left="0" Canvas.Top="80" Content="-π" Name="labelPMPi" Width="32" HorizontalContentAlignment="Right" />
+            <Label Canvas.Left="200" Canvas.Top="50" Content="π" Name="labelPXPi" Width="32" HorizontalContentAlignment="Center" />
         </Canvas>
         <Label Content="Original waveform" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelWaveFormFrom" VerticalAlignment="Bottom" />
         <Label Content="Frequency response" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="labelFrequencyResponse" VerticalAlignment="Bottom" />
