@@ -319,7 +319,7 @@ namespace FftTest {
                 freqDomain[i] = new WWComplex();
             }
 
-            var fft = new Radix2Fft(SampleCount());
+            var fft = new WWRadix2Fft(SampleCount());
             fft.Fft(timeDomain, freqDomain);
 
             UpdateMagnitude(freqDomain);
@@ -496,7 +496,7 @@ namespace FftTest {
             }
 
             {
-                var fft = new Radix2Fft(SampleCount());
+                var fft = new WWRadix2Fft(SampleCount());
                 fft.Fft(timeDomainOrig, freqDomainOrig);
             }
 
@@ -529,7 +529,7 @@ namespace FftTest {
             }
 
             {
-                var fft = new Radix2Fft(upsampledSampleCount);
+                var fft = new WWRadix2Fft(upsampledSampleCount);
                 fft.Fft(freqDomainUpsampled, timeDomainUpsampled);
             }
 

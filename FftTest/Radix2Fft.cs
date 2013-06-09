@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 
 namespace FftTest {
-    class Radix2Fft {
+    class WWRadix2Fft {
         private int mNumPoints;
         private int mNumStage;
         private WWComplex[] mWn;
         private uint [] mBitReversalTable;
 
-        public Radix2Fft(int numPoints) {
+        public WWRadix2Fft(int numPoints) {
             if (!IsPowerOfTwo(numPoints) || numPoints < 2) {
                 throw new ArgumentException();
             }
