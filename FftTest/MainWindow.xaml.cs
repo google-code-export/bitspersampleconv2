@@ -484,7 +484,7 @@ namespace FftTest {
             }
             mUpsampleGraph.points.Clear();
 
-            // FFTする
+            // オリジナルPCMデータをFFTする
             var timeDomainOrig = new WWComplex[SampleCount()];
             for (int i=0; i < timeDomainOrig.Length; ++i) {
                 timeDomainOrig[i] = new WWComplex(mSLArray[i].Value, 0);
@@ -504,7 +504,7 @@ namespace FftTest {
 
             int upsampledSampleCount = SampleCount() * UpsampleMultiple();
 
-            // 周波数ドメインのFFTデータを0で水増しして逆FFTする。
+            // 周波数ドメインのFFTデータを0で水増しして逆FFTする
             var freqDomainUpsampled = new WWComplex[upsampledSampleCount];
             for (int i=0; i < freqDomainUpsampled.Length; ++i) {
                 if (i <= freqDomainOrig.Length / 2) {
@@ -542,6 +542,7 @@ namespace FftTest {
                         timeDomainUpsampled[i].real      * compensate);
             }
 
+            // アップサンプルされたPCMデータtimeDomainUpsampledをグラフにプロットする
             double pointIntervalX = (canvasUpsampleGraph.ActualWidth - GRAPH_YAXIS_POS_X) / (upsampledSampleCount + 2 * UpsampleMultiple());
 
             for (int i=0; i < upsampledSampleCount; ++i) {
