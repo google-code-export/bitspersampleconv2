@@ -18,6 +18,11 @@ namespace FftTest {
             this.imaginary = rhs.imaginary;
         }
 
+        public void Set(double real, double imaginary) {
+            this.real = real;
+            this.imaginary = imaginary;
+        }
+
         public double Magnitude() {
             return Math.Sqrt(real * real + imaginary * imaginary);
         }
@@ -27,6 +32,10 @@ namespace FftTest {
         /// </summary>
         /// <returns>radians, -π to +π</returns>
         public double Phase() {
+            if (Magnitude() < Double.Epsilon) {
+                return 0;
+            }
+
             return Math.Atan2(imaginary, real);
         }
 

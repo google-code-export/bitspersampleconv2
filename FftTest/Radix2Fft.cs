@@ -156,14 +156,33 @@ namespace FftTest {
             for (int i=0; i<nRepeat; ++i) {
                 int offsBase = i * nSubRepeat;
 
-                for (int j=0; j < nSubRepeat; ++j) {
+                bool allZero = true;
+                for (int j=0; j < nSubRepeat/2; ++j) {
                     int offs = offsBase + (j % (nSubRepeat/2));
-                    y[j+offsBase].CopyFrom(x[offs]);
+                    if (Double.Epsilon < x[offs].Magnitude()) {
+                        allZero = false;
+                        break;
+                    }
+                    if (Double.Epsilon < x[offs + nSubRepeat / 2].Magnitude()) {
+                        allZero = false;
+                        break;
+                    }
+                }
 
-                    t.CopyFrom(mWn[j*nRepeat]);
-                    t.Mul(x[offs + nSubRepeat / 2]);
+                if (allZero) {
+                    for (int j=0; j < nSubRepeat / 2; ++j) {
+                        y[j + offsBase].Set(0, 0);
+                    }
+                } else {
+                    for (int j=0; j < nSubRepeat; ++j) {
+                        int offs = offsBase + (j % (nSubRepeat / 2));
+                        y[j + offsBase].CopyFrom(x[offs]);
 
-                    y[j+offsBase].Add(t);
+                        t.CopyFrom(mWn[j * nRepeat]);
+                        t.Mul(x[offs + nSubRepeat / 2]);
+
+                        y[j + offsBase].Add(t);
+                    }
                 }
             }
         }

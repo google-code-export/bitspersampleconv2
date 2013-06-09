@@ -99,6 +99,7 @@ namespace FftTest {
             mSLArray[15].Value = Properties.Settings.Default.Amplitude15;
 
             comboBoxSampleCount.SelectedIndex = (int)SampleCountToSampleCountType(Properties.Settings.Default.SampleCount);
+            comboBoxUpsample.SelectedIndex = (int)UpsampleMultipleToUpsampleMultipleType(Properties.Settings.Default.UpsampleMultiple);
         }
 
         private void StoreSettings() {
@@ -139,7 +140,7 @@ namespace FftTest {
             case SampleCountType.S8: return 8;
             case SampleCountType.S16: return 16;
             default:
-                throw new ArgumentException();
+                throw new NotImplementedException();
             }
         }
 
@@ -149,7 +150,7 @@ namespace FftTest {
             case 8: return SampleCountType.S8;
             case 16: return SampleCountType.S16;
             default:
-                throw new ArgumentException();
+                throw new NotImplementedException();
             }
         }
 
@@ -157,6 +158,7 @@ namespace FftTest {
             UpdateAmplitudeSliders();
             UpdateWaveFormFrom();
             UpdateMagnitudePhase();
+            UpdateUpsampleGraph();
         }
 
         private void UpdateAmplitudeSliders() {
@@ -170,6 +172,42 @@ namespace FftTest {
 
         private int SampleCount() {
             return SampleCountTypeToSampleCount((SampleCountType)comboBoxSampleCount.SelectedIndex);
+        }
+
+        enum UpsampleMultipleType {
+            M2,
+            M4,
+            M8,
+        };
+
+        private int UpsampleMultipleTypeToUpsampleMultiple(UpsampleMultipleType multipleType) {
+            switch (multipleType) {
+            case UpsampleMultipleType.M2:
+                return 2;
+            case UpsampleMultipleType.M4:
+                return 4;
+            case UpsampleMultipleType.M8:
+                return 8;
+            default:
+                throw new NotImplementedException();
+            }
+        }
+
+        private UpsampleMultipleType UpsampleMultipleToUpsampleMultipleType(int multiple) {
+            switch (multiple) {
+            case 2:
+                return UpsampleMultipleType.M2;
+            case 4:
+                return UpsampleMultipleType.M4;
+            case 8:
+                return UpsampleMultipleType.M8;
+            default:
+                throw new NotImplementedException();
+            }
+        }
+
+        private int UpsampleMultiple() {
+            return UpsampleMultipleTypeToUpsampleMultiple((UpsampleMultipleType)comboBoxUpsample.SelectedIndex);
         }
 
         private const double GRAPH_YAXIS_POS_X = 32;
@@ -400,6 +438,126 @@ namespace FftTest {
             }
         }
 
+        class UpsampleGraph {
+            public List<Tuple<Ellipse,Label, Line>> points = new List<Tuple<Ellipse, Label, Line>>();
+        };
+
+        UpsampleGraph mUpsampleGraph = new UpsampleGraph();
+
+        private void UpdateUpsampleGraph() {
+            LineSetX1Y1X2Y2(lineUSX,
+                    0, canvasUpsampleGraph.ActualHeight / 2,
+                    canvasUpsampleGraph.ActualWidth, canvasUpsampleGraph.ActualHeight / 2);
+
+            LineSetX1Y1X2Y2(lineUSY,
+                    GRAPH_YAXIS_POS_X, 0,
+                    GRAPH_YAXIS_POS_X, canvasUpsampleGraph.ActualHeight);
+
+            LineSetX1Y1X2Y2(lineUSTickP1,
+                    GRAPH_YAXIS_POS_X - 4, canvasUpsampleGraph.ActualHeight / 4,
+                    GRAPH_YAXIS_POS_X, canvasUpsampleGraph.ActualHeight / 4);
+            LineSetX1Y1X2Y2(lineUSTickM1,
+                    GRAPH_YAXIS_POS_X - 4, canvasUpsampleGraph.ActualHeight * 3 / 4,
+                    GRAPH_YAXIS_POS_X, canvasUpsampleGraph.ActualHeight * 3 / 4);
+
+            CanvasSetLeftTop(labelUSP1, 0, canvasUpsampleGraph.ActualHeight / 4 - labelUSP1.ActualHeight / 2);
+            CanvasSetLeftTop(labelUS0, 0, canvasUpsampleGraph.ActualHeight / 2 - labelUS0.ActualHeight / 2);
+            CanvasSetLeftTop(labelUSM1, 0, canvasUpsampleGraph.ActualHeight * 3 / 4 - labelUSM1.ActualHeight / 2);
+
+            foreach (var t in mUpsampleGraph.points) {
+                canvasUpsampleGraph.Children.Remove(t.Item1);
+                canvasUpsampleGraph.Children.Remove(t.Item2);
+                canvasUpsampleGraph.Children.Remove(t.Item3);
+            }
+            mUpsampleGraph.points.Clear();
+
+            // FFTする
+            var timeDomainOrig = new WWComplex[SampleCount()];
+            for (int i=0; i < timeDomainOrig.Length; ++i) {
+                timeDomainOrig[i] = new WWComplex(mSLArray[i].Value, 0);
+            }
+
+            var freqDomainOrig = new WWComplex[SampleCount()];
+            for (int i=0; i < freqDomainOrig.Length; ++i) {
+                freqDomainOrig[i] = new WWComplex();
+            }
+
+            {
+                var fft = new Radix2Fft(SampleCount());
+                fft.Fft(timeDomainOrig, freqDomainOrig);
+            }
+
+            timeDomainOrig = null;
+
+            int upsampledSampleCount = SampleCount() * UpsampleMultiple();
+
+            // 周波数ドメインのFFTデータを0で水増しして逆FFTする。
+            var freqDomainUpsampled = new WWComplex[upsampledSampleCount];
+            for (int i=0; i < freqDomainUpsampled.Length; ++i) {
+                if (i <= freqDomainOrig.Length / 2) {
+                    freqDomainUpsampled[i] = new WWComplex(freqDomainOrig[i].imaginary, freqDomainOrig[i].real);
+                    if (i == freqDomainOrig.Length / 2) {
+                        freqDomainUpsampled[i].Mul(0.5);
+                    }
+                } else if (freqDomainUpsampled.Length - freqDomainOrig.Length / 2 <= i) {
+                    int pos = i + freqDomainOrig.Length - freqDomainUpsampled.Length;
+                    freqDomainUpsampled[i] = new WWComplex(freqDomainOrig[pos].imaginary, freqDomainOrig[pos].real);
+                    if (freqDomainUpsampled.Length - freqDomainOrig.Length / 2 == i) {
+                        freqDomainUpsampled[i].Mul(0.5);
+                    }
+                } else {
+                    freqDomainUpsampled[i] = new WWComplex();
+                }
+            }
+            freqDomainOrig = null;
+            var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
+            for (int i=0; i < timeDomainUpsampled.Length; ++i) {
+                timeDomainUpsampled[i] = new WWComplex();
+            }
+
+            {
+                var fft = new Radix2Fft(upsampledSampleCount);
+                fft.Fft(freqDomainUpsampled, timeDomainUpsampled);
+            }
+
+            freqDomainUpsampled = null;
+
+            double compensate = 1.0 / SampleCount();
+            for (int i=0; i < timeDomainUpsampled.Length; ++i) {
+                timeDomainUpsampled[i] = new WWComplex(
+                        timeDomainUpsampled[i].imaginary * compensate,
+                        timeDomainUpsampled[i].real      * compensate);
+            }
+
+            double pointIntervalX = (canvasUpsampleGraph.ActualWidth - GRAPH_YAXIS_POS_X) / (upsampledSampleCount + 2 * UpsampleMultiple());
+
+            for (int i=0; i < upsampledSampleCount; ++i) {
+                double x = GRAPH_YAXIS_POS_X + pointIntervalX * (i + UpsampleMultiple());
+                double y = canvasUpsampleGraph.ActualHeight / 2 - (canvasUpsampleGraph.ActualHeight / 4) * timeDomainUpsampled[i].real;
+
+                var el = new Ellipse();
+                el.Width = 6;
+                el.Height = 6;
+                el.Fill = Brushes.Black;
+                canvasUpsampleGraph.Children.Add(el);
+                CanvasSetLeftTop(el, x - 3, y - 3);
+
+                var la = new Label();
+                la.Content = string.Format("{0:0.00}", timeDomainUpsampled[i].real);
+                canvasUpsampleGraph.Children.Add(la);
+                CanvasSetLeftTop(la, x - 16, y);
+
+                var li = new Line();
+                li.Stroke = Brushes.Black;
+                canvasUpsampleGraph.Children.Add(li);
+                LineSetX1Y1X2Y2(li,
+                    x, y,
+                    x, canvasUpsampleGraph.ActualHeight / 2);
+
+                mUpsampleGraph.points.Add(new Tuple<Ellipse, Label, Line>(el, la, li));
+            }
+        }
+
         //////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -446,6 +604,18 @@ namespace FftTest {
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            Update();
+        }
+
+        private void comboBoxUpsample_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
             Update();
         }
 

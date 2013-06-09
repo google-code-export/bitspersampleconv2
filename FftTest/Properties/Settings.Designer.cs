@@ -226,5 +226,17 @@ namespace FftTest.Properties {
                 this["SampleCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int UpsampleMultiple {
+            get {
+                return ((int)(this["UpsampleMultiple"]));
+            }
+            set {
+                this["UpsampleMultiple"] = value;
+            }
+        }
     }
 }
