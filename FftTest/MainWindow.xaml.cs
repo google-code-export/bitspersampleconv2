@@ -268,7 +268,11 @@ namespace FftTest {
                 var la = new Label();
                 la.Content = string.Format("{0:0.00}", mSLArray[i].Value);
                 canvasWaveFormFrom.Children.Add(la);
-                CanvasSetLeftTop(la, x-16, y);
+                if (mSLArray[i].Value >= 0) {
+                    CanvasSetLeftTop(la, x - 16, y - labelWF0.ActualHeight);
+                } else {
+                    CanvasSetLeftTop(la, x - 16, y);
+                }
 
                 var li = new Line();
                 li.Stroke = Brushes.Black;
@@ -553,7 +557,11 @@ namespace FftTest {
                 var la = new Label();
                 la.Content = string.Format("{0:0.00}", timeDomainUpsampled[i].real);
                 canvasUpsampleGraph.Children.Add(la);
-                CanvasSetLeftTop(la, x - 16, y);
+                if (timeDomainUpsampled[i].real >= 0) {
+                    CanvasSetLeftTop(la, x - 16, y - labelUS0.ActualHeight);
+                } else {
+                    CanvasSetLeftTop(la, x - 16, y);
+                }
 
                 var li = new Line();
                 li.Stroke = Brushes.Black;
