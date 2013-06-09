@@ -61,13 +61,6 @@ namespace FftTest {
             return r;
         }
 
-        private void Dft2(WWComplex vFrom0, WWComplex vFrom1, WWComplex[] vTo, int toPos) {
-            vTo[toPos + 0].real      = vFrom0.real      + vFrom1.real;
-            vTo[toPos + 0].imaginary = vFrom0.imaginary + vFrom1.imaginary;
-            vTo[toPos + 1].real      = vFrom0.real      - vFrom1.real;
-            vTo[toPos + 1].imaginary = vFrom0.imaginary - vFrom1.imaginary;
-        }
-
         private void Butterfly(WWComplex vFrom0, WWComplex vFrom1, WWComplex wn, WWComplex[] vTo, int toPos) {
             vTo[toPos].CopyFrom(vFrom0);
             WWComplex t = new WWComplex(vFrom1);

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="FftTest.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="FFT upsamle test" Height="600" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" SizeChanged="Window_SizeChanged">
+        Title="FFT upsample test" Height="600" Width="800" Closing="Window_Closing" Loaded="Window_Loaded" SizeChanged="Window_SizeChanged">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
