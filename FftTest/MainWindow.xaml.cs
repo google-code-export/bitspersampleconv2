@@ -502,9 +502,10 @@ namespace FftTest {
 
             timeDomainOrig = null;
 
+            // 周波数ドメインデータfreqDomainOrigを0で水増ししたデータfreqDomainUpsampledを作って逆FFTする
+
             int upsampledSampleCount = SampleCount() * UpsampleMultiple();
 
-            // 周波数ドメインデータfreqDomainOrigを0で水増ししたデータfreqDomainUpsampledを作って逆FFTする
             var freqDomainUpsampled = new WWComplex[upsampledSampleCount];
             for (int i=0; i < freqDomainUpsampled.Length; ++i) {
                 if (i <= freqDomainOrig.Length / 2) {
