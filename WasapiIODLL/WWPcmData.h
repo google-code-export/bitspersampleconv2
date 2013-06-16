@@ -87,7 +87,11 @@ struct WWPcmData {
         stream        = NULL;
     }
 
-    ~WWPcmData(void);
+    ~WWPcmData(void) {
+        // ここでstreamをfreeする必要はない。
+        // streamがNULLでなくても問題ない！
+        // メモリリークしないように呼び出し側が気をつける。
+    }
 
     /// @param bytesPerFrame 1フレームのバイト数。
     ///     (1サンプル1チャンネルのバイト数×チャンネル数)

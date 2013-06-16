@@ -1005,12 +1005,13 @@ WasapiUser::Start(void)
         assert(m_thread);
 
         hr = m_captureClient->GetBuffer(&pData, &nFrames, &flags, NULL, NULL);
-        if (0 <= ((int)hr)) {
-            // if succeeded, release buffer
+        if (SUCCEEDED(hr)) {
+            // if succeeded, release buffer pData
             m_captureClient->ReleaseBuffer(nFrames);
-        } else {
-            hr = S_OK;
+            pData = NULL;
         }
+
+        hr = S_OK;
         m_glitchCount = 0;
         break;
 

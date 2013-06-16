@@ -21,7 +21,7 @@ ReadTest(const wchar_t *path)
     }
 
     
-    int rv = WWFlacRW_GetDecodedMetadata(id, &gMeta);
+    int rv = WWFlacRW_GetDecodedMetadata(id, gMeta);
     if (rv < 0) {
         printf("get metadata failed");
         return false;
@@ -70,7 +70,7 @@ WriteTest(const wchar_t *path)
 {
     int result;
 
-    int id = WWFlacRW_EncodeInit(&gMeta);
+    int id = WWFlacRW_EncodeInit(gMeta);
     if (id < 0) {
         printf("failed EncodeInit\n");
         return false;

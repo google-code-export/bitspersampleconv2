@@ -47,6 +47,7 @@ enum FlacRWResultType {
 #define WWFLAC_TEXT_STRSZ   (256)
 #define WWFLAC_MD5SUM_BYTES (16)
 
+#pragma pack(push, 4)
 struct WWFlacMetadata {
     int          sampleRate;
     int          channels;
@@ -69,6 +70,7 @@ struct WWFlacMetadata {
 
     uint8_t md5sum[WWFLAC_MD5SUM_BYTES];
 };
+#pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // flac decode
@@ -85,7 +87,7 @@ WWFlacRW_DecodeAll(const wchar_t *path);
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata *metaReturn);
+WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn);
 
 /// @return 0以上: コピーしたバイト数。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
@@ -109,7 +111,7 @@ WWFlacRW_DecodeEnd(int id);
 /// @return 0以上: デコーダーId。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API
 int __stdcall
-WWFlacRW_EncodeInit(const WWFlacMetadata *meta);
+WWFlacRW_EncodeInit(const WWFlacMetadata &meta);
 
 /// @return 0以上: 成功。負: エラー。FlacRWResultType参照。
 extern "C" WWFLACRW_API

@@ -132,13 +132,6 @@ WWPcmData::Term(void)
     stream = NULL;
 }
 
-WWPcmData::~WWPcmData(void)
-{
-    // ここでstreamをfreeする必要はない。
-    // streamがNULLでなくても問題ない！
-    // メモリリークしないように呼び出し側が気をつける。
-}
-
 void
 WWPcmData::CopyFrom(WWPcmData *rhs)
 {

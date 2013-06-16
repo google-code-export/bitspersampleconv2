@@ -541,24 +541,22 @@ end:
     return fdi->id;
 }
 
-#define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn->X, sizeof metaReturn->X-1)
+#define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn.X, sizeof metaReturn.X-1)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata *metaReturn)
+WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata &metaReturn)
 {
-    assert(metaReturn);
-
     FlacDecodeInfo *fdi = FlacTInfoFindById<FlacDecodeInfo>(g_flacDecodeInfoMap, id);
     if (NULL == fdi) {
         return FRT_IdNotFound;
     }
 
-    metaReturn->sampleRate = fdi->sampleRate;
-    metaReturn->channels = fdi->channels;
-    metaReturn->bitsPerSample = fdi->bitsPerSample;
-    metaReturn->pictureBytes = fdi->pictureBytes;
-    metaReturn->totalSamples = fdi->totalSamples;
+    metaReturn.sampleRate = fdi->sampleRate;
+    metaReturn.channels = fdi->channels;
+    metaReturn.bitsPerSample = fdi->bitsPerSample;
+    metaReturn.pictureBytes = fdi->pictureBytes;
+    metaReturn.totalSamples = fdi->totalSamples;
 
     UTF8TOMB(titleStr);
     UTF8TOMB(artistStr);
@@ -572,7 +570,7 @@ WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata *metaReturn)
     UTF8TOMB(pictureMimeTypeStr);
     UTF8TOMB(pictureDescriptionStr);
 
-    memcpy(metaReturn->md5sum, fdi->md5sum, sizeof metaReturn->md5sum);
+    memcpy(metaReturn.md5sum, fdi->md5sum, sizeof metaReturn.md5sum);
 
     return FRT_Success;
 }
@@ -783,8 +781,7 @@ ProgressCallback(const FLAC__StreamEncoder *encoder, FLAC__uint64 bytesWritten, 
     (void)encoder;
     FlacEncodeInfo *fei = (FlacEncodeInfo*)clientData;
 
-    dprintf("wrote %llu bytes, %llu/%llu samples, %u/%u frames\n",
-            bytesWritten, samplesWritten, fei->totalSamples, framesWritten, totalFramesEstimate);
+    // dprintf("wrote %llu bytes, %llu/%llu samples, %u/%u frames\n", bytesWritten, samplesWritten, fei->totalSamples, framesWritten, totalFramesEstimate);
 }
 
 static void
@@ -802,18 +799,14 @@ DeleteFlacMetaArray(FlacEncodeInfo *fei)
             FLAC__metadata_object_vorbiscomment_append_comment(fei->flacMetaArray[FMT_VorbisComment], entry, false)) { \
     }
 
-#define WCTOUTF8(X) WideCharToMultiByte(CP_UTF8, 0, meta->X, -1, fei->X, sizeof fei->X-1,  NULL, NULL)
+#define WCTOUTF8(X) WideCharToMultiByte(CP_UTF8, 0, meta.X, -1, fei->X, sizeof fei->X-1,  NULL, NULL)
 
 extern "C" __declspec(dllexport)
 int __stdcall
-WWFlacRW_EncodeInit(const WWFlacMetadata *meta)
+WWFlacRW_EncodeInit(const WWFlacMetadata &meta)
 {
     FLAC__bool                    ok = true;
     FLAC__StreamMetadata_VorbisComment_Entry entry;
-
-    if (NULL == meta) {
-        return FRT_BadParams;
-    }
 
     FlacEncodeInfo *fei = FlacTInfoNew<FlacEncodeInfo>(g_flacEncodeInfoMap);
     if (NULL == fei) {
@@ -822,12 +815,12 @@ WWFlacRW_EncodeInit(const WWFlacMetadata *meta)
     
     fei->errorCode = FRT_Success;
 
-    fei->sampleRate = meta->sampleRate;
-    fei->channels = meta->channels;
-    fei->bitsPerSample = meta->bitsPerSample;
-    fei->totalSamples = meta->totalSamples;
-    fei->totalBytesPerChannel = meta->totalSamples * fei->bitsPerSample/8;
-    fei->pictureBytes = meta->pictureBytes;
+    fei->sampleRate = meta.sampleRate;
+    fei->channels = meta.channels;
+    fei->bitsPerSample = meta.bitsPerSample;
+    fei->totalSamples = meta.totalSamples;
+    fei->totalBytesPerChannel = meta.totalSamples * fei->bitsPerSample/8;
+    fei->pictureBytes = meta.pictureBytes;
 
     assert(NULL == fei->buffPerChannel);
     fei->buffPerChannel = new uint8_t*[fei->channels];
