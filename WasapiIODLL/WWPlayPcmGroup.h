@@ -20,13 +20,30 @@
 //      Clear()をしないでAddPlayPcmData()することはできません。
 class WWPlayPcmGroup {
 public:
-    WWPlayPcmGroup(void);
-    ~WWPlayPcmGroup(void);
+    WWPlayPcmGroup(void) {
+        m_repeat = false;
+        Clear();
+    }
+
+    ~WWPlayPcmGroup(void) {
+        assert(m_playPcmDataList.size() == 0);
+    }
+
+    void Clear(void) {
+        for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
+            m_playPcmDataList[i].Term();
+        }
+        m_playPcmDataList.clear();
+
+        m_sampleFormat  = WWPcmDataSampleFormatUnknown;
+        m_sampleRate    = 0;
+        m_numChannels   = 0;
+        m_dwChannelMask = 0;
+        m_bytesPerFrame = 0;
+    }
 
     void Init(void);
     void Term(void);
-
-    void Clear(void);
 
     /// @param sampleFormat データフォーマット。
     /// @param bytesPerFrame 1フレームのバイト数。

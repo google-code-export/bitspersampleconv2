@@ -80,6 +80,7 @@ struct FlacDecodeInfo {
     char albumStr[WWFLAC_TEXT_STRSZ];
     char albumArtistStr[WWFLAC_TEXT_STRSZ];
     char genreStr[WWFLAC_TEXT_STRSZ];
+
     char dateStr[WWFLAC_TEXT_STRSZ];
     char trackNumberStr[WWFLAC_TEXT_STRSZ];
     char discNumberStr[WWFLAC_TEXT_STRSZ];
@@ -132,6 +133,7 @@ struct FlacDecodeInfo {
         memset(discNumberStr,  0, sizeof discNumberStr);
         memset(pictureMimeTypeStr,    0, sizeof pictureMimeTypeStr);
         memset(pictureDescriptionStr,    0, sizeof pictureDescriptionStr);
+
         memset(md5sum,         0, sizeof md5sum);
 
         pictureBytes = 0;
@@ -327,6 +329,7 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
             STRCPY_COMMENT("ARTIST=", artistStr);
             STRCPY_COMMENT("ALBUMARTIST=", albumArtistStr);
             STRCPY_COMMENT("GENRE=", genreStr);
+
             STRCPY_COMMENT("DATE=", dateStr);
             STRCPY_COMMENT("TRACKNUMBER=", trackNumberStr);
             STRCPY_COMMENT("DISCNUMBER=", discNumberStr);
@@ -538,6 +541,8 @@ end:
     return fdi->id;
 }
 
+#define UTF8TOMB(X) MultiByteToWideChar(CP_UTF8, 0, fdi->X, -1, metaReturn->X, sizeof metaReturn->X-1)
+
 extern "C" __declspec(dllexport)
 int __stdcall
 WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata *metaReturn)
@@ -555,17 +560,17 @@ WWFlacRW_GetDecodedMetadata(int id, WWFlacMetadata *metaReturn)
     metaReturn->pictureBytes = fdi->pictureBytes;
     metaReturn->totalSamples = fdi->totalSamples;
 
-    strncpy_s(metaReturn->titleStr,       fdi->titleStr,       sizeof metaReturn->titleStr-1);
-    strncpy_s(metaReturn->artistStr,      fdi->artistStr,      sizeof metaReturn->artistStr-1);
-    strncpy_s(metaReturn->albumStr,       fdi->albumStr,       sizeof metaReturn->albumStr-1);
-    strncpy_s(metaReturn->albumArtistStr, fdi->albumArtistStr, sizeof metaReturn->albumArtistStr-1);
-    strncpy_s(metaReturn->genreStr,       fdi->genreStr,       sizeof metaReturn->genreStr-1);
+    UTF8TOMB(titleStr);
+    UTF8TOMB(artistStr);
+    UTF8TOMB(albumStr);
+    UTF8TOMB(albumArtistStr);
+    UTF8TOMB(genreStr);
 
-    strncpy_s(metaReturn->dateStr,        fdi->dateStr,        sizeof metaReturn->dateStr-1);
-    strncpy_s(metaReturn->trackNumberStr, fdi->trackNumberStr, sizeof metaReturn->trackNumberStr-1);
-    strncpy_s(metaReturn->discNumberStr,  fdi->discNumberStr,  sizeof metaReturn->discNumberStr-1);
-    strncpy_s(metaReturn->pictureMimeTypeStr, fdi->pictureMimeTypeStr, sizeof metaReturn->pictureMimeTypeStr-1);
-    strncpy_s(metaReturn->pictureDescriptionStr, fdi->pictureDescriptionStr, sizeof metaReturn->pictureDescriptionStr-1);
+    UTF8TOMB(dateStr);
+    UTF8TOMB(trackNumberStr);
+    UTF8TOMB(discNumberStr);
+    UTF8TOMB(pictureMimeTypeStr);
+    UTF8TOMB(pictureDescriptionStr);
 
     memcpy(metaReturn->md5sum, fdi->md5sum, sizeof metaReturn->md5sum);
 
@@ -692,10 +697,10 @@ struct FlacEncodeInfo {
     char albumStr[WWFLAC_TEXT_STRSZ];
     char albumArtistStr[WWFLAC_TEXT_STRSZ];
     char genreStr[WWFLAC_TEXT_STRSZ];
+
     char dateStr[WWFLAC_TEXT_STRSZ];
     char trackNumberStr[WWFLAC_TEXT_STRSZ];
     char discNumberStr[WWFLAC_TEXT_STRSZ];
-
     char pictureMimeTypeStr[WWFLAC_TEXT_STRSZ];
     char pictureDescriptionStr[WWFLAC_TEXT_STRSZ];
 
@@ -782,12 +787,6 @@ ProgressCallback(const FLAC__StreamEncoder *encoder, FLAC__uint64 bytesWritten, 
             bytesWritten, samplesWritten, fei->totalSamples, framesWritten, totalFramesEstimate);
 }
 
-#define ADD_TAG(V, S)                                                                                                  \
-    if(strlen(fei->V) &&                                                                                               \
-            FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, S, fei->V) &&                       \
-            FLAC__metadata_object_vorbiscomment_append_comment(fei->flacMetaArray[FMT_VorbisComment], entry, false)) { \
-    }
-
 static void
 DeleteFlacMetaArray(FlacEncodeInfo *fei)
 {
@@ -796,6 +795,14 @@ DeleteFlacMetaArray(FlacEncodeInfo *fei)
         fei->flacMetaArray[i] = NULL;
     }
 }
+
+#define ADD_TAG(V, S)                                                                                                  \
+    if(strlen(fei->V) &&                                                                                               \
+            FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, S, fei->V) &&                       \
+            FLAC__metadata_object_vorbiscomment_append_comment(fei->flacMetaArray[FMT_VorbisComment], entry, false)) { \
+    }
+
+#define WCTOUTF8(X) WideCharToMultiByte(CP_UTF8, 0, meta->X, -1, fei->X, sizeof fei->X-1,  NULL, NULL)
 
 extern "C" __declspec(dllexport)
 int __stdcall
@@ -828,16 +835,18 @@ WWFlacRW_EncodeInit(const WWFlacMetadata *meta)
         return FRT_MemoryExhausted;
     }
     memset(fei->buffPerChannel, 0, sizeof(uint8_t*)*fei->channels);
+    
+    WCTOUTF8(titleStr);
+    WCTOUTF8(artistStr);
+    WCTOUTF8(albumStr);
+    WCTOUTF8(albumArtistStr);
+    WCTOUTF8(genreStr);
 
-    strncpy_s(fei->titleStr,       meta->titleStr,       sizeof fei->titleStr-1);
-    strncpy_s(fei->artistStr,      meta->artistStr,      sizeof fei->artistStr-1);
-    strncpy_s(fei->albumStr,       meta->albumStr,       sizeof fei->albumStr-1);
-    strncpy_s(fei->albumArtistStr, meta->albumArtistStr, sizeof fei->albumArtistStr-1);
-    strncpy_s(fei->dateStr,        meta->dateStr,        sizeof fei->dateStr-1);
-    strncpy_s(fei->trackNumberStr, meta->trackNumberStr, sizeof fei->trackNumberStr-1);
-    strncpy_s(fei->discNumberStr,  meta->discNumberStr,  sizeof fei->discNumberStr-1);
-    strncpy_s(fei->pictureMimeTypeStr, meta->pictureMimeTypeStr, sizeof fei->pictureMimeTypeStr-1);
-    strncpy_s(fei->pictureDescriptionStr, meta->pictureDescriptionStr, sizeof fei->pictureDescriptionStr-1);
+    WCTOUTF8(dateStr);
+    WCTOUTF8(trackNumberStr);
+    WCTOUTF8(discNumberStr);
+    WCTOUTF8(pictureMimeTypeStr);
+    WCTOUTF8(pictureDescriptionStr);
 
     if((fei->encoder = FLAC__stream_encoder_new()) == NULL) {
         dprintf("FLAC__stream_encoder_new failed\n");
@@ -874,7 +883,9 @@ WWFlacRW_EncodeInit(const WWFlacMetadata *meta)
     ADD_TAG(titleStr,       "TITLE");
     ADD_TAG(artistStr,      "ARTIST");
     ADD_TAG(albumStr,       "ALBUM");
-    ADD_TAG(albumArtistStr, "ABUMARTIST");
+    ADD_TAG(albumArtistStr, "ALBUMARTIST");
+    ADD_TAG(genreStr,       "GENRE");
+
     ADD_TAG(dateStr,        "DATE");
     ADD_TAG(trackNumberStr, "TRACKNUMBER");
     ADD_TAG(discNumberStr,  "DISCNUMBER");
@@ -1061,12 +1072,12 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
 
     initStatus = FLAC__stream_encoder_init_FILE(fei->encoder, fp, ProgressCallback, fei);
     if(initStatus != FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
-        printf("FLAC__stream_encoder_init_FILE failed %s\n", FLAC__StreamEncoderInitStatusString[initStatus]);
+        dprintf("FLAC__stream_encoder_init_FILE failed %s\n", FLAC__StreamEncoderInitStatusString[initStatus]);
         switch (initStatus) {
         case FLAC__STREAM_ENCODER_INIT_STATUS_ENCODER_ERROR:
             {
                 FLAC__StreamDecoderState state = FLAC__stream_encoder_get_verify_decoder_state(fei->encoder);
-                printf("decoderState=%d\n", state);
+                dprintf("decoderState=%d\n", state);
             }
             fei->errorCode = FRT_EncoderError;
             goto end;
@@ -1136,7 +1147,7 @@ WWFlacRW_EncodeRun(int id, const wchar_t *path)
         left -= need;
     }
     if (!ok) {
-        printf("FLAC__stream_encoder_process_interleaved failed");
+        dprintf("FLAC__stream_encoder_process_interleaved failed");
         fei->errorCode = FRT_EncoderProcessFailed;
     }
 

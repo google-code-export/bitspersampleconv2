@@ -61,16 +61,12 @@ WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
 ///////////////////////////////////////////////////////////////////////
 // event handler
 
-class CMMNotificationClient : public IMMNotificationClient
+struct CMMNotificationClient : public IMMNotificationClient
 {
 public:
     CMMNotificationClient(WasapiUser *pWU):
             m_cRef(1) {
         m_pWasapiUser = pWU;
-    }
-
-    ~CMMNotificationClient(void) {
-        m_pWasapiUser = NULL;
     }
 
     ULONG STDMETHODCALLTYPE
@@ -82,6 +78,12 @@ public:
     Release(void) {
         ULONG ulRef = InterlockedDecrement(&m_cRef);
         if (0 == ulRef) {
+            // この構造体はデストラクタを作っても親の構造体にvirtualデストラクタがないので
+            // 呼び出し側のポインタの持ち方によっては呼ばれない。そのためデストラクタを作るのをやめた。
+            // したがって、ここでnewしたメンバをdeleteする。
+            // 現時点でdeleteするものは特にない。
+            m_pWasapiUser = NULL;
+
             delete this;
         }
         return ulRef;
@@ -1003,7 +1005,8 @@ WasapiUser::Start(void)
         assert(m_thread);
 
         hr = m_captureClient->GetBuffer(&pData, &nFrames, &flags, NULL, NULL);
-        if (SUCCEEDED(hr)) {
+        if (0 <= ((int)hr)) {
+            // if succeeded, release buffer
             m_captureClient->ReleaseBuffer(nFrames);
         } else {
             hr = S_OK;

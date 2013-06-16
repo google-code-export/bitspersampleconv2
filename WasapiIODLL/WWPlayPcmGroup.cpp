@@ -7,17 +7,6 @@
 #include <stdint.h>
 #include <list>
 
-WWPlayPcmGroup::WWPlayPcmGroup(void)
-{
-    m_repeat = false;
-    Clear();
-}
-
-WWPlayPcmGroup::~WWPlayPcmGroup(void)
-{
-    assert(m_playPcmDataList.size() == 0);
-}
-
 void
 WWPlayPcmGroup::Init(void)
 {
@@ -105,20 +94,6 @@ WWPlayPcmGroup::RemoveAt(int id)
 
     // 連続再生のリンクリストをつなげ直す。
     SetPlayRepeat(m_repeat);
-}
-
-void
-WWPlayPcmGroup::Clear(void)
-{
-    for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
-        m_playPcmDataList[i].Term();
-    }
-    m_playPcmDataList.clear();
-
-    m_sampleRate    = 0;
-    m_sampleFormat  = WWPcmDataSampleFormatUnknown;
-    m_numChannels   = 0;
-    m_bytesPerFrame = 0;
 }
 
 void

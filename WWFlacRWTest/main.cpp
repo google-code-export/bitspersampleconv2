@@ -70,10 +70,6 @@ WriteTest(const wchar_t *path)
 {
     int result;
 
-#if 0
-    gMeta.pictureBytes = 0;
-#endif
-
     int id = WWFlacRW_EncodeInit(&gMeta);
     if (id < 0) {
         printf("failed EncodeInit\n");

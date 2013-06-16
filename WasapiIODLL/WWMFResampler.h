@@ -116,7 +116,7 @@ struct WWMFSampleData {
 
 class WWMFResampler {
 public:
-    WWMFResampler(void) : m_pTransform(NULL), m_isMFStartuped(false) { }
+    WWMFResampler(void) : m_pTransform(NULL), m_isMFStartuped(false), m_inputFrameTotal(0), m_outputFrameTotal(0) { }
     ~WWMFResampler(void);
 
     /// @param halfFilterLength conversion quality. 1(min) to 60 (max)
