@@ -1,6 +1,11 @@
 // 日本語UTF-8
 
-#include "stdafx.h"
+#define FLACDECODE_EXPORTS
+
+#include "targetver.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "FLAC/stream_decoder.h"
@@ -15,7 +20,7 @@
 /// ファイルパス制限
 #define FLACDECODE_MAXPATH (1024)
 
-/// wchar_tの文字数
+/// メタデータの文字バッファバイト数
 #define FLACDECODE_MAX_STRSZ (256)
 
 /// コメント個数制限 1024個
@@ -80,10 +85,10 @@ enum FlacDecodeCommand {
     FDC_GetFrames,
 };
 
-typedef struct {
+struct FlacCuesheetIndexInfo{
     int64_t offsetSamples;
     int number;
-} FlacCuesheetIndexInfo;
+};
 
 struct FlacCuesheetTrackInfo {
     int64_t offsetSamples;
