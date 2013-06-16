@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <vector>
 #include "WWPcmData.h"
+#include <assert.h>
 
 // PCMデータのセット方法
 //     1. Clear()を呼ぶ。
