@@ -61,6 +61,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   FLAC files|*.flac に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterFlacFiles {
+            get {
+                return ResourceManager.GetString("FilterFlacFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   WWAudioFilter files|*.wwaf に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterWWAFilterFiles {

@@ -12,18 +12,12 @@ namespace WWAudioFilter {
             }
 
             switch (tokens[0]) {
-            case "Gain": {
-                    if (tokens.Length != 2) {
-                        return null;
-                    }
-
-                    double amplitude;
-                    if (!Double.TryParse(tokens[1], out amplitude) || amplitude <= Double.Epsilon) {
-                        return null;
-                    }
-
-                    return new GainFilter(amplitude);
-                }
+            case "Gain":
+                return GainFilter.Restore(tokens);
+            case "ZOH":
+                return ZeroOrderHoldUpsampler.Restore(tokens);
+            case "LPF":
+                return LowpassFilter.Restore(tokens);
             default:
                 return null;
             }

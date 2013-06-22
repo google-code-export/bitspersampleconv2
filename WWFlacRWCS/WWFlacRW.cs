@@ -6,23 +6,57 @@ namespace WWFlacRWCS {
         public int          channels;
         public int          bitsPerSample;
         public int          pictureBytes;
-
         public long         totalSamples;
 
-        public string titleStr;
-        public string artistStr;
-        public string albumStr;
-        public string albumArtistStr;
-        public string genreStr;
+        public string titleStr = string.Empty;
+        public string artistStr = string.Empty;
+        public string albumStr = string.Empty;
+        public string albumArtistStr = string.Empty;
+        public string genreStr = string.Empty;
 
-        public string dateStr;
-        public string trackNumberStr;
-        public string discNumberStr;
-        public string pictureMimeTypeStr;
+        public string dateStr = string.Empty;
+        public string trackNumberStr = string.Empty;
+        public string discNumberStr = string.Empty;
+        public string pictureMimeTypeStr = string.Empty;
+        public string pictureDescriptionStr = string.Empty;
 
-        public string pictureDescriptionStr;
+        public byte [] md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
 
-        public byte [] md5sum;
+        public Metadata() {
+        }
+
+        private void SafeCopy(string from, ref string to) {
+            if (from != null && from != string.Empty) {
+                to = string.Copy(from);
+            }
+        }
+
+        public Metadata(Metadata rhs) {
+            sampleRate = rhs.sampleRate;
+            channels = rhs.channels;
+            bitsPerSample = rhs.bitsPerSample;
+            pictureBytes = rhs.pictureBytes;
+            totalSamples = rhs.totalSamples;
+
+            SafeCopy(rhs.titleStr, ref titleStr);
+            SafeCopy(rhs.artistStr, ref artistStr);
+            SafeCopy(rhs.albumStr, ref albumStr);
+            SafeCopy(rhs.albumArtistStr, ref albumArtistStr);
+            SafeCopy(rhs.genreStr, ref genreStr);
+            
+            SafeCopy(rhs.dateStr, ref dateStr);
+            SafeCopy(rhs.trackNumberStr, ref trackNumberStr);
+            SafeCopy(rhs.discNumberStr, ref discNumberStr);
+            SafeCopy(rhs.pictureMimeTypeStr, ref pictureMimeTypeStr);
+            SafeCopy(rhs.pictureDescriptionStr, ref pictureDescriptionStr);
+
+            if (rhs.md5sum != null && rhs.md5sum.Length != 0) {
+                md5sum = new byte[rhs.md5sum.Length];
+                System.Array.Copy(rhs.md5sum, md5sum, md5sum.Length);
+            } else {
+                md5sum = new byte[NativeMethods.WWFLAC_MD5SUM_BYTES];
+            }
+        }
     };
 
     public class FlacRW {
@@ -89,6 +123,10 @@ namespace WWFlacRWCS {
         }
 
         public int EncodeSetPicture(int id, byte[] pictureData) {
+            if (pictureData == null || pictureData.Length == 0) {
+                return 0;
+            }
+
             return NativeMethods.WWFlacRW_EncodeSetPicture(id, pictureData, pictureData.Length);
         }
 
@@ -106,8 +144,8 @@ namespace WWFlacRWCS {
     }
 
     internal static class NativeMethods {
-        const int WWFLAC_TEXT_STRSZ = 256;
-        const int WWFLAC_MD5SUM_BYTES = 16;
+        public const int WWFLAC_TEXT_STRSZ = 256;
+        public const int WWFLAC_MD5SUM_BYTES = 16;
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         internal struct Metadata {
@@ -141,7 +179,7 @@ namespace WWFlacRWCS {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = WWFLAC_TEXT_STRSZ)]
             public string pictureDescriptionStr;
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2560)]
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public byte [] md5sum;
         };
 

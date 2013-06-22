@@ -77,6 +77,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="WWComplex.cs" />
+    <Compile Include="LowpassFilter.cs" />
+    <Compile Include="WWRadix2Fft.cs" />
+    <Compile Include="ZeroOrderHoldUpsampler.cs" />
     <Page Include="FilterConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -125,9 +129,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WWXmlRW\WWXmlRW.csproj">
-      <Project>{AB557C03-95F9-4D3A-B2CB-16EC26D884CD}</Project>
-      <Name>WWXmlRW</Name>
+    <ProjectReference Include="..\WWFlacRWCS\WWFlacRWCS.csproj">
+      <Project>{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}</Project>
+      <Name>WWFlacRWCS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

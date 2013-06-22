@@ -3,8 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="FilterConfiguration" Height="600" Width="800" Loaded="Window_Loaded">
     <Grid>
-        <Grid Margin="0,0,0,36">
-            <ScrollViewer Name="scrollViewer1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="36" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Name="scrollViewer1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
+            <Grid>
                 <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBox1" VerticalAlignment="Top" Width="400">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -18,16 +22,53 @@
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
                         <Label   Grid.Column="0" Grid.Row="0" Content="Gain in Amplitude:" Name="labelGainInAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="0.5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitude" VerticalAlignment="Center" />
                         <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <Label   Grid.Column="2" Grid.Row="1" Content="dB" Name="labelGainDB" VerticalAlignment="Center" />
                         <Button Content="Use this filter" Grid.Column="1" Grid.Row="2" Margin="6,0,6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseGain_Click" />
                     </Grid>
                 </GroupBox>
-            </ScrollViewer>
-        </Grid>
-        <Button Content="Cancel" HorizontalAlignment="Right" Margin="0,0,6,6" Name="buttonCancel" VerticalAlignment="Bottom" Width="100" Click="buttonCancel_Click" />
+                <GroupBox Header="Upsampler" Height="107" HorizontalAlignment="Left" Margin="6,146,0,0" Name="groupBoxUpsampler" VerticalAlignment="Top" Width="400">
+                    <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Button Content="Use this Filter" Margin="6,0,6,0" Name="buttonUseZOH" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Click="buttonUseZOH_Click" />
+                            <Label Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" Width="182" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="2x" IsSelected="True" />
+                                <ComboBoxItem Content="4x" />
+                                <ComboBoxItem Content="8x" />
+                                <ComboBoxItem Content="16x" />
+                            </ComboBox>
+                        </Grid>
+                </GroupBox>
+                <GroupBox Header="Lowpass filter" Height="107" HorizontalAlignment="Left" Margin="6,253,0,0" Name="groupBoxLPF" VerticalAlignment="Top" Width="400">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" Content="Cutoff frequency:" Name="labelLpfCutoff" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxLpfCutoff" Text="20000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Grid.Column="2" Grid.Row="0" Content="Hz" Name="labelLpfCutoffUnit" VerticalAlignment="Center" />
+                        <Button Content="Use this filter" Grid.Column="1" Grid.Row="2" Margin="6,0,6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseLpf_Click" />
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+        <Button Grid.Row="1" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,6,6" Name="buttonCancel" VerticalAlignment="Bottom" Width="100" Click="buttonCancel_Click" />
     </Grid>
 </Window>

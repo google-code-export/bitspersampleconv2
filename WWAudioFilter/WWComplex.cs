@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FftTest {
+namespace WWAudioFilter {
     struct WWComplex {
         public double real;
         public double imaginary;

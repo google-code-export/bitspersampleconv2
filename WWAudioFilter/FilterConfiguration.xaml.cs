@@ -54,6 +54,14 @@ namespace WWAudioFilter {
                 textBoxGainInDB.TextChanged        += mTextBoxGainInDbChangedEH;
                 textBoxGainInAmplitude.TextChanged += mTextBoxGainInAmplitudeChangedEH;
                 break;
+            case FilterType.ZOH:
+                var zoh = filter as ZeroOrderHoldUpsampler;
+                comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
+                break;
+            case FilterType.LPF:
+                var lpf = filter as LowpassFilter;
+                textBoxLpfCutoff.Text = string.Format("{0}", lpf.CutoffFrequency);
+                break;
             }
         }
 
@@ -85,6 +93,31 @@ namespace WWAudioFilter {
             textBoxGainInDB.TextChanged += mTextBoxGainInAmplitudeChangedEH;
         }
 
+        enum UpsamplingFactorType {
+            x2,
+            x4,
+            x8,
+            x16,
+        };
+
+        private UpsamplingFactorType UpsamplingFactorToUpsamplingFactorType(int factor) {
+            switch (factor) {
+            case 2:
+                return UpsamplingFactorType.x2;
+            case 4:
+                return UpsamplingFactorType.x4;
+            case 8:
+                return UpsamplingFactorType.x8;
+            case 16:
+                return UpsamplingFactorType.x16;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return UpsamplingFactorType.x2;
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////
+
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
             DialogResult = false;
             Close();
@@ -103,6 +136,48 @@ namespace WWAudioFilter {
 
             mFilter = new GainFilter(v);
 
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseZOH_Click(object sender, RoutedEventArgs e) {
+            int factor = 2;
+            switch (comboBoxUpsamplingFactor.SelectedIndex) {
+            case (int)UpsamplingFactorType.x2:
+                factor = 2;
+                break;
+            case (int)UpsamplingFactorType.x4:
+                factor = 4;
+                break;
+            case (int)UpsamplingFactorType.x8:
+                factor = 8;
+                break;
+            case (int)UpsamplingFactorType.x16:
+                factor = 16;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
+
+            mFilter = new ZeroOrderHoldUpsampler(factor);
+
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseLpf_Click(object sender, RoutedEventArgs e) {
+            double v;
+            if (!Double.TryParse(textBoxLpfCutoff.Text, out v)) {
+                MessageBox.Show("Please input Lowpass filter cutoff frequency in number");
+                return;
+            }
+            if (v <= 0.0) {
+                MessageBox.Show("Please input Lowpass filter cutoff frequency larger than 0.0");
+                return;
+            }
+
+            mFilter = new LowpassFilter(v);
             DialogResult = true;
             Close();
         }

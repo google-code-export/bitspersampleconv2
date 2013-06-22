@@ -6,6 +6,7 @@ using System.Text;
 namespace WWAudioFilter {
     public class GainFilter : FilterBase {
         public double Amplitude { get; set; }
+
         public GainFilter(double amplitude)
             : base(FilterType.Gain) {
             if (amplitude < 0) {
@@ -16,11 +17,32 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format("{0} Gain : {1}x ({2:0.00}dB)", FilterId, Amplitude, 20.0 * Math.Log10(Amplitude));
+            return string.Format("Gain : {0}x ({1:0.00}dB)", Amplitude, 20.0 * Math.Log10(Amplitude));
         }
 
         public override string ToSaveText() {
             return string.Format("{0}", Amplitude);
+        }
+
+        public static FilterBase Restore(string[] tokens) {
+            if (tokens.Length != 2) {
+                return null;
+            }
+
+            double amplitude;
+            if (!Double.TryParse(tokens[1], out amplitude) || amplitude <= Double.Epsilon) {
+                return null;
+            }
+
+            return new GainFilter(amplitude);
+        }
+
+        public override double[] FilterDo(double[] inPcm) {
+            double [] outPcm = new double[inPcm.LongLength];
+            for (long i=0; i < outPcm.LongLength; ++i) {
+                outPcm[i] = inPcm[i] * Amplitude;
+            }
+            return outPcm;
         }
     }
 }
