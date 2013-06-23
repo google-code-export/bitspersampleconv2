@@ -3,11 +3,11 @@
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
         // フィルターの長さ-1。2のべき乗の値である必要がある
-        private const int FILTER_LENP1 = 256;
-        private const int FILTER_DELAY = 128;
+        private const int FILTER_LENP1 = 65536;
+        private const int FILTER_DELAY = FILTER_LENP1/2;
 
         // 2のべき乗の値である必要がある
-        private const int FFT_LEN    = 1024;
+        private const int FFT_LEN    = FILTER_LENP1*4;
 
         public int SampleRate { get; set; }
         public double CutoffFrequency { get; set; }
@@ -84,7 +84,7 @@ namespace WWAudioFilter {
             // 50次のバターワースフィルター
             double orderX2 = 2.0 * 50;
 
-            double cutoffRatio = CutoffFrequency / SampleRate;
+            double cutoffRatio = CutoffFrequency / (SampleRate/2);
 
             // フィルタのF特
             fromF[0].real = 1.0f;
