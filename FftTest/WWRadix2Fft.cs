@@ -30,10 +30,6 @@ namespace FftTest {
             for (uint i=0; i < mNumPoints; ++i) {
                 mBitReversalTable[i] = BitReversal(mNumStage, i);
             }
-
-            for (uint i=0; i < mNumPoints; ++i) {
-                Console.WriteLine(mBitReversalTable[i]);
-            }
         }
 
         private bool IsPowerOfTwo(int x) {

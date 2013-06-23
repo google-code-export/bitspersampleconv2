@@ -37,6 +37,10 @@ namespace WWAudioFilter {
             return new ZeroOrderHoldUpsampler(factor);
         }
 
+        public override long NumOfSamplesNeeded() {
+            return 8192;
+        }
+
         public override PcmFormat Setup(PcmFormat inputFormat) {
             var r = new PcmFormat(inputFormat);
             r.SampleRate *= Factor;

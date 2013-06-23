@@ -637,18 +637,14 @@ namespace WWAudioFilter {
                 AssembleSample(inPcmList, mFilters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
                 double [] outPcm = mFilters[nth].FilterDo(inPcm);
 
-                // n-1番目のフィルター後のデータの余ったデータremainingsをn番目のフィルターにセットする
+                // n-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
                 mFilters[nth].Remainings = remainings;
 
                 return outPcm;
             }
         }
 
-        private void FilterStart() {
-
-        }
-
-        private int ProcessAudioFile(int ch, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
+        private int ProcessAudioFile(int ch, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
             foreach (var f in mFilters) {
                 f.FilterStart();
             }
@@ -661,6 +657,12 @@ namespace WWAudioFilter {
                 to.SetPcmInDouble(pcm, pos);
 
                 pos += pcm.LongLength;
+
+                double percent = (double)FILE_READ_COMPLETE_PERCENTAGE
+                        + (FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE) * ch / nChannels;
+                percent += ((double)FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE) / nChannels
+                    * pos / to.totalSamples;
+                mBackgroundWorker.ReportProgress((int)percent, new ProgressArgs("", 0));
             }
 
             foreach (var f in mFilters) {
@@ -691,7 +693,7 @@ namespace WWAudioFilter {
             for (int ch=0; ch < audioDataFrom.meta.channels; ++ch) {
                 var from = audioDataFrom.pcm[ch];
                 var to = audioDataTo.pcm[ch];
-                rv = ProcessAudioFile(ch, ref from, ref to);
+                rv = ProcessAudioFile(ch, audioDataFrom.meta.channels, ref from, ref to);
                 if (rv < 0) {
                     e.Result = rv;
                     return;

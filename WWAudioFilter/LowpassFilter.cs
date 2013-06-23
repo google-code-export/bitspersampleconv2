@@ -3,15 +3,18 @@
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
         // フィルターの長さ-1。2のべき乗の値である必要がある
-        private const int FILTER_LENGTHM1 = 65536;
+        private const int FILTER_LENP1 = 65536;
+        private const int FILTER_DELAY = 32768;
 
         // 2のべき乗の値である必要がある
-        private const int FFT_LENGTH    = 262144;
+        private const int FFT_LEN    = 262144;
 
         public int SampleRate { get; set; }
         public double CutoffFrequency { get; set; }
-        public WWComplex [] mFilterFreq;
-        public double [] mIfftAddBuffer;
+
+        private WWComplex [] mFilterFreq;
+        private double [] mIfftAddBuffer;
+        private bool mFirstFilterDo;
 
         private static bool IsPowerOfTwo(int x) {
             return (x != 0) && ((x & (x - 1)) == 0);
@@ -24,15 +27,30 @@ namespace WWAudioFilter {
             }
             CutoffFrequency = cutoffFrequency;
 
-            System.Diagnostics.Debug.Assert(!IsPowerOfTwo(FILTER_LENGTHM1) && !IsPowerOfTwo(FFT_LENGTH) && FILTER_LENGTHM1 < FFT_LENGTH);
+            System.Diagnostics.Debug.Assert(IsPowerOfTwo(FILTER_LENP1) && IsPowerOfTwo(FFT_LEN) && FILTER_LENP1 < FFT_LEN);
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
             SampleRate = inputFormat.SampleRate;
             DesignCutoffFilter();
             mIfftAddBuffer = null;
+            mFirstFilterDo = true;
 
             return new PcmFormat(inputFormat);
+        }
+
+        public override void FilterStart() {
+            base.FilterStart();
+
+            mIfftAddBuffer = null;
+            mFirstFilterDo = true;
+        }
+
+        public override void FilterEnd() {
+            base.FilterEnd();
+
+            mIfftAddBuffer = null;
+            mFirstFilterDo = true;
         }
 
         public override string ToDescriptionText() {
@@ -57,58 +75,72 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return FFT_LENGTH - FILTER_LENGTHM1;
+            return FFT_LEN - FILTER_LENP1;
         }
 
         private void DesignCutoffFilter() {
-            // 100次のバターワースフィルター
-            double orderX2 = 2.0 * 100;
+            var fromF = new WWComplex[FILTER_LENP1];
+
+            // 50次のバターワースフィルター
+            double orderX2 = 2.0 * 50;
+
+            double cutoffRatio = CutoffFrequency / SampleRate;
 
             // フィルタのF特
-            var filterFreq64k = new WWComplex[FILTER_LENGTHM1];
-            filterFreq64k[0].real = 1.0f;
-            for (int i=1; i <= FILTER_LENGTHM1 / 2; ++i) {
-                double omegaRatio = i * (1.0 / (FILTER_LENGTHM1 / 2));
-                filterFreq64k[i].real = Math.Sqrt(1.0 / 1.0 + Math.Pow(omegaRatio / CutoffFrequency, orderX2));
+            fromF[0].real = 1.0f;
+            for (int i=1; i <= FILTER_LENP1 / 2; ++i) {
+                double omegaRatio = i * (1.0 / (FILTER_LENP1 / 2));
+                fromF[i].real = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
             }
-            for (int i=1; i < FILTER_LENGTHM1 / 2; ++i) {
-                filterFreq64k[FILTER_LENGTHM1 - i].real = filterFreq64k[i].real;
+            for (int i=1; i < FILTER_LENP1 / 2; ++i) {
+                fromF[FILTER_LENP1 - i].real = fromF[i].real;
             }
 
-            // 逆FFTしてHsmall(jω)を作る
-            var hSmall = new WWComplex[FILTER_LENGTHM1];
+            // fromFをfromTに変換
+            var fromT   = new WWComplex[FILTER_LENP1];
             {
-                var fft = new WWRadix2Fft(FILTER_LENGTHM1);
-                fft.Fft(filterFreq64k, hSmall);
+                var fft = new WWRadix2Fft(FILTER_LENP1);
+                fft.Fft(fromF, fromT);
 
-                double compensate = 1.0 / FILTER_LENGTHM1;
-                for (int i=0; i < hSmall.Length; ++i) {
-                    hSmall[i] = new WWComplex(
-                            hSmall[i].imaginary * compensate,
-                            hSmall[i].real * compensate);
+                for (int i=0; i < FILTER_LENP1; ++i) {
+                    fromT[i] = new WWComplex(fromT[i].real / (FILTER_LENP1 * cutoffRatio), 0);
                 }
             }
+            fromF = null;
 
-            // FFT_LENGTHの長さのHlarge(jω)にする
-            var hLarge = new WWComplex[FFT_LENGTH];
-            for (int i=0; i < hSmall.Length; ++i) {
-                hLarge[i].CopyFrom(hSmall[i]);
+            // fromTの中心がFILTER_LENGTH/2番に来るようにする。
+            // delayT[0]のデータはfromF[FILTER_LENGTH/2]だが、非対称になるので入れない
+            // このフィルタの遅延はFILTER_LENGTH/2サンプルある
+
+            var delayT = new WWComplex[FFT_LEN];
+            for (int i=1; i < FILTER_LENP1 / 2; ++i) {
+                delayT[i] = fromT[i + FILTER_LENP1 / 2];
+            }
+            for (int i=0; i < FILTER_LENP1 / 2; ++i) {
+                delayT[i + FILTER_LENP1 / 2] = fromT[i];
+            }
+            fromT = null;
+
+            // Kaiser窓をかける
+            double [] w;
+            WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 6.0, out w);
+            for (int i=0; i < FILTER_LENP1 + 1; ++i) {
+                delayT[i].Mul(w[i]);
             }
 
-            // hLargeをFFTしてmFilterFreqを作成する
-            mFilterFreq = new WWComplex[FFT_LENGTH];
+            // できたフィルタをFFTする
+            var delayF = new WWComplex[FFT_LEN];
             {
-                var fft = new WWRadix2Fft(FFT_LENGTH);
-                fft.Fft(hLarge, mFilterFreq);
+                var fft = new WWRadix2Fft(FFT_LEN);
+                fft.Fft(delayT, delayF);
 
-                // TODO: フィルターの値を最大値1.0になるようにする
-                double compensate = 1.0;
-                for (int i=0; i < mFilterFreq.Length; ++i) {
-                    mFilterFreq[i] = new WWComplex(
-                            mFilterFreq[i].real * compensate,
-                            mFilterFreq[i].imaginary * compensate);
+                for (int i=0; i < FFT_LEN; ++i) {
+                    delayF[i].Mul(cutoffRatio);
                 }
             }
+            delayT = null;
+
+            mFilterFreq = delayF;
         }
 
         public override double[] FilterDo(double[] inPcm) {
@@ -116,52 +148,59 @@ namespace WWAudioFilter {
 
             // Overlap and add continuous FFT
 
-            var inTime = new WWComplex[FFT_LENGTH];
+            var inTime = new WWComplex[FFT_LEN];
             for (int i=0; i < inPcm.LongLength; ++i) {
                 inTime[i] = new WWComplex(inPcm[i], 0.0);
             }
 
-            var inFreq = new WWComplex[FFT_LENGTH];
+            var inFreq = new WWComplex[FFT_LEN];
             {
-                var fft = new WWRadix2Fft(FFT_LENGTH);
+                var fft = new WWRadix2Fft(FFT_LEN);
                 fft.Fft(inTime, inFreq);
             }
             inTime = null;
 
             // FFT後、フィルターHの周波数ドメインデータを掛ける
-            for (int i=0; i < FFT_LENGTH; ++i) {
+            for (int i=0; i < FFT_LEN; ++i) {
                 inFreq[i].Mul(mFilterFreq[i]);
             }
 
-            // IFFTする
-            var outTime = new WWComplex[FFT_LENGTH];
+            var outTime = new WWComplex[FFT_LEN];
             {
-                var fft = new WWRadix2Fft(FFT_LENGTH);
+                var fft = new WWRadix2Fft(FFT_LEN);
                 fft.Fft(inFreq, outTime);
 
-                double compensate = 1.0 / FFT_LENGTH;
+                double compensate = 1.0 / FFT_LEN;
                 for (int i=0; i < outTime.Length; ++i) {
-                    outTime[i] = new WWComplex(
-                            outTime[i].imaginary * compensate,
-                            outTime[i].real * compensate);
+                    outTime[i].Mul(compensate);
                 }
             }
             inFreq = null;
 
-            var outReal = new double[NumOfSamplesNeeded()];
-            for (int i=0; i < outReal.Length; ++i) {
-                outReal[i] = outTime[i].real;
+            double [] outReal;
+            if (mFirstFilterDo) {
+                // 最初のFilterDo()のとき、フィルタの遅延サンプル数だけ先頭サンプルを削除する。
+                outReal = new double[NumOfSamplesNeeded() - FILTER_DELAY];
+                for (int i=0; i < outReal.Length; ++i) {
+                    outReal[i] = outTime[i+FILTER_DELAY].real;
+                }
+                mFirstFilterDo = false;
+            } else {
+                outReal = new double[NumOfSamplesNeeded()];
+                for (int i=0; i < outReal.Length; ++i) {
+                    outReal[i] = outTime[i].real;
+                }
             }
 
             // 前回のIFFT結果の最後のFILTER_LENGTH-1サンプルを先頭に加算する
             if (null != mIfftAddBuffer) {
-                for (int i=0; i < outReal.Length; ++i) {
+                for (int i=0; i < mIfftAddBuffer.Length; ++i) {
                     outReal[i] += mIfftAddBuffer[i];
                 }
             }
 
             // 今回のIFFT結果の最後のFILTER_LENGTH-1サンプルをmIfftAddBufferとして保存する
-            mIfftAddBuffer = new double[FILTER_LENGTHM1];
+            mIfftAddBuffer = new double[FILTER_LENP1];
             for (int i=0; i < mIfftAddBuffer.Length; ++i) {
                 mIfftAddBuffer[i] = outTime[outTime.Length - mIfftAddBuffer.Length + i].real;
             }

@@ -80,6 +80,7 @@
     <Compile Include="WWComplex.cs" />
     <Compile Include="LowpassFilter.cs" />
     <Compile Include="WWRadix2Fft.cs" />
+    <Compile Include="WWWindowFunc.cs" />
     <Compile Include="ZeroOrderHoldUpsampler.cs" />
     <Page Include="FilterConfiguration.xaml">
       <SubType>Designer</SubType>
