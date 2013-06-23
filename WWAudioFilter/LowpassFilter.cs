@@ -3,11 +3,11 @@
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
         // フィルターの長さ-1。2のべき乗の値である必要がある
-        private const int FILTER_LENP1 = 65536;
-        private const int FILTER_DELAY = 32768;
+        private const int FILTER_LENP1 = 256;
+        private const int FILTER_DELAY = 128;
 
         // 2のべき乗の値である必要がある
-        private const int FFT_LEN    = 262144;
+        private const int FFT_LEN    = 1024;
 
         public int SampleRate { get; set; }
         public double CutoffFrequency { get; set; }
@@ -96,14 +96,17 @@ namespace WWAudioFilter {
                 fromF[FILTER_LENP1 - i].real = fromF[i].real;
             }
 
-            // fromFをfromTに変換
+            // IFFTでfromFをfromTに変換
             var fromT   = new WWComplex[FILTER_LENP1];
             {
                 var fft = new WWRadix2Fft(FILTER_LENP1);
                 fft.Fft(fromF, fromT);
 
+                double compensation = 1.0 / (FILTER_LENP1 * cutoffRatio);
                 for (int i=0; i < FILTER_LENP1; ++i) {
-                    fromT[i] = new WWComplex(fromT[i].real / (FILTER_LENP1 * cutoffRatio), 0);
+                    fromT[i].Set(
+                            fromT[i].real      * compensation,
+                            fromT[i].imaginary * compensation);
                 }
             }
             fromF = null;
@@ -112,7 +115,7 @@ namespace WWAudioFilter {
             // delayT[0]のデータはfromF[FILTER_LENGTH/2]だが、非対称になるので入れない
             // このフィルタの遅延はFILTER_LENGTH/2サンプルある
 
-            var delayT = new WWComplex[FFT_LEN];
+            var delayT = new WWComplex[FILTER_LENP1];
             for (int i=1; i < FILTER_LENP1 / 2; ++i) {
                 delayT[i] = fromT[i + FILTER_LENP1 / 2];
             }
@@ -121,24 +124,30 @@ namespace WWAudioFilter {
             }
             fromT = null;
 
-            // Kaiser窓をかける
+            // Kaiser窓をかける α=6.0
             double [] w;
             WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 6.0, out w);
-            for (int i=0; i < FILTER_LENP1 + 1; ++i) {
+            for (int i=0; i < FILTER_LENP1; ++i) {
                 delayT[i].Mul(w[i]);
             }
+
+            var delayTL = new WWComplex[FFT_LEN];
+            for (int i=0; i < delayT.Length; ++i) {
+                delayTL[i] = delayT[i];
+            }
+            delayT = null;
 
             // できたフィルタをFFTする
             var delayF = new WWComplex[FFT_LEN];
             {
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.Fft(delayT, delayF);
+                fft.Fft(delayTL, delayF);
 
                 for (int i=0; i < FFT_LEN; ++i) {
                     delayF[i].Mul(cutoffRatio);
                 }
             }
-            delayT = null;
+            delayTL = null;
 
             mFilterFreq = delayF;
         }
@@ -153,6 +162,7 @@ namespace WWAudioFilter {
                 inTime[i] = new WWComplex(inPcm[i], 0.0);
             }
 
+            // FFTでinTimeをinFreqに変換
             var inFreq = new WWComplex[FFT_LEN];
             {
                 var fft = new WWRadix2Fft(FFT_LEN);
@@ -165,14 +175,23 @@ namespace WWAudioFilter {
                 inFreq[i].Mul(mFilterFreq[i]);
             }
 
+            // inFreqをoutTimeに変換
             var outTime = new WWComplex[FFT_LEN];
             {
+                var outTimeS = new WWComplex[FFT_LEN];
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.Fft(inFreq, outTime);
+                fft.Fft(inFreq, outTimeS);
 
                 double compensate = 1.0 / FFT_LEN;
+                for (int i=0; i < outTimeS.Length; ++i) {
+                    outTimeS[i].Set(
+                            outTimeS[i].real * compensate,
+                            outTimeS[i].imaginary * compensate);
+                }
+
                 for (int i=0; i < outTime.Length; ++i) {
-                    outTime[i].Mul(compensate);
+                    int pos = (outTime.Length - i) % outTime.Length;
+                    outTime[i] = outTimeS[pos];
                 }
             }
             inFreq = null;

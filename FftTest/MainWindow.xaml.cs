@@ -488,9 +488,6 @@ namespace FftTest {
             }
 
             var freqDomainOrig = new WWComplex[SampleCount()];
-            for (int i=0; i < freqDomainOrig.Length; ++i) {
-                freqDomainOrig[i] = new WWComplex();
-            }
 
             {
                 var fft = new WWRadix2Fft(SampleCount());
@@ -517,14 +514,10 @@ namespace FftTest {
                         freqDomainUpsampled[i].Mul(0.5);
                     }
                 } else {
-                    freqDomainUpsampled[i] = new WWComplex();
                 }
             }
             freqDomainOrig = null;
             var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
-            for (int i=0; i < timeDomainUpsampled.Length; ++i) {
-                timeDomainUpsampled[i] = new WWComplex();
-            }
 
             {
                 var fft = new WWRadix2Fft(upsampledSampleCount);

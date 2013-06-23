@@ -705,7 +705,7 @@ namespace WWAudioFilter {
                         * (ch + 1) / (audioDataFrom.meta.channels));
                 string s = string.Empty;
                 if (audioDataTo.pcm[ch].overflow) {
-                    s = string.Format("Too large magnitude sample detected! channel={0}, magnitude={1}\r\n",
+                    s = string.Format("Too large magnitude sample detected! channel={0}, magnitude={1:0.000}\r\n",
                             ch, audioDataTo.pcm[ch].maxMagnitude);
                 }
                 mBackgroundWorker.ReportProgress(percent, new ProgressArgs(s, 0));
