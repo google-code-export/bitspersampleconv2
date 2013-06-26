@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WWAudioFilter.FilterConfiguration"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="FilterConfiguration" Height="600" Width="800" Loaded="Window_Loaded">
+        Title="FilterConfiguration" Height="600" Width="800" Loaded="Window_Loaded" Icon="/WWAudioFilter;component/ppwlogo.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -9,7 +9,7 @@
         </Grid.RowDefinitions>
         <ScrollViewer Name="scrollViewer1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
             <Grid>
-                <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBox1" VerticalAlignment="Top" Width="400">
+                <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBoxGain" VerticalAlignment="Top" Width="400">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
@@ -23,10 +23,10 @@
                         </Grid.ColumnDefinitions>
                         <Label   Grid.Column="0" Grid.Row="0" Content="Gain in Amplitude:" Name="labelGainInAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="0.5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitude" VerticalAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitudeUnit" VerticalAlignment="Center" />
                         <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" Name="labelGainDB" VerticalAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" Name="labelGainDBUnit" VerticalAlignment="Center" />
                         <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
                     </Grid>
                 </GroupBox>
@@ -40,9 +40,9 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <Button Content="Use this Filter" Margin="6,0" Name="buttonUseZOH" VerticalAlignment="Center" Grid.Row="1" Click="buttonUseZOH_Click" Grid.ColumnSpan="2" />
+                            <Button Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.Row="1" Click="buttonUseZOH_Click" Grid.ColumnSpan="2" />
                             <Label Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
-                            <ComboBox Grid.Column="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" Width="182" HorizontalContentAlignment="Center">
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
                                 <ComboBoxItem Content="2x" IsSelected="True" />
                                 <ComboBoxItem Content="4x" />
                                 <ComboBoxItem Content="8x" />
@@ -50,9 +50,11 @@
                             </ComboBox>
                         </Grid>
                 </GroupBox>
-                <GroupBox Header="Lowpass filter" Height="107" HorizontalAlignment="Left" Margin="6,253,0,0" Name="groupBoxLPF" VerticalAlignment="Top" Width="400">
+                <GroupBox Header="FIR lowpass filter" Height="166" HorizontalAlignment="Left" Margin="6,253,0,0" Name="groupBoxLPF" VerticalAlignment="Top" Width="400">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
@@ -64,7 +66,19 @@
                         <Label Grid.Column="0" Grid.Row="0" Content="Cutoff frequency:" Name="labelLpfCutoff" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxLpfCutoff" Text="11025" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
                         <Label Grid.Column="2" Grid.Row="0" Content="Hz" Name="labelLpfCutoffUnit" VerticalAlignment="Center" />
-                        <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseLpf_Click" />
+                        <Label Grid.Column="0" Grid.Row="1" Content="Gain roll off slopes:" Name="labelLpfSlope" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxLpfSlope" Text="300" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                        <Label Grid.Column="2" Grid.Row="1" Content="dB/oct" Name="labelLpfSlopeUnit" VerticalAlignment="Center" />
+                        <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelLpfLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxLpfLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                            <ComboBoxItem Content="255" />
+                            <ComboBoxItem Content="1023" />
+                            <ComboBoxItem Content="4095" IsSelected="True" />
+                            <ComboBoxItem Content="16383" />
+                            <ComboBoxItem Content="65535" />
+                        </ComboBox>
+                        <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelLpfLenUnit" VerticalAlignment="Center" />
+                        <Button Content="Use this filter" Grid.Row="3" Margin="6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseLpf_Click" />
                     </Grid>
                 </GroupBox>
             </Grid>

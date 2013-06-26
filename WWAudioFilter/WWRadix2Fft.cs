@@ -56,7 +56,7 @@ namespace WWAudioFilter {
 
         private void Butterfly(WWComplex vFrom0, WWComplex vFrom1, WWComplex wn, WWComplex[] vTo, int toPos) {
             vTo[toPos].CopyFrom(vFrom0);
-            WWComplex t = new WWComplex(vFrom1);
+            var t = new WWComplex(vFrom1);
             t.Mul(wn);
             vTo[toPos].Mul(t);
 
@@ -65,29 +65,47 @@ namespace WWAudioFilter {
             vTo[toPos + 1].Mul(t);
         }
 
-        public void Fft(WWComplex [] aFrom, WWComplex [] aTo) {
+        public void ForwardFft(WWComplex[] aFrom, WWComplex[] aTo) {
             if (aFrom == null || aFrom.Length != mNumPoints
                     || aTo == null || aTo.Length != mNumPoints) {
                 throw new ArgumentException();
             }
 
-            WWComplex [] aTmp0 = new WWComplex[mNumPoints];
+            var aTmp0 = new WWComplex[mNumPoints];
             for (int i=0; i < aTmp0.Length; ++i) {
                 aTmp0[i] = new WWComplex(aFrom[mBitReversalTable[i]]);
             }
-            WWComplex [] aTmp1 = new WWComplex[mNumPoints];
-            for (int i=0; i<aTmp1.Length; ++i) {
+            var aTmp1 = new WWComplex[mNumPoints];
+            for (int i=0; i < aTmp1.Length; ++i) {
                 aTmp1[i] = new WWComplex();
             }
 
-            WWComplex [][] aTmps = new WWComplex[2][];
+            var aTmps = new WWComplex[2][];
             aTmps[0] = aTmp0;
             aTmps[1] = aTmp1;
 
-            for (int i=0; i<mNumStage-1; ++i) {
-                FftStageN(i, aTmps[((i&1) == 1) ? 1 : 0], aTmps[((i&1) == 0) ? 1 : 0]);
+            for (int i=0; i < mNumStage - 1; ++i) {
+                FftStageN(i, aTmps[((i & 1) == 1) ? 1 : 0], aTmps[((i & 1) == 0) ? 1 : 0]);
             }
             FftStageN(mNumStage - 1, aTmps[(((mNumStage - 1) & 1) == 1) ? 1 : 0], aTo);
+        }
+
+        public void InverseFft(WWComplex[] aFrom, WWComplex[] aTo, double? compensation = null) {
+            for (int i=0; i < aFrom.LongLength; ++i) {
+                aFrom[i].imaginary *= -1.0;
+            }
+
+            ForwardFft(aFrom, aTo);
+
+            double c = 1.0 / mNumPoints;
+            if (compensation != null) {
+                c = (double)compensation;
+            }
+
+            for (int i=0; i < aTo.LongLength; ++i) {
+                aTo[i].real *= c;
+                aTo[i].imaginary *= -1.0 * c;
+            }
         }
 
         private void FftStageN(int stageNr, WWComplex[] x, WWComplex[] y) {

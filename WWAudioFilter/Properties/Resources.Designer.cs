@@ -61,6 +61,105 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Add new filter に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonAddNewFilter {
+            get {
+                return ResourceManager.GetString("ButtonAddNewFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Browse... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonBrowseB {
+            get {
+                return ResourceManager.GetString("ButtonBrowseB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   B_rowse... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonBrowseR {
+            get {
+                return ResourceManager.GetString("ButtonBrowseR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Delete selected に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonDeleteSelected {
+            get {
+                return ResourceManager.GetString("ButtonDeleteSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Edit selected に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonEditSelected {
+            get {
+                return ResourceManager.GetString("ButtonEditSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Load settings... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonLoadSettings {
+            get {
+                return ResourceManager.GetString("ButtonLoadSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Move down selected に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonMoveDownSelected {
+            get {
+                return ResourceManager.GetString("ButtonMoveDownSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Move up selected に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonMoveUpSelected {
+            get {
+                return ResourceManager.GetString("ButtonMoveUpSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Save settings as... に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonSaveSettingsAs {
+            get {
+                return ResourceManager.GetString("ButtonSaveSettingsAs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   _Start conversion に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonStartConversion {
+            get {
+                return ResourceManager.GetString("ButtonStartConversion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Use this filter に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ButtonUseThisFilter {
+            get {
+                return ResourceManager.GetString("ButtonUseThisFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   FLAC files|*.flac に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterFlacFiles {
@@ -70,11 +169,182 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Gain : {0}x ({1:0.00}dB) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterGainDesc {
+            get {
+                return ResourceManager.GetString("FilterGainDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterLpfDesc {
+            get {
+                return ResourceManager.GetString("FilterLpfDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   WWAudioFilter files|*.wwaf に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterWWAFilterFiles {
             get {
                 return ResourceManager.GetString("FilterWWAFilterFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Filter settings に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupFilterSettings {
+            get {
+                return ResourceManager.GetString("GroupFilterSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Gain に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupGain {
+            get {
+                return ResourceManager.GetString("GroupGain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Input file に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupInputFile {
+            get {
+                return ResourceManager.GetString("GroupInputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Log に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupLog {
+            get {
+                return ResourceManager.GetString("GroupLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FIR linear phase lowpass filter に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupLPF {
+            get {
+                return ResourceManager.GetString("GroupLPF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Output File に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupOutputFile {
+            get {
+                return ResourceManager.GetString("GroupOutputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Upsampler に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupUpsampler {
+            get {
+                return ResourceManager.GetString("GroupUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Cutoff frequency: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelCutoffFreq {
+            get {
+                return ResourceManager.GetString("LabelCutoffFreq", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FIR filter length: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelFilterLength {
+            get {
+                return ResourceManager.GetString("LabelFilterLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Gain in Amplitude: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelGainInAmplitude {
+            get {
+                return ResourceManager.GetString("LabelGainInAmplitude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Gain in dB: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelGainInDb {
+            get {
+                return ResourceManager.GetString("LabelGainInDb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Gain roll off slopes: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelGainRolloffSlopes {
+            get {
+                return ResourceManager.GetString("LabelGainRolloffSlopes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Input file: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelInputFile {
+            get {
+                return ResourceManager.GetString("LabelInputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Output file: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelOutputFile {
+            get {
+                return ResourceManager.GetString("LabelOutputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   samples に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelSamples {
+            get {
+                return ResourceManager.GetString("LabelSamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Upsampling factor: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelUpsamplingFactor {
+            get {
+                return ResourceManager.GetString("LabelUpsamplingFactor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   x に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelX {
+            get {
+                return ResourceManager.GetString("LabelX", resourceCulture);
             }
         }
         

@@ -3,14 +3,18 @@
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
         // フィルターの長さ-1。2のべき乗の値である必要がある
-        private const int FILTER_LENP1 = 65536;
-        private const int FILTER_DELAY = FILTER_LENP1/2;
+        private readonly int FILTER_LENP1;
 
-        // 2のべき乗の値である必要がある
-        private const int FFT_LEN    = FILTER_LENP1*4;
+        // 対称なフィルタなのでFILTER_LENP1-1になる
+        private readonly int FILTER_DELAY;
+
+        // FILTER_LENP1 * 4程度にする
+        private readonly int FFT_LEN;
 
         public int SampleRate { get; set; }
         public double CutoffFrequency { get; set; }
+        public int FilterLength { get; set; }
+        public int FilterSlopeDbOct { get; set; }
 
         private WWComplex [] mFilterFreq;
         private double [] mIfftAddBuffer;
@@ -20,14 +24,28 @@ namespace WWAudioFilter {
             return (x != 0) && ((x & (x - 1)) == 0);
         }
 
-        public LowpassFilter(double cutoffFrequency)
+        public LowpassFilter(double cutoffFrequency, int filterLength, int filterSlopeDbOct)
                 : base(FilterType.LPF) {
             if (cutoffFrequency < 0.0) {
                 throw new ArgumentOutOfRangeException();
             }
             CutoffFrequency = cutoffFrequency;
 
+            if (!IsPowerOfTwo(filterLength+1)) {
+                throw new ArgumentException();
+            }
+            FilterLength = filterLength;
+
+            FILTER_LENP1 = FilterLength+1;
+            FILTER_DELAY = FILTER_LENP1/2;
+            FFT_LEN = FILTER_LENP1*4;
+
             System.Diagnostics.Debug.Assert(IsPowerOfTwo(FILTER_LENP1) && IsPowerOfTwo(FFT_LEN) && FILTER_LENP1 < FFT_LEN);
+
+            if (filterSlopeDbOct <= 0) {
+                throw new ArgumentOutOfRangeException();
+            }
+            FilterSlopeDbOct = filterSlopeDbOct;
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
@@ -54,15 +72,15 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format("LPF : Cutoff={0}Hz", CutoffFrequency);
+            return string.Format(Properties.Resources.FilterLpfDesc, CutoffFrequency, FilterSlopeDbOct, FilterLength);
         }
 
         public override string ToSaveText() {
-            return string.Format("{0}", CutoffFrequency);
+            return string.Format("{0} {1} {2}", CutoffFrequency, FilterLength, FilterSlopeDbOct);
         }
 
         public static FilterBase Restore(string[] tokens) {
-            if (tokens.Length != 2) {
+            if (tokens.Length != 4) {
                 return null;
             }
 
@@ -71,7 +89,17 @@ namespace WWAudioFilter {
                 return null;
             }
 
-            return new LowpassFilter(cutoffFrequency);
+            int filterLength;
+            if (!Int32.TryParse(tokens[1], out filterLength) || filterLength <= 0 || !IsPowerOfTwo(filterLength+1)) {
+                return null;
+            }
+
+            int filterSlope;
+            if (!Int32.TryParse(tokens[1], out filterSlope) || filterSlope <= 0) {
+                return null;
+            }
+
+            return new LowpassFilter(cutoffFrequency, filterLength, filterSlope);
         }
 
         public override long NumOfSamplesNeeded() {
@@ -81,8 +109,11 @@ namespace WWAudioFilter {
         private void DesignCutoffFilter() {
             var fromF = new WWComplex[FILTER_LENP1];
 
-            // 50次のバターワースフィルター
-            double orderX2 = 2.0 * 50;
+            // バターワースフィルター
+            // 1次 = 6dB/oct
+            // 2次 = 12dB/oct
+
+            double orderX2 = 2.0 * (FilterSlopeDbOct / 6.0);
 
             double cutoffRatio = CutoffFrequency / (SampleRate/2);
 
@@ -100,7 +131,7 @@ namespace WWAudioFilter {
             var fromT   = new WWComplex[FILTER_LENP1];
             {
                 var fft = new WWRadix2Fft(FILTER_LENP1);
-                fft.Fft(fromF, fromT);
+                fft.ForwardFft(fromF, fromT);
 
                 double compensation = 1.0 / (FILTER_LENP1 * cutoffRatio);
                 for (int i=0; i < FILTER_LENP1; ++i) {
@@ -124,9 +155,9 @@ namespace WWAudioFilter {
             }
             fromT = null;
 
-            // Kaiser窓をかける α=6.0
+            // Kaiser窓をかける
             double [] w;
-            WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 6.0, out w);
+            WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 9.0, out w);
             for (int i=0; i < FILTER_LENP1; ++i) {
                 delayT[i].Mul(w[i]);
             }
@@ -141,7 +172,7 @@ namespace WWAudioFilter {
             var delayF = new WWComplex[FFT_LEN];
             {
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.Fft(delayTL, delayF);
+                fft.ForwardFft(delayTL, delayF);
 
                 for (int i=0; i < FFT_LEN; ++i) {
                     delayF[i].Mul(cutoffRatio);
@@ -166,7 +197,7 @@ namespace WWAudioFilter {
             var inFreq = new WWComplex[FFT_LEN];
             {
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.Fft(inTime, inFreq);
+                fft.ForwardFft(inTime, inFreq);
             }
             inTime = null;
 
@@ -175,24 +206,12 @@ namespace WWAudioFilter {
                 inFreq[i].Mul(mFilterFreq[i]);
             }
 
-            // inFreqをoutTimeに変換
+            // inFreqをIFFTしてoutTimeに変換
             var outTime = new WWComplex[FFT_LEN];
             {
                 var outTimeS = new WWComplex[FFT_LEN];
                 var fft = new WWRadix2Fft(FFT_LEN);
-                fft.Fft(inFreq, outTimeS);
-
-                double compensate = 1.0 / FFT_LEN;
-                for (int i=0; i < outTimeS.Length; ++i) {
-                    outTimeS[i].Set(
-                            outTimeS[i].real * compensate,
-                            outTimeS[i].imaginary * compensate);
-                }
-
-                for (int i=0; i < outTime.Length; ++i) {
-                    int pos = (outTime.Length - i) % outTime.Length;
-                    outTime[i] = outTimeS[pos];
-                }
+                fft.InverseFft(inFreq, outTime);
             }
             inFreq = null;
 

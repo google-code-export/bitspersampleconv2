@@ -317,7 +317,7 @@ namespace FftTest {
             }
 
             var fft = new WWRadix2Fft(SampleCount());
-            fft.Fft(timeDomain, freqDomain);
+            fft.ForwardFft(timeDomain, freqDomain);
 
             UpdateMagnitude(freqDomain);
             UpdatePhase(freqDomain);
@@ -491,7 +491,7 @@ namespace FftTest {
 
             {
                 var fft = new WWRadix2Fft(SampleCount());
-                fft.Fft(timeDomainOrig, freqDomainOrig);
+                fft.ForwardFft(timeDomainOrig, freqDomainOrig);
             }
 
             timeDomainOrig = null;
@@ -503,13 +503,13 @@ namespace FftTest {
             var freqDomainUpsampled = new WWComplex[upsampledSampleCount];
             for (int i=0; i < freqDomainUpsampled.Length; ++i) {
                 if (i <= freqDomainOrig.Length / 2) {
-                    freqDomainUpsampled[i] = new WWComplex(freqDomainOrig[i].imaginary, freqDomainOrig[i].real);
+                    freqDomainUpsampled[i].CopyFrom(freqDomainOrig[i]);
                     if (i == freqDomainOrig.Length / 2) {
                         freqDomainUpsampled[i].Mul(0.5);
                     }
                 } else if (freqDomainUpsampled.Length - freqDomainOrig.Length / 2 <= i) {
                     int pos = i + freqDomainOrig.Length - freqDomainUpsampled.Length;
-                    freqDomainUpsampled[i] = new WWComplex(freqDomainOrig[pos].imaginary, freqDomainOrig[pos].real);
+                    freqDomainUpsampled[i].CopyFrom(freqDomainOrig[pos]);
                     if (freqDomainUpsampled.Length - freqDomainOrig.Length / 2 == i) {
                         freqDomainUpsampled[i].Mul(0.5);
                     }
@@ -520,18 +520,28 @@ namespace FftTest {
             var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
 
             {
+#if false
+                for (int i=0; i < freqDomainUpsampled.Length; ++i) {
+                    freqDomainUpsampled[i] = new WWComplex(
+                            freqDomainUpsampled[i].imaginary,
+                            freqDomainUpsampled[i].real);
+                }
                 var fft = new WWRadix2Fft(upsampledSampleCount);
-                fft.Fft(freqDomainUpsampled, timeDomainUpsampled);
+                fft.ForwardFft(freqDomainUpsampled, timeDomainUpsampled);
+                double compensate = 1.0 / SampleCount();
+                for (int i=0; i < timeDomainUpsampled.Length; ++i) {
+                    timeDomainUpsampled[i] = new WWComplex(
+                            timeDomainUpsampled[i].imaginary * compensate,
+                            timeDomainUpsampled[i].real      * compensate);
+                }
+#else
+                var fft = new WWRadix2Fft(upsampledSampleCount);
+                fft.InverseFft(freqDomainUpsampled, timeDomainUpsampled, 1.0/(timeDomainUpsampled.Length/2));
+#endif
             }
 
             freqDomainUpsampled = null;
 
-            double compensate = 1.0 / SampleCount();
-            for (int i=0; i < timeDomainUpsampled.Length; ++i) {
-                timeDomainUpsampled[i] = new WWComplex(
-                        timeDomainUpsampled[i].imaginary * compensate,
-                        timeDomainUpsampled[i].real      * compensate);
-            }
 
             // アップサンプルされたPCMデータtimeDomainUpsampledをグラフにプロットする
             double pointIntervalX = (canvasUpsampleGraph.ActualWidth - GRAPH_YAXIS_POS_X) / (upsampledSampleCount + 2 * UpsampleMultiple());

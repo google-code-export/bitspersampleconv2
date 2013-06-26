@@ -28,6 +28,13 @@ namespace WWAudioFilter {
             mBackgroundWorker.DoWork += new DoWorkEventHandler(Background_DoWork);
             mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
             mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
+
+            SetLocalizedTextToUI();
+            Title = string.Format("WWAudioFilter version {0}", AssemblyVersion);
+        }
+
+        private static string AssemblyVersion {
+            get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
         BackgroundWorker mBackgroundWorker;
@@ -51,6 +58,25 @@ namespace WWAudioFilter {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
             Update();
+        }
+
+        private void SetLocalizedTextToUI() {
+            buttonFilterAdd.Content = Properties.Resources.ButtonAddNewFilter;
+            buttonBrowseInputFile.Content = Properties.Resources.ButtonBrowseB;
+            buttonBrowseOutputFile.Content = Properties.Resources.ButtonBrowseR;
+            buttonFilterEdit.Content = Properties.Resources.ButtonEditSelected;
+            buttonFilterDelete.Content = Properties.Resources.ButtonDeleteSelected;
+            buttonFilterLoad.Content = Properties.Resources.ButtonLoadSettings;
+            buttonFilterDown.Content = Properties.Resources.ButtonMoveDownSelected;
+            buttonFilterUp.Content = Properties.Resources.ButtonMoveUpSelected;
+            buttonFilterSaveAs.Content = Properties.Resources.ButtonSaveSettingsAs;
+            buttonStartConversion.Content = Properties.Resources.ButtonStartConversion;
+            groupBoxFilterSettings.Header = Properties.Resources.GroupFilterSettings;
+            groupBoxLog.Header = Properties.Resources.GroupLog;
+            groupBoxOutputFile.Header = Properties.Resources.GroupOutputFile;
+            groupBoxInputFile.Header = Properties.Resources.GroupInputFile;
+            labelInputFile.Content = Properties.Resources.LabelInputFile;
+            labelOutputFile.Content = Properties.Resources.LabelOutputFile;
         }
 
         private void Update() {
@@ -151,6 +177,7 @@ namespace WWAudioFilter {
             w.ShowDialog();
 
             if (true == w.DialogResult) {
+                mFilters.RemoveAt(listBoxFilters.SelectedIndex);
                 var f = w.GetFilter();
                 mFilters.Add(f);
                 Update();
@@ -564,13 +591,16 @@ namespace WWAudioFilter {
             to.meta.sampleRate = fmt.SampleRate;
             to.meta.totalSamples = fmt.NumSamples;
             to.meta.channels = fmt.Channels;
+#if true
+            to.meta.bitsPerSample = 24;
+#endif
 
             if (from.picture != null) {
                 to.picture = new byte[from.picture.Length];
                 System.Array.Copy(from.picture, to.picture, to.picture.Length);
             }
 
-            // allocate to pcm data
+            // allocate "to" pcm data
             to.pcm = new List<AudioDataPerChannel>();
             for (int ch=0; ch < to.meta.channels; ++ch) {
                 var data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];

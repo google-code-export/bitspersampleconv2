@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("WWAudioFilter")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("yamamoto2002")]
 [assembly: AssemblyProduct("WWAudioFilter")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright ©yamamoto2002 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

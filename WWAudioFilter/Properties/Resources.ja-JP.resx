@@ -118,102 +118,102 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonAddNewFilter" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>フィルター追加</value>
   </data>
   <data name="ButtonBrowseB" xml:space="preserve">
-    <value>_Browse...</value>
+    <value>参照(B)...</value>
   </data>
   <data name="ButtonDeleteSelected" xml:space="preserve">
-    <value>Delete selected</value>
+    <value>選択項目削除</value>
   </data>
   <data name="ButtonEditSelected" xml:space="preserve">
-    <value>Edit selected</value>
+    <value>選択項目編集</value>
   </data>
   <data name="ButtonLoadSettings" xml:space="preserve">
-    <value>_Load settings...</value>
+    <value>設定を読み込み(L)...</value>
   </data>
   <data name="ButtonMoveDownSelected" xml:space="preserve">
-    <value>Move down selected</value>
+    <value>1つ下に移動</value>
   </data>
   <data name="ButtonMoveUpSelected" xml:space="preserve">
-    <value>Move up selected</value>
+    <value>1つ上に移動</value>
   </data>
   <data name="ButtonSaveSettingsAs" xml:space="preserve">
-    <value>Save settings as...</value>
+    <value>設定を保存...</value>
   </data>
   <data name="ButtonStartConversion" xml:space="preserve">
-    <value>_Start conversion</value>
+    <value>変換開始(_S)</value>
   </data>
   <data name="FilterFlacFiles" xml:space="preserve">
-    <value>FLAC files|*.flac</value>
+    <value>FLACファイル|*.flac</value>
   </data>
   <data name="FilterWWAFilterFiles" xml:space="preserve">
-    <value>WWAudioFilter files|*.wwaf</value>
+    <value>WWAudioFilterファイル|*.wwaf</value>
   </data>
   <data name="GroupFilterSettings" xml:space="preserve">
-    <value>Filter settings</value>
+    <value>フィルターの設定</value>
   </data>
   <data name="GroupGain" xml:space="preserve">
-    <value>Gain</value>
+    <value>ゲイン調整</value>
   </data>
   <data name="GroupInputFile" xml:space="preserve">
-    <value>Input file</value>
+    <value>入力ファイルの選択</value>
   </data>
   <data name="GroupLog" xml:space="preserve">
-    <value>Log</value>
+    <value>ログ</value>
   </data>
   <data name="GroupLPF" xml:space="preserve">
-    <value>FIR linear phase lowpass filter</value>
+    <value>直線位相FIRローパスフィルター</value>
   </data>
   <data name="GroupOutputFile" xml:space="preserve">
-    <value>Output File</value>
+    <value>出力ファイルの選択</value>
   </data>
   <data name="GroupUpsampler" xml:space="preserve">
-    <value>Upsampler</value>
+    <value>アップサンプラー</value>
   </data>
   <data name="LabelCutoffFreq" xml:space="preserve">
-    <value>Cutoff frequency:</value>
+    <value>カットオフ周波数:</value>
   </data>
   <data name="LabelFilterLength" xml:space="preserve">
-    <value>FIR filter length:</value>
+    <value>FIRフィルタ長:</value>
   </data>
   <data name="LabelGainInAmplitude" xml:space="preserve">
-    <value>Gain in Amplitude:</value>
+    <value>倍率で指定:</value>
   </data>
   <data name="LabelGainInDb" xml:space="preserve">
-    <value>Gain in dB:</value>
+    <value>デシベルで指定:</value>
   </data>
   <data name="LabelGainRolloffSlopes" xml:space="preserve">
-    <value>Gain roll off slopes:</value>
+    <value>周波数応答の傾斜:</value>
   </data>
   <data name="LabelInputFile" xml:space="preserve">
-    <value>Input file:</value>
+    <value>入力ファイル:</value>
   </data>
   <data name="LabelSamples" xml:space="preserve">
-    <value>samples</value>
+    <value>サンプル</value>
   </data>
   <data name="LabelUpsamplingFactor" xml:space="preserve">
-    <value>Upsampling factor:</value>
+    <value>倍率:</value>
   </data>
   <data name="ButtonUseThisFilter" xml:space="preserve">
-    <value>Use this filter</value>
+    <value>このフィルターを使用する</value>
   </data>
   <data name="LabelX" xml:space="preserve">
-    <value>x</value>
+    <value>倍</value>
   </data>
   <data name="NothingToStore" xml:space="preserve">
-    <value>Nothing to store.</value>
+    <value>保存するものがありません。</value>
   </data>
   <data name="ButtonBrowseR" xml:space="preserve">
-    <value>B_rowse...</value>
+    <value>参照(_R)...</value>
   </data>
   <data name="LabelOutputFile" xml:space="preserve">
-    <value>Output file:</value>
+    <value>出力ファイル:</value>
   </data>
   <data name="FilterGainDesc" xml:space="preserve">
-    <value>Gain : {0}x ({1:0.00}dB)</value>
+    <value>ゲイン: {0}倍 ({1:0.00}dB)</value>
   </data>
   <data name="FilterLpfDesc" xml:space="preserve">
-    <value>LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2}</value>
+    <value>ローパスフィルター: カットオフ={0}Hz, 傾斜={1}db/oct, FIRフィルター長={2}</value>
   </data>
 </root>

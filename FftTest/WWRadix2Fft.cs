@@ -65,7 +65,25 @@ namespace FftTest {
             vTo[toPos + 1].Mul(t);
         }
 
-        public void Fft(WWComplex [] aFrom, WWComplex [] aTo) {
+        public void InverseFft(WWComplex[] aFrom, WWComplex[] aTo, double? compensation = null) {
+            for (int i=0; i < aFrom.LongLength; ++i) {
+                aFrom[i].imaginary *= -1.0;
+            }
+
+            ForwardFft(aFrom, aTo);
+
+            double c = 1.0 / mNumPoints;
+            if (compensation != null) {
+                c = (double)compensation;
+            }
+
+            for (int i=0; i < aTo.LongLength; ++i) {
+                aTo[i].real *= c;
+                aTo[i].imaginary *= -1.0 * c;
+            }
+        }
+        
+        public void ForwardFft(WWComplex[] aFrom, WWComplex[] aTo) {
             if (aFrom == null || aFrom.Length != mNumPoints
                     || aTo == null || aTo.Length != mNumPoints) {
                 throw new ArgumentException();

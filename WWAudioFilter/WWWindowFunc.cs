@@ -75,7 +75,7 @@ namespace WWAudioFilter {
             System.Diagnostics.Debug.Assert((n & 1) == 1);
 
             // αは4より大きく9より小さい
-            System.Diagnostics.Debug.Assert(4 < alpha && alpha < 9);
+            System.Diagnostics.Debug.Assert(4 <= alpha && alpha <= 9);
 
             // カイザー窓は両端の値が0にならないので普通に計算する。
             window = new double[n];

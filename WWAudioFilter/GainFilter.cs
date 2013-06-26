@@ -14,7 +14,7 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format("Gain : {0}x ({1:0.00}dB)", Amplitude, 20.0 * Math.Log10(Amplitude));
+            return string.Format(Properties.Resources.FilterGainDesc, Amplitude, 20.0 * Math.Log10(Amplitude));
         }
 
         public override string ToSaveText() {

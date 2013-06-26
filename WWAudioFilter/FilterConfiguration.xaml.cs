@@ -35,6 +35,27 @@ namespace WWAudioFilter {
                 // filterの設定をUIに反映する
                 InitializeUIbyFilter(mFilter);
             }
+
+            SetLocalizedTextToUI();
+        }
+
+        private void SetLocalizedTextToUI() {
+            groupBoxGain.Header = Properties.Resources.GroupGain;
+            labelGainInAmplitude.Content = Properties.Resources.LabelGainInAmplitude;
+            labelGainInDB.Content = Properties.Resources.LabelGainInDb;
+            labelGainAmplitudeUnit.Content = Properties.Resources.LabelX;
+            buttonUseGain.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxUpsampler.Header = Properties.Resources.GroupUpsampler;
+            labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
+            buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxLPF.Header = Properties.Resources.GroupLPF;
+            labelLpfCutoff.Content = Properties.Resources.LabelCutoffFreq;
+            labelLpfSlope.Content = Properties.Resources.LabelGainRolloffSlopes;
+            labelLpfLen.Content = Properties.Resources.LabelFilterLength;
+            labelLpfLenUnit.Content = Properties.Resources.LabelSamples;
+            buttonUseLpf.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
         public FilterBase GetFilter() {
@@ -61,6 +82,8 @@ namespace WWAudioFilter {
             case FilterType.LPF:
                 var lpf = filter as LowpassFilter;
                 textBoxLpfCutoff.Text = string.Format("{0}", lpf.CutoffFrequency);
+                comboBoxLpfLen.SelectedIndex = (int)LpfLenToLpfLenType(lpf.FilterLength);
+                textBoxLpfSlope.Text = string.Format("{0}", lpf.FilterSlopeDbOct);
                 break;
             }
         }
@@ -116,6 +139,62 @@ namespace WWAudioFilter {
             }
         }
 
+        private int UpsamplingFactorTypeToUpsampingfactor(int t) {
+            switch (t) {
+            case (int)UpsamplingFactorType.x2:
+                return 2;
+            case (int)UpsamplingFactorType.x4:
+                return 4;
+            case (int)UpsamplingFactorType.x8:
+                return 8;
+            case (int)UpsamplingFactorType.x16:
+                return 16;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 2;
+            }
+        }
+
+        enum LpfLenType {
+            L255,
+            L1023,
+            L4095,
+            L16383,
+            L65535,
+        };
+
+        private LpfLenType LpfLenToLpfLenType(int lpfLen) {
+            switch (lpfLen) {
+            case 255:
+                return LpfLenType.L255;
+            case 1023:
+                return LpfLenType.L1023;
+            case 4095:
+                return LpfLenType.L4095;
+            case 16383:
+                return LpfLenType.L16383;
+            case 65535:
+            default:
+                return LpfLenType.L65535;
+            }
+        }
+
+        private int LpfLenTypeToLpfLen(int t) {
+            switch (t) {
+            case (int)LpfLenType.L255:
+                return 255;
+            case (int)LpfLenType.L1023:
+                return 1023;
+            case (int)LpfLenType.L4095:
+                return 4095;
+            case (int)LpfLenType.L16383:
+                return 16383;
+            case (int)LpfLenType.L65535:
+            default:
+                return 65535;
+            }
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
@@ -141,24 +220,7 @@ namespace WWAudioFilter {
         }
 
         private void buttonUseZOH_Click(object sender, RoutedEventArgs e) {
-            int factor = 2;
-            switch (comboBoxUpsamplingFactor.SelectedIndex) {
-            case (int)UpsamplingFactorType.x2:
-                factor = 2;
-                break;
-            case (int)UpsamplingFactorType.x4:
-                factor = 4;
-                break;
-            case (int)UpsamplingFactorType.x8:
-                factor = 8;
-                break;
-            case (int)UpsamplingFactorType.x16:
-                factor = 16;
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
+            int factor = UpsamplingFactorTypeToUpsampingfactor(comboBoxUpsamplingFactor.SelectedIndex);
 
             mFilter = new ZeroOrderHoldUpsampler(factor);
 
@@ -177,7 +239,20 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mFilter = new LowpassFilter(v);
+            int slope;
+            if (!Int32.TryParse(textBoxLpfSlope.Text, out slope)) {
+                MessageBox.Show("Please input Lowpass filter slope in number");
+                return;
+            }
+
+            if (slope <= 0) {
+                MessageBox.Show("Please input Lowpass filter slope larger than 1");
+                return;
+            }
+
+            int filterLength = LpfLenTypeToLpfLen(comboBoxLpfLen.SelectedIndex);
+
+            mFilter = new LowpassFilter(v, filterLength, slope);
             DialogResult = true;
             Close();
         }
