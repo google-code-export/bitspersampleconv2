@@ -121,7 +121,11 @@ namespace WWAudioFilter {
             fromF[0].real = 1.0f;
             for (int i=1; i <= FILTER_LENP1 / 2; ++i) {
                 double omegaRatio = i * (1.0 / (FILTER_LENP1 / 2));
-                fromF[i].real = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
+                double v = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
+                if (Math.Abs(v) < Math.Pow(0.5, 20)) {
+                    v = 0.0;
+                }
+                fromF[i].real = v;
             }
             for (int i=1; i < FILTER_LENP1 / 2; ++i) {
                 fromF[FILTER_LENP1 - i].real = fromF[i].real;

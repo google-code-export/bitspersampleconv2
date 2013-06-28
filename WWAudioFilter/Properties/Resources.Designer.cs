@@ -160,6 +160,70 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Please input gain value in number に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorGainValueIsNan {
+            get {
+                return ResourceManager.GetString("ErrorGainValueIsNan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please input gain value larger than 0.0 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorGainValueIsTooSmall {
+            get {
+                return ResourceManager.GetString("ErrorGainValueIsTooSmall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please input Lowpass filter cutoff frequency in number に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorLpfCutoffFreqIsNan {
+            get {
+                return ResourceManager.GetString("ErrorLpfCutoffFreqIsNan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please input Lowpass filter cutoff frequency larger than 0.0 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorLpfCutoffFreqIsNegative {
+            get {
+                return ResourceManager.GetString("ErrorLpfCutoffFreqIsNegative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please input Lowpass filter slope in number に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorLpfSlopeIsNan {
+            get {
+                return ResourceManager.GetString("ErrorLpfSlopeIsNan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please input Lowpass filter slope larger than 1 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorLpfSlopeIsTooSmall {
+            get {
+                return ResourceManager.GetString("ErrorLpfSlopeIsTooSmall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Too large magnitude sample detected! channel={0}, magnitude={1:0.000}
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorSampleValueClipped {
+            get {
+                return ResourceManager.GetString("ErrorSampleValueClipped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   FLAC files|*.flac に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterFlacFiles {
@@ -192,6 +256,222 @@ namespace WWAudioFilter.Properties {
         internal static string FilterWWAFilterFiles {
             get {
                 return ResourceManager.GetString("FilterWWAFilterFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Zero order hold upsample: {0}x に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterZOHDesc {
+            get {
+                return ResourceManager.GetString("FilterZOHDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC header corrupted に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorBadHeader {
+            get {
+                return ResourceManager.GetString("FlacErrorBadHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC bad parameter error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorBadParams {
+            get {
+                return ResourceManager.GetString("FlacErrorBadParams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC buffer size mismatch に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorBufferSizeMismatch {
+            get {
+                return ResourceManager.GetString("FlacErrorBufferSizeMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Data not ready に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorDataNotReady {
+            get {
+                return ResourceManager.GetString("FlacErrorDataNotReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC decoder process failed に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorDecoderProcessFailed {
+            get {
+                return ResourceManager.GetString("FlacErrorDecoderProcessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC encoder error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorEncoder {
+            get {
+                return ResourceManager.GetString("FlacErrorEncoder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC encoder process failed に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorEncoderProcessFailed {
+            get {
+                return ResourceManager.GetString("FlacErrorEncoderProcessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC file read open error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorFileReadOpen {
+            get {
+                return ResourceManager.GetString("FlacErrorFileReadOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC frame CRC mismatch に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorFrameCrcMismatch {
+            get {
+                return ResourceManager.GetString("FlacErrorFrameCrcMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Internal error (id not found) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorIdNotFound {
+            get {
+                return ResourceManager.GetString("FlacErrorIdNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC bits per sample error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorInvalidBitsPerSample {
+            get {
+                return ResourceManager.GetString("FlacErrorInvalidBitsPerSample", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC metadata error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorInvalidMetadata {
+            get {
+                return ResourceManager.GetString("FlacErrorInvalidMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC number of channels is invalid (must be smaller than or equal to 8) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorInvalidNumberOfChannels {
+            get {
+                return ResourceManager.GetString("FlacErrorInvalidNumberOfChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorInvalidSampleRate {
+            get {
+                return ResourceManager.GetString("FlacErrorInvalidSampleRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC lost sync error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorLostSync {
+            get {
+                return ResourceManager.GetString("FlacErrorLostSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC memory exhausted に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorMemoryExhausted {
+            get {
+                return ResourceManager.GetString("FlacErrorMemoryExhausted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC num of frames is not aligned に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorNumFrameIsNotAligned {
+            get {
+                return ResourceManager.GetString("FlacErrorNumFrameIsNotAligned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC other error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorOther {
+            get {
+                return ResourceManager.GetString("FlacErrorOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC recv buffer size is insufficient に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorRecvBufferSizeInsufficient {
+            get {
+                return ResourceManager.GetString("FlacErrorRecvBufferSizeInsufficient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC stream decoder init failed に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorStreamDecoderInitFailed {
+            get {
+                return ResourceManager.GetString("FlacErrorStreamDecoderInitFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC stream decoder new failed に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorStreamDecoderNewFailed {
+            get {
+                return ResourceManager.GetString("FlacErrorStreamDecoderNewFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC unparseable error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacErrorUnparseable {
+            get {
+                return ResourceManager.GetString("FlacErrorUnparseable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Write open failed に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FlacerrorWriteOpenFailed {
+            get {
+                return ResourceManager.GetString("FlacerrorWriteOpenFailed", resourceCulture);
             }
         }
         
@@ -250,11 +530,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Upsampler に類似しているローカライズされた文字列を検索します。
+        ///   Zero Order Hold Upsampling に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string GroupUpsampler {
+        internal static string GroupZOHUpsampler {
             get {
-                return ResourceManager.GetString("GroupUpsampler", resourceCulture);
+                return ResourceManager.GetString("GroupZOHUpsampler", resourceCulture);
             }
         }
         
@@ -345,6 +625,46 @@ namespace WWAudioFilter.Properties {
         internal static string LabelX {
             get {
                 return ResourceManager.GetString("LabelX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Completed.
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LogCompleted {
+            get {
+                return ResourceManager.GetString("LogCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Read completed. now processing...
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LogFileReadCompleted {
+            get {
+                return ResourceManager.GetString("LogFileReadCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Reading file {0} ...
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LogFileReadStarted {
+            get {
+                return ResourceManager.GetString("LogFileReadStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Process completed. now writing...
+        /// に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LogfileWriteStarted {
+            get {
+                return ResourceManager.GetString("LogfileWriteStarted", resourceCulture);
             }
         }
         

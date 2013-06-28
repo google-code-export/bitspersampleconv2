@@ -30,7 +30,7 @@
                         <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Upsampler" Height="107" HorizontalAlignment="Left" Margin="6,146,0,0" Name="groupBoxUpsampler" VerticalAlignment="Top" Width="400">
+                <GroupBox Header="Zero Order Hold Upsampler" Height="107" HorizontalAlignment="Left" Margin="6,146,0,0" Name="groupBoxUpsampler" VerticalAlignment="Top" Width="400">
                     <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*" />

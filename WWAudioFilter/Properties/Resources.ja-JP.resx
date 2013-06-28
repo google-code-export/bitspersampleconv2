@@ -168,8 +168,8 @@
   <data name="GroupOutputFile" xml:space="preserve">
     <value>出力ファイルの選択</value>
   </data>
-  <data name="GroupUpsampler" xml:space="preserve">
-    <value>アップサンプラー</value>
+  <data name="GroupZOHUpsampler" xml:space="preserve">
+    <value>零次ホールドアップサンプリング</value>
   </data>
   <data name="LabelCutoffFreq" xml:space="preserve">
     <value>カットオフ周波数:</value>
@@ -214,6 +214,47 @@
     <value>ゲイン: {0}倍 ({1:0.00}dB)</value>
   </data>
   <data name="FilterLpfDesc" xml:space="preserve">
-    <value>ローパスフィルター: カットオフ={0}Hz, 傾斜={1}db/oct, FIRフィルター長={2}</value>
+    <value>ローパスフィルター: カットオフ周波数={0}Hz, 傾斜={1}db/oct, FIRフィルター長={2}</value>
+  </data>
+  <data name="ErrorGainValueIsNan" xml:space="preserve">
+    <value>ゲインの欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorGainValueIsTooSmall" xml:space="preserve">
+    <value>ゲインの倍率の欄に0.0よりも大きい数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNan" xml:space="preserve">
+    <value>カットオフ周波数の欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNegative" xml:space="preserve">
+    <value>カットオフ周波数の欄に0以上の数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfSlopeIsNan" xml:space="preserve">
+    <value>ローパスフィルターの傾斜の欄に数字を入力して下さい</value>
+  </data>
+  <data name="ErrorLpfSlopeIsTooSmall" xml:space="preserve">
+    <value>ローパスフィルターの傾斜の欄に1以上の数字を入力して下さい</value>
+  </data>
+  <data name="ErrorSampleValueClipped" xml:space="preserve">
+    <value>サンプル値が大きくなりすぎてクリップしました! チャンネル={0}, 大きさ={1:0.000}
+</value>
+  </data>
+  <data name="FilterZOHDesc" xml:space="preserve">
+    <value>零次ホールドアップサンプリング: {0}倍</value>
+  </data>
+  <data name="LogCompleted" xml:space="preserve">
+    <value>全て正常に終了。
+</value>
+  </data>
+  <data name="LogFileReadCompleted" xml:space="preserve">
+    <value>読み込み完了。信号処理中…
+</value>
+  </data>
+  <data name="LogFileReadStarted" xml:space="preserve">
+    <value>ファイル読み込み中: {0} …
+</value>
+  </data>
+  <data name="LogfileWriteStarted" xml:space="preserve">
+    <value>信号処理終了。ファイル書込み中…
+</value>
   </data>
 </root>

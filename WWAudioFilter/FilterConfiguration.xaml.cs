@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -46,7 +37,7 @@ namespace WWAudioFilter {
             labelGainAmplitudeUnit.Content = Properties.Resources.LabelX;
             buttonUseGain.Content = Properties.Resources.ButtonUseThisFilter;
 
-            groupBoxUpsampler.Header = Properties.Resources.GroupUpsampler;
+            groupBoxUpsampler.Header = Properties.Resources.GroupZOHUpsampler;
             labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
             buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
 
@@ -205,11 +196,11 @@ namespace WWAudioFilter {
         private void buttonUseGain_Click(object sender, RoutedEventArgs e) {
             double v;
             if (!Double.TryParse(textBoxGainInAmplitude.Text, out v)) {
-                MessageBox.Show("Please input gain value in number");
+                MessageBox.Show(Properties.Resources.ErrorGainValueIsNan);
                 return;
             }
             if (v <= Double.Epsilon) {
-                MessageBox.Show("Please input gain value larger than 0.0");
+                MessageBox.Show(Properties.Resources.ErrorGainValueIsTooSmall);
                 return;
             }
 
@@ -231,22 +222,22 @@ namespace WWAudioFilter {
         private void buttonUseLpf_Click(object sender, RoutedEventArgs e) {
             double v;
             if (!Double.TryParse(textBoxLpfCutoff.Text, out v)) {
-                MessageBox.Show("Please input Lowpass filter cutoff frequency in number");
+                MessageBox.Show(Properties.Resources.ErrorLpfCutoffFreqIsNan);
                 return;
             }
             if (v <= 0.0) {
-                MessageBox.Show("Please input Lowpass filter cutoff frequency larger than 0.0");
+                MessageBox.Show(Properties.Resources.ErrorLpfCutoffFreqIsNegative);
                 return;
             }
 
             int slope;
             if (!Int32.TryParse(textBoxLpfSlope.Text, out slope)) {
-                MessageBox.Show("Please input Lowpass filter slope in number");
+                MessageBox.Show(Properties.Resources.ErrorLpfSlopeIsNan);
                 return;
             }
 
             if (slope <= 0) {
-                MessageBox.Show("Please input Lowpass filter slope larger than 1");
+                MessageBox.Show(Properties.Resources.ErrorLpfSlopeIsTooSmall);
                 return;
             }
 

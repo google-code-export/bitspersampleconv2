@@ -17,7 +17,7 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format("Zero order hold upsample: {0}x", Factor);
+            return string.Format(Properties.Resources.FilterZOHDesc, Factor);
         }
 
         public override string ToSaveText() {

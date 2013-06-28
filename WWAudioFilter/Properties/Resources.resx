@@ -168,8 +168,8 @@
   <data name="GroupOutputFile" xml:space="preserve">
     <value>Output File</value>
   </data>
-  <data name="GroupUpsampler" xml:space="preserve">
-    <value>Upsampler</value>
+  <data name="GroupZOHUpsampler" xml:space="preserve">
+    <value>Zero Order Hold Upsampling</value>
   </data>
   <data name="LabelCutoffFreq" xml:space="preserve">
     <value>Cutoff frequency:</value>
@@ -215,5 +215,115 @@
   </data>
   <data name="FilterLpfDesc" xml:space="preserve">
     <value>LPF : Cutoff={0}Hz, slope={1}db/oct, FIR length={2}</value>
+  </data>
+  <data name="ErrorGainValueIsNan" xml:space="preserve">
+    <value>Please input gain value in number</value>
+  </data>
+  <data name="ErrorGainValueIsTooSmall" xml:space="preserve">
+    <value>Please input gain value larger than 0.0</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNan" xml:space="preserve">
+    <value>Please input Lowpass filter cutoff frequency in number</value>
+  </data>
+  <data name="ErrorLpfCutoffFreqIsNegative" xml:space="preserve">
+    <value>Please input Lowpass filter cutoff frequency larger than 0.0</value>
+  </data>
+  <data name="ErrorLpfSlopeIsNan" xml:space="preserve">
+    <value>Please input Lowpass filter slope in number</value>
+  </data>
+  <data name="ErrorLpfSlopeIsTooSmall" xml:space="preserve">
+    <value>Please input Lowpass filter slope larger than 1</value>
+  </data>
+  <data name="ErrorSampleValueClipped" xml:space="preserve">
+    <value>Too large magnitude sample detected! channel={0}, magnitude={1:0.000}
+</value>
+  </data>
+  <data name="FilterZOHDesc" xml:space="preserve">
+    <value>Zero order hold upsample: {0}x</value>
+  </data>
+  <data name="LogCompleted" xml:space="preserve">
+    <value>Completed.
+</value>
+  </data>
+  <data name="LogFileReadCompleted" xml:space="preserve">
+    <value>Read completed. now processing...
+</value>
+  </data>
+  <data name="LogFileReadStarted" xml:space="preserve">
+    <value>Reading file {0} ...
+</value>
+  </data>
+  <data name="LogfileWriteStarted" xml:space="preserve">
+    <value>Process completed. now writing...
+</value>
+  </data>
+  <data name="FlacErrorBadHeader" xml:space="preserve">
+    <value>FLAC header corrupted</value>
+  </data>
+  <data name="FlacErrorBadParams" xml:space="preserve">
+    <value>FLAC bad parameter error</value>
+  </data>
+  <data name="FlacErrorBufferSizeMismatch" xml:space="preserve">
+    <value>FLAC buffer size mismatch</value>
+  </data>
+  <data name="FlacErrorDataNotReady" xml:space="preserve">
+    <value>Data not ready</value>
+  </data>
+  <data name="FlacErrorDecoderProcessFailed" xml:space="preserve">
+    <value>FLAC decoder process failed</value>
+  </data>
+  <data name="FlacErrorEncoder" xml:space="preserve">
+    <value>FLAC encoder error</value>
+  </data>
+  <data name="FlacErrorEncoderProcessFailed" xml:space="preserve">
+    <value>FLAC encoder process failed</value>
+  </data>
+  <data name="FlacErrorFileReadOpen" xml:space="preserve">
+    <value>FLAC file read open error</value>
+  </data>
+  <data name="FlacErrorFrameCrcMismatch" xml:space="preserve">
+    <value>FLAC frame CRC mismatch</value>
+  </data>
+  <data name="FlacErrorIdNotFound" xml:space="preserve">
+    <value>Internal error (id not found)</value>
+  </data>
+  <data name="FlacErrorInvalidBitsPerSample" xml:space="preserve">
+    <value>FLAC bits per sample error</value>
+  </data>
+  <data name="FlacErrorInvalidMetadata" xml:space="preserve">
+    <value>FLAC metadata error</value>
+  </data>
+  <data name="FlacErrorInvalidNumberOfChannels" xml:space="preserve">
+    <value>FLAC number of channels is invalid (must be smaller than or equal to 8)</value>
+  </data>
+  <data name="FlacErrorInvalidSampleRate" xml:space="preserve">
+    <value>FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz)</value>
+  </data>
+  <data name="FlacErrorLostSync" xml:space="preserve">
+    <value>FLAC lost sync error</value>
+  </data>
+  <data name="FlacErrorMemoryExhausted" xml:space="preserve">
+    <value>FLAC memory exhausted</value>
+  </data>
+  <data name="FlacErrorNumFrameIsNotAligned" xml:space="preserve">
+    <value>FLAC num of frames is not aligned</value>
+  </data>
+  <data name="FlacErrorOther" xml:space="preserve">
+    <value>FLAC other error</value>
+  </data>
+  <data name="FlacErrorRecvBufferSizeInsufficient" xml:space="preserve">
+    <value>FLAC recv buffer size is insufficient</value>
+  </data>
+  <data name="FlacErrorStreamDecoderInitFailed" xml:space="preserve">
+    <value>FLAC stream decoder init failed</value>
+  </data>
+  <data name="FlacErrorStreamDecoderNewFailed" xml:space="preserve">
+    <value>FLAC stream decoder new failed</value>
+  </data>
+  <data name="FlacErrorUnparseable" xml:space="preserve">
+    <value>FLAC unparseable error</value>
+  </data>
+  <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
+    <value>Write open failed</value>
   </data>
 </root>

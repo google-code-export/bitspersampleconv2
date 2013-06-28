@@ -497,7 +497,7 @@ namespace WWAudioFilter {
 
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
             textBoxLog.Text = string.Empty;
-            textBoxLog.Text += string.Format("Reading file {0} ...\r\n", textBoxInputFile.Text);
+            textBoxLog.Text += string.Format(Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;
             progressBar1.IsEnabled = true;
 
@@ -716,7 +716,7 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mBackgroundWorker.ReportProgress(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs("Read completed. now processing...\r\n", 0));
+            mBackgroundWorker.ReportProgress(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 
             SetupResultPcm(audioDataFrom, out audioDataTo);
 
@@ -735,13 +735,13 @@ namespace WWAudioFilter {
                         * (ch + 1) / (audioDataFrom.meta.channels));
                 string s = string.Empty;
                 if (audioDataTo.pcm[ch].overflow) {
-                    s = string.Format("Too large magnitude sample detected! channel={0}, magnitude={1:0.000}\r\n",
+                    s = string.Format(Properties.Resources.ErrorSampleValueClipped,
                             ch, audioDataTo.pcm[ch].maxMagnitude);
                 }
                 mBackgroundWorker.ReportProgress(percent, new ProgressArgs(s, 0));
             }
 
-            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs("Process completed. now writing...\r\n", 0));
+            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogfileWriteStarted, 0));
 
             rv = WriteFlacFile(ref audioDataTo, args.ToPath);
             if (rv < 0) {
@@ -764,6 +764,59 @@ namespace WWAudioFilter {
             }
         }
 
+        private string ErrorCodeToStr(int ercd) {
+            switch (ercd) {
+            case -2:
+                return Properties.Resources.FlacErrorDataNotReady;
+            case -3:
+                return Properties.Resources.FlacerrorWriteOpenFailed;
+            case -4:
+                return Properties.Resources.FlacErrorStreamDecoderNewFailed;
+            case -5:
+                return Properties.Resources.FlacErrorStreamDecoderInitFailed;
+            case -6:
+                return Properties.Resources.FlacErrorDecoderProcessFailed;
+            case -7:
+                return Properties.Resources.FlacErrorLostSync;
+            case -8:
+                return Properties.Resources.FlacErrorBadHeader;
+            case -9:
+                return Properties.Resources.FlacErrorFrameCrcMismatch;
+            case -10:
+                return Properties.Resources.FlacErrorUnparseable;
+            case -11:
+                return Properties.Resources.FlacErrorNumFrameIsNotAligned;
+            case -12:
+                return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
+            case -13:
+                return Properties.Resources.FlacErrorOther;
+            case -14:
+                return Properties.Resources.FlacErrorFileReadOpen;
+            case -15:
+                return Properties.Resources.FlacErrorBufferSizeMismatch;
+            case -16:
+                return Properties.Resources.FlacErrorMemoryExhausted;
+            case -17:
+                return Properties.Resources.FlacErrorEncoder;
+            case -18:
+                return Properties.Resources.FlacErrorInvalidNumberOfChannels;
+            case -19:
+                return Properties.Resources.FlacErrorInvalidBitsPerSample;
+            case -20:
+                return Properties.Resources.FlacErrorInvalidSampleRate;
+            case -21:
+                return Properties.Resources.FlacErrorInvalidMetadata;
+            case -22:
+                return Properties.Resources.FlacErrorBadParams;
+            case -23:
+                return Properties.Resources.FlacErrorIdNotFound;
+            case -24:
+                return Properties.Resources.FlacErrorEncoderProcessFailed;
+            default:
+                return Properties.Resources.FlacErrorOther;
+            }
+        }
+
         void Background_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             int rv = (int)e.Result;
 
@@ -771,11 +824,14 @@ namespace WWAudioFilter {
             progressBar1.Value = 0;
 
             if (rv < 0) {
-                var s = string.Format("Error {0}\r\n", rv);
+                var s = string.Format("Error {0} {1}\r\n", rv, ErrorCodeToStr(rv));
                 MessageBox.Show(s);
+                textBoxLog.Text += string.Format(s);
+                textBoxLog.ScrollToEnd();
+            } else {
+                textBoxLog.Text += string.Format(Properties.Resources.LogCompleted);
+                textBoxLog.ScrollToEnd();
             }
-            textBoxLog.Text += string.Format("Completed.\r\n");
-            textBoxLog.ScrollToEnd();
         }
 
 
