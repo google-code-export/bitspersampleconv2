@@ -13,6 +13,10 @@ namespace WWAudioFilter {
             Amplitude = amplitude;
         }
 
+        public override FilterBase CreateCopy() {
+            return new GainFilter(Amplitude);
+        }
+
         public override string ToDescriptionText() {
             return string.Format(Properties.Resources.FilterGainDesc, Amplitude, 20.0 * Math.Log10(Amplitude));
         }

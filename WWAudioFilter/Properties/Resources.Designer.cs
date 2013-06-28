@@ -160,6 +160,33 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   FFT Upsampler に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CbItemFftUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemFftUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Zero-Order Hold Upsampler に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CbItemZohUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemZohUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Error に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please input gain value in number に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorGainValueIsNan {
@@ -220,6 +247,24 @@ namespace WWAudioFilter.Properties {
         internal static string ErrorSampleValueClipped {
             get {
                 return ResourceManager.GetString("ErrorSampleValueClipped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Please specify different file to write. WWAudioFilter cannot write to input file. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorWriteToReadFile {
+            get {
+                return ResourceManager.GetString("ErrorWriteToReadFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FFT upsample: {0}x に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterFftUpsampleDesc {
+            get {
+                return ResourceManager.GetString("FilterFftUpsampleDesc", resourceCulture);
             }
         }
         
@@ -512,7 +557,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   FIR linear phase lowpass filter に類似しているローカライズされた文字列を検索します。
+        ///   FIR Linear-Phase Lowpass Filter に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupLPF {
             get {
@@ -530,11 +575,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Zero Order Hold Upsampling に類似しているローカライズされた文字列を検索します。
+        ///   Upsampling に類似しているローカライズされた文字列を検索します。
         /// </summary>
-        internal static string GroupZOHUpsampler {
+        internal static string GroupUpsampler {
             get {
-                return ResourceManager.GetString("GroupZOHUpsampler", resourceCulture);
+                return ResourceManager.GetString("GroupUpsampler", resourceCulture);
             }
         }
         
@@ -607,6 +652,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelSamples {
             get {
                 return ResourceManager.GetString("LabelSamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Upsampler Type: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelUpsamplerType {
+            get {
+                return ResourceManager.GetString("LabelUpsamplerType", resourceCulture);
             }
         }
         

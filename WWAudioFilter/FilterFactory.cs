@@ -18,6 +18,8 @@ namespace WWAudioFilter {
                 return ZeroOrderHoldUpsampler.Restore(tokens);
             case "LPF":
                 return LowpassFilter.Restore(tokens);
+            case "FftUpsampler":
+                return FftUpsampler.Restore(tokens);
             default:
                 return null;
             }

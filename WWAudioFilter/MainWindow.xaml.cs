@@ -14,25 +14,13 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace WWAudioFilter {
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
     public partial class MainWindow : Window {
-        public MainWindow() {
-            InitializeComponent();
-
-            mBackgroundWorker = new BackgroundWorker();
-            mBackgroundWorker.WorkerReportsProgress = true;
-            mBackgroundWorker.DoWork += new DoWorkEventHandler(Background_DoWork);
-            mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
-            mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
-
-            SetLocalizedTextToUI();
-            Title = string.Format("WWAudioFilter version {0}", AssemblyVersion);
-        }
-
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
@@ -54,6 +42,23 @@ namespace WWAudioFilter {
         private List<FilterBase> mFilters = new List<FilterBase>();
 
         private const int FILTER_FILE_VERSION = 1;
+
+        private const int FILE_READ_COMPLETE_PERCENTAGE    = 5;
+        private const int FILE_PROCESS_COMPLETE_PERCENTAGE = 95;
+        private long mProgressSamples;
+
+        public MainWindow() {
+            InitializeComponent();
+
+            mBackgroundWorker = new BackgroundWorker();
+            mBackgroundWorker.WorkerReportsProgress = true;
+            mBackgroundWorker.DoWork += new DoWorkEventHandler(Background_DoWork);
+            mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
+            mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
+
+            SetLocalizedTextToUI();
+            Title = string.Format("WWAudioFilter version {0}", AssemblyVersion);
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mInitialized = true;
@@ -153,6 +158,489 @@ namespace WWAudioFilter {
             listBoxFilters.SelectedIndex = selectedIdx;
 
             UpdateFilterButtons();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+
+        struct AudioDataPerChannel {
+            public byte [] data;
+            public long offsBytes;
+            public long totalSamples;
+            public int bitsPerSample;
+            public bool overflow;
+            public double maxMagnitude;
+
+            public void ResetStatistics() {
+                overflow = false;
+                maxMagnitude = 0.0;
+            }
+
+            public double[] GetPcmInDouble(long count) {
+                if (totalSamples <= offsBytes / (bitsPerSample / 8) || count <= 0) {
+                    return new double[count];
+                }
+
+                var result = new double[count];
+                var copyCount = result.LongLength;
+                if (totalSamples < offsBytes / (bitsPerSample / 8) + copyCount) {
+                    copyCount = totalSamples - offsBytes / (bitsPerSample / 8);
+                }
+
+                switch (bitsPerSample) {
+                case 16:
+                    for (var i=0; i < copyCount; ++i) {
+                        short v = (short)((data[offsBytes]) + (data[offsBytes + 1] << 8));
+                        result[i] = v * (1.0 / 32768.0);
+                        offsBytes += 2;
+                    }
+                    break;
+
+                case 24:
+                    for (var i=0; i < copyCount; ++i) {
+                        int v = (int)((data[offsBytes] << 8) + (data[offsBytes + 1] << 16) + (data[offsBytes + 2] << 24));
+                        result[i] = v * (1.0 / 2147483648.0);
+                        offsBytes += 3;
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+                return result;
+            }
+
+            public void SetPcmInDouble(double[] pcm, long writeOffs) {
+                var copyCount = pcm.LongLength;
+                if (totalSamples < writeOffs + copyCount) {
+                    copyCount = totalSamples - writeOffs;
+                }
+
+                long writePosBytes;
+                switch (bitsPerSample) {
+                case 16:
+                    writePosBytes = writeOffs * 2;
+                    for (var i=0; i < copyCount; ++i) {
+                        short vS = 0;
+                        double vD = pcm[i];
+                        if (vD < -1.0f) {
+                            vS = -32768;
+
+                            overflow = true;
+                            if (maxMagnitude < Math.Abs(vD)) {
+                                maxMagnitude = Math.Abs(vD);
+                            }
+                        } else if (1.0f <= vD) {
+                            vS = 32767;
+
+                            overflow = true;
+                            if (maxMagnitude < Math.Abs(vD)) {
+                                maxMagnitude = Math.Abs(vD);
+                            }
+                        } else {
+                            vS = (short)(32768.0 * vD);
+                        }
+
+                        data[writePosBytes + 0] = (byte)((vS) & 0xff);
+                        data[writePosBytes + 1] = (byte)((vS >> 8) & 0xff);
+
+                        writePosBytes += 2;
+                    }
+                    break;
+
+                case 24:
+                    writePosBytes = writeOffs * 3;
+                    for (var i=0; i < copyCount; ++i) {
+                        int vI = 0;
+                        double vD = pcm[i];
+                        if (vD < -1.0f) {
+                            vI = Int32.MinValue;
+
+                            overflow = true;
+                            if (maxMagnitude < Math.Abs(vD)) {
+                                maxMagnitude = Math.Abs(vD);
+                            }
+                        } else if (1.0f <= vD) {
+                            vI = 0x7fffff00;
+
+                            overflow = true;
+                            if (maxMagnitude < Math.Abs(vD)) {
+                                maxMagnitude = Math.Abs(vD);
+                            }
+                        } else {
+                            vI = (int)(2147483648.0 * vD);
+                        }
+
+                        data[writePosBytes + 0] = (byte)((vI >> 8) & 0xff);
+                        data[writePosBytes + 1] = (byte)((vI >> 16) & 0xff);
+                        data[writePosBytes + 2] = (byte)((vI >> 24) & 0xff);
+
+                        writePosBytes += 3;
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+            }
+        };
+
+        struct AudioData {
+            public WWFlacRWCS.Metadata meta;
+            public List<AudioDataPerChannel> pcm;
+            public byte [] picture;
+        };
+
+        class RunWorkerArgs {
+            public string FromPath { get; set; }
+            public string ToPath { get; set; }
+
+            public RunWorkerArgs(string fromPath, string toPath) {
+                FromPath = fromPath;
+                ToPath = toPath;
+            }
+        };
+
+        class ProgressArgs {
+            public string Message { get; set; }
+            public int Result { get; set; }
+
+            public ProgressArgs(string message, int result) {
+                Message = message;
+                Result = result;
+            }
+        }
+
+        private int ReadFlacFile(string path, out AudioData ad) {
+            ad = new AudioData();
+
+            var flacRW = new WWFlacRWCS.FlacRW();
+            int id = flacRW.DecodeAll(path);
+            if (id < 0) {
+                return id;
+            }
+
+            int rv = flacRW.GetDecodedMetadata(id, out ad.meta);
+            if (rv < 0) {
+                return rv;
+            }
+
+            rv = flacRW.GetDecodedPicture(id, out ad.picture, ad.meta.pictureBytes);
+            if (rv < 0) {
+                return rv;
+            }
+
+            ad.pcm = new List<AudioDataPerChannel>();
+            for (int ch=0; ch < ad.meta.channels; ++ch) {
+                byte [] data;
+                long lrv = flacRW.GetDecodedPcmBytes(id, ch, 0, out data, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
+                if (lrv < 0) {
+                    return (int)lrv;
+                }
+
+                var adp = new AudioDataPerChannel();
+                adp.data = data;
+                adp.offsBytes = 0;
+                adp.bitsPerSample = ad.meta.bitsPerSample;
+                adp.totalSamples = ad.meta.totalSamples;
+                ad.pcm.Add(adp);
+            }
+
+            return 0;
+        }
+
+        private int WriteFlacFile(ref AudioData ad, string path) {
+            int rv;
+            var flacRW = new WWFlacRWCS.FlacRW();
+            int id = flacRW.EncodeInit(ad.meta);
+            if (id < 0) {
+                return id;
+            }
+
+            rv = flacRW.EncodeSetPicture(id, ad.picture);
+            if (rv < 0) {
+                return rv;
+            }
+
+            for (int ch=0; ch < ad.meta.channels; ++ch) {
+                long lrv = flacRW.EncodeAddPcm(id, ch, ad.pcm[ch].data);
+                if (lrv < 0) {
+                    return (int)lrv;
+                }
+            }
+
+            rv = flacRW.EncodeRun(id, path);
+            if (rv < 0) {
+                return rv;
+            }
+
+            return 0;
+        }
+
+        private PcmFormat FilterSetup(AudioData from, List<FilterBase> filters) {
+            var fmt = new PcmFormat(from.meta.channels, from.meta.sampleRate, from.meta.totalSamples);
+            foreach (var f in filters) {
+                fmt = f.Setup(fmt);
+            }
+            return fmt;
+        }
+
+        private void SetupResultPcm(AudioData from, out AudioData to) {
+            to = new AudioData();
+
+            var fmt = FilterSetup(from, mFilters);
+
+            to.meta = new WWFlacRWCS.Metadata(from.meta);
+            to.meta.sampleRate = fmt.SampleRate;
+            to.meta.totalSamples = fmt.NumSamples;
+            to.meta.channels = fmt.Channels;
+#if true
+            to.meta.bitsPerSample = 24;
+#endif
+
+            if (from.picture != null) {
+                to.picture = new byte[from.picture.Length];
+                System.Array.Copy(from.picture, to.picture, to.picture.Length);
+            }
+
+            // allocate "to" pcm data
+            to.pcm = new List<AudioDataPerChannel>();
+            for (int ch=0; ch < to.meta.channels; ++ch) {
+                var data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
+                var adp = new AudioDataPerChannel();
+                adp.data = data;
+                adp.bitsPerSample = to.meta.bitsPerSample;
+                adp.totalSamples = to.meta.totalSamples;
+                to.pcm.Add(adp);
+            }
+        }
+
+        private long CountTotalSamples(List<double[]> data) {
+            long count = 0;
+            foreach (var k in data) {
+                count += k.LongLength;
+            }
+            return count;
+        }
+
+        private void AssembleSample(List<double[]> dataList, long count, out double[] gathered, out double[] remainings) {
+            gathered = new double[count];
+            long offs = 0;
+            long remainLength = 0;
+            foreach (var d in dataList) {
+                long length = d.LongLength;
+                remainLength = 0;
+                if (count < offs + length) {
+                    length = count - offs;
+                    remainLength = d.LongLength - length;
+                }
+
+                Array.Copy(d, 0, gathered, offs, length);
+                offs += length;
+            }
+
+            remainings = new double[remainLength];
+            if (0 < remainLength) {
+                long lastDataLength = dataList[dataList.Count - 1].LongLength;
+                Array.Copy(dataList[dataList.Count - 1], lastDataLength - remainLength, remainings, 0, remainLength);
+            }
+        }
+
+        private double[] FilterNth(List<FilterBase> filters, int nth, ref AudioDataPerChannel from) {
+            if (nth == -1) {
+                return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
+            } else {
+                // サンプル数が貯まるまでn-1番目のフィルターを実行する。
+                // n番目のフィルターを実行する
+
+                List<double[]> inPcmList = new List<double[]>();
+                {
+                    // 前回フィルタ処理で余った入力データ
+                    double [] prevRemainings = filters[nth].Remainings;
+                    if (prevRemainings != null && 0 < prevRemainings.LongLength) {
+                        inPcmList.Add(prevRemainings);
+                    }
+                }
+
+                while (CountTotalSamples(inPcmList) < filters[nth].NumOfSamplesNeeded()) {
+                    inPcmList.Add(FilterNth(filters, nth - 1, ref from));
+                }
+                double [] inPcm;
+                double [] remainings;
+                AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
+                double [] outPcm = filters[nth].FilterDo(inPcm);
+
+                // n-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
+                filters[nth].Remainings = remainings;
+
+                return outPcm;
+            }
+        }
+
+        private int ProcessAudioFile(List<FilterBase> filters, int ch, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
+            foreach (var f in filters) {
+                f.FilterStart();
+            }
+
+            to.ResetStatistics();
+            long pos = 0;
+            while (pos < to.totalSamples) {
+                var pcm = FilterNth(filters, filters.Count - 1, ref from);
+
+                to.SetPcmInDouble(pcm, pos);
+
+                pos += pcm.LongLength;
+
+                long currentSamples = System.Threading.Interlocked.Add(ref mProgressSamples, pcm.LongLength);
+
+                double percent = (double)FILE_READ_COMPLETE_PERCENTAGE
+                        + ((double)FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE) * currentSamples / to.totalSamples / nChannels;
+                mBackgroundWorker.ReportProgress((int)percent, new ProgressArgs("", 0));
+            }
+
+            foreach (var f in filters) {
+                f.FilterEnd();
+            }
+            return 0;
+        }
+
+        void Background_DoWork(object sender, DoWorkEventArgs e) {
+            var args = e.Argument as RunWorkerArgs;
+            int rv;
+            AudioData audioDataFrom;
+            AudioData audioDataTo;
+
+            rv = ReadFlacFile(args.FromPath, out audioDataFrom);
+            if (rv < 0) {
+                e.Result = rv;
+                return;
+            }
+
+            mBackgroundWorker.ReportProgress(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
+
+            SetupResultPcm(audioDataFrom, out audioDataTo);
+
+            mProgressSamples = 0;
+
+            Parallel.For(0, audioDataFrom.meta.channels, ch => {
+                var filters = new List<FilterBase>();
+                foreach (var f in mFilters) {
+                    filters.Add(f.CreateCopy());
+                }
+                FilterSetup(audioDataFrom, filters);
+
+                var from = audioDataFrom.pcm[ch];
+                var to = audioDataTo.pcm[ch];
+                rv = ProcessAudioFile(filters, ch, audioDataFrom.meta.channels, ref from, ref to);
+                if (rv < 0) {
+                    e.Result = rv;
+                    return;
+                }
+                audioDataTo.pcm[ch] = to;
+
+                if (audioDataTo.pcm[ch].overflow) {
+                    var s = string.Format(Properties.Resources.ErrorSampleValueClipped,
+                            ch, audioDataTo.pcm[ch].maxMagnitude);
+                    mBackgroundWorker.ReportProgress(-1, new ProgressArgs(s, 0));
+                }
+
+                filters = null;
+            });
+
+            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogfileWriteStarted, 0));
+
+            rv = WriteFlacFile(ref audioDataTo, args.ToPath);
+            if (rv < 0) {
+                e.Result = rv;
+                return;
+            }
+
+            mBackgroundWorker.ReportProgress(100, new ProgressArgs("", 0));
+
+            e.Result = rv;
+        }
+
+        void Background_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            var args = e.UserState as ProgressArgs;
+
+            if (0 <= e.ProgressPercentage) {
+                progressBar1.Value = e.ProgressPercentage;
+            }
+
+            if (0 < args.Message.Length) {
+                textBoxLog.Text += args.Message;
+                textBoxLog.ScrollToEnd();
+            }
+        }
+
+        private string ErrorCodeToStr(int ercd) {
+            switch (ercd) {
+            case -2:
+                return Properties.Resources.FlacErrorDataNotReady;
+            case -3:
+                return Properties.Resources.FlacerrorWriteOpenFailed;
+            case -4:
+                return Properties.Resources.FlacErrorStreamDecoderNewFailed;
+            case -5:
+                return Properties.Resources.FlacErrorStreamDecoderInitFailed;
+            case -6:
+                return Properties.Resources.FlacErrorDecoderProcessFailed;
+            case -7:
+                return Properties.Resources.FlacErrorLostSync;
+            case -8:
+                return Properties.Resources.FlacErrorBadHeader;
+            case -9:
+                return Properties.Resources.FlacErrorFrameCrcMismatch;
+            case -10:
+                return Properties.Resources.FlacErrorUnparseable;
+            case -11:
+                return Properties.Resources.FlacErrorNumFrameIsNotAligned;
+            case -12:
+                return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
+            case -13:
+                return Properties.Resources.FlacErrorOther;
+            case -14:
+                return Properties.Resources.FlacErrorFileReadOpen;
+            case -15:
+                return Properties.Resources.FlacErrorBufferSizeMismatch;
+            case -16:
+                return Properties.Resources.FlacErrorMemoryExhausted;
+            case -17:
+                return Properties.Resources.FlacErrorEncoder;
+            case -18:
+                return Properties.Resources.FlacErrorInvalidNumberOfChannels;
+            case -19:
+                return Properties.Resources.FlacErrorInvalidBitsPerSample;
+            case -20:
+                return Properties.Resources.FlacErrorInvalidSampleRate;
+            case -21:
+                return Properties.Resources.FlacErrorInvalidMetadata;
+            case -22:
+                return Properties.Resources.FlacErrorBadParams;
+            case -23:
+                return Properties.Resources.FlacErrorIdNotFound;
+            case -24:
+                return Properties.Resources.FlacErrorEncoderProcessFailed;
+            default:
+                return Properties.Resources.FlacErrorOther;
+            }
+        }
+
+        void Background_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            int rv = (int)e.Result;
+
+            progressBar1.IsEnabled = false;
+            progressBar1.Value = 0;
+
+            if (rv < 0) {
+                var s = string.Format("{0} {1} {2}\r\n", Properties.Resources.Error, rv, ErrorCodeToStr(rv));
+                MessageBox.Show(s, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+
+                textBoxLog.Text += string.Format(s);
+                textBoxLog.ScrollToEnd();
+            } else {
+                textBoxLog.Text += string.Format(Properties.Resources.LogCompleted);
+                textBoxLog.ScrollToEnd();
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,145 +845,12 @@ namespace WWAudioFilter {
             Update();
         }
 
-        struct AudioDataPerChannel {
-            public byte [] data;
-            public long offsBytes;
-            public long totalSamples;
-            public int bitsPerSample;
-            public bool overflow;
-            public double maxMagnitude;
-
-            public void ResetStatistics() {
-                overflow = false;
-                maxMagnitude = 0.0;
-            }
-
-            public double [] GetPcmInDouble(long count) {
-                if (totalSamples <= offsBytes / (bitsPerSample/8) || count <= 0) {
-                    return new double[count];
-                }
-
-                var result = new double[count];
-                var copyCount = result.LongLength;
-                if (totalSamples < offsBytes / (bitsPerSample / 8) + copyCount) {
-                    copyCount = totalSamples - offsBytes / (bitsPerSample / 8);
-                }
-
-                switch (bitsPerSample) {
-                case 16:
-                    for (var i=0; i<copyCount; ++i) {
-                        short v = (short)((data[offsBytes]) + (data[offsBytes+1]<<8));
-                        result[i] = v * (1.0 / 32768.0);
-                        offsBytes += 2;
-                    }
-                    break;
-
-                case 24:
-                    for (var i=0; i<copyCount; ++i) {
-                        int v = (int)((data[offsBytes]<<8) + (data[offsBytes+1]<<16) + (data[offsBytes+2]<<24));
-                        result[i] = v * (1.0 / 2147483648.0);
-                        offsBytes += 3;
-                    }
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    break;
-                }
-                return result;
-            }
-
-            public void SetPcmInDouble(double[] pcm, long writeOffs) {
-                var copyCount = pcm.LongLength;
-                if (totalSamples < writeOffs + copyCount) {
-                    copyCount = totalSamples - writeOffs;
-                }
-
-                long writePosBytes;
-                switch (bitsPerSample) {
-                case 16:
-                    writePosBytes = writeOffs*2;
-                    for (var i=0; i < copyCount; ++i) {
-                        short vS = 0;
-                        double vD = pcm[i];
-                        if (vD < -1.0f) {
-                            vS = -32768;
-
-                            overflow = true;
-                            if (maxMagnitude < Math.Abs(vD)) {
-                                maxMagnitude = Math.Abs(vD);
-                            }
-                        } else if (1.0f <= vD) {
-                            vS = 32767;
-
-                            overflow = true;
-                            if (maxMagnitude < Math.Abs(vD)) {
-                                maxMagnitude = Math.Abs(vD);
-                            }
-                        } else {
-                            vS = (short)(32768.0 * vD);
-                        }
-
-                        data[writePosBytes + 0] = (byte)((vS     ) & 0xff);
-                        data[writePosBytes + 1] = (byte)((vS >> 8) & 0xff);
-
-                        writePosBytes += 2;
-                    }
-                    break;
-
-                case 24:
-                    writePosBytes = writeOffs * 3;
-                    for (var i=0; i < copyCount; ++i) {
-                        int vI = 0;
-                        double vD = pcm[i];
-                        if (vD < -1.0f) {
-                            vI = Int32.MinValue;
-
-                            overflow = true;
-                            if (maxMagnitude < Math.Abs(vD)) {
-                                maxMagnitude = Math.Abs(vD);
-                            }
-                        } else if (1.0f <= vD) {
-                            vI = 0x7fffff00;
-
-                            overflow = true;
-                            if (maxMagnitude < Math.Abs(vD)) {
-                                maxMagnitude = Math.Abs(vD);
-                            }
-                        } else {
-                            vI = (int)(2147483648.0 * vD);
-                        }
-
-                        data[writePosBytes + 0] = (byte)((vI >>  8) & 0xff);
-                        data[writePosBytes + 1] = (byte)((vI >> 16) & 0xff);
-                        data[writePosBytes + 2] = (byte)((vI >> 24) & 0xff);
-
-                        writePosBytes += 3;
-                    }
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    break;
-                }
-            }
-        };
-
-        struct AudioData {
-            public WWFlacRWCS.Metadata meta;
-            public List<AudioDataPerChannel> pcm;
-            public byte [] picture;
-        };
-
-        class RunWorkerArgs {
-            public string FromPath { get; set; }
-            public string ToPath { get; set; }
-
-            public RunWorkerArgs(string fromPath, string toPath) {
-                FromPath = fromPath;
-                ToPath = toPath;
-            }
-        };
-
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
+            if (0 == textBoxInputFile.Text.CompareTo(textBoxOutputFile.Text)) {
+                MessageBox.Show(Properties.Resources.ErrorWriteToReadFile, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                return;
+            }
+
             textBoxLog.Text = string.Empty;
             textBoxLog.Text += string.Format(Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;
@@ -503,337 +858,5 @@ namespace WWAudioFilter {
 
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
         }
-
-        class ProgressArgs {
-            public string Message { get; set; }
-            public int Result { get; set; }
-
-            public ProgressArgs(string message, int result) {
-                Message = message;
-                Result = result;
-            }
-        }
-
-        private int ReadFlacFile(string path, out AudioData ad) {
-            ad = new AudioData();
-
-            var flacRW = new WWFlacRWCS.FlacRW();
-            int id = flacRW.DecodeAll(path);
-            if (id < 0) {
-                return id;
-            }
-
-            int rv = flacRW.GetDecodedMetadata(id, out ad.meta);
-            if (rv < 0) {
-                return rv;
-            }
-
-            rv = flacRW.GetDecodedPicture(id, out ad.picture, ad.meta.pictureBytes);
-            if (rv < 0) {
-                return rv;
-            }
-
-            ad.pcm = new List<AudioDataPerChannel>();
-            for (int ch=0; ch < ad.meta.channels; ++ch) {
-                byte [] data;
-                long lrv = flacRW.GetDecodedPcmBytes(id, ch, 0, out data, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
-                if (lrv < 0) {
-                    return (int)lrv;
-                }
-
-                var adp = new AudioDataPerChannel();
-                adp.data = data;
-                adp.offsBytes = 0;
-                adp.bitsPerSample = ad.meta.bitsPerSample;
-                adp.totalSamples = ad.meta.totalSamples;
-                ad.pcm.Add(adp);
-            }
-
-            return 0;
-        }
-
-        private int WriteFlacFile(ref AudioData ad, string path) {
-            int rv;
-            var flacRW = new WWFlacRWCS.FlacRW();
-            int id = flacRW.EncodeInit(ad.meta);
-            if (id < 0) {
-                return id;
-            }
-
-            rv = flacRW.EncodeSetPicture(id, ad.picture);
-            if (rv < 0) {
-                return rv;
-            }
-
-            for (int ch=0; ch < ad.meta.channels; ++ch) {
-                long lrv = flacRW.EncodeAddPcm(id, ch, ad.pcm[ch].data);
-                if (lrv < 0) {
-                    return (int)lrv;
-                }
-            }
-
-            rv = flacRW.EncodeRun(id, path);
-            if (rv < 0) {
-                return rv;
-            }
-
-            return 0;
-        }
-
-        private void SetupResultPcm(AudioData from, out AudioData to) {
-            to = new AudioData();
-
-            var fmt = new PcmFormat(from.meta.channels, from.meta.sampleRate, from.meta.totalSamples);
-            foreach (var f in mFilters) {
-                fmt = f.Setup(fmt);
-            }
-            to.meta = new WWFlacRWCS.Metadata(from.meta);
-            to.meta.sampleRate = fmt.SampleRate;
-            to.meta.totalSamples = fmt.NumSamples;
-            to.meta.channels = fmt.Channels;
-#if true
-            to.meta.bitsPerSample = 24;
-#endif
-
-            if (from.picture != null) {
-                to.picture = new byte[from.picture.Length];
-                System.Array.Copy(from.picture, to.picture, to.picture.Length);
-            }
-
-            // allocate "to" pcm data
-            to.pcm = new List<AudioDataPerChannel>();
-            for (int ch=0; ch < to.meta.channels; ++ch) {
-                var data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
-                var adp = new AudioDataPerChannel();
-                adp.data = data;
-                adp.bitsPerSample = to.meta.bitsPerSample;
-                adp.totalSamples = to.meta.totalSamples;
-                to.pcm.Add(adp);
-            }
-        }
-
-        private long CountTotalSamples(List<double[]> data) {
-            long count = 0;
-            foreach (var k in data) {
-                count += k.LongLength;
-            }
-            return count;
-        }
-
-        private void AssembleSample(List<double[]> dataList, long count, out double [] gathered, out double [] remainings) {
-            gathered = new double[count];
-            long offs = 0;
-            long remainLength = 0;
-            foreach (var d in dataList) {
-                long length = d.LongLength;
-                remainLength = 0;
-                if (count < offs + length) {
-                    length = count - offs;
-                    remainLength = d.LongLength - length;
-                }
-
-                Array.Copy(d, 0, gathered, offs, length);
-                offs += length;
-            }
-
-            remainings = new double[remainLength];
-            if (0 < remainLength) {
-                long lastDataLength = dataList[dataList.Count-1].LongLength;
-                Array.Copy(dataList[dataList.Count-1], lastDataLength-remainLength, remainings, 0, remainLength);
-            }
-        }
-
-        private double [] FilterNth(int nth, ref AudioDataPerChannel from) {
-            if (nth == -1) {
-                return from.GetPcmInDouble(mFilters[0].NumOfSamplesNeeded());
-            } else {
-                // サンプル数が貯まるまでn-1番目のフィルターを実行する。
-                // n番目のフィルターを実行する
-
-                List<double[]> inPcmList = new List<double[]>();
-                {
-                    // 前回フィルタ処理で余った入力データ
-                    double [] prevRemainings = mFilters[nth].Remainings;
-                    if (prevRemainings != null && 0 < prevRemainings.LongLength) {
-                        inPcmList.Add(prevRemainings);
-                    }
-                }
-
-                while (CountTotalSamples(inPcmList) < mFilters[nth].NumOfSamplesNeeded()) {
-                    inPcmList.Add(FilterNth(nth-1, ref from));
-                }
-                double [] inPcm;
-                double [] remainings;
-                AssembleSample(inPcmList, mFilters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
-                double [] outPcm = mFilters[nth].FilterDo(inPcm);
-
-                // n-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
-                mFilters[nth].Remainings = remainings;
-
-                return outPcm;
-            }
-        }
-
-        private int ProcessAudioFile(int ch, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
-            foreach (var f in mFilters) {
-                f.FilterStart();
-            }
-
-            to.ResetStatistics();
-            long pos = 0;
-            while (pos < to.totalSamples) {
-                var pcm = FilterNth(mFilters.Count - 1, ref from);
-
-                to.SetPcmInDouble(pcm, pos);
-
-                pos += pcm.LongLength;
-
-                double percent = (double)FILE_READ_COMPLETE_PERCENTAGE
-                        + (FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE) * ch / nChannels;
-                percent += ((double)FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE) / nChannels
-                    * pos / to.totalSamples;
-                mBackgroundWorker.ReportProgress((int)percent, new ProgressArgs("", 0));
-            }
-
-            foreach (var f in mFilters) {
-                f.FilterEnd();
-            }
-            return 0;
-        }
-
-        const int FILE_READ_COMPLETE_PERCENTAGE = 10;
-        const int FILE_PROCESS_COMPLETE_PERCENTAGE = 90;
-
-        void Background_DoWork(object sender, DoWorkEventArgs e) {
-            var args = e.Argument as RunWorkerArgs;
-            int rv;
-            AudioData audioDataFrom;
-            AudioData audioDataTo;
-
-            rv = ReadFlacFile(args.FromPath, out audioDataFrom);
-            if (rv < 0) {
-                e.Result = rv;
-                return;
-            }
-
-            mBackgroundWorker.ReportProgress(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
-
-            SetupResultPcm(audioDataFrom, out audioDataTo);
-
-            for (int ch=0; ch < audioDataFrom.meta.channels; ++ch) {
-                var from = audioDataFrom.pcm[ch];
-                var to = audioDataTo.pcm[ch];
-                rv = ProcessAudioFile(ch, audioDataFrom.meta.channels, ref from, ref to);
-                if (rv < 0) {
-                    e.Result = rv;
-                    return;
-                }
-                audioDataTo.pcm[ch] = to;
-
-                int percent = (int)((double)FILE_READ_COMPLETE_PERCENTAGE
-                        + (FILE_PROCESS_COMPLETE_PERCENTAGE - FILE_READ_COMPLETE_PERCENTAGE)
-                        * (ch + 1) / (audioDataFrom.meta.channels));
-                string s = string.Empty;
-                if (audioDataTo.pcm[ch].overflow) {
-                    s = string.Format(Properties.Resources.ErrorSampleValueClipped,
-                            ch, audioDataTo.pcm[ch].maxMagnitude);
-                }
-                mBackgroundWorker.ReportProgress(percent, new ProgressArgs(s, 0));
-            }
-
-            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogfileWriteStarted, 0));
-
-            rv = WriteFlacFile(ref audioDataTo, args.ToPath);
-            if (rv < 0) {
-                e.Result = rv;
-                return;
-            }
-
-            mBackgroundWorker.ReportProgress(100, new ProgressArgs("", 0));
-
-            e.Result = rv;
-        }
-
-        void Background_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            var args = e.UserState as ProgressArgs;
-
-            progressBar1.Value = e.ProgressPercentage;
-            if (0 < args.Message.Length) {
-                textBoxLog.Text += args.Message;
-                textBoxLog.ScrollToEnd();
-            }
-        }
-
-        private string ErrorCodeToStr(int ercd) {
-            switch (ercd) {
-            case -2:
-                return Properties.Resources.FlacErrorDataNotReady;
-            case -3:
-                return Properties.Resources.FlacerrorWriteOpenFailed;
-            case -4:
-                return Properties.Resources.FlacErrorStreamDecoderNewFailed;
-            case -5:
-                return Properties.Resources.FlacErrorStreamDecoderInitFailed;
-            case -6:
-                return Properties.Resources.FlacErrorDecoderProcessFailed;
-            case -7:
-                return Properties.Resources.FlacErrorLostSync;
-            case -8:
-                return Properties.Resources.FlacErrorBadHeader;
-            case -9:
-                return Properties.Resources.FlacErrorFrameCrcMismatch;
-            case -10:
-                return Properties.Resources.FlacErrorUnparseable;
-            case -11:
-                return Properties.Resources.FlacErrorNumFrameIsNotAligned;
-            case -12:
-                return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
-            case -13:
-                return Properties.Resources.FlacErrorOther;
-            case -14:
-                return Properties.Resources.FlacErrorFileReadOpen;
-            case -15:
-                return Properties.Resources.FlacErrorBufferSizeMismatch;
-            case -16:
-                return Properties.Resources.FlacErrorMemoryExhausted;
-            case -17:
-                return Properties.Resources.FlacErrorEncoder;
-            case -18:
-                return Properties.Resources.FlacErrorInvalidNumberOfChannels;
-            case -19:
-                return Properties.Resources.FlacErrorInvalidBitsPerSample;
-            case -20:
-                return Properties.Resources.FlacErrorInvalidSampleRate;
-            case -21:
-                return Properties.Resources.FlacErrorInvalidMetadata;
-            case -22:
-                return Properties.Resources.FlacErrorBadParams;
-            case -23:
-                return Properties.Resources.FlacErrorIdNotFound;
-            case -24:
-                return Properties.Resources.FlacErrorEncoderProcessFailed;
-            default:
-                return Properties.Resources.FlacErrorOther;
-            }
-        }
-
-        void Background_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            int rv = (int)e.Result;
-
-            progressBar1.IsEnabled = false;
-            progressBar1.Value = 0;
-
-            if (rv < 0) {
-                var s = string.Format("Error {0} {1}\r\n", rv, ErrorCodeToStr(rv));
-                MessageBox.Show(s);
-                textBoxLog.Text += string.Format(s);
-                textBoxLog.ScrollToEnd();
-            } else {
-                textBoxLog.Text += string.Format(Properties.Resources.LogCompleted);
-                textBoxLog.ScrollToEnd();
-            }
-        }
-
-
     }
 }

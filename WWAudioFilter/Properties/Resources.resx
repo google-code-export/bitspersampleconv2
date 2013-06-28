@@ -163,13 +163,13 @@
     <value>Log</value>
   </data>
   <data name="GroupLPF" xml:space="preserve">
-    <value>FIR linear phase lowpass filter</value>
+    <value>FIR Linear-Phase Lowpass Filter</value>
   </data>
   <data name="GroupOutputFile" xml:space="preserve">
     <value>Output File</value>
   </data>
-  <data name="GroupZOHUpsampler" xml:space="preserve">
-    <value>Zero Order Hold Upsampling</value>
+  <data name="GroupUpsampler" xml:space="preserve">
+    <value>Upsampling</value>
   </data>
   <data name="LabelCutoffFreq" xml:space="preserve">
     <value>Cutoff frequency:</value>
@@ -325,5 +325,23 @@
   </data>
   <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
     <value>Write open failed</value>
+  </data>
+  <data name="CbItemFftUpsampler" xml:space="preserve">
+    <value>FFT Upsampler</value>
+  </data>
+  <data name="CbItemZohUpsampler" xml:space="preserve">
+    <value>Zero-Order Hold Upsampler</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorWriteToReadFile" xml:space="preserve">
+    <value>Please specify different file to write. WWAudioFilter cannot write to input file.</value>
+  </data>
+  <data name="FilterFftUpsampleDesc" xml:space="preserve">
+    <value>FFT upsample: {0}x</value>
+  </data>
+  <data name="LabelUpsamplerType" xml:space="preserve">
+    <value>Upsampler Type:</value>
   </data>
 </root>

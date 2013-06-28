@@ -514,30 +514,15 @@ namespace FftTest {
                         freqDomainUpsampled[i].Mul(0.5);
                     }
                 } else {
+                    // do nothing
                 }
             }
             freqDomainOrig = null;
-            var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
 
+            var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
             {
-#if false
-                for (int i=0; i < freqDomainUpsampled.Length; ++i) {
-                    freqDomainUpsampled[i] = new WWComplex(
-                            freqDomainUpsampled[i].imaginary,
-                            freqDomainUpsampled[i].real);
-                }
-                var fft = new WWRadix2Fft(upsampledSampleCount);
-                fft.ForwardFft(freqDomainUpsampled, timeDomainUpsampled);
-                double compensate = 1.0 / SampleCount();
-                for (int i=0; i < timeDomainUpsampled.Length; ++i) {
-                    timeDomainUpsampled[i] = new WWComplex(
-                            timeDomainUpsampled[i].imaginary * compensate,
-                            timeDomainUpsampled[i].real      * compensate);
-                }
-#else
                 var fft = new WWRadix2Fft(upsampledSampleCount);
                 fft.InverseFft(freqDomainUpsampled, timeDomainUpsampled, 1.0/(timeDomainUpsampled.Length/2));
-#endif
             }
 
             freqDomainUpsampled = null;

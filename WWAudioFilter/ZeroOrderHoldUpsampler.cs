@@ -16,6 +16,10 @@ namespace WWAudioFilter {
             Factor = factor;
         }
 
+        public override FilterBase CreateCopy() {
+            return new ZeroOrderHoldUpsampler(Factor);
+        }
+
         public override string ToDescriptionText() {
             return string.Format(Properties.Resources.FilterZOHDesc, Factor);
         }
@@ -59,10 +63,6 @@ namespace WWAudioFilter {
                 }
             }
             return outPcm;
-        }
-
-        private static bool IsPowerOfTwo(int x) {
-            return (x != 0) && ((x & (x - 1)) == 0);
         }
     }
 }

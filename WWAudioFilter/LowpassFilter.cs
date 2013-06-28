@@ -20,10 +20,6 @@ namespace WWAudioFilter {
         private double [] mIfftAddBuffer;
         private bool mFirstFilterDo;
 
-        private static bool IsPowerOfTwo(int x) {
-            return (x != 0) && ((x & (x - 1)) == 0);
-        }
-
         public LowpassFilter(double cutoffFrequency, int filterLength, int filterSlopeDbOct)
                 : base(FilterType.LPF) {
             if (cutoffFrequency < 0.0) {
@@ -46,6 +42,10 @@ namespace WWAudioFilter {
                 throw new ArgumentOutOfRangeException();
             }
             FilterSlopeDbOct = filterSlopeDbOct;
+        }
+
+        public override FilterBase CreateCopy() {
+            return new LowpassFilter(CutoffFrequency, FilterLength, FilterSlopeDbOct);
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
@@ -122,7 +122,7 @@ namespace WWAudioFilter {
             for (int i=1; i <= FILTER_LENP1 / 2; ++i) {
                 double omegaRatio = i * (1.0 / (FILTER_LENP1 / 2));
                 double v = Math.Sqrt(1.0 / (1.0 + Math.Pow(omegaRatio / cutoffRatio, orderX2)));
-                if (Math.Abs(v) < Math.Pow(0.5, 20)) {
+                if (Math.Abs(v) < Math.Pow(0.5, 24)) {
                     v = 0.0;
                 }
                 fromF[i].real = v;

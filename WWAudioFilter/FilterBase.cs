@@ -9,6 +9,7 @@ namespace WWAudioFilter {
         Gain,
         ZOH,
         LPF,
+        FftUpsampler
     }
 
     public class FilterBase {
@@ -23,8 +24,11 @@ namespace WWAudioFilter {
 
         public FilterBase(FilterType type) {
             FilterType = type;
-
             FilterId = msFilterId++;
+        }
+
+        public virtual FilterBase CreateCopy() {
+            return null;
         }
 
         public virtual string ToDescriptionText() {
@@ -67,6 +71,10 @@ namespace WWAudioFilter {
             double [] outPcm = new double[num];
             Array.Copy(inPcm, 0, outPcm, 0, num);
             return outPcm;
+        }
+
+        protected static bool IsPowerOfTwo(int x) {
+            return (x != 0) && ((x & (x - 1)) == 0);
         }
     }
 

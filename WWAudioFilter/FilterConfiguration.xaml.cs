@@ -10,7 +10,7 @@ namespace WWAudioFilter {
         private TextChangedEventHandler mTextBoxGainInDbChangedEH;
         private TextChangedEventHandler mTextBoxGainInAmplitudeChangedEH;
 
-        private FilterBase mFilter = new GainFilter(1.0);
+        private FilterBase mFilter = null;
 
         public FilterConfiguration(FilterBase filter) {
             InitializeComponent();
@@ -19,15 +19,17 @@ namespace WWAudioFilter {
                 mFilter = filter;
             }
 
-            mTextBoxGainInDbChangedEH        = new TextChangedEventHandler(textBoxGainInDB_TextChanged);
+            SetLocalizedTextToUI();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
+            mTextBoxGainInDbChangedEH = new TextChangedEventHandler(textBoxGainInDB_TextChanged);
             mTextBoxGainInAmplitudeChangedEH = new TextChangedEventHandler(textBoxGainInAmplitude_TextChanged);
 
             if (mFilter != null) {
                 // filterの設定をUIに反映する
                 InitializeUIbyFilter(mFilter);
             }
-
-            SetLocalizedTextToUI();
         }
 
         private void SetLocalizedTextToUI() {
@@ -37,7 +39,10 @@ namespace WWAudioFilter {
             labelGainAmplitudeUnit.Content = Properties.Resources.LabelX;
             buttonUseGain.Content = Properties.Resources.ButtonUseThisFilter;
 
-            groupBoxUpsampler.Header = Properties.Resources.GroupZOHUpsampler;
+            groupBoxUpsampler.Header = Properties.Resources.GroupUpsampler;
+            labelUpsamplerType.Content = Properties.Resources.LabelUpsamplerType;
+            cbItemFftUpsampler.Content = Properties.Resources.CbItemFftUpsampler;
+            cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
             labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
             buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
 
@@ -69,6 +74,12 @@ namespace WWAudioFilter {
             case FilterType.ZOH:
                 var zoh = filter as ZeroOrderHoldUpsampler;
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
+                comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.ZOH;
+                break;
+            case FilterType.FftUpsampler:
+                var fftu = filter as FftUpsampler;
+                comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
+                comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
                 break;
             case FilterType.LPF:
                 var lpf = filter as LowpassFilter;
@@ -77,9 +88,6 @@ namespace WWAudioFilter {
                 textBoxLpfSlope.Text = string.Format("{0}", lpf.FilterSlopeDbOct);
                 break;
             }
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e) {
         }
 
         void textBoxGainInDB_TextChanged(object sender, TextChangedEventArgs e) {
@@ -186,6 +194,11 @@ namespace WWAudioFilter {
             }
         }
 
+        enum UpsamplerType {
+            FFT,
+            ZOH
+        };
+
         ///////////////////////////////////////////////////////////////////////////////////
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
@@ -210,10 +223,21 @@ namespace WWAudioFilter {
             Close();
         }
 
-        private void buttonUseZOH_Click(object sender, RoutedEventArgs e) {
+        private void buttonUseUpsampler_Click(object sender, RoutedEventArgs e) {
             int factor = UpsamplingFactorTypeToUpsampingfactor(comboBoxUpsamplingFactor.SelectedIndex);
 
-            mFilter = new ZeroOrderHoldUpsampler(factor);
+            switch (comboBoxUpsamplerType.SelectedIndex) {
+            case (int)UpsamplerType.ZOH:
+                mFilter = new ZeroOrderHoldUpsampler(factor);
+                break;
+            case (int)UpsamplerType.FFT:
+                mFilter = new FftUpsampler(factor);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                mFilter = new FftUpsampler(factor);
+                break;
+            }
 
             DialogResult = true;
             Close();

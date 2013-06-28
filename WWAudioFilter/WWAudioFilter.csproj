@@ -80,6 +80,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FftUpsampler.cs" />
     <Compile Include="WWComplex.cs" />
     <Compile Include="LowpassFilter.cs" />
     <Compile Include="WWRadix2Fft.cs" />

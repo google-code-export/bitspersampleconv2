@@ -168,8 +168,8 @@
   <data name="GroupOutputFile" xml:space="preserve">
     <value>出力ファイルの選択</value>
   </data>
-  <data name="GroupZOHUpsampler" xml:space="preserve">
-    <value>零次ホールドアップサンプリング</value>
+  <data name="GroupUpsampler" xml:space="preserve">
+    <value>アップサンプリング</value>
   </data>
   <data name="LabelCutoffFreq" xml:space="preserve">
     <value>カットオフ周波数:</value>
@@ -256,5 +256,23 @@
   <data name="LogfileWriteStarted" xml:space="preserve">
     <value>信号処理終了。ファイル書込み中…
 </value>
+  </data>
+  <data name="CbItemFftUpsampler" xml:space="preserve">
+    <value>FFTアップサンプル</value>
+  </data>
+  <data name="CbItemZohUpsampler" xml:space="preserve">
+    <value>零次ホールドアップサンプル</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="ErrorWriteToReadFile" xml:space="preserve">
+    <value>書き込むファイルと読み込むファイルを別のファイルにして下さい。</value>
+  </data>
+  <data name="FilterFftUpsampleDesc" xml:space="preserve">
+    <value>FFTアップサンプル: {0}倍</value>
+  </data>
+  <data name="LabelUpsamplerType" xml:space="preserve">
+    <value>アップサンプル方法:</value>
   </data>
 </root>
