@@ -1,26 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace WWAudioFilter {
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window, IDisposable {
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
@@ -45,19 +38,31 @@ namespace WWAudioFilter {
 
         private const int FILE_READ_COMPLETE_PERCENTAGE    = 5;
         private const int FILE_PROCESS_COMPLETE_PERCENTAGE = 95;
-        private long mProgressSamples;
+        private long mProgressSamples = 0;
 
         public MainWindow() {
             InitializeComponent();
+
+            SetLocalizedTextToUI();
+            Title = string.Format(CultureInfo.CurrentCulture, "WWAudioFilter version {0}", AssemblyVersion);
 
             mBackgroundWorker = new BackgroundWorker();
             mBackgroundWorker.WorkerReportsProgress = true;
             mBackgroundWorker.DoWork += new DoWorkEventHandler(Background_DoWork);
             mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
             mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
+        }
 
-            SetLocalizedTextToUI();
-            Title = string.Format("WWAudioFilter version {0}", AssemblyVersion);
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                // dispose managed resources
+            }
+            // free native resources
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -310,7 +315,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private int ReadFlacFile(string path, out AudioData ad) {
+        private static int ReadFlacFile(string path, out AudioData ad) {
             ad = new AudioData();
 
             var flacRW = new WWFlacRWCS.FlacRW();
@@ -348,7 +353,7 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        private int WriteFlacFile(ref AudioData ad, string path) {
+        private static int WriteFlacFile(ref AudioData ad, string path) {
             int rv;
             var flacRW = new WWFlacRWCS.FlacRW();
             int id = flacRW.EncodeInit(ad.meta);
@@ -376,7 +381,7 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        private PcmFormat FilterSetup(AudioData from, List<FilterBase> filters) {
+        private static PcmFormat FilterSetup(AudioData from, List<FilterBase> filters) {
             var fmt = new PcmFormat(from.meta.channels, from.meta.sampleRate, from.meta.totalSamples);
             foreach (var f in filters) {
                 fmt = f.Setup(fmt);
@@ -414,7 +419,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private long CountTotalSamples(List<double[]> data) {
+        private static long CountTotalSamples(List<double[]> data) {
             long count = 0;
             foreach (var k in data) {
                 count += k.LongLength;
@@ -422,7 +427,7 @@ namespace WWAudioFilter {
             return count;
         }
 
-        private void AssembleSample(List<double[]> dataList, long count, out double[] gathered, out double[] remainings) {
+        private static void AssembleSample(List<double[]> dataList, long count, out double[] gathered, out double[] remainings) {
             gathered = new double[count];
             long offs = 0;
             long remainLength = 0;
@@ -455,7 +460,7 @@ namespace WWAudioFilter {
                 List<double[]> inPcmList = new List<double[]>();
                 {
                     // 前回フィルタ処理で余った入力データ
-                    double [] prevRemainings = filters[nth].Remainings;
+                    double [] prevRemainings = filters[nth].GetPreviousProcessRemains();
                     if (prevRemainings != null && 0 < prevRemainings.LongLength) {
                         inPcmList.Add(prevRemainings);
                     }
@@ -469,14 +474,14 @@ namespace WWAudioFilter {
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
                 double [] outPcm = filters[nth].FilterDo(inPcm);
 
-                // n-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
-                filters[nth].Remainings = remainings;
+                // length-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
+                filters[nth].SetPreviousProcessRemains(remainings);
 
                 return outPcm;
             }
         }
 
-        private int ProcessAudioFile(List<FilterBase> filters, int ch, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
+        private int ProcessAudioFile(List<FilterBase> filters, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to) {
             foreach (var f in filters) {
                 f.FilterStart();
             }
@@ -530,7 +535,7 @@ namespace WWAudioFilter {
 
                 var from = audioDataFrom.pcm[ch];
                 var to = audioDataTo.pcm[ch];
-                rv = ProcessAudioFile(filters, ch, audioDataFrom.meta.channels, ref from, ref to);
+                rv = ProcessAudioFile(filters, audioDataFrom.meta.channels, ref from, ref to);
                 if (rv < 0) {
                     e.Result = rv;
                     return;
@@ -538,7 +543,7 @@ namespace WWAudioFilter {
                 audioDataTo.pcm[ch] = to;
 
                 if (audioDataTo.pcm[ch].overflow) {
-                    var s = string.Format(Properties.Resources.ErrorSampleValueClipped,
+                    var s = string.Format(CultureInfo.CurrentCulture, Properties.Resources.ErrorSampleValueClipped,
                             ch, audioDataTo.pcm[ch].maxMagnitude);
                     mBackgroundWorker.ReportProgress(-1, new ProgressArgs(s, 0));
                 }
@@ -546,7 +551,8 @@ namespace WWAudioFilter {
                 filters = null;
             });
 
-            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogfileWriteStarted, 0));
+            mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE,
+                    new ProgressArgs(string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogfileWriteStarted, args.ToPath), 0));
 
             rv = WriteFlacFile(ref audioDataTo, args.ToPath);
             if (rv < 0) {
@@ -572,7 +578,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private string ErrorCodeToStr(int ercd) {
+        private static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
             case -2:
                 return Properties.Resources.FlacErrorDataNotReady;
@@ -632,13 +638,13 @@ namespace WWAudioFilter {
             progressBar1.Value = 0;
 
             if (rv < 0) {
-                var s = string.Format("{0} {1} {2}\r\n", Properties.Resources.Error, rv, ErrorCodeToStr(rv));
+                var s = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}\r\n", Properties.Resources.Error, rv, ErrorCodeToStr(rv));
                 MessageBox.Show(s, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 
-                textBoxLog.Text += string.Format(s);
+                textBoxLog.Text += s;
                 textBoxLog.ScrollToEnd();
             } else {
-                textBoxLog.Text += string.Format(Properties.Resources.LogCompleted);
+                textBoxLog.Text += Properties.Resources.LogCompleted;
                 textBoxLog.ScrollToEnd();
             }
         }
@@ -650,8 +656,7 @@ namespace WWAudioFilter {
             w.ShowDialog();
 
             if (true == w.DialogResult) {
-                var f = w.GetFilter();
-                mFilters.Add(f);
+                mFilters.Add(w.Filter);
                 Update();
                 listBoxFilters.SelectedIndex = listBoxFilters.Items.Count - 1;
             }
@@ -666,8 +671,7 @@ namespace WWAudioFilter {
 
             if (true == w.DialogResult) {
                 mFilters.RemoveAt(listBoxFilters.SelectedIndex);
-                var f = w.GetFilter();
-                mFilters.Add(f);
+                mFilters.Add(w.Filter);
                 Update();
             }
         }
@@ -765,14 +769,14 @@ namespace WWAudioFilter {
                         int version;
                         if (!Int32.TryParse(tokens[0], out version) || version != FILTER_FILE_VERSION) {
                             MessageBox.Show(
-                                string.Format("Filter file version mismatch. expected version={0}, file version={1}",
+                                string.Format(CultureInfo.CurrentCulture, Properties.Resources.ErrorFilterFileVersionMismatch,
                                     FILTER_FILE_VERSION, tokens[0]));
                             return;
                         }
 
                         if (!Int32.TryParse(tokens[1], out filterNum) || filterNum < 0) {
                             MessageBox.Show(
-                                string.Format("Read failed. bad filter count {0}",
+                                string.Format(CultureInfo.CurrentCulture, "Read failed. bad filter count {0}",
                                     tokens[1]));
                             return;
                         }
@@ -784,7 +788,7 @@ namespace WWAudioFilter {
                         var f = FilterFactory.Create(s);
                         if (null == f) {
                             MessageBox.Show(
-                                string.Format("Read failed. line={0}, {1}",
+                                string.Format(CultureInfo.CurrentCulture, "Read failed. line={0}, {1}",
                                     i+2, s));
                         }
                         filters.Add(f);
@@ -846,13 +850,13 @@ namespace WWAudioFilter {
         }
 
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
-            if (0 == textBoxInputFile.Text.CompareTo(textBoxOutputFile.Text)) {
+            if (0 == string.Compare(textBoxInputFile.Text, textBoxOutputFile.Text, StringComparison.Ordinal)) {
                 MessageBox.Show(Properties.Resources.ErrorWriteToReadFile, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                 return;
             }
 
             textBoxLog.Text = string.Empty;
-            textBoxLog.Text += string.Format(Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
+            textBoxLog.Text += string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;
             progressBar1.IsEnabled = true;
 

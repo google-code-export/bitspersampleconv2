@@ -5,6 +5,9 @@ using System.Text;
 
 namespace WWAudioFilter {
     class FilterFactory {
+        private FilterFactory() {
+        }
+
         public static FilterBase Create(string s) {
             var tokens = s.Split(null);
             if (tokens == null || tokens.Length < 1) {
@@ -14,9 +17,9 @@ namespace WWAudioFilter {
             switch (tokens[0]) {
             case "Gain":
                 return GainFilter.Restore(tokens);
-            case "ZOH":
+            case "ZohUpsampler":
                 return ZeroOrderHoldUpsampler.Restore(tokens);
-            case "LPF":
+            case "LowPassFilter":
                 return LowpassFilter.Restore(tokens);
             case "FftUpsampler":
                 return FftUpsampler.Restore(tokens);

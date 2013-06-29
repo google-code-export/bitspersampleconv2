@@ -254,7 +254,7 @@
 </value>
   </data>
   <data name="LogfileWriteStarted" xml:space="preserve">
-    <value>信号処理終了。ファイル書込み中…
+    <value>信号処理終了。ファイル書込み中: {0} …
 </value>
   </data>
   <data name="CbItemFftUpsampler" xml:space="preserve">
@@ -274,5 +274,8 @@
   </data>
   <data name="LabelUpsamplerType" xml:space="preserve">
     <value>アップサンプル方法:</value>
+  </data>
+  <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
+    <value>フィルター定義ファイルのバージョンが新しすぎるか古すぎるかして読めませんでした。 プログラムが読めるバージョン={0}, ファイルのバージョン={1}</value>
   </data>
 </root>

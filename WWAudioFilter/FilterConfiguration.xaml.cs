@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Globalization;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -54,8 +55,8 @@ namespace WWAudioFilter {
             buttonUseLpf.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
-        public FilterBase GetFilter() {
-            return mFilter;
+        public FilterBase Filter {
+            get { return mFilter; }
         }
 
         private void InitializeUIbyFilter(FilterBase filter) {
@@ -65,13 +66,13 @@ namespace WWAudioFilter {
                 textBoxGainInAmplitude.TextChanged -= mTextBoxGainInAmplitudeChangedEH;
 
                 var gain = filter as GainFilter;
-                textBoxGainInDB.Text = string.Format("{0}", 20.0 * Math.Log10(gain.Amplitude));
-                textBoxGainInAmplitude.Text = string.Format("{0}", gain.Amplitude);
+                textBoxGainInDB.Text = string.Format(CultureInfo.CurrentCulture, "{0}", 20.0 * Math.Log10(gain.Amplitude));
+                textBoxGainInAmplitude.Text = string.Format(CultureInfo.CurrentCulture, "{0}", gain.Amplitude);
 
                 textBoxGainInDB.TextChanged        += mTextBoxGainInDbChangedEH;
                 textBoxGainInAmplitude.TextChanged += mTextBoxGainInAmplitudeChangedEH;
                 break;
-            case FilterType.ZOH:
+            case FilterType.ZohUpsampler:
                 var zoh = filter as ZeroOrderHoldUpsampler;
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.ZOH;
@@ -81,11 +82,11 @@ namespace WWAudioFilter {
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
                 break;
-            case FilterType.LPF:
+            case FilterType.LowPassFilter:
                 var lpf = filter as LowpassFilter;
-                textBoxLpfCutoff.Text = string.Format("{0}", lpf.CutoffFrequency);
+                textBoxLpfCutoff.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.CutoffFrequency);
                 comboBoxLpfLen.SelectedIndex = (int)LpfLenToLpfLenType(lpf.FilterLength);
-                textBoxLpfSlope.Text = string.Format("{0}", lpf.FilterSlopeDbOct);
+                textBoxLpfSlope.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.FilterSlopeDbOct);
                 break;
             }
         }
@@ -97,7 +98,7 @@ namespace WWAudioFilter {
             }
 
             textBoxGainInAmplitude.TextChanged -= mTextBoxGainInAmplitudeChangedEH;
-            textBoxGainInAmplitude.Text = string.Format("{0}", Math.Pow(10.0, v/20.0));
+            textBoxGainInAmplitude.Text = string.Format(CultureInfo.CurrentCulture, "{0}", Math.Pow(10.0, v / 20.0));
             textBoxGainInAmplitude.TextChanged += mTextBoxGainInAmplitudeChangedEH;
         }
 
@@ -111,7 +112,7 @@ namespace WWAudioFilter {
             }
 
             textBoxGainInDB.TextChanged -= mTextBoxGainInAmplitudeChangedEH;
-            textBoxGainInDB.Text = string.Format("{0}", 20.0 * Math.Log10(v));
+            textBoxGainInDB.Text = string.Format(CultureInfo.CurrentCulture, "{0}", 20.0 * Math.Log10(v));
             textBoxGainInDB.TextChanged += mTextBoxGainInAmplitudeChangedEH;
         }
 
@@ -122,7 +123,7 @@ namespace WWAudioFilter {
             x16,
         };
 
-        private UpsamplingFactorType UpsamplingFactorToUpsamplingFactorType(int factor) {
+        private static UpsamplingFactorType UpsamplingFactorToUpsamplingFactorType(int factor) {
             switch (factor) {
             case 2:
                 return UpsamplingFactorType.x2;
@@ -138,7 +139,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private int UpsamplingFactorTypeToUpsampingfactor(int t) {
+        private static int UpsamplingFactorTypeToUpsampingfactor(int t) {
             switch (t) {
             case (int)UpsamplingFactorType.x2:
                 return 2;
@@ -162,7 +163,7 @@ namespace WWAudioFilter {
             L65535,
         };
 
-        private LpfLenType LpfLenToLpfLenType(int lpfLen) {
+        private static LpfLenType LpfLenToLpfLenType(int lpfLen) {
             switch (lpfLen) {
             case 255:
                 return LpfLenType.L255;
@@ -178,7 +179,7 @@ namespace WWAudioFilter {
             }
         }
 
-        private int LpfLenTypeToLpfLen(int t) {
+        private static int LpfLenTypeToLpfLen(int t) {
             switch (t) {
             case (int)LpfLenType.L255:
                 return 255;

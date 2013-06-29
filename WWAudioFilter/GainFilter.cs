@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace WWAudioFilter {
     public class GainFilter : FilterBase {
@@ -7,7 +8,7 @@ namespace WWAudioFilter {
         public GainFilter(double amplitude)
             : base(FilterType.Gain) {
             if (amplitude < 0) {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("amplitude");
             }
 
             Amplitude = amplitude;
@@ -18,11 +19,11 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(Properties.Resources.FilterGainDesc, Amplitude, 20.0 * Math.Log10(Amplitude));
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterGainDesc, Amplitude, 20.0 * Math.Log10(Amplitude));
         }
 
         public override string ToSaveText() {
-            return string.Format("{0}", Amplitude);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", Amplitude);
         }
 
         public static FilterBase Restore(string[] tokens) {

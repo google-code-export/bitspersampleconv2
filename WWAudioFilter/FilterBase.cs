@@ -5,10 +5,13 @@ using System.Text;
 
 namespace WWAudioFilter {
 
+    /// <summary>
+    /// Refer FilterFactory.Create()
+    /// </summary>
     public enum FilterType {
         Gain,
-        ZOH,
-        LPF,
+        ZohUpsampler,
+        LowPassFilter,
         FftUpsampler
     }
 
@@ -20,8 +23,13 @@ namespace WWAudioFilter {
         public int FilterId { get; set; }
 
         // 物置
-        public double[] Remainings { get; set; }
-
+        private double [] mPreviousProcessRemains;
+        public double[] GetPreviousProcessRemains() {
+            return mPreviousProcessRemains;
+        }
+        public void SetPreviousProcessRemains(double[] remains) {
+            mPreviousProcessRemains = remains;
+        }
         public FilterBase(FilterType type) {
             FilterType = type;
             FilterId = msFilterId++;
@@ -49,11 +57,11 @@ namespace WWAudioFilter {
         }
 
         public virtual void FilterStart() {
-            Remainings = null;
+            mPreviousProcessRemains = null;
         }
 
         public virtual void FilterEnd() {
-            Remainings = null;
+            mPreviousProcessRemains = null;
         }
 
         /// </summary>
@@ -65,7 +73,7 @@ namespace WWAudioFilter {
         public virtual double [] FilterDo(double [] inPcm) {
             long num = NumOfSamplesNeeded();
             if (inPcm.LongLength != num) {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("inPcm");
             }
 
             double [] outPcm = new double[num];
@@ -73,8 +81,8 @@ namespace WWAudioFilter {
             return outPcm;
         }
 
-        protected static bool IsPowerOfTwo(int x) {
-            return (x != 0) && ((x & (x - 1)) == 0);
+        protected static bool IsPowerOfTwo(int length) {
+            return (0 < length) && ((length & (length - 1)) == 0);
         }
     }
 

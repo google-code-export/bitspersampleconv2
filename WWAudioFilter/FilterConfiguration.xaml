@@ -7,7 +7,7 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="36" />
         </Grid.RowDefinitions>
-        <ScrollViewer Name="scrollViewer1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
             <Grid>
                 <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBoxGain" VerticalAlignment="Top" Width="400">
                     <Grid>
@@ -26,7 +26,7 @@
                         <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitudeUnit" VerticalAlignment="Center" />
                         <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" Name="labelGainDBUnit" VerticalAlignment="Center" />
+                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" VerticalAlignment="Center" />
                         <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
                     </Grid>
                 </GroupBox>
@@ -45,10 +45,10 @@
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" Grid.Row="0" Content="Cutoff frequency:" Name="labelLpfCutoff" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxLpfCutoff" Text="20000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label Grid.Column="2" Grid.Row="0" Content="Hz" Name="labelLpfCutoffUnit" VerticalAlignment="Center" />
+                        <Label Grid.Column="2" Grid.Row="0" Content="Hz" VerticalAlignment="Center" />
                         <Label Grid.Column="0" Grid.Row="1" Content="Gain roll off slopes:" Name="labelLpfSlope" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxLpfSlope" Text="600" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label Grid.Column="2" Grid.Row="1" Content="dB/oct" Name="labelLpfSlopeUnit" VerticalAlignment="Center" />
+                        <Label Grid.Column="2" Grid.Row="1" Content="dB/oct" VerticalAlignment="Center" />
                         <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelLpfLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
                         <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxLpfLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
                             <ComboBoxItem Content="255" />

@@ -9,7 +9,7 @@ namespace WWAudioFilter {
 
         public WWRadix2Fft(int numPoints) {
             if (!IsPowerOfTwo(numPoints) || numPoints < 2) {
-                throw new ArgumentException();
+                throw new ArgumentException("numPoints must be power of two integer and larger than 2");
             }
             mNumPoints = numPoints;
 
@@ -32,11 +32,15 @@ namespace WWAudioFilter {
             }
         }
 
-        private bool IsPowerOfTwo(int x) {
+        private static int Pow2(int x) {
+            return 1 << x;
+        }
+
+        private static bool IsPowerOfTwo(int x) {
             return (x != 0) && ((x & (x - 1)) == 0);
         }
 
-        private uint BitReversal(int numOfBits, uint v) {
+        private static uint BitReversal(int numOfBits, uint v) {
             uint r = v;
             int s = numOfBits - 1;
 
@@ -54,7 +58,8 @@ namespace WWAudioFilter {
             return r;
         }
 
-        private void Butterfly(WWComplex vFrom0, WWComplex vFrom1, WWComplex wn, WWComplex[] vTo, int toPos) {
+        /*
+        private static void Butterfly(WWComplex vFrom0, WWComplex vFrom1, WWComplex wn, WWComplex[] vTo, int toPos) {
             vTo[toPos].CopyFrom(vFrom0);
             var t = new WWComplex(vFrom1);
             t.Mul(wn);
@@ -64,11 +69,14 @@ namespace WWAudioFilter {
             t.Mul(-1);
             vTo[toPos + 1].Mul(t);
         }
+        */
 
         public void ForwardFft(WWComplex[] aFrom, WWComplex[] aTo) {
-            if (aFrom == null || aFrom.Length != mNumPoints
-                    || aTo == null || aTo.Length != mNumPoints) {
-                throw new ArgumentException();
+            if (aFrom == null || aFrom.Length != mNumPoints) {
+                throw new ArgumentOutOfRangeException("aFrom");
+            }
+            if (aTo == null || aTo.Length != mNumPoints) {
+                throw new ArgumentOutOfRangeException("aTo");
             }
 
             var aTmp0 = new WWComplex[mNumPoints];
@@ -110,7 +118,7 @@ namespace WWAudioFilter {
 
         private void FftStageN(int stageNr, WWComplex[] x, WWComplex[] y) {
             /*
-             * stage0: 2つの入力データにバタフライ演算 (n=8の時) 4回 (nRepeat=4, nSubRepeat=2)
+             * stage0: 2つの入力データにバタフライ演算 (length=8の時) 4回 (nRepeat=4, nSubRepeat=2)
              * y[0] = x[0] + w_n^(0*4) * x[1]
              * y[1] = x[0] + w_n^(1*4) * x[1]
              *
@@ -125,7 +133,7 @@ namespace WWAudioFilter {
              */
 
             /*
-             * stage1: 4つの入力データにバタフライ演算 (n=8の時) 2回 (nRepeat=2, nSubRepeat=4)
+             * stage1: 4つの入力データにバタフライ演算 (length=8の時) 2回 (nRepeat=2, nSubRepeat=4)
              * y[0] = x[0] + w_n^(0*2) * x[2]
              * y[1] = x[1] + w_n^(1*2) * x[3]
              * y[2] = x[0] + w_n^(2*2) * x[2]
@@ -138,7 +146,7 @@ namespace WWAudioFilter {
              */
 
             /*
-             * stage2: 8つの入力データにバタフライ演算 (n=8の時) 1回 (nRepeat=1, nSubRepeat=8)
+             * stage2: 8つの入力データにバタフライ演算 (length=8の時) 1回 (nRepeat=1, nSubRepeat=8)
              * y[0] = x[0] + w_n^(0*1) * x[4]
              * y[1] = x[1] + w_n^(1*1) * x[5]
              * y[2] = x[2] + w_n^(2*1) * x[6]
@@ -190,10 +198,5 @@ namespace WWAudioFilter {
                 }
             }
         }
-
-        private int Pow2(int x) {
-            return 1<<x;
-        }
-
     }
 }

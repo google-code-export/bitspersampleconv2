@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 
+[assembly: CLSCompliant(true)]
 namespace WWAudioFilter {
     /// <summary>
     /// App.xaml の相互作用ロジック

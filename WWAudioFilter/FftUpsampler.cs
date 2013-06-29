@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace WWAudioFilter {
     class FftUpsampler : FilterBase {
@@ -13,7 +14,7 @@ namespace WWAudioFilter {
         public FftUpsampler(int factor)
                 : base(FilterType.FftUpsampler) {
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
-                throw new ArgumentException();
+                throw new ArgumentException("factor must be power of two integer and larger than 1");
             }
             Factor = factor;
 
@@ -27,11 +28,11 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(Properties.Resources.FilterFftUpsampleDesc, Factor);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterFftUpsampleDesc, Factor);
         }
 
         public override string ToSaveText() {
-            return string.Format("{0}", Factor);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", Factor);
         }
 
         public static FilterBase Restore(string[] tokens) {

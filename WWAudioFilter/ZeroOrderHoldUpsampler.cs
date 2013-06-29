@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace WWAudioFilter {
     class ZeroOrderHoldUpsampler : FilterBase {
         public int Factor { get; set; }
 
         public ZeroOrderHoldUpsampler(int factor)
-                : base(FilterType.ZOH) {
+                : base(FilterType.ZohUpsampler) {
             if (factor <= 1 || !IsPowerOfTwo(factor)) {
-                throw new ArgumentException();
+                throw new ArgumentException("factor must be power of two integer and larger than 1");
             }
 
             Factor = factor;
@@ -21,11 +22,11 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(Properties.Resources.FilterZOHDesc, Factor);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterZOHDesc, Factor);
         }
 
         public override string ToSaveText() {
-            return string.Format("{0}", Factor);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", Factor);
         }
 
         public static FilterBase Restore(string[] tokens) {

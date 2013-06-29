@@ -4,32 +4,37 @@ namespace WWAudioFilter {
     /// <summary>
     /// 窓関数置き場。
     /// </summary>
-    public class WWWindowFunc {
+    sealed public class WWWindowFunc {
+        private WWWindowFunc() {
+        }
+
         /// <summary>
         /// ブラックマン窓
         /// </summary>
         /// <param name="window">[out]窓Wk 左右対称の形状が出てくる。</param>
-        /// <param name="n">窓の長さn(nは奇数) 要素番号(n-1)/2が山のピーク</param>
-        public static void BlackmanWindow(int n, out double [] window) {
+        /// <returns>窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク</returns>
+        public static double [] BlackmanWindow(int length) {
             // nは奇数
-            System.Diagnostics.Debug.Assert((n & 1) == 1);
+            System.Diagnostics.Debug.Assert((length & 1) == 1);
 
-            window = new double[n];
+            var window = new double[length];
 
             // 教科書通りに計算すると両端の値が0.0になって
-            // せっかくのデータが0にされて勿体無いので両端(pos==0とpos==n-1)の値はカットし、両端を1ずつ広げる
-            int m = n + 1;
-            for (int i=0; i < n; ++i) {
+            // せっかくのデータが0にされて勿体無いので両端(pos==0とpos==length-1)の値はカットし、両端を1ずつ広げる
+            int m = length + 1;
+            for (int i=0; i < length; ++i) {
                 int pos = i + 1;
                 double v = 0.42 - 0.5 * Math.Cos(2.0 * Math.PI * pos / m) + 0.08 * Math.Cos(4.0 * Math.PI * pos / m);
                 window[i] = v;
             }
+
+            return window;
         }
 
         /// <summary>
         /// 0以上の整数値vの階乗
         /// </summary>
-        /// <param name="v"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
         private static long Factorial(int v) {
             System.Diagnostics.Debug.Assert(0 <= v);
@@ -67,20 +72,20 @@ namespace WWAudioFilter {
         /// <summary>
         /// カイザー窓
         /// </summary>
-        /// <param name="n">窓の長さn(nは奇数) 要素番号(n-1)/2が山のピーク</param>
+        /// <param name="length">窓の長さn(nは奇数) 要素番号(length-1)/2が山のピーク</param>
         /// <param name="alpha">Kaiser窓のパラメータα</param>
-        /// <param name="window">[out]窓Wk 左右対称の形状が出てくる。</param>
-        public static void KaiserWindow(int n, double alpha, out double[] window) {
+        /// <returns>窓Wk 左右対称の形状が出てくる。</returns>
+        public static double [] KaiserWindow(int length, double alpha) {
             // nは奇数
-            System.Diagnostics.Debug.Assert((n & 1) == 1);
+            System.Diagnostics.Debug.Assert((length & 1) == 1);
 
             // αは4より大きく9より小さい
             System.Diagnostics.Debug.Assert(4 <= alpha && alpha <= 9);
 
             // カイザー窓は両端の値が0にならないので普通に計算する。
-            window = new double[n];
-            int m = n-1;
-            for (int i=0; i < n; ++i) {
+            var window = new double[length];
+            int m = length-1;
+            for (int i=0; i < length; ++i) {
                 int pos = i;
 
                 // 分母i0d
@@ -93,6 +98,8 @@ namespace WWAudioFilter {
 
                 window[i] = i0n / i0d;
             }
+
+            return window;
         }
     }
 }

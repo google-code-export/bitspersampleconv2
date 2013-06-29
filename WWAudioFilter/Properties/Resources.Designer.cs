@@ -187,6 +187,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Filter file version mismatch. expected version={0}, file version={1} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorFilterFileVersionMismatch {
+            get {
+                return ResourceManager.GetString("ErrorFilterFileVersionMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Please input gain value in number に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorGainValueIsNan {
@@ -205,7 +214,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Please input Lowpass filter cutoff frequency in number に類似しているローカライズされた文字列を検索します。
+        ///   Please input Low pass filter cutoff frequency in number に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorLpfCutoffFreqIsNan {
             get {
@@ -214,7 +223,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Please input Lowpass filter cutoff frequency larger than 0.0 に類似しているローカライズされた文字列を検索します。
+        ///   Please input Low pass filter cutoff frequency larger than 0.0 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorLpfCutoffFreqIsNegative {
             get {
@@ -223,7 +232,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Please input Lowpass filter slope in number に類似しているローカライズされた文字列を検索します。
+        ///   Please input Low pass filter slope in number に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorLpfSlopeIsNan {
             get {
@@ -232,7 +241,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Please input Lowpass filter slope larger than 1 に類似しているローカライズされた文字列を検索します。
+        ///   Please input Low pass filter slope larger than 1 に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorLpfSlopeIsTooSmall {
             get {
@@ -458,7 +467,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   FLAC num of frames is not aligned に類似しているローカライズされた文字列を検索します。
+        ///   FLAC number of frames is not aligned に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FlacErrorNumFrameIsNotAligned {
             get {
@@ -476,7 +485,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   FLAC recv buffer size is insufficient に類似しているローカライズされた文字列を検索します。
+        ///   FLAC receive buffer size is insufficient に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FlacErrorRecvBufferSizeInsufficient {
             get {
@@ -557,7 +566,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   FIR Linear-Phase Lowpass Filter に類似しているローカライズされた文字列を検索します。
+        ///   FIR Linear-Phase Low pass Filter に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupLPF {
             get {
@@ -575,7 +584,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Upsampling に類似しているローカライズされた文字列を検索します。
+        ///   Upsampler に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupUpsampler {
             get {
@@ -713,7 +722,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Process completed. now writing...
+        ///   Process completed. now writing to {0} ...
         /// に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string LogfileWriteStarted {

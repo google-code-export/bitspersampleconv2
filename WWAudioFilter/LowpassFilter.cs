@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
@@ -21,14 +22,14 @@ namespace WWAudioFilter {
         private bool mFirstFilterDo;
 
         public LowpassFilter(double cutoffFrequency, int filterLength, int filterSlopeDbOct)
-                : base(FilterType.LPF) {
+                : base(FilterType.LowPassFilter) {
             if (cutoffFrequency < 0.0) {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("cutoffFrequency");
             }
             CutoffFrequency = cutoffFrequency;
 
             if (!IsPowerOfTwo(filterLength+1)) {
-                throw new ArgumentException();
+                throw new ArgumentException("filterLength +1 must be power of two integer");
             }
             FilterLength = filterLength;
 
@@ -39,7 +40,7 @@ namespace WWAudioFilter {
             System.Diagnostics.Debug.Assert(IsPowerOfTwo(FILTER_LENP1) && IsPowerOfTwo(FFT_LEN) && FILTER_LENP1 < FFT_LEN);
 
             if (filterSlopeDbOct <= 0) {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("filterSlopeDbOct");
             }
             FilterSlopeDbOct = filterSlopeDbOct;
         }
@@ -72,11 +73,11 @@ namespace WWAudioFilter {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(Properties.Resources.FilterLpfDesc, CutoffFrequency, FilterSlopeDbOct, FilterLength);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterLpfDesc, CutoffFrequency, FilterSlopeDbOct, FilterLength);
         }
 
         public override string ToSaveText() {
-            return string.Format("{0} {1} {2}", CutoffFrequency, FilterLength, FilterSlopeDbOct);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", CutoffFrequency, FilterLength, FilterSlopeDbOct);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -90,12 +91,12 @@ namespace WWAudioFilter {
             }
 
             int filterLength;
-            if (!Int32.TryParse(tokens[1], out filterLength) || filterLength <= 0 || !IsPowerOfTwo(filterLength+1)) {
+            if (!Int32.TryParse(tokens[2], out filterLength) || filterLength <= 0 || !IsPowerOfTwo(filterLength+1)) {
                 return null;
             }
 
             int filterSlope;
-            if (!Int32.TryParse(tokens[1], out filterSlope) || filterSlope <= 0) {
+            if (!Int32.TryParse(tokens[3], out filterSlope) || filterSlope <= 0) {
                 return null;
             }
 
@@ -160,8 +161,7 @@ namespace WWAudioFilter {
             fromT = null;
 
             // Kaiser窓をかける
-            double [] w;
-            WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 9.0, out w);
+            var w = WWWindowFunc.KaiserWindow(FILTER_LENP1 + 1, 9.0);
             for (int i=0; i < FILTER_LENP1; ++i) {
                 delayT[i].Mul(w[i]);
             }

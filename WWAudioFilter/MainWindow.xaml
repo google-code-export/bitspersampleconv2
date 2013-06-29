@@ -27,7 +27,7 @@
                     <ColumnDefinition Width="4*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="1" Name="stackPanelFilterButtons">
+                <StackPanel Grid.Column="1">
                     <Button Content="_Add new filter" Name="buttonFilterAdd" Width="Auto" Margin="6,6,6,0" Click="buttonFilterAdd_Click" />
                     <Button Content="_Edit selected" Name="buttonFilterEdit" Width="Auto" Margin="6,6,6,0" Click="buttonFilterEdit_Click" />
                     <Button Content="_Delete selected" Name="buttonFilterDelete" Width="Auto" Margin="6,6,6,0" Click="buttonFilterDelete_Click" />
