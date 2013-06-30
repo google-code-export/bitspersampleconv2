@@ -117,8 +117,8 @@ namespace WWAudioFilter {
             byte encoding = 0;
             var mimeTypeUtf8 = System.Text.Encoding.UTF8.GetBytes("image/jpeg");
             byte pictureType = 3;
-            byte [] descriptionUtf8 = new byte[1];
-            uint size = (uint)(1 + mimeTypeUtf8.Length + 1 + 1 + descriptionUtf8.Length + picture.Length);
+            byte description = 0;
+            uint size = (uint)(1 + mimeTypeUtf8.Length + 1 + 1 + 1 + picture.Length);
 
             WriteBE4(frameId, ref to);
             WriteBE4(size, ref to);
@@ -131,8 +131,7 @@ namespace WWAudioFilter {
 
             to.Add(pictureType);
 
-            foreach (var v in descriptionUtf8) { to.Add(v); }
-            to.Add((byte)0);
+            to.Add(description);
 
             foreach (var v in picture) { to.Add(v); }
         }
