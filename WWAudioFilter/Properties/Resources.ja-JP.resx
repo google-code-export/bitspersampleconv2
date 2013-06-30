@@ -291,9 +291,12 @@
     <value>出力量子化ビット数の欄に1～23の範囲の整数を入れて下さい</value>
   </data>
   <data name="GroupNoiseShaping" xml:space="preserve">
-    <value>ノイズシェイピング(2次のMASH)</value>
+    <value>ノイズシェイピング(2次)</value>
   </data>
   <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
     <value>出力量子化ビット数:</value>
+  </data>
+  <data name="FilterNoiseShapingDesc" xml:space="preserve">
+    <value>ノイズシェイピング: {0}次, 出力量子化ビット数={1}</value>
   </data>
 </root>

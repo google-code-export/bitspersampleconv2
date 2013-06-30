@@ -360,9 +360,12 @@
     <value>Prease input Target Quantization Bit Rate in integer in the range of 1 to 23</value>
   </data>
   <data name="GroupNoiseShaping" xml:space="preserve">
-    <value>Noise Shaping (2nd Order MASH)</value>
+    <value>Noise Shaping (2nd Order)</value>
   </data>
   <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
     <value>Target Quantized Bit Rate:</value>
+  </data>
+  <data name="FilterNoiseShapingDesc" xml:space="preserve">
+    <value>noise shaping: order={0}, targetBitsPerSample={1}</value>
   </data>
 </root>

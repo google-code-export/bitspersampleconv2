@@ -79,22 +79,24 @@ namespace WWAudioFilter {
             */
             WriteBE4(frameId, ref to);
 
-            var sUtf8 = System.Text.Encoding.UTF8.GetBytes(s);
+            var sUnicode = System.Text.Encoding.Unicode.GetBytes(s);
 
-            uint size = 1 + (uint)sUtf8.Length + 1;
+            uint size = 1 + 2 + (uint)sUnicode.Length + 2;
             WriteBE4(size, ref to);
 
             ushort flags = 0;
             WriteBE2(flags, ref to);
 
-            byte encoding = 3;
+            byte encoding = 1;
             to.Add(encoding);
 
-            foreach (var v in sUtf8) {
+            to.Add((byte)0xff);
+            to.Add((byte)0xfe);
+            foreach (var v in sUnicode) {
                 to.Add(v);
             }
-
-            to.Add(0);
+            to.Add((byte)0);
+            to.Add((byte)0);
         }
 
         // ID3のPicture Frameをtoに書き込む
@@ -112,7 +114,7 @@ namespace WWAudioFilter {
              */
 
             ushort flags = 0;
-            byte encoding = 3;
+            byte encoding = 0;
             var mimeTypeUtf8 = System.Text.Encoding.UTF8.GetBytes("image/jpeg");
             byte pictureType = 3;
             byte [] descriptionUtf8 = new byte[1];
@@ -125,12 +127,12 @@ namespace WWAudioFilter {
             to.Add(encoding);
 
             foreach (var v in mimeTypeUtf8) { to.Add(v); }
-            to.Add(0);
+            to.Add((byte)0);
 
             to.Add(pictureType);
 
             foreach (var v in descriptionUtf8) { to.Add(v); }
-            to.Add(0);
+            to.Add((byte)0);
 
             foreach (var v in picture) { to.Add(v); }
         }

@@ -332,6 +332,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   noise shaping: order={0}, targetBitsPerSample={1} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterNoiseShapingDesc {
+            get {
+                return ResourceManager.GetString("FilterNoiseShapingDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   FLAC files|*.flac|DSF files|*.dsf に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterWriteAudioFiles {
@@ -611,7 +620,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Noise Shaping (2nd Order MASH) に類似しているローカライズされた文字列を検索します。
+        ///   Noise Shaping (2nd Order) に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupNoiseShaping {
             get {

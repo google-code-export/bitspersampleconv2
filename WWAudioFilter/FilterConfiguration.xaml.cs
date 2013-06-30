@@ -292,7 +292,7 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mFilter = new MashFilter(nBit);
+            mFilter = new NoiseShapingFilter(nBit, 2);
             DialogResult = true;
             Close();
         }

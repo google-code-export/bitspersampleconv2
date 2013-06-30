@@ -1,4 +1,6 @@
-﻿using System;
+﻿// under construction
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -152,12 +154,6 @@ namespace WWAudioFilter {
                 mDelayX = x;
 
                 double y1q = x;
-                if (y1q > Int32.MaxValue) {
-                    y1q = Int32.MaxValue;
-                }
-                if (y1q < Int32.MinValue) {
-                    y1q = Int32.MinValue;
-                }
 
                 int sampleY = (0 <= y1q) ? Int32.MaxValue : Int32.MinValue;
                 mDelayY = sampleY;
@@ -197,6 +193,7 @@ namespace WWAudioFilter {
                 mDelayY2 = y2;
 
                 r *= 256;
+
                 if (r > Int32.MaxValue) {
                     r = Int32.MaxValue;
                 }

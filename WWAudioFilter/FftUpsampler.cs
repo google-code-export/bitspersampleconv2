@@ -132,7 +132,7 @@ namespace WWAudioFilter {
             var outPcmT = new WWComplex[UPSAMPLE_FFT_LENGTH];
             {
                 var fft = new WWRadix2Fft(UPSAMPLE_FFT_LENGTH);
-                fft.InverseFft(outPcmF, outPcmT, 1.0 / (UPSAMPLE_FFT_LENGTH / 2));
+                fft.InverseFft(outPcmF, outPcmT, 1.0 / FFT_LENGTH);
             }
             outPcmF = null;
 

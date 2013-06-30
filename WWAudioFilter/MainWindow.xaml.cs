@@ -233,13 +233,14 @@ namespace WWAudioFilter {
                         // set 1bit data (from LSB to MSB) into 8bit buffer
                         writePosBytes = writeOffs / 8;
                         for (long i=0; i < copyCount / 8; ++i) {
+                            byte sampleValue = 0;
                             for (int subPos = 0; subPos < 8; ++subPos) {
-                                byte bit = (0 <= pcm[readPos]) ? (byte)1 : (byte)0;
-                                data[writePosBytes] <<= 1;
-                                data[writePosBytes] |= bit;
+                                byte bit = (0 <= pcm[readPos]) ? (byte)(1<<subPos) : (byte)0;
+                                sampleValue |= bit;
 
                                 ++readPos;
                             }
+                            data[writePosBytes] = sampleValue;
                             ++writePosBytes;
                         }
                     }
@@ -751,6 +752,11 @@ namespace WWAudioFilter {
             progressBar1.IsEnabled = false;
             progressBar1.Value = 0;
 
+            groupBoxInputFile.IsEnabled = true;
+            groupBoxFilterSettings.IsEnabled = true;
+            groupBoxOutputFile.IsEnabled = true;
+            buttonStartConversion.IsEnabled = true;
+
             if (rv < 0) {
                 var s = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}\r\n", Properties.Resources.Error, rv, ErrorCodeToStr(rv));
                 MessageBox.Show(s, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -974,6 +980,11 @@ namespace WWAudioFilter {
             textBoxLog.Text += string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogFileReadStarted, textBoxInputFile.Text);
             progressBar1.Value = 0;
             progressBar1.IsEnabled = true;
+
+            groupBoxInputFile.IsEnabled = false;
+            groupBoxFilterSettings.IsEnabled = false;
+            groupBoxOutputFile.IsEnabled = false;
+            buttonStartConversion.IsEnabled = false;
 
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
         }

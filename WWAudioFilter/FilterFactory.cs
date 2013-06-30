@@ -27,6 +27,8 @@ namespace WWAudioFilter {
                 return FftUpsampler.Restore(tokens);
             case "Mash2":
                 return MashFilter.Restore(tokens);
+            case "NoiseShaping":
+                return NoiseShapingFilter.Restore(tokens);
             default:
                 return null;
             }
