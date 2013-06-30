@@ -212,10 +212,10 @@ namespace PlayPcmWin {
                 }
                 break;
             case 2: // UTF-16BE without BOM
-                result = System.Text.Encoding.BigEndianUnicode.GetString(text, 2, text.Length - 2).Trim(new char[] { '\0' });
+                result = System.Text.Encoding.BigEndianUnicode.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
                 break;
             case 3: // UTF-8
-                result = System.Text.Encoding.UTF8.GetString(text, 2, text.Length - 2).Trim(new char[] { '\0' });
+                result = System.Text.Encoding.UTF8.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
                 break;
             default:
                 // Unknown encoding!
