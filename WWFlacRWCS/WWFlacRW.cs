@@ -59,14 +59,44 @@ namespace WWFlacRWCS {
         }
     };
 
+    public enum FlacErrorCode {
+        OK = 0,
+        DataNotReady = -2,
+        WriteOpenFailed = -3,
+        StreamDecoderNewFailed = -4,
+        StreamDecoderInitFailed = -5,
+        DecoderProcessFailed = -6,
+        LostSync = -7,
+        BadHeader = -8,
+        FrameCrcMismatch = -9,
+        Unparseable = -10,
+        NumFrameIsNotAligned = -11,
+        RecvBufferSizeInsufficient = -12,
+        Other = -13,
+        FileReadOpen = -14,
+        BufferSizeMismatch = -15,
+        MemoryExhausted = -16,
+        Encoder = -17,
+        InvalidNumberOfChannels = -18,
+        InvalidBitsPerSample = -19,
+        InvalidSampleRate = -20,
+        InvalidMetadata = -21,
+        BadParams = -22,
+        IdNotFound = -23,
+        EncoderProcessFailed = -24,
+    };
+
     public class FlacRW {
+        private int mId = (int)FlacErrorCode.IdNotFound;
+
         public int DecodeAll(string path) {
-            return NativeMethods.WWFlacRW_DecodeAll(path);
+            mId = NativeMethods.WWFlacRW_DecodeAll(path);
+            return mId;
         }
 
-        public int GetDecodedMetadata(int id, out Metadata meta) {
+        public int GetDecodedMetadata(out Metadata meta) {
             NativeMethods.Metadata nMeta;
-            int result = NativeMethods.WWFlacRW_GetDecodedMetadata(id, out nMeta);
+            int result = NativeMethods.WWFlacRW_GetDecodedMetadata(mId, out nMeta);
             meta = new Metadata();
             if (0 <= result) {
                 meta.sampleRate     = nMeta.sampleRate;
@@ -88,18 +118,19 @@ namespace WWFlacRWCS {
             return result;
         }
 
-        public int GetDecodedPicture(int id, out byte [] pictureReturn, int pictureBytes) {
+        public int GetDecodedPicture(out byte [] pictureReturn, int pictureBytes) {
             pictureReturn = new byte[pictureBytes];
-            return NativeMethods.WWFlacRW_GetDecodedPicture(id, pictureReturn, pictureReturn.Length);
+            return NativeMethods.WWFlacRW_GetDecodedPicture(mId, pictureReturn, pictureReturn.Length);
         }
 
-        public long GetDecodedPcmBytes(int id, int channel, long startBytes, out byte[] pcmReturn, long pcmBytes) {
+        public long GetDecodedPcmBytes(int channel, long startBytes, out byte[] pcmReturn, long pcmBytes) {
             pcmReturn = new byte[pcmBytes];
-            return NativeMethods.WWFlacRW_GetDecodedPcmBytes(id, channel, startBytes, pcmReturn, pcmReturn.LongLength);
+            return NativeMethods.WWFlacRW_GetDecodedPcmBytes(mId, channel, startBytes, pcmReturn, pcmReturn.LongLength);
         }
 
-        public int DecodeEnd(int id) {
-            return NativeMethods.WWFlacRW_DecodeEnd(id);
+        public void DecodeEnd() {
+            NativeMethods.WWFlacRW_DecodeEnd(mId);
+            mId = (int)FlacErrorCode.IdNotFound;
         }
 
         public int EncodeInit(Metadata meta) {
@@ -119,27 +150,29 @@ namespace WWFlacRWCS {
             nMeta.pictureMimeTypeStr = meta.pictureMimeTypeStr;
             nMeta.pictureDescriptionStr = meta.pictureDescriptionStr;
             nMeta.md5sum = meta.md5sum;
-            return NativeMethods.WWFlacRW_EncodeInit(nMeta);
+            mId = NativeMethods.WWFlacRW_EncodeInit(nMeta);
+            return mId;
         }
 
-        public int EncodeSetPicture(int id, byte[] pictureData) {
+        public int EncodeSetPicture(byte[] pictureData) {
             if (pictureData == null || pictureData.Length == 0) {
                 return 0;
             }
 
-            return NativeMethods.WWFlacRW_EncodeSetPicture(id, pictureData, pictureData.Length);
+            return NativeMethods.WWFlacRW_EncodeSetPicture(mId, pictureData, pictureData.Length);
         }
 
-        public int EncodeAddPcm(int id, int channel, byte[] pcmData) {
-            return NativeMethods.WWFlacRW_EncodeAddPcm(id, channel, pcmData, pcmData.LongLength);
+        public int EncodeAddPcm(int channel, byte[] pcmData) {
+            return NativeMethods.WWFlacRW_EncodeAddPcm(mId, channel, pcmData, pcmData.LongLength);
         }
 
-        public int EncodeRun(int id, string path) {
-            return NativeMethods.WWFlacRW_EncodeRun(id, path);
+        public int EncodeRun(string path) {
+            return NativeMethods.WWFlacRW_EncodeRun(mId, path);
         }
         
-        public int EncodeEnd(int id) {
-            return NativeMethods.WWFlacRW_EncodeEnd(id);
+        public void EncodeEnd() {
+            NativeMethods.WWFlacRW_EncodeEnd(mId);
+            mId = (int)FlacErrorCode.IdNotFound;
         }
     }
 

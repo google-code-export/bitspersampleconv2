@@ -66,6 +66,9 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>WWAudioFilter.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -87,8 +90,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="FftUpsampler.cs" />
+    <Compile Include="MashFilter.cs" />
     <Compile Include="WWComplex.cs" />
     <Compile Include="LowpassFilter.cs" />
+    <Compile Include="WWDsfWriter.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWWindowFunc.cs" />
     <Compile Include="ZeroOrderHoldUpsampler.cs" />

@@ -53,6 +53,10 @@ namespace WWAudioFilter {
             labelLpfLen.Content = Properties.Resources.LabelFilterLength;
             labelLpfLenUnit.Content = Properties.Resources.LabelSamples;
             buttonUseLpf.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
+            labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
+            buttonUseNoiseShaping.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
         public FilterBase Filter {
@@ -87,6 +91,10 @@ namespace WWAudioFilter {
                 textBoxLpfCutoff.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.CutoffFrequency);
                 comboBoxLpfLen.SelectedIndex = (int)LpfLenToLpfLenType(lpf.FilterLength);
                 textBoxLpfSlope.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.FilterSlopeDbOct);
+                break;
+            case FilterType.Mash2:
+                var mash = filter as MashFilter;
+                textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", mash.TargetBitsPerSample);
                 break;
             }
         }
@@ -269,6 +277,22 @@ namespace WWAudioFilter {
             int filterLength = LpfLenTypeToLpfLen(comboBoxLpfLen.SelectedIndex);
 
             mFilter = new LowpassFilter(v, filterLength, slope);
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseNoiseShaping_Click(object sender, RoutedEventArgs e) {
+            int nBit;
+            if (!Int32.TryParse(textBoxNoiseShapingTargetBit.Text, out nBit)) {
+                MessageBox.Show(Properties.Resources.ErrorNoiseShapingBitIsNan);
+                return;
+            }
+            if (nBit < 1 || 23 < nBit) {
+                MessageBox.Show(Properties.Resources.ErrorNoiseShapingBitIsOutOfRange);
+                return;
+            }
+
+            mFilter = new MashFilter(nBit);
             DialogResult = true;
             Close();
         }

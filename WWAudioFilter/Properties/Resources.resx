@@ -347,4 +347,22 @@
   <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
     <value>Filter file version mismatch. expected version={0}, file version={1}</value>
   </data>
+  <data name="FilterMashDesc" xml:space="preserve">
+    <value>2nd order MASH noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLAC files|*.flac|DSF files|*.dsf</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
+    <value>Prease input Target Quantization Bit Rate in number</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsOutOfRange" xml:space="preserve">
+    <value>Prease input Target Quantization Bit Rate in integer in the range of 1 to 23</value>
+  </data>
+  <data name="GroupNoiseShaping" xml:space="preserve">
+    <value>Noise Shaping (2nd Order MASH)</value>
+  </data>
+  <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
+    <value>Target Quantized Bit Rate:</value>
+  </data>
 </root>

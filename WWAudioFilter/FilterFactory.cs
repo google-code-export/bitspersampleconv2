@@ -14,6 +14,8 @@ namespace WWAudioFilter {
                 return null;
             }
 
+            // Refer FilterType enum in FilterBase.cs
+
             switch (tokens[0]) {
             case "Gain":
                 return GainFilter.Restore(tokens);
@@ -23,6 +25,8 @@ namespace WWAudioFilter {
                 return LowpassFilter.Restore(tokens);
             case "FftUpsampler":
                 return FftUpsampler.Restore(tokens);
+            case "Mash2":
+                return MashFilter.Restore(tokens);
             default:
                 return null;
             }

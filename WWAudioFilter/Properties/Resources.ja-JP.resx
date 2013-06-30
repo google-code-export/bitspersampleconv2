@@ -121,7 +121,7 @@
     <value>フィルター追加</value>
   </data>
   <data name="ButtonBrowseB" xml:space="preserve">
-    <value>参照(B)...</value>
+    <value>参照(_B)...</value>
   </data>
   <data name="ButtonDeleteSelected" xml:space="preserve">
     <value>選択項目削除</value>
@@ -130,7 +130,7 @@
     <value>選択項目編集</value>
   </data>
   <data name="ButtonLoadSettings" xml:space="preserve">
-    <value>設定を読み込み(L)...</value>
+    <value>設定を読み込み(_L)...</value>
   </data>
   <data name="ButtonMoveDownSelected" xml:space="preserve">
     <value>1つ下に移動</value>
@@ -277,5 +277,23 @@
   </data>
   <data name="ErrorFilterFileVersionMismatch" xml:space="preserve">
     <value>フィルター定義ファイルのバージョンが新しすぎるか古すぎるかして読めませんでした。 プログラムが読めるバージョン={0}, ファイルのバージョン={1}</value>
+  </data>
+  <data name="FilterMashDesc" xml:space="preserve">
+    <value>2次MASHノイズシェイピング: 出力量子化ビット数={0}</value>
+  </data>
+  <data name="FilterWriteAudioFiles" xml:space="preserve">
+    <value>FLACファイル|*.flac|DSFファイル|*.dsf</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsNan" xml:space="preserve">
+    <value>出力量子化ビット数の欄に数字を入れて下さい</value>
+  </data>
+  <data name="ErrorNoiseShapingBitIsOutOfRange" xml:space="preserve">
+    <value>出力量子化ビット数の欄に1～23の範囲の整数を入れて下さい</value>
+  </data>
+  <data name="GroupNoiseShaping" xml:space="preserve">
+    <value>ノイズシェイピング(2次のMASH)</value>
+  </data>
+  <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
+    <value>出力量子化ビット数:</value>
   </data>
 </root>

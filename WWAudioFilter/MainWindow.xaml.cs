@@ -193,7 +193,7 @@ namespace WWAudioFilter {
 
                 switch (bitsPerSample) {
                 case 16:
-                    for (var i=0; i < copyCount; ++i) {
+                    for (long i=0; i < copyCount; ++i) {
                         short v = (short)((data[offsBytes]) + (data[offsBytes + 1] << 8));
                         result[i] = v * (1.0 / 32768.0);
                         offsBytes += 2;
@@ -201,7 +201,7 @@ namespace WWAudioFilter {
                     break;
 
                 case 24:
-                    for (var i=0; i < copyCount; ++i) {
+                    for (long i=0; i < copyCount; ++i) {
                         int v = (int)((data[offsBytes] << 8) + (data[offsBytes + 1] << 16) + (data[offsBytes + 2] << 24));
                         result[i] = v * (1.0 / 2147483648.0);
                         offsBytes += 3;
@@ -215,6 +215,10 @@ namespace WWAudioFilter {
             }
 
             public void SetPcmInDouble(double[] pcm, long writeOffs) {
+                if (0 != (writeOffs & 7)) {
+                    throw new ArgumentException("writeOffs must be multiple of 8");
+                }
+
                 var copyCount = pcm.LongLength;
                 if (totalSamples < writeOffs + copyCount) {
                     copyCount = totalSamples - writeOffs;
@@ -222,9 +226,27 @@ namespace WWAudioFilter {
 
                 long writePosBytes;
                 switch (bitsPerSample) {
+                case 1:
+                    {
+                        long readPos = 0;
+
+                        // set 1bit data (from LSB to MSB) into 8bit buffer
+                        writePosBytes = writeOffs / 8;
+                        for (long i=0; i < copyCount / 8; ++i) {
+                            for (int subPos = 0; subPos < 8; ++subPos) {
+                                byte bit = (0 <= pcm[readPos]) ? (byte)1 : (byte)0;
+                                data[writePosBytes] <<= 1;
+                                data[writePosBytes] |= bit;
+
+                                ++readPos;
+                            }
+                            ++writePosBytes;
+                        }
+                    }
+                    break;
                 case 16:
                     writePosBytes = writeOffs * 2;
-                    for (var i=0; i < copyCount; ++i) {
+                    for (long i=0; i < copyCount; ++i) {
                         short vS = 0;
                         double vD = pcm[i];
                         if (vD < -1.0f) {
@@ -254,7 +276,7 @@ namespace WWAudioFilter {
 
                 case 24:
                     writePosBytes = writeOffs * 3;
-                    for (var i=0; i < copyCount; ++i) {
+                    for (long i=0; i < copyCount; ++i) {
                         int vI = 0;
                         double vD = pcm[i];
                         if (vD < -1.0f) {
@@ -293,6 +315,7 @@ namespace WWAudioFilter {
             public WWFlacRWCS.Metadata meta;
             public List<AudioDataPerChannel> pcm;
             public byte [] picture;
+            public FileFormatType fileFormat;
         };
 
         class RunWorkerArgs {
@@ -318,18 +341,20 @@ namespace WWAudioFilter {
         private static int ReadFlacFile(string path, out AudioData ad) {
             ad = new AudioData();
 
-            var flacRW = new WWFlacRWCS.FlacRW();
-            int id = flacRW.DecodeAll(path);
-            if (id < 0) {
-                return id;
-            }
+            ad.fileFormat = FileFormatType.FLAC;
 
-            int rv = flacRW.GetDecodedMetadata(id, out ad.meta);
+            var flac = new WWFlacRWCS.FlacRW();
+            int rv = flac.DecodeAll(path);
             if (rv < 0) {
                 return rv;
             }
 
-            rv = flacRW.GetDecodedPicture(id, out ad.picture, ad.meta.pictureBytes);
+            rv = flac.GetDecodedMetadata(out ad.meta);
+            if (rv < 0) {
+                return rv;
+            }
+
+            rv = flac.GetDecodedPicture(out ad.picture, ad.meta.pictureBytes);
             if (rv < 0) {
                 return rv;
             }
@@ -337,7 +362,7 @@ namespace WWAudioFilter {
             ad.pcm = new List<AudioDataPerChannel>();
             for (int ch=0; ch < ad.meta.channels; ++ch) {
                 byte [] data;
-                long lrv = flacRW.GetDecodedPcmBytes(id, ch, 0, out data, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
+                long lrv = flac.GetDecodedPcmBytes(ch, 0, out data, ad.meta.totalSamples * (ad.meta.bitsPerSample / 8));
                 if (lrv < 0) {
                     return (int)lrv;
                 }
@@ -350,34 +375,73 @@ namespace WWAudioFilter {
                 ad.pcm.Add(adp);
             }
 
+            flac.DecodeEnd();
+
             return 0;
         }
 
         private static int WriteFlacFile(ref AudioData ad, string path) {
             int rv;
-            var flacRW = new WWFlacRWCS.FlacRW();
-            int id = flacRW.EncodeInit(ad.meta);
-            if (id < 0) {
-                return id;
+            var flac = new WWFlacRWCS.FlacRW();
+            rv = flac.EncodeInit(ad.meta);
+            if (rv < 0) {
+                return rv;
             }
 
-            rv = flacRW.EncodeSetPicture(id, ad.picture);
+            rv = flac.EncodeSetPicture(ad.picture);
             if (rv < 0) {
+                flac.EncodeEnd();
                 return rv;
             }
 
             for (int ch=0; ch < ad.meta.channels; ++ch) {
-                long lrv = flacRW.EncodeAddPcm(id, ch, ad.pcm[ch].data);
+                long lrv = flac.EncodeAddPcm(ch, ad.pcm[ch].data);
                 if (lrv < 0) {
+                    flac.EncodeEnd();
                     return (int)lrv;
                 }
             }
 
-            rv = flacRW.EncodeRun(id, path);
+            rv = flac.EncodeRun(path);
+            if (rv < 0) {
+                flac.EncodeEnd();
+                return rv;
+            }
+
+            flac.EncodeEnd();
+            return 0;
+        }
+
+        private static int WriteDsfFile(ref AudioData ad, string path) {
+            int rv;
+            var dsf = new WWDsfWriter();
+            
+            rv = dsf.EncodeInit(ad.meta);
             if (rv < 0) {
                 return rv;
             }
 
+            rv = dsf.EncodeSetPicture(ad.picture);
+            if (rv < 0) {
+                dsf.EncodeEnd();
+                return rv;
+            }
+
+            for (int ch=0; ch < ad.meta.channels; ++ch) {
+                long lrv = dsf.EncodeAddPcm(ch, ad.pcm[ch].data);
+                if (lrv < 0) {
+                    dsf.EncodeEnd();
+                    return (int)lrv;
+                }
+            }
+
+            rv = dsf.EncodeRun(path);
+            if (rv < 0) {
+                dsf.EncodeEnd();
+                return rv;
+            }
+
+            dsf.EncodeEnd();
             return 0;
         }
 
@@ -389,8 +453,14 @@ namespace WWAudioFilter {
             return fmt;
         }
 
-        private void SetupResultPcm(AudioData from, out AudioData to) {
+        enum FileFormatType {
+            FLAC,
+            DSF,
+        }
+
+        private void SetupResultPcm(AudioData from, out AudioData to, FileFormatType toFileFormat) {
             to = new AudioData();
+            to.fileFormat = toFileFormat;
 
             var fmt = FilterSetup(from, mFilters);
 
@@ -398,9 +468,17 @@ namespace WWAudioFilter {
             to.meta.sampleRate = fmt.SampleRate;
             to.meta.totalSamples = fmt.NumSamples;
             to.meta.channels = fmt.Channels;
+
+            switch (toFileFormat) {
+            case FileFormatType.FLAC:
 #if true
-            to.meta.bitsPerSample = 24;
+                to.meta.bitsPerSample = 24;
 #endif
+                break;
+            case FileFormatType.DSF:
+                to.meta.bitsPerSample = 1;
+                break;
+            }
 
             if (from.picture != null) {
                 to.picture = new byte[from.picture.Length];
@@ -410,7 +488,25 @@ namespace WWAudioFilter {
             // allocate "to" pcm data
             to.pcm = new List<AudioDataPerChannel>();
             for (int ch=0; ch < to.meta.channels; ++ch) {
-                var data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
+                byte [] data;
+
+                // set silent sample values to output buffer
+                switch (toFileFormat) {
+                case FileFormatType.DSF:
+                    data = new byte[(to.meta.totalSamples + 7) / 8];
+                    for (long i=0; i < data.LongLength; ++i) {
+                        data[i] = 0x69;
+                    }
+                    break;
+                case FileFormatType.FLAC:
+                    data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    data = null;
+                    break;
+                }
+
                 var adp = new AudioDataPerChannel();
                 adp.data = data;
                 adp.bitsPerSample = to.meta.bitsPerSample;
@@ -522,7 +618,12 @@ namespace WWAudioFilter {
 
             mBackgroundWorker.ReportProgress(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 
-            SetupResultPcm(audioDataFrom, out audioDataTo);
+            var fileFormat = FileFormatType.FLAC;
+            if (0 == string.CompareOrdinal(Path.GetExtension(args.ToPath).ToUpperInvariant(), ".DSF")) {
+                fileFormat = FileFormatType.DSF;
+            }
+
+            SetupResultPcm(audioDataFrom, out audioDataTo, fileFormat);
 
             mProgressSamples = 0;
 
@@ -551,10 +652,23 @@ namespace WWAudioFilter {
                 filters = null;
             });
 
+
             mBackgroundWorker.ReportProgress(FILE_PROCESS_COMPLETE_PERCENTAGE,
                     new ProgressArgs(string.Format(CultureInfo.CurrentCulture, Properties.Resources.LogfileWriteStarted, args.ToPath), 0));
 
-            rv = WriteFlacFile(ref audioDataTo, args.ToPath);
+            switch (audioDataTo.fileFormat) {
+            case FileFormatType.FLAC:
+                rv = WriteFlacFile(ref audioDataTo, args.ToPath);
+                break;
+            case FileFormatType.DSF:
+                try {
+                    rv = WriteDsfFile(ref audioDataTo, args.ToPath);
+                } catch (Exception ex) {
+                    Console.WriteLine(ex);
+                }
+                break;
+            }
+
             if (rv < 0) {
                 e.Result = rv;
                 return;
@@ -580,51 +694,51 @@ namespace WWAudioFilter {
 
         private static string ErrorCodeToStr(int ercd) {
             switch (ercd) {
-            case -2:
+            case       (int)WWFlacRWCS.FlacErrorCode.DataNotReady:
                 return Properties.Resources.FlacErrorDataNotReady;
-            case -3:
+            case       (int)WWFlacRWCS.FlacErrorCode.WriteOpenFailed:
                 return Properties.Resources.FlacerrorWriteOpenFailed;
-            case -4:
+            case       (int)WWFlacRWCS.FlacErrorCode.StreamDecoderNewFailed:
                 return Properties.Resources.FlacErrorStreamDecoderNewFailed;
-            case -5:
+            case       (int)WWFlacRWCS.FlacErrorCode.StreamDecoderInitFailed:
                 return Properties.Resources.FlacErrorStreamDecoderInitFailed;
-            case -6:
+            case       (int)WWFlacRWCS.FlacErrorCode.DecoderProcessFailed:
                 return Properties.Resources.FlacErrorDecoderProcessFailed;
-            case -7:
+            case       (int)WWFlacRWCS.FlacErrorCode.LostSync:
                 return Properties.Resources.FlacErrorLostSync;
-            case -8:
+            case       (int)WWFlacRWCS.FlacErrorCode.BadHeader:
                 return Properties.Resources.FlacErrorBadHeader;
-            case -9:
+            case       (int)WWFlacRWCS.FlacErrorCode.FrameCrcMismatch:
                 return Properties.Resources.FlacErrorFrameCrcMismatch;
-            case -10:
+            case       (int)WWFlacRWCS.FlacErrorCode.Unparseable:
                 return Properties.Resources.FlacErrorUnparseable;
-            case -11:
+            case       (int)WWFlacRWCS.FlacErrorCode.NumFrameIsNotAligned:
                 return Properties.Resources.FlacErrorNumFrameIsNotAligned;
-            case -12:
+            case       (int)WWFlacRWCS.FlacErrorCode.RecvBufferSizeInsufficient:
                 return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
-            case -13:
+            case       (int)WWFlacRWCS.FlacErrorCode.Other:
                 return Properties.Resources.FlacErrorOther;
-            case -14:
+            case       (int)WWFlacRWCS.FlacErrorCode.FileReadOpen:
                 return Properties.Resources.FlacErrorFileReadOpen;
-            case -15:
+            case       (int)WWFlacRWCS.FlacErrorCode.BufferSizeMismatch:
                 return Properties.Resources.FlacErrorBufferSizeMismatch;
-            case -16:
+            case       (int)WWFlacRWCS.FlacErrorCode.MemoryExhausted:
                 return Properties.Resources.FlacErrorMemoryExhausted;
-            case -17:
+            case       (int)WWFlacRWCS.FlacErrorCode.Encoder:
                 return Properties.Resources.FlacErrorEncoder;
-            case -18:
+            case       (int)WWFlacRWCS.FlacErrorCode.InvalidNumberOfChannels:
                 return Properties.Resources.FlacErrorInvalidNumberOfChannels;
-            case -19:
+            case       (int)WWFlacRWCS.FlacErrorCode.InvalidBitsPerSample:
                 return Properties.Resources.FlacErrorInvalidBitsPerSample;
-            case -20:
+            case       (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate:
                 return Properties.Resources.FlacErrorInvalidSampleRate;
-            case -21:
+            case       (int)WWFlacRWCS.FlacErrorCode.InvalidMetadata:
                 return Properties.Resources.FlacErrorInvalidMetadata;
-            case -22:
+            case       (int)WWFlacRWCS.FlacErrorCode.BadParams:
                 return Properties.Resources.FlacErrorBadParams;
-            case -23:
+            case       (int)WWFlacRWCS.FlacErrorCode.IdNotFound:
                 return Properties.Resources.FlacErrorIdNotFound;
-            case -24:
+            case       (int)WWFlacRWCS.FlacErrorCode.EncoderProcessFailed:
                 return Properties.Resources.FlacErrorEncoderProcessFailed;
             default:
                 return Properties.Resources.FlacErrorOther;
@@ -670,8 +784,9 @@ namespace WWAudioFilter {
             w.ShowDialog();
 
             if (true == w.DialogResult) {
-                mFilters.RemoveAt(listBoxFilters.SelectedIndex);
-                mFilters.Add(w.Filter);
+                int idx = listBoxFilters.SelectedIndex;
+                mFilters.RemoveAt(idx);
+                mFilters.Insert(idx, w.Filter);
                 Update();
             }
         }
@@ -829,7 +944,7 @@ namespace WWAudioFilter {
 
         private void buttonBrowseOutputFile_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.Filter = Properties.Resources.FilterFlacFiles;
+            dlg.Filter = Properties.Resources.FilterWriteAudioFiles;
             dlg.ValidateNames = true;
 
             var result = dlg.ShowDialog();

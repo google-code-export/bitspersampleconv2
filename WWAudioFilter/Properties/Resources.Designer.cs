@@ -250,6 +250,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Prease input Target Quantization Bit Rate in number に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorNoiseShapingBitIsNan {
+            get {
+                return ResourceManager.GetString("ErrorNoiseShapingBitIsNan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Prease input Target Quantization Bit Rate in integer in the range of 1 to 23 に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorNoiseShapingBitIsOutOfRange {
+            get {
+                return ResourceManager.GetString("ErrorNoiseShapingBitIsOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Too large magnitude sample detected! channel={0}, magnitude={1:0.000}
         /// に類似しているローカライズされた文字列を検索します。
         /// </summary>
@@ -301,6 +319,24 @@ namespace WWAudioFilter.Properties {
         internal static string FilterLpfDesc {
             get {
                 return ResourceManager.GetString("FilterLpfDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   2nd order MASH noise shaping: targetBitsPerSample={0} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterMashDesc {
+            get {
+                return ResourceManager.GetString("FilterMashDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FLAC files|*.flac|DSF files|*.dsf に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterWriteAudioFiles {
+            get {
+                return ResourceManager.GetString("FilterWriteAudioFiles", resourceCulture);
             }
         }
         
@@ -575,6 +611,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Noise Shaping (2nd Order MASH) に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupNoiseShaping {
+            get {
+                return ResourceManager.GetString("GroupNoiseShaping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Output File に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupOutputFile {
@@ -643,6 +688,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelInputFile {
             get {
                 return ResourceManager.GetString("LabelInputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Target Quantized Bit Rate: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelNoiseShapingTargetBit {
+            get {
+                return ResourceManager.GetString("LabelNoiseShapingTargetBit", resourceCulture);
             }
         }
         
