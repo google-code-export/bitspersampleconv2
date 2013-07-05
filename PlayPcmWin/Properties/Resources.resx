@@ -513,7 +513,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Zero flush period on playback starts:</value>
   </data>
   <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
-    <value>second(s)</value>
+    <value>sec</value>
   </data>
   <data name="SettingsRadioButtonTaskAudio" xml:space="preserve">
     <value>Audio</value>

@@ -201,10 +201,10 @@ namespace PlayPcmWin {
                 result = System.Text.Encoding.Default.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
                 break;
             case 1: // UTF-16 with BOM
-                if (text[0] == 0xfe && text[1] == 0xff) {
+                if (2 < text.Length && text[0] == 0xfe && text[1] == 0xff) {
                     // UTF-16BE
                     result = System.Text.Encoding.BigEndianUnicode.GetString(text, 2, text.Length - 2).Trim(new char[] { '\0' });
-                } else if (text[0] == 0xff && text[1] == 0xfe) {
+                } else if (2 < text.Length && text[0] == 0xff && text[1] == 0xfe) {
                     // UTF-16LE
                     result = System.Text.Encoding.Unicode.GetString(text, 2, text.Length - 2).Trim(new char[] { '\0' });
                 } else {
@@ -215,7 +215,13 @@ namespace PlayPcmWin {
                 result = System.Text.Encoding.BigEndianUnicode.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
                 break;
             case 3: // UTF-8
-                result = System.Text.Encoding.UTF8.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
+                if (3 < text.Length && text[0] == 0xef && text[1] == 0xbb && text[2] == 0xbf) {
+                    // UTF-8 with BOM
+                    result = System.Text.Encoding.UTF8.GetString(text, 3, text.Length-3).Trim(new char[] { '\0' });
+                } else {
+                    // UTF-8 without BOM
+                    result = System.Text.Encoding.UTF8.GetString(text, 0, text.Length).Trim(new char[] { '\0' });
+                }
                 break;
             default:
                 // Unknown encoding!

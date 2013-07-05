@@ -78,14 +78,8 @@ namespace PlayPcmWin {
             }
 
             mTotalFileBytes = br.ReadUInt64();
-            if (0x7fffffff < mTotalFileBytes) {
-                return ResultType.NotSupportFileTooLarge;
-            }
 
             mMetadataOffset = br.ReadUInt64();
-            if (0x7fffffff < mMetadataOffset) {
-                return ResultType.HeaderError;
-            }
 
             return ResultType.Success;
         }
@@ -120,7 +114,7 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportDsfFormatId;
             }
 
-            if (2 != NumChannels) {
+            if (NumChannels < 1) {
                 return ResultType.NotSupportNumChannels;
             }
 
@@ -154,7 +148,7 @@ namespace PlayPcmWin {
             }
 
             mDataBytes = br.ReadInt64() - 12;
-            if (mDataBytes <= 0 || 0x7fffffff < mDataBytes) {
+            if (mDataBytes <= 0) {
                 return ResultType.NotSupportFileTooLarge;
             }
 
