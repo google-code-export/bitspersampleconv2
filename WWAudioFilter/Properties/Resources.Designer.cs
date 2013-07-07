@@ -287,7 +287,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   FFT upsample: {0}x に類似しているローカライズされた文字列を検索します。
+        ///   FFT upsample: {0}x, FFT length={1} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string FilterFftUpsampleDesc {
             get {
@@ -724,6 +724,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelSamples {
             get {
                 return ResourceManager.GetString("LabelSamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   FFT Length: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelUpsamplerLength {
+            get {
+                return ResourceManager.GetString("LabelUpsamplerLength", resourceCulture);
             }
         }
         

@@ -270,7 +270,7 @@
     <value>書き込むファイルと読み込むファイルを別のファイルにして下さい。</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFTアップサンプル: {0}倍</value>
+    <value>FFTアップサンプル: {0}倍, FFT長={1}</value>
   </data>
   <data name="LabelUpsamplerType" xml:space="preserve">
     <value>アップサンプル方法:</value>
@@ -298,5 +298,8 @@
   </data>
   <data name="FilterNoiseShapingDesc" xml:space="preserve">
     <value>ノイズシェイピング: {0}次, 出力量子化ビット数={1}</value>
+  </data>
+  <data name="LabelUpsamplerLength" xml:space="preserve">
+    <value>FFT長:</value>
   </data>
 </root>

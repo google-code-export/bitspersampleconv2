@@ -13,6 +13,8 @@ namespace WWAudioFilter {
 
         private FilterBase mFilter = null;
 
+        private bool mInitialized = false;
+
         public FilterConfiguration(FilterBase filter) {
             InitializeComponent();
 
@@ -31,6 +33,8 @@ namespace WWAudioFilter {
                 // filterの設定をUIに反映する
                 InitializeUIbyFilter(mFilter);
             }
+
+            mInitialized = true;
         }
 
         private void SetLocalizedTextToUI() {
@@ -40,19 +44,21 @@ namespace WWAudioFilter {
             labelGainAmplitudeUnit.Content = Properties.Resources.LabelX;
             buttonUseGain.Content = Properties.Resources.ButtonUseThisFilter;
 
-            groupBoxUpsampler.Header = Properties.Resources.GroupUpsampler;
-            labelUpsamplerType.Content = Properties.Resources.LabelUpsamplerType;
-            cbItemFftUpsampler.Content = Properties.Resources.CbItemFftUpsampler;
-            cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
-            labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
-            buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
-
             groupBoxLPF.Header = Properties.Resources.GroupLPF;
             labelLpfCutoff.Content = Properties.Resources.LabelCutoffFreq;
             labelLpfSlope.Content = Properties.Resources.LabelGainRolloffSlopes;
             labelLpfLen.Content = Properties.Resources.LabelFilterLength;
             labelLpfLenUnit.Content = Properties.Resources.LabelSamples;
             buttonUseLpf.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxUpsampler.Header = Properties.Resources.GroupUpsampler;
+            labelUpsamplerType.Content = Properties.Resources.LabelUpsamplerType;
+            cbItemFftUpsampler.Content = Properties.Resources.CbItemFftUpsampler;
+            cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
+            labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
+            buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
+            labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
+            labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
 
             groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
             labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
@@ -85,6 +91,7 @@ namespace WWAudioFilter {
                 var fftu = filter as FftUpsampler;
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
+                comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
                 break;
             case FilterType.LowPassFilter:
                 var lpf = filter as LowpassFilter;
@@ -208,6 +215,47 @@ namespace WWAudioFilter {
             ZOH
         };
 
+        enum UpsampleLenType {
+            L1024,
+            L4096,
+            L16384,
+            L65536,
+            L262144,
+        };
+
+        private static UpsampleLenType UpsampleLenToUpsampleLenType(int len) {
+            switch (len) {
+            case 1024:
+                return UpsampleLenType.L1024;
+            case 4096:
+                return UpsampleLenType.L4096;
+            case 16384:
+                return UpsampleLenType.L16384;
+            case 65536:
+                return UpsampleLenType.L65536;
+            case 262144:
+                return UpsampleLenType.L262144;
+            default:
+                return UpsampleLenType.L262144;
+            }
+        }
+
+        private static int UpsampleLenTypeToLpfLen(int t) {
+            switch (t) {
+            case (int)UpsampleLenType.L1024:
+                return 1024;
+            case (int)UpsampleLenType.L4096:
+                return 4096;
+            case (int)UpsampleLenType.L16384:
+                return 16384;
+            case (int)UpsampleLenType.L65536:
+                return 65536;
+            case (int)UpsampleLenType.L262144:
+                return 262144;
+            default:
+                return 262144;
+            }
+        }
         ///////////////////////////////////////////////////////////////////////////////////
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
@@ -234,17 +282,18 @@ namespace WWAudioFilter {
 
         private void buttonUseUpsampler_Click(object sender, RoutedEventArgs e) {
             int factor = UpsamplingFactorTypeToUpsampingfactor(comboBoxUpsamplingFactor.SelectedIndex);
+            int len = UpsampleLenTypeToLpfLen(comboBoxUpsampleLen.SelectedIndex);
 
             switch (comboBoxUpsamplerType.SelectedIndex) {
             case (int)UpsamplerType.ZOH:
                 mFilter = new ZeroOrderHoldUpsampler(factor);
                 break;
             case (int)UpsamplerType.FFT:
-                mFilter = new FftUpsampler(factor);
+                mFilter = new FftUpsampler(factor, len);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
-                mFilter = new FftUpsampler(factor);
+                mFilter = new FftUpsampler(factor, len);
                 break;
             }
 
@@ -295,6 +344,18 @@ namespace WWAudioFilter {
             mFilter = new NoiseShapingFilter(nBit, 2);
             DialogResult = true;
             Close();
+        }
+
+        private void comboBoxUpsamplerType_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (!mInitialized) {
+                return;
+            }
+
+            if (comboBoxUpsamplerType.SelectedIndex == (int)UpsamplerType.FFT) {
+                comboBoxUpsampleLen.IsEnabled = true;
+            } else {
+                comboBoxUpsampleLen.IsEnabled = false;
+            }
         }
 
     }

@@ -339,7 +339,7 @@
     <value>Please specify different file to write. WWAudioFilter cannot write to input file.</value>
   </data>
   <data name="FilterFftUpsampleDesc" xml:space="preserve">
-    <value>FFT upsample: {0}x</value>
+    <value>FFT upsample: {0}x, FFT length={1}</value>
   </data>
   <data name="LabelUpsamplerType" xml:space="preserve">
     <value>Upsampler Type:</value>
@@ -367,5 +367,8 @@
   </data>
   <data name="FilterNoiseShapingDesc" xml:space="preserve">
     <value>noise shaping: order={0}, targetBitsPerSample={1}</value>
+  </data>
+  <data name="LabelUpsamplerLength" xml:space="preserve">
+    <value>FFT Length:</value>
   </data>
 </root>
