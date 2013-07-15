@@ -39,12 +39,12 @@ ENDM
 align 8
 MyMemcpy64 proc frame
     SaveRegisters
-    mov rax, rcx
-    xor rcx, rcx ; move loop parameter to rcx
+    mov rax, rcx ; move dst address from rcx to rax
+    xor rcx, rcx ; move loop parameter(bytes argument) from r8d to rcx
     mov ecx, r8d
-    add rax, rcx ; now rax points end of dst buffer
-    add rdx, rcx ; now rdx points end of src buffer
-    neg rcx      ; now rax+rcx points start of dst buffer
+    add rax, rcx ; now rax points end of src buffer
+    add rdx, rcx ; now rdx points end of dst buffer
+    neg rcx      ; now rax+rcx points start of src buffer
 align 8
 LabelBegin:
     movdqa xmm0, [rax+rcx]
