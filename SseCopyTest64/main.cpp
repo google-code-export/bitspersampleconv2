@@ -38,10 +38,9 @@ int main(void)
         }
         QueryPerformanceCounter(&after);
         printf("MyMemcpy64 %f\n", (after.QuadPart - before.QuadPart) * 1000.0 * 1000 / freq.QuadPart);
-
         for (int i=0; i<BUFFER_SIZE; ++i) {
-            if (to[i] != from[i]) {
-                printf("to[%d](%x) != from[%d](%x)\n", i, (int)to[i], i, (int)from[i]);
+            if (to[i] != (char)i) {
+                printf("to[%d](%x) != %x\n", i, (int)to[i], (char)i);
             }
         }
 
@@ -56,8 +55,8 @@ int main(void)
         QueryPerformanceCounter(&after);
         printf("MyMemcpy64a %f\n", (after.QuadPart - before.QuadPart) * 1000.0 * 1000 / freq.QuadPart);
         for (int i=0; i<BUFFER_SIZE; ++i) {
-            if (to[i] != from[i]) {
-                printf("to[%d](%x) != from[%d](%x)\n", i, (int)to[i], i, (int)from[i]);
+            if (to[i] != (char)(i+69)) {
+                printf("to[%d](%x) != %x\n", i, (int)to[i], (char)(i+69));
             }
         }
     }
