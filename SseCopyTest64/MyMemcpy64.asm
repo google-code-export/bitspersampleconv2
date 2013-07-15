@@ -39,30 +39,29 @@ ENDM
 align 8
 MyMemcpy64 proc frame
     SaveRegisters
-    mov rax, rcx ; move dst address from rcx to rax
-    xor rcx, rcx ; move loop parameter(bytes argument) from r8d to rcx
-    mov ecx, r8d
-    add rax, rcx ; now rax points end of src buffer
-    add rdx, rcx ; now rdx points end of dst buffer
-    neg rcx      ; now rax+rcx points start of src buffer
+    mov rax, rcx ; move dst address from rcx to rax (src address is rdx)
+    mov ecx, r8d ; move loop parameter(bytes argument) from r8d to rcx
+    add rax, rcx ; now rax points end of dst buffer
+    add rdx, rcx ; now rdx points end of src buffer
+    neg rcx      ; now rdx+rcx points start of src buffer and rax+rcx points start of dst buffer
 align 8
 LabelBegin:
-    movdqa xmm0, [rax+rcx]
-    movdqa xmm1, [rax+rcx+10H]
-    movdqa xmm2, [rax+rcx+20H]
-    movdqa xmm3, [rax+rcx+30H]
-    movdqa xmm4, [rax+rcx+40H]
-    movdqa xmm5, [rax+rcx+50H]
-    movdqa xmm6, [rax+rcx+60H]
-    movdqa xmm7, [rax+rcx+70H]
-    movdqa [rdx+rcx], xmm0
-    movdqa [rdx+rcx+10H], xmm1
-    movdqa [rdx+rcx+20H], xmm2
-    movdqa [rdx+rcx+30H], xmm3
-    movdqa [rdx+rcx+40H], xmm4
-    movdqa [rdx+rcx+50H], xmm5
-    movdqa [rdx+rcx+60H], xmm6
-    movdqa [rdx+rcx+70H], xmm7
+    movdqa xmm0, [rdx+rcx]
+    movdqa xmm1, [rdx+rcx+10H]
+    movdqa xmm2, [rdx+rcx+20H]
+    movdqa xmm3, [rdx+rcx+30H]
+    movdqa xmm4, [rdx+rcx+40H]
+    movdqa xmm5, [rdx+rcx+50H]
+    movdqa xmm6, [rdx+rcx+60H]
+    movdqa xmm7, [rdx+rcx+70H]
+    movdqa [rax+rcx], xmm0
+    movdqa [rax+rcx+10H], xmm1
+    movdqa [rax+rcx+20H], xmm2
+    movdqa [rax+rcx+30H], xmm3
+    movdqa [rax+rcx+40H], xmm4
+    movdqa [rax+rcx+50H], xmm5
+    movdqa [rax+rcx+60H], xmm6
+    movdqa [rax+rcx+70H], xmm7
     add rcx, 80H
     jnz LabelBegin
     RestoreRegisters

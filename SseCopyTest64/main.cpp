@@ -36,6 +36,8 @@ int main(void)
     QueryPerformanceCounter(&after);
     printf("MyMemcpy64 %f\n", (after.QuadPart - before.QuadPart) * 1000.0 * 1000 / freq.QuadPart);
 
+    printf("to[0] = %x\n", to[0]);
+
     _aligned_free(to);
     to = NULL;
     _aligned_free(from);
