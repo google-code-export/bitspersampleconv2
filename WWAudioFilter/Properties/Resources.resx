@@ -366,9 +366,18 @@
     <value>Target Quantized Bit Rate:</value>
   </data>
   <data name="FilterNoiseShapingDesc" xml:space="preserve">
-    <value>noise shaping: order={0}, targetBitsPerSample={1}</value>
+    <value>Noise shaping: order={0}, targetBitsPerSample={1}</value>
   </data>
   <data name="LabelUpsamplerLength" xml:space="preserve">
     <value>FFT Length:</value>
+  </data>
+  <data name="DroppedDataIsNotFile" xml:space="preserve">
+    <value>Dropped data is not file</value>
+  </data>
+  <data name="ErrorOutputDataTooLarge" xml:space="preserve">
+    <value>Output data becomes too large! {0} Gbytes</value>
+  </data>
+  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
+    <value>Output data size exceeds 2GB per channel! Process aborted.</value>
   </data>
 </root>

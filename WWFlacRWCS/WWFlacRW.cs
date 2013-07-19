@@ -84,6 +84,7 @@ namespace WWFlacRWCS {
         BadParams = -22,
         IdNotFound = -23,
         EncoderProcessFailed = -24,
+        OutputFileTooLarge = -25,
     };
 
     public class FlacRW {

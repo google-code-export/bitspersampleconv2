@@ -302,4 +302,13 @@
   <data name="LabelUpsamplerLength" xml:space="preserve">
     <value>FFT長:</value>
   </data>
+  <data name="DroppedFileIsNotFile" xml:space="preserve">
+    <value>ファイルではないものがドロップされました。何もできません。</value>
+  </data>
+  <data name="ErrorOutputDataTooLarge" xml:space="preserve">
+    <value>出力データが大きくなり過ぎます。{0} Gバイト</value>
+  </data>
+  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
+    <value>出力データのサイズが1チャンネルあたり2GBを超えたため計算を続行できませんでした。</value>
+  </data>
 </root>

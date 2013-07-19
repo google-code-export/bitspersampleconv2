@@ -373,6 +373,7 @@ namespace WWAudioFilter {
                     }
                 }
             } catch (IOException ex) {
+                Console.WriteLine(ex);
                 return -1;
             }
 

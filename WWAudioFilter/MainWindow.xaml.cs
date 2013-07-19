@@ -8,6 +8,7 @@ using System.IO;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Text;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -459,7 +460,7 @@ namespace WWAudioFilter {
             DSF,
         }
 
-        private void SetupResultPcm(AudioData from, out AudioData to, FileFormatType toFileFormat) {
+        private int SetupResultPcm(AudioData from, out AudioData to, FileFormatType toFileFormat) {
             to = new AudioData();
             to.fileFormat = toFileFormat;
 
@@ -480,7 +481,7 @@ namespace WWAudioFilter {
                 to.meta.bitsPerSample = 1;
                 break;
             }
-
+            
             if (from.picture != null) {
                 to.picture = new byte[from.picture.Length];
                 System.Array.Copy(from.picture, to.picture, to.picture.Length);
@@ -494,12 +495,18 @@ namespace WWAudioFilter {
                 // set silent sample values to output buffer
                 switch (toFileFormat) {
                 case FileFormatType.DSF:
+                    if (0x7FFFFFC7 < (to.meta.totalSamples + 7) / 8) {
+                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
+                    }
                     data = new byte[(to.meta.totalSamples + 7) / 8];
                     for (long i=0; i < data.LongLength; ++i) {
                         data[i] = 0x69;
                     }
                     break;
                 case FileFormatType.FLAC:
+                    if (0x7FFFFFC7 < to.meta.totalSamples * (to.meta.bitsPerSample / 8)) {
+                        return (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge;
+                    }
                     data = new byte[to.meta.totalSamples * (to.meta.bitsPerSample / 8)];
                     break;
                 default:
@@ -514,6 +521,7 @@ namespace WWAudioFilter {
                 adp.totalSamples = to.meta.totalSamples;
                 to.pcm.Add(adp);
             }
+            return 0;
         }
 
         private static long CountTotalSamples(List<double[]> data) {
@@ -624,7 +632,11 @@ namespace WWAudioFilter {
                 fileFormat = FileFormatType.DSF;
             }
 
-            SetupResultPcm(audioDataFrom, out audioDataTo, fileFormat);
+            rv = SetupResultPcm(audioDataFrom, out audioDataTo, fileFormat);
+            if (rv < 0) {
+                e.Result = rv;
+                return;
+            }
 
             mProgressSamples = 0;
 
@@ -741,6 +753,8 @@ namespace WWAudioFilter {
                 return Properties.Resources.FlacErrorIdNotFound;
             case       (int)WWFlacRWCS.FlacErrorCode.EncoderProcessFailed:
                 return Properties.Resources.FlacErrorEncoderProcessFailed;
+            case       (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge:
+                return Properties.Resources.FlacErrorOutputFileTooLarge;
             default:
                 return Properties.Resources.FlacErrorOther;
             }
@@ -926,6 +940,17 @@ namespace WWAudioFilter {
             Update();
         }
 
+        private void InputFormUpdated() {
+            if (0 < textBoxInputFile.Text.Length &&
+                    0 < textBoxOutputFile.Text.Length) {
+                mState = State.Ready;
+            } else {
+                mState = State.NotReady;
+            }
+
+            Update();
+        }
+
         private void buttonBrowseInputFile_Click(object sender, RoutedEventArgs e) {
             var dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = Properties.Resources.FilterFlacFiles;
@@ -937,15 +962,7 @@ namespace WWAudioFilter {
             }
 
             textBoxInputFile.Text = dlg.FileName;
-
-            if (0 < textBoxInputFile.Text.Length &&
-                    0 < textBoxOutputFile.Text.Length) {
-                mState = State.Ready;
-            } else {
-                mState = State.NotReady;
-            }
-
-            Update();
+            InputFormUpdated();
         }
 
         private void buttonBrowseOutputFile_Click(object sender, RoutedEventArgs e) {
@@ -959,15 +976,7 @@ namespace WWAudioFilter {
             }
 
             textBoxOutputFile.Text = dlg.FileName;
-
-            if (0 < textBoxInputFile.Text.Length &&
-                    0 < textBoxOutputFile.Text.Length) {
-                mState = State.Ready;
-            } else {
-                mState = State.NotReady;
-            }
-
-            Update();
+            InputFormUpdated();
         }
 
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
@@ -987,6 +996,30 @@ namespace WWAudioFilter {
             buttonStartConversion.IsEnabled = false;
 
             mBackgroundWorker.RunWorkerAsync(new RunWorkerArgs(textBoxInputFile.Text, textBoxOutputFile.Text));
+        }
+
+        private void Window_DragEnter(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e) {
+            var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (null == paths) {
+                var sb = new StringBuilder(Properties.Resources.DroppedDataIsNotFile);
+
+                var formats = e.Data.GetFormats(false);
+                foreach (var format in formats) {
+                    sb.Append(string.Format(CultureInfo.InvariantCulture, "{1}    {0}", format, Environment.NewLine));
+                }
+                MessageBox.Show(sb.ToString());
+                return;
+            }
+            textBoxInputFile.Text = paths[0];
+            InputFormUpdated();
         }
     }
 }
