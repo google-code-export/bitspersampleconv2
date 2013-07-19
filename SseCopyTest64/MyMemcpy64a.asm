@@ -10,15 +10,15 @@ SaveRegisters MACRO
     movdqu [rsp+16*0],xmm0
    .savexmm128 xmm0, 16*0
     movdqu [rsp+16*1],xmm1
-   .savexmm128 xmm0, 16*1
+   .savexmm128 xmm1, 16*1
     movdqu [rsp+16*2],xmm2
-   .savexmm128 xmm0, 16*2
+   .savexmm128 xmm2, 16*2
     movdqu [rsp+16*3],xmm3
-   .savexmm128 xmm0, 16*3
+   .savexmm128 xmm3, 16*3
     movdqu [rsp+16*4],xmm6
-   .savexmm128 xmm0, 16*4
+   .savexmm128 xmm6, 16*4
     movdqu [rsp+16*5],xmm7
-   .savexmm128 xmm0, 16*5
+   .savexmm128 xmm7, 16*5
    .endprolog
 ENDM
 
