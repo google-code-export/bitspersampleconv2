@@ -62,7 +62,8 @@ ENDM
 
      add rsi, 128
      add rdi, 128
-     loop LabelBegin
+     dec ecx
+     jnz LabelBegin
      RestoreRegisters
      ret
  align 8
