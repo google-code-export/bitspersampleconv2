@@ -1,6 +1,6 @@
 public MyMemcpy64a
 
-STACKBYTES    equ 16*6
+STACKBYTES    equ 16*7
 
 .code
 
@@ -19,6 +19,10 @@ SaveRegisters MACRO
    .savexmm128 xmm6, 16*4
     movdqu [rsp+16*5],xmm7
    .savexmm128 xmm7, 16*5
+    mov [rsp+16*6],rsi
+   .savereg rsi,16*6
+    mov [rsp+16*6+8],rdi
+   .savereg rdi,16*6+8
    .endprolog
 ENDM
 
@@ -29,6 +33,8 @@ RestoreRegisters MACRO
     movdqu xmm3, [rsp+16*3]
     movdqu xmm6, [rsp+16*4]
     movdqu xmm7, [rsp+16*5]
+    mov rsi, [rsp+16*6]
+    mov rdi, [rsp+16*6+8]
     add rsp,STACKBYTES
 ENDM
 
@@ -39,31 +45,38 @@ ENDM
 align 8
 MyMemcpy64a proc frame
     SaveRegisters
-    mov rax, rdx ; move src(rdx) to rax and dst(rcx) to rdx
-    mov rdx, rcx
-    mov ecx, r8d ; move loop parameter(bytes argument) from r8d to rcx
-    add rax, rcx ; now rax points end of src buffer
-    add rdx, rcx ; now rdx points end of dst buffer
-    neg rcx      ; now rax+rcx points start of src buffer and rdx+rcx points start of dst buffer
+    mov rsi, rdx;    //src pointer
+    mov rdi, rcx;   //dest pointer
+    mov ecx, r8d; // our counter 
+    shr rcx, 7;      //divide by 128 (8 * 128bit registers)
 align 8
 LabelBegin:
-    movdqa xmm0, [rax+rcx]
-    movdqa xmm1, [rax+rcx+10H]
-    movdqa xmm2, [rax+rcx+20H]
-    movdqa xmm3, [rax+rcx+30H]
-    movdqa xmm4, [rax+rcx+40H]
-    movdqa xmm5, [rax+rcx+50H]
-    movdqa xmm6, [rax+rcx+60H]
-    movdqa xmm7, [rax+rcx+70H]
-    movdqa [rdx+rcx], xmm0
-    movdqa [rdx+rcx+10H], xmm1
-    movdqa [rdx+rcx+20H], xmm2
-    movdqa [rdx+rcx+30H], xmm3
-    movdqa [rdx+rcx+40H], xmm4
-    movdqa [rdx+rcx+50H], xmm5
-    movdqa [rdx+rcx+60H], xmm6
-    movdqa [rdx+rcx+70H], xmm7
-    add rcx, 80H
+    prefetchnta 128[esi];
+    prefetchnta 160[esi];
+    prefetchnta 192[esi];
+    prefetchnta 224[esi];
+
+    movdqa xmm0, 0[esi];
+    movdqa xmm1, 16[esi];
+    movdqa xmm2, 32[esi];
+    movdqa xmm3, 48[esi];
+    movdqa xmm4, 64[esi];
+    movdqa xmm5, 80[esi];
+    movdqa xmm6, 96[esi];
+    movdqa xmm7, 112[esi];
+
+    movntdq 0[edi],  xmm0;
+    movntdq 16[edi], xmm1;
+    movntdq 32[edi], xmm2;
+    movntdq 48[edi], xmm3;
+    movntdq 64[edi], xmm4;
+    movntdq 80[edi], xmm5;
+    movntdq 96[edi], xmm6;
+    movntdq 112[edi], xmm7;
+
+    add esi, 128;
+    add edi, 128;
+    dec ecx;
     jnz LabelBegin
     RestoreRegisters
     ret
