@@ -1,40 +1,28 @@
 public MyMemcpy64a
 
-STACKBYTES    equ 16*7
+STACKBYTES    equ 16*3
 
 .code
 
 SaveRegisters MACRO
     sub rsp,STACKBYTES
    .allocstack STACKBYTES
-    movdqu [rsp+16*0],xmm0
-   .savexmm128 xmm0, 16*0
-    movdqu [rsp+16*1],xmm1
-   .savexmm128 xmm1, 16*1
-    movdqu [rsp+16*2],xmm2
-   .savexmm128 xmm2, 16*2
-    movdqu [rsp+16*3],xmm3
-   .savexmm128 xmm3, 16*3
-    movdqu [rsp+16*4],xmm6
-   .savexmm128 xmm6, 16*4
-    movdqu [rsp+16*5],xmm7
-   .savexmm128 xmm7, 16*5
-    mov [rsp+16*6],rsi
-   .savereg rsi,16*6
-    mov [rsp+16*6+8],rdi
-   .savereg rdi,16*6+8
+    movdqu [rsp+16*0],xmm6
+   .savexmm128 xmm6, 16*0
+    movdqu [rsp+16*1],xmm7
+   .savexmm128 xmm7, 16*1
+    mov [rsp+16*2],rsi
+   .savereg rsi,16*2
+    mov [rsp+16*2+8],rdi
+   .savereg rdi,16*2+8
    .endprolog
 ENDM
 
 RestoreRegisters MACRO
-    movdqu xmm0, [rsp+16*0]
-    movdqu xmm1, [rsp+16*1]
-    movdqu xmm2, [rsp+16*2]
-    movdqu xmm3, [rsp+16*3]
-    movdqu xmm6, [rsp+16*4]
-    movdqu xmm7, [rsp+16*5]
-    mov rsi, [rsp+16*6]
-    mov rdi, [rsp+16*6+8]
+    movdqu xmm6, [rsp+16*0]
+    movdqu xmm7, [rsp+16*1]
+    mov rsi, [rsp+16*2]
+    mov rdi, [rsp+16*2+8]
     add rsp,STACKBYTES
 ENDM
 
