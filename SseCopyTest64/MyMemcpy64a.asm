@@ -51,13 +51,13 @@ ENDM
      movdqa xmm6, 96[rsi]
      movdqa xmm7, 112[rsi]
 
-    movdqa 0[rdi],  xmm0
-     movdqa 16[rdi], xmm1
-     movdqa 32[rdi], xmm2
-     movdqa 48[rdi], xmm3
-     movdqa 64[rdi], xmm4
-     movdqa 80[rdi], xmm5
-     movdqa 96[rdi], xmm6
+     movdqa 0[rdi],   xmm0
+     movdqa 16[rdi],  xmm1
+     movdqa 32[rdi],  xmm2
+     movdqa 48[rdi],  xmm3
+     movdqa 64[rdi],  xmm4
+     movdqa 80[rdi],  xmm5
+     movdqa 96[rdi],  xmm6
      movdqa 112[rdi], xmm7
 
      add rsi, 128
