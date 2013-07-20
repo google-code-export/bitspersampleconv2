@@ -45,38 +45,38 @@ ENDM
 align 8
 MyMemcpy64a proc frame
     SaveRegisters
-    mov rsi, rdx;    //src pointer
-    mov rdi, rcx;   //dest pointer
-    mov ecx, r8d; // our counter 
-    shr rcx, 7;      //divide by 128 (8 * 128bit registers)
+    mov rsi, rdx ; src pointer
+    mov rdi, rcx ; dest pointer
+    mov ecx, r8d ; our counter 
+    shr rcx, 7   ; divide by 128 (8 * 128bit registers)
 align 8
 LabelBegin:
-    prefetchnta 128[esi];
-    prefetchnta 160[esi];
-    prefetchnta 192[esi];
-    prefetchnta 224[esi];
+    prefetchnta 128[esi]
+    prefetchnta 160[esi]
+    prefetchnta 192[esi]
+    prefetchnta 224[esi]
 
-    movdqa xmm0, 0[esi];
-    movdqa xmm1, 16[esi];
-    movdqa xmm2, 32[esi];
-    movdqa xmm3, 48[esi];
-    movdqa xmm4, 64[esi];
-    movdqa xmm5, 80[esi];
-    movdqa xmm6, 96[esi];
-    movdqa xmm7, 112[esi];
+    movdqa xmm0, 0[esi]
+    movdqa xmm1, 16[esi]
+    movdqa xmm2, 32[esi]
+    movdqa xmm3, 48[esi]
+    movdqa xmm4, 64[esi]
+    movdqa xmm5, 80[esi]
+    movdqa xmm6, 96[esi]
+    movdqa xmm7, 112[esi]
 
-    movntdq 0[edi],  xmm0;
-    movntdq 16[edi], xmm1;
-    movntdq 32[edi], xmm2;
-    movntdq 48[edi], xmm3;
-    movntdq 64[edi], xmm4;
-    movntdq 80[edi], xmm5;
-    movntdq 96[edi], xmm6;
-    movntdq 112[edi], xmm7;
+    movntdq 0[edi],  xmm0
+    movntdq 16[edi], xmm1
+    movntdq 32[edi], xmm2
+    movntdq 48[edi], xmm3
+    movntdq 64[edi], xmm4
+    movntdq 80[edi], xmm5
+    movntdq 96[edi], xmm6
+    movntdq 112[edi], xmm7
 
-    add esi, 128;
-    add edi, 128;
-    dec ecx;
+    add esi, 128
+    add edi, 128
+    dec ecx
     jnz LabelBegin
     RestoreRegisters
     ret
