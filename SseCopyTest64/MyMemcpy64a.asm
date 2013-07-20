@@ -1,5 +1,3 @@
-; This is slower version
-
 public MyMemcpy64a
 
 STACKBYTES    equ 16*3
@@ -19,7 +17,7 @@ SaveRegisters MACRO
    .savereg rdi,16*2+8
    .endprolog
 ENDM
-
+ 
 RestoreRegisters MACRO
     movdqu xmm6, [rsp+16*0]
     movdqu xmm7, [rsp+16*1]
@@ -27,50 +25,48 @@ RestoreRegisters MACRO
     mov rdi, [rsp+16*2+8]
     add rsp,STACKBYTES
 ENDM
-
+ 
 ; MyMemcpy64a(char *dst, const char *src, int bytes)
-; dst   --> rcx
-; src   --> rdx
-; bytes --> r8d
-align 8
-MyMemcpy64a proc frame
+ ; dst   --> rcx
+ ; src   --> rdx
+ ; bytes --> r8d
+ align 8
+ MyMemcpy64a proc frame
     SaveRegisters
-    mov rsi, rdx ; src pointer
-    mov rdi, rcx ; dest pointer
-    mov ecx, r8d ; our counter 
-    shr rcx, 7   ; divide by 128 (8 * 128bit registers)
-align 8
-LabelBegin:
-    prefetchnta 128[esi]
-    prefetchnta 160[esi]
-    prefetchnta 192[esi]
-    prefetchnta 224[esi]
+     mov rsi, rdx ; src pointer
+     mov rdi, rcx ; dest pointer
+     mov ecx, r8d ; copy bytes (multiply of 128)
+     shr ecx, 7   ; divide by 128
+ align 8
+ LabelBegin:
+     prefetchnta 128[rsi]
+     prefetchnta 192[rsi]
 
-    movdqa xmm0, 0[esi]
-    movdqa xmm1, 16[esi]
-    movdqa xmm2, 32[esi]
-    movdqa xmm3, 48[esi]
-    movdqa xmm4, 64[esi]
-    movdqa xmm5, 80[esi]
-    movdqa xmm6, 96[esi]
-    movdqa xmm7, 112[esi]
+     movdqa xmm0, 0[rsi]
+     movdqa xmm1, 16[rsi]
+     movdqa xmm2, 32[rsi]
+     movdqa xmm3, 48[rsi]
+     movdqa xmm4, 64[rsi]
+     movdqa xmm5, 80[rsi]
+     movdqa xmm6, 96[rsi]
+     movdqa xmm7, 112[rsi]
 
-    movntdq 0[edi],  xmm0
-    movntdq 16[edi], xmm1
-    movntdq 32[edi], xmm2
-    movntdq 48[edi], xmm3
-    movntdq 64[edi], xmm4
-    movntdq 80[edi], xmm5
-    movntdq 96[edi], xmm6
-    movntdq 112[edi], xmm7
+    movdqa 0[rdi],  xmm0
+     movdqa 16[rdi], xmm1
+     movdqa 32[rdi], xmm2
+     movdqa 48[rdi], xmm3
+     movdqa 64[rdi], xmm4
+     movdqa 80[rdi], xmm5
+     movdqa 96[rdi], xmm6
+     movdqa 112[rdi], xmm7
 
-    add esi, 128
-    add edi, 128
-    dec ecx
-    jnz LabelBegin
-    RestoreRegisters
-    ret
-align 8
-MyMemcpy64a endp
-end
+     add rsi, 128
+     add rdi, 128
+     dec ecx
 
+     jnz LabelBegin
+     RestoreRegisters
+     ret
+ align 8
+ MyMemcpy64a endp
+ end
