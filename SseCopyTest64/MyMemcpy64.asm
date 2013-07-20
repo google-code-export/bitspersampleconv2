@@ -34,7 +34,7 @@ MyMemcpy64 proc frame
     neg rcx      ; now rdx+rcx points start of src buffer and rax+rcx points start of dst buffer
 align 8
 LabelBegin:
-    movdqa xmm0, [rdx+rcx]
+    movdqa xmm0, [rdx+rcx    ]
     movdqa xmm1, [rdx+rcx+10H]
     movdqa xmm2, [rdx+rcx+20H]
     movdqa xmm3, [rdx+rcx+30H]
@@ -42,7 +42,7 @@ LabelBegin:
     movdqa xmm5, [rdx+rcx+50H]
     movdqa xmm6, [rdx+rcx+60H]
     movdqa xmm7, [rdx+rcx+70H]
-    movdqa [rax+rcx], xmm0
+    movdqa [rax+rcx    ], xmm0
     movdqa [rax+rcx+10H], xmm1
     movdqa [rax+rcx+20H], xmm2
     movdqa [rax+rcx+30H], xmm3
