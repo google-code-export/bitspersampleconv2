@@ -21,9 +21,9 @@ RestoreRegisters MACRO
 ENDM
 
 ; MyMemcpy64(char *dst, const char *src, int bytes)
-; dst : rcx
-; src : rdx
-; bytes : r8d
+; dst   --> rcx
+; src   --> rdx
+; bytes --> r8d
 align 8
 MyMemcpy64 proc frame
     SaveRegisters

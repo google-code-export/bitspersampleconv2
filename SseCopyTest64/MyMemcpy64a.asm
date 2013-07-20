@@ -1,3 +1,5 @@
+; This is slower version
+
 public MyMemcpy64a
 
 STACKBYTES    equ 16*3
@@ -27,9 +29,9 @@ RestoreRegisters MACRO
 ENDM
 
 ; MyMemcpy64a(char *dst, const char *src, int bytes)
-; dst : rcx
-; src : rdx
-; bytes : r8d
+; dst   --> rcx
+; src   --> rdx
+; bytes --> r8d
 align 8
 MyMemcpy64a proc frame
     SaveRegisters
