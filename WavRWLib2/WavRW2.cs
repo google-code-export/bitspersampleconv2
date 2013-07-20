@@ -201,6 +201,11 @@ namespace WavRWLib2
                 return 0;
             }
 
+            if (40 == m_subChunk1Size && 0 == extensibleSize) {
+                // Pro Tools WAV
+                PcmDataLib.Util.BinaryReaderSkip(br, 22);
+            }
+
             return m_subChunk1Size + 4;
         }
 
