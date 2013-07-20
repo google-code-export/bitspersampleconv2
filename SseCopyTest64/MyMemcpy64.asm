@@ -7,7 +7,7 @@ STACKBYTES    equ 16*2
 SaveRegisters MACRO
     sub rsp,STACKBYTES
    .allocstack STACKBYTES
-    movdqu [rsp+16*0],xmm6
+    movdqu [rsp+16*0],xmm6  ; cannot use movdqa because rsp is not 16-byte aligned
    .savexmm128 xmm6, 16*0
     movdqu [rsp+16*1],xmm7
    .savexmm128 xmm7, 16*1
