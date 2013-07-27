@@ -291,7 +291,7 @@
     <value>出力量子化ビット数の欄に1～23の範囲の整数を入れて下さい</value>
   </data>
   <data name="GroupNoiseShaping" xml:space="preserve">
-    <value>ノイズシェイピング(2次)</value>
+    <value>ノイズシェイピング</value>
   </data>
   <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
     <value>出力量子化ビット数:</value>
@@ -310,5 +310,17 @@
   </data>
   <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
     <value>出力データのサイズが1チャンネルあたり2GBを超えたため計算を続行できませんでした。</value>
+  </data>
+  <data name="CbItemNoiseShaping2nd" xml:space="preserve">
+    <value>2次</value>
+  </data>
+  <data name="CbItemNoiseShaping4th" xml:space="preserve">
+    <value>4次</value>
+  </data>
+  <data name="FilterNoiseShaping4thDesc" xml:space="preserve">
+    <value>4次のノイズシェイピング: 出力量子化ビット数={0}</value>
+  </data>
+  <data name="LabelNoiseShapingMethod" xml:space="preserve">
+    <value>方式:</value>
   </data>
 </root>

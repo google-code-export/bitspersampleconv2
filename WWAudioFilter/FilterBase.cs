@@ -14,7 +14,8 @@ namespace WWAudioFilter {
         LowPassFilter,
         FftUpsampler,
         Mash2,
-        NoiseShaping
+        NoiseShaping,
+        NoiseShaping4th
     }
 
     public class FilterBase {

@@ -360,7 +360,7 @@
     <value>Prease input Target Quantization Bit Rate in integer in the range of 1 to 23</value>
   </data>
   <data name="GroupNoiseShaping" xml:space="preserve">
-    <value>Noise Shaping (2nd Order)</value>
+    <value>Noise Shaping</value>
   </data>
   <data name="LabelNoiseShapingTargetBit" xml:space="preserve">
     <value>Target Quantized Bit Rate:</value>
@@ -379,5 +379,17 @@
   </data>
   <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
     <value>Output data size exceeds 2GB per channel! Process aborted.</value>
+  </data>
+  <data name="CbItemNoiseShaping2nd" xml:space="preserve">
+    <value>2nd order</value>
+  </data>
+  <data name="CbItemNoiseShaping4th" xml:space="preserve">
+    <value>4th order</value>
+  </data>
+  <data name="FilterNoiseShaping4thDesc" xml:space="preserve">
+    <value>4th order noise shaping: targetBitsPerSample={0}</value>
+  </data>
+  <data name="LabelNoiseShapingMethod" xml:space="preserve">
+    <value>Noise shaping method:</value>
   </data>
 </root>

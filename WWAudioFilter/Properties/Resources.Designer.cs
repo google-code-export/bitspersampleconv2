@@ -169,6 +169,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   2nd order に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CbItemNoiseShaping2nd {
+            get {
+                return ResourceManager.GetString("CbItemNoiseShaping2nd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   4th order に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string CbItemNoiseShaping4th {
+            get {
+                return ResourceManager.GetString("CbItemNoiseShaping4th", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Zero-Order Hold Upsampler に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string CbItemZohUpsampler {
@@ -346,6 +364,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterMashDesc {
             get {
                 return ResourceManager.GetString("FilterMashDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   4th order noise shaping: targetBitsPerSample={0} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterNoiseShaping4thDesc {
+            get {
+                return ResourceManager.GetString("FilterNoiseShaping4thDesc", resourceCulture);
             }
         }
         
@@ -647,7 +674,7 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Noise Shaping (2nd Order) に類似しているローカライズされた文字列を検索します。
+        ///   Noise Shaping に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupNoiseShaping {
             get {
@@ -724,6 +751,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelInputFile {
             get {
                 return ResourceManager.GetString("LabelInputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Noise shaping method: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelNoiseShapingMethod {
+            get {
+                return ResourceManager.GetString("LabelNoiseShapingMethod", resourceCulture);
             }
         }
         

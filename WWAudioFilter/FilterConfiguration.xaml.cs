@@ -62,7 +62,11 @@ namespace WWAudioFilter {
 
             groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
             labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
+            labelNoiseShapingMethod.Content = Properties.Resources.LabelNoiseShapingMethod;
+            cbItemNoiseShaping2nd.Content = Properties.Resources.CbItemNoiseShaping2nd;
+            cbItemNoiseShaping4th.Content = Properties.Resources.CbItemNoiseShaping4th;
             buttonUseNoiseShaping.Content = Properties.Resources.ButtonUseThisFilter;
+
         }
 
         public FilterBase Filter {
@@ -102,6 +106,16 @@ namespace WWAudioFilter {
             case FilterType.Mash2:
                 var mash = filter as MashFilter;
                 textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", mash.TargetBitsPerSample);
+                break;
+            case FilterType.NoiseShaping:
+                var ns = filter as NoiseShapingFilter;
+                textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns.TargetBitsPerSample);
+                comboBoxNoiseShapingMethod.SelectedIndex = (int)NoiseShapingCbItemType.NoiseShaping2nd;
+                break;
+            case FilterType.NoiseShaping4th:
+                var ns4 = filter as NoiseShaping4thFilter;
+                textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns4.TargetBitsPerSample);
+                comboBoxNoiseShapingMethod.SelectedIndex = (int)NoiseShapingCbItemType.NoiseShaping4th;
                 break;
             }
         }
@@ -256,6 +270,12 @@ namespace WWAudioFilter {
                 return 262144;
             }
         }
+
+        enum NoiseShapingCbItemType {
+            NoiseShaping2nd,
+            NoiseShaping4th
+        };
+
         ///////////////////////////////////////////////////////////////////////////////////
 
         private void buttonCancel_Click(object sender, RoutedEventArgs e) {
@@ -341,7 +361,22 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mFilter = new NoiseShapingFilter(nBit, 2);
+            /*
+            if (comboBoxNoiseShapingMethod.SelectedIndex == (int)NoiseShapingCbItemType.NoiseShaping4th
+                && nBit != 1) {
+                MessageBox.Show(Properties.Resources.ErrorNoiseShaping4thBitIsNot1);
+                return;
+            }
+            */
+
+            switch (comboBoxNoiseShapingMethod.SelectedIndex) {
+            case (int)NoiseShapingCbItemType.NoiseShaping2nd:
+                mFilter = new NoiseShapingFilter(nBit, 2);
+                break;
+            case (int)NoiseShapingCbItemType.NoiseShaping4th:
+                mFilter = new NoiseShaping4thFilter(nBit);
+                break;
+            }
             DialogResult = true;
             Close();
         }
