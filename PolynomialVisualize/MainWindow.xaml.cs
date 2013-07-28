@@ -43,8 +43,8 @@ namespace PolynomialVisualize {
             int pos = 0;
             for (int yI = 0; yI < bm.PixelHeight; yI++) {
                 for (int xI = 0; xI < bm.PixelWidth; xI++) {
-                    double y = 3.0 * (bm.PixelHeight / 2 - yI) / bm.PixelHeight;
-                    double x = 3.0 * (xI - bm.PixelWidth  / 2) / bm.PixelHeight;
+                    double y = 2.666666666 * (bm.PixelHeight / 2 - yI) / bm.PixelHeight;
+                    double x = 2.666666666 * (xI - bm.PixelWidth / 2) / bm.PixelHeight;
                     var z = new WWComplex(x, y);
 
 #if true
