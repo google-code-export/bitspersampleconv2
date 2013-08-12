@@ -176,6 +176,10 @@ namespace WWDistortionNoise {
                 return null;
             }
             /*
+                ジッター発生の原理
+                ①ジッターによって揺さぶられたクロックで時を刻む。
+                ②①のデータの各時刻について、音声信号の波高値をSincリサンプラーにより算出する。
+
                 sampleRate        == 96000 Hz
                 jitterFrequency   == 50 Hz
                 jitterPicoseconds == 1 ps の場合
@@ -196,8 +200,7 @@ namespace WWDistortionNoise {
                 1psのサンプルずれA ＝ 10^-12 ÷ (1/96000) = 10^-12 * 96000 (サンプルのずれ)
              
                 サンプルを採取する位置= pos + Asin(θ)
-             
-                */
+            */
 
             mTotalSamples = inputFormat.NumSamples;
             mSampleRate    = inputFormat.SampleRate;
