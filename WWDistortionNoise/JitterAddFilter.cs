@@ -22,7 +22,9 @@ namespace WWDistortionNoise {
         private double mTpdfJitterAmp;
         private double mRpdfJitterAmp;
 
-        private int[]   mResamplePosArray;
+        // ジッターによって揺さぶられたクロックが生成した再サンプリング時刻。
+        // PrepareResamplePosArray()で計算する
+        private int[]    mResamplePosArray;
         private double[] mFractionArray;
 
         public JitterAddFilter(double sineJitterFreq, double sineJitterNanosec, double tpdfJitterNanosec, double rpdfJitterNanosec, int convolutionN)
