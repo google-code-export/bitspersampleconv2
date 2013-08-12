@@ -13,7 +13,7 @@ namespace WWDistortionNoise {
         public double SineJitterNanosec { get; set; }
         public double TpdfJitterNanosec { get; set; }
         public double RpdfJitterNanosec { get; set; }
-        public int ConvolutionLength { get; set; }
+        public int ConvolutionLengthMinus1 { get; set; }
 
         // Setup()で計算する
         private long   mTotalSamples;
@@ -27,7 +27,7 @@ namespace WWDistortionNoise {
         private int[]    mResamplePosArray;
         private double[] mFractionArray;
 
-        public JitterAddFilter(double sineJitterFreq, double sineJitterNanosec, double tpdfJitterNanosec, double rpdfJitterNanosec, int convolutionN)
+        public JitterAddFilter(double sineJitterFreq, double sineJitterNanosec, double tpdfJitterNanosec, double rpdfJitterNanosec, int convolutionLengthMinus1)
                 : base(FilterType.JitterAdd) {
             if (sineJitterFreq < 0) {
                 throw new ArgumentOutOfRangeException("sineJitterFreq");
@@ -49,24 +49,24 @@ namespace WWDistortionNoise {
             }
             RpdfJitterNanosec = rpdfJitterNanosec;
 
-            if (convolutionN < 1024) {
-                throw new ArgumentOutOfRangeException("convolutionN");
+            if (convolutionLengthMinus1 < 1024) {
+                throw new ArgumentOutOfRangeException("convolutionLengthMinus1");
             }
-            ConvolutionLength = convolutionN;
+            ConvolutionLengthMinus1 = convolutionLengthMinus1;
         }
 
         public override FilterBase CreateCopy() {
-            return new JitterAddFilter(SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength);
+            return new JitterAddFilter(SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1);
         }
 
         public override string ToDescriptionText() {
             return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterJitterAddDesc,
-                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength+1);
+                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1+1);
         }
 
         public override string ToSaveText() {
             return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}",
-                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength);
+                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLengthMinus1);
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -230,7 +230,7 @@ namespace WWDistortionNoise {
                 double sinFraction = Math.Sin(-Math.PI * mFractionArray[toPos]);
                 double v = 0.0;
 
-                for (int convOffs = -ConvolutionLength/2; convOffs <= ConvolutionLength/2; ++convOffs) {
+                for (int convOffs = -ConvolutionLengthMinus1/2; convOffs <= ConvolutionLengthMinus1/2; ++convOffs) {
                     long pos = convOffs + fromPos;
                     if (0 <= pos && pos < inPcm.LongLength) {
                         double x = Math.PI * (convOffs - fraction);

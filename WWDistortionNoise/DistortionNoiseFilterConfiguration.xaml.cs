@@ -66,7 +66,7 @@ namespace WWDistortionNoise {
                 textBoxTpdfJitterNanoSeconds.Text = string.Format(CultureInfo.CurrentCulture, "{0}", jitter.TpdfJitterNanosec);
                 textBoxRpdfJitterNanoSeconds.Text = string.Format(CultureInfo.CurrentCulture, "{0}", jitter.RpdfJitterNanosec);
                 for (int i=0; i < mConvolutionLengthArray.Length; ++i) {
-                    if (mConvolutionLengthArray[i] == jitter.ConvolutionLength) {
+                    if (mConvolutionLengthArray[i] == jitter.ConvolutionLengthMinus1) {
                         comboBoxFilterLength.SelectedIndex = i;
                     }
                 }
