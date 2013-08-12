@@ -180,7 +180,7 @@ namespace WWDistortionNoise {
             /*
                 ジッター発生の原理
                 ①ジッターによって揺さぶられたクロックで時を刻む。
-                ②①のデータの各時刻について、音声信号の波高値をSincリサンプラーにより算出する。
+                ②①の各時刻について、音声信号の波高値をSincリサンプラーにより算出する。
 
                 sampleRate        == 96000 Hz
                 jitterFrequency   == 50 Hz
