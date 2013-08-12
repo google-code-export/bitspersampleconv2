@@ -58,11 +58,13 @@ namespace WWDistortionNoise {
         }
 
         public override string ToDescriptionText() {
-            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterJitterAddDesc, SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength);
+            return string.Format(CultureInfo.CurrentCulture, Properties.Resources.FilterJitterAddDesc,
+                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength+1);
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}", SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3} {4}",
+                SineJitterFreq, SineJitterNanosec, TpdfJitterNanosec, RpdfJitterNanosec, ConvolutionLength);
         }
 
         public static FilterBase Restore(string[] tokens) {
