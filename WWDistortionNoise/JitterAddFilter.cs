@@ -218,12 +218,6 @@ namespace WWDistortionNoise {
             return mTotalSamples;
         }
 
-        public override void FilterEnd() {
-            base.FilterEnd();
-            mResamplePosArray = null;
-            mFractionArray = null;
-        }
-
         public override double[] FilterDo(double[] inPcm) {
             System.Diagnostics.Debug.Assert(inPcm.Length == mResamplePosArray.Length);
             System.Diagnostics.Debug.Assert(inPcm.Length == mFractionArray.Length);
