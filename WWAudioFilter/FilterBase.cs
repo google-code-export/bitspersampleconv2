@@ -15,8 +15,17 @@ namespace WWAudioFilter {
         FftUpsampler,
         Mash2,
         NoiseShaping,
-        NoiseShaping4th
+        NoiseShaping4th,
+        TagEdit,
     }
+
+    public struct TagData {
+        /// <summary>
+        ///  @todo FLACのメタデータを持ってきていてアレだ
+        /// </summary>
+        public WWFlacRWCS.Metadata Meta { get; set; }
+        public byte [] Picture { get;set; }
+    };
 
     public class FilterBase {
         public FilterType FilterType { get; set; }
@@ -57,6 +66,10 @@ namespace WWAudioFilter {
         /// <returns>output pcm format</returns>
         public virtual PcmFormat Setup(PcmFormat inputFormat) {
             return new PcmFormat(inputFormat);
+        }
+
+        public virtual TagData TagEdit(TagData tagData) {
+            return tagData;
         }
 
         public virtual void FilterStart() {

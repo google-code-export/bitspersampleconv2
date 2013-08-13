@@ -91,6 +91,7 @@
     </ApplicationDefinition>
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="MashFilter.cs" />
+    <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
     <Compile Include="NoiseShapingFilter.cs" />
     <Compile Include="WWComplex.cs" />

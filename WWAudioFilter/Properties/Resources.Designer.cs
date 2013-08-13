@@ -214,6 +214,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Please add one or more filters に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string ErrorFilterEmpty {
+            get {
+                return ResourceManager.GetString("ErrorFilterEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Filter file version mismatch. expected version={0}, file version={1} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ErrorFilterFileVersionMismatch {
@@ -382,6 +391,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterNoiseShapingDesc {
             get {
                 return ResourceManager.GetString("FilterNoiseShapingDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Edit Tag : {0} = &quot;{1}&quot; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string FilterTagEdit {
+            get {
+                return ResourceManager.GetString("FilterTagEdit", resourceCulture);
             }
         }
         
@@ -692,6 +710,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Edit Tag に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string GroupTagEdit {
+            get {
+                return ResourceManager.GetString("GroupTagEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Upsampler に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string GroupUpsampler {
@@ -787,6 +814,24 @@ namespace WWAudioFilter.Properties {
         internal static string LabelSamples {
             get {
                 return ResourceManager.GetString("LabelSamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Text: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelTagText {
+            get {
+                return ResourceManager.GetString("LabelTagText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Tag type: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string LabelTagType {
+            get {
+                return ResourceManager.GetString("LabelTagType", resourceCulture);
             }
         }
         

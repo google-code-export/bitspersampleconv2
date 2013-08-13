@@ -638,8 +638,21 @@ namespace WWAudioFilter {
                 return;
             }
 
-            mProgressSamples = 0;
+            {
+                // タグの編集
+                var tagData = new TagData();
+                tagData.Meta = new WWFlacRWCS.Metadata(audioDataTo.meta);
+                tagData.Picture = audioDataTo.picture;
 
+                foreach (var f in mFilters) {
+                    tagData = f.TagEdit(tagData);
+                }
+
+                audioDataTo.meta    = tagData.Meta;
+                audioDataTo.picture = tagData.Picture;
+            }
+
+            mProgressSamples = 0;
             Parallel.For(0, audioDataFrom.meta.channels, ch => {
                 var filters = new List<FilterBase>();
                 foreach (var f in mFilters) {
@@ -982,6 +995,11 @@ namespace WWAudioFilter {
         private void buttonStartConversion_Click(object sender, RoutedEventArgs e) {
             if (0 == string.Compare(textBoxInputFile.Text, textBoxOutputFile.Text, StringComparison.Ordinal)) {
                 MessageBox.Show(Properties.Resources.ErrorWriteToReadFile, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Hand);
+                return;
+            }
+            if (0 == mFilters.Count) {
+                MessageBox.Show(Properties.Resources.ErrorFilterEmpty,
+                    Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Hand);
                 return;
             }
 

@@ -323,4 +323,19 @@
   <data name="LabelNoiseShapingMethod" xml:space="preserve">
     <value>方式:</value>
   </data>
+  <data name="ErrorFilterEmpty" xml:space="preserve">
+    <value>フィルターを1つ以上追加して下さい</value>
+  </data>
+  <data name="FilterTagEdit" xml:space="preserve">
+    <value>タグ編集 : {0} = "{1}"</value>
+  </data>
+  <data name="GroupTagEdit" xml:space="preserve">
+    <value>タグ編集</value>
+  </data>
+  <data name="LabelTagText" xml:space="preserve">
+    <value>設定文字列:</value>
+  </data>
+  <data name="LabelTagType" xml:space="preserve">
+    <value>タグ項目:</value>
+  </data>
 </root>

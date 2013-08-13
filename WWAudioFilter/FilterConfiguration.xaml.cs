@@ -67,6 +67,9 @@ namespace WWAudioFilter {
             cbItemNoiseShaping4th.Content = Properties.Resources.CbItemNoiseShaping4th;
             buttonUseNoiseShaping.Content = Properties.Resources.ButtonUseThisFilter;
 
+            groupBoxTagEdit.Header = Properties.Resources.GroupTagEdit;
+            labelTagType.Content = Properties.Resources.LabelTagType;
+            labelTagText.Content = Properties.Resources.LabelTagText;
         }
 
         public FilterBase Filter {
@@ -116,6 +119,11 @@ namespace WWAudioFilter {
                 var ns4 = filter as NoiseShaping4thFilter;
                 textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns4.TargetBitsPerSample);
                 comboBoxNoiseShapingMethod.SelectedIndex = (int)NoiseShapingCbItemType.NoiseShaping4th;
+                break;
+            case FilterType.TagEdit:
+                var te = filter as TagEditFilter;
+                comboBoxTagType.SelectedIndex = (int)te.TagType;
+                textBoxTagText.Text = te.Text;
                 break;
             }
         }
@@ -393,5 +401,40 @@ namespace WWAudioFilter {
             }
         }
 
+        enum TagEditType {
+            Title,
+            Album,
+            AlbumArtist,
+            Artist,
+            Genre,
+        };
+
+        private void buttonUseTagEdit_Click(object sender, RoutedEventArgs e) {
+            TagEditFilter.Type type = TagEditFilter.Type.Title;
+
+            switch (comboBoxTagType.SelectedIndex) {
+            case (int)TagEditType.Title:
+                type = TagEditFilter.Type.Title;
+                break;
+            case (int)TagEditType.Album:
+                type = TagEditFilter.Type.Album;
+                break;
+            case (int)TagEditType.AlbumArtist:
+                type = TagEditFilter.Type.AlbumArtist;
+                break;
+            case (int)TagEditType.Artist:
+                type = TagEditFilter.Type.Artist;
+                break;
+            case (int)TagEditType.Genre:
+                type = TagEditFilter.Type.Genre;
+                break;
+            default:
+                return;
+            }
+
+            mFilter = new TagEditFilter(type, textBoxTagText.Text);
+            DialogResult = true;
+            Close();
+        }
     }
 }

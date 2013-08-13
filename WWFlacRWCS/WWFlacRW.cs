@@ -106,6 +106,7 @@ namespace WWFlacRWCS {
                 meta.pictureBytes   = nMeta.pictureBytes;
                 meta.totalSamples   = nMeta.totalSamples;
                 meta.titleStr       = nMeta.titleStr;
+                meta.albumStr       = nMeta.albumStr;
                 meta.artistStr      = nMeta.artistStr;
                 meta.albumArtistStr = nMeta.albumArtistStr;
                 meta.genreStr       = nMeta.genreStr;
@@ -142,6 +143,7 @@ namespace WWFlacRWCS {
             nMeta.pictureBytes = meta.pictureBytes;
             nMeta.totalSamples = meta.totalSamples;
             nMeta.titleStr = meta.titleStr;
+            nMeta.albumStr = meta.albumStr;
             nMeta.artistStr = meta.artistStr;
             nMeta.albumArtistStr = meta.albumArtistStr;
             nMeta.genreStr = meta.genreStr;
