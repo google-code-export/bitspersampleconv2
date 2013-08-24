@@ -126,6 +126,7 @@ namespace PolynomialVisualize {
             M45,
             M90,
             M135,
+            M180,
         };
 
         enum SampleFreqType {
@@ -283,6 +284,7 @@ namespace PolynomialVisualize {
 
             double phaseShift = 0;
 
+            // 配列に入れてデータ化するといい。
             switch (comboBoxPhaseShift.SelectedIndex) {
             case (int)PhaseShiftType.Zero:
                 phaseShift = 0;
@@ -348,6 +350,14 @@ namespace PolynomialVisualize {
                 labelPhaseM90.Content = "-225";
                 labelPhaseM180.Content = "-315";
                 break;
+            case (int)PhaseShiftType.M180:
+                phaseShift = Math.PI;
+                labelPhase180.Content = "0";
+                labelPhase90.Content = "-90";
+                labelPhase0.Content = "-180";
+                labelPhaseM90.Content = "-270";
+                labelPhaseM180.Content = "-360";
+                break;
             }
 
             switch (comboBoxFreqScale.SelectedIndex) {
@@ -368,7 +378,6 @@ namespace PolynomialVisualize {
                 Canvas.SetLeft(labelFR1, lineFR1.X1 - 20);
                 Canvas.SetLeft(labelFR2, lineFR2.X1 - 20);
                 Canvas.SetLeft(labelFR3, FR_LINE_LEFT + FR_LINE_NUM - 20);
-                Canvas.SetLeft(labelFRMin, FR_LINE_LEFT + FR_LINE_NUM);
                 break;
             case (int)FreqScaleType.Logarithmic:
                 labelFRMin.Visibility = Visibility.Visible;

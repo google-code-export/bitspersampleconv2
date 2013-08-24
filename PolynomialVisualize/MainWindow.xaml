@@ -109,10 +109,10 @@
                     <ComboBoxItem Content="96 kHz" />
                     <ComboBoxItem Content="176.4 kHz" />
                     <ComboBoxItem Content="192 kHz" />
-                    <ComboBoxItem Content="2.8 MHz" />
-                    <ComboBoxItem Content="5.6 MHz" />
-                    <ComboBoxItem Content="11.3 MHz" />
-                    <ComboBoxItem Content="22.5 MHz" />
+                    <ComboBoxItem Content="2.8224 MHz" />
+                    <ComboBoxItem Content="5.6448 MHz" />
+                    <ComboBoxItem Content="11.2896 MHz" />
+                    <ComboBoxItem Content="22.5792 MHz" />
                 </ComboBox>
                 <Label Content="Frequency Scale:" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="6" Name="comboBoxFreqScale" VerticalAlignment="Center" SelectionChanged="comboBoxFreqScale_SelectionChanged">
@@ -134,6 +134,7 @@
                     <ComboBoxItem Content="-45 degree" />
                     <ComboBoxItem Content="-90 degree" />
                     <ComboBoxItem Content="-135 degree" />
+                    <ComboBoxItem Content="-180 degree" />
                 </ComboBox>
             </Grid>
         </GroupBox>
