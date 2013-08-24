@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PolynomialVisualize.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PolynomialVisualize" Height="800" Width="1366" Loaded="Window_Loaded">
+        Title="PolynomialVisualize" Height="800" Width="1269" Loaded="Window_Loaded">
     <Grid>
         <GroupBox Header="Pole-Zero Plot" Margin="6,150,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="570">
             <Grid >
@@ -45,7 +45,7 @@
                 <Label Content="z^(-4)" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="676,31,0,0" Name="label14" VerticalAlignment="Top" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Frequency Response" HorizontalAlignment="Left" Margin="580,150,0,0" Name="groupBoxFR" VerticalAlignment="Top" >
+        <GroupBox Header="Frequency Response" HorizontalAlignment="Left" Margin="583,194,0,0" Name="groupBoxFR" VerticalAlignment="Top" >
             <Canvas Width="640" Height="360" Name="canvasFR">
                 <Line X1="64" Y1="288" X2="576" Y2="288" Stroke="Black" />
                 <Line X1="64" Y1="32" X2="64" Y2="288" Stroke="Black" />
@@ -82,20 +82,21 @@
                         <RotateTransform Angle="-90" />
                     </Label.RenderTransform>
                 </Label>
-                <Label Canvas.Left="576" Canvas.Top="144" Content="0.0" Foreground="Red"  />
-                <Label Canvas.Left="576" Canvas.Top="20" Content="+180" Foreground="Red" />
-                <Label Canvas.Left="576" Canvas.Top="273" Content="-180" Foreground="Red" />
-                <Label Canvas.Left="576" Canvas.Top="84" Content="+90" Foreground="Red" />
-                <Label Canvas.Left="576" Canvas.Top="210" Content="-90" Foreground="Red" />
+                <Label Canvas.Left="576" Canvas.Top="144" Content="0" Foreground="Red"  Name="labelPhase0"/>
+                <Label Canvas.Left="576" Canvas.Top="20" Content="+180" Foreground="Red" Name="labelPhase180"/>
+                <Label Canvas.Left="576" Canvas.Top="273" Content="-180" Foreground="Red" Name="labelPhaseM180" />
+                <Label Canvas.Left="576" Canvas.Top="84" Content="+90" Foreground="Red" Name="labelPhase90"/>
+                <Label Canvas.Left="576" Canvas.Top="210" Content="-90" Foreground="Red" Name="labelPhaseM90"/>
             </Canvas>
         </GroupBox>
-        <GroupBox Header="Settings" Height="132" HorizontalAlignment="Left" Margin="776,6,0,0" Name="groupBox2" VerticalAlignment="Top" Width="390">
+        <GroupBox Header="Settings" Height="168" HorizontalAlignment="Left" Margin="776,6,0,0" Name="groupBox2" VerticalAlignment="Top" Width="390">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
@@ -122,6 +123,17 @@
                 <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Margin="6" Name="comboBoxMagScale" VerticalAlignment="Center" SelectionChanged="comboBoxMagScale_SelectionChanged">
                     <ComboBoxItem Content="Linear" />
                     <ComboBoxItem Content="Logarithmic" IsSelected="True" />
+                </ComboBox>
+                <Label Content="Phase Display Shift:" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="6" Name="comboBoxPhaseShift" VerticalAlignment="Center" SelectionChanged="comboBoxPhaseShift_SelectionChanged">
+                    <ComboBoxItem Content="0 degree" IsSelected="True" />
+                    <ComboBoxItem Content="+45 degree" />
+                    <ComboBoxItem Content="+90 degree" />
+                    <ComboBoxItem Content="+135 degree" />
+                    <ComboBoxItem Content="+180 degree" />
+                    <ComboBoxItem Content="-45 degree" />
+                    <ComboBoxItem Content="-90 degree" />
+                    <ComboBoxItem Content="-135 degree" />
                 </ComboBox>
             </Grid>
         </GroupBox>
