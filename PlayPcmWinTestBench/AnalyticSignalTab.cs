@@ -169,7 +169,9 @@ namespace PlayPcmWinTestBench {
             if (null == pcmDataIn) {
                 e.Result = string.Format("WAVファイル {0} 読み込み失敗", args.inputPath);
             }
-            PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat, null);
+
+            var formatConv = new WasapiPcmUtil.PcmFormatConverter(pcmDataIn.NumChannels);
+            PcmData pcmDataReal = formatConv.Convert(pcmDataIn, Wasapi.WasapiCS.SampleFormatType.Sdouble, null);
 
             PcmData pcmDataImaginary = new PcmData();
             pcmDataImaginary.CopyFrom(pcmDataReal);

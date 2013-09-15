@@ -545,9 +545,6 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
     <value>最大振幅が0.98になるよう調整しリミッターAPOによる歪を軽減</value>
   </data>
-  <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
-    <value>量子化ビット数を減らすときにノイズシェイピングする</value>
-  </data>
   <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
     <value>WASAPI排他モード設定</value>
   </data>
@@ -588,5 +585,20 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
     <value>タイマー解像度</value>
+  </data>
+  <data name="SettingsLabelNoiseShaping" xml:space="preserve">
+    <value>ノイズシェイピング:</value>
+  </data>
+  <data name="SettingsNoNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときに下位ビットを切り捨てる</value>
+  </data>
+  <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときにディザ付きノイズシェイピング</value>
+  </data>
+  <data name="SettingsPerformNoiseShaping" xml:space="preserve">
+    <value>量子化ビット数を減らすときにノイズシェイピングする</value>
+  </data>
+  <data name="SettingsPerformDither" xml:space="preserve">
+    <value>量子化ビット数を減らすときにディザを加算する</value>
   </data>
 </root>

@@ -213,6 +213,10 @@ namespace Wasapi {
             Rec
         };
 
+        /// <summary>
+        /// enum項目はPcmData.ValueRepresentationTypeと同じ順番で並べる。
+        /// WasapiPcmUtilのVrtToBftも参照。
+        /// </summary>
         public enum BitFormatType {
             SInt,
             SFloat
@@ -225,6 +229,7 @@ namespace Wasapi {
             Sint32V24,
             Sint32,
             Sfloat,
+            Sdouble, //< WASAPIはサポートしないが便宜上用意する
         };
 
         public enum StreamType {
@@ -249,9 +254,47 @@ namespace Wasapi {
                 return 32;
             case SampleFormatType.Sfloat:
                 return 32;
+            case SampleFormatType.Sdouble:
+                return 64;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 0;
+            }
+        }
+
+        public static SampleFormatType BitAndFormatToSampleFormatType(int bitsPerSample, int validBitsPerSample, BitFormatType bitFormat) {
+            if (bitFormat == BitFormatType.SInt) {
+                // int
+                switch (bitsPerSample) {
+                case 16:
+                    return SampleFormatType.Sint16;
+                case 24:
+                    return SampleFormatType.Sint24;
+                case 32:
+                    switch (validBitsPerSample) {
+                    case 24:
+                        return SampleFormatType.Sint32V24;
+                    case 32:
+                        return SampleFormatType.Sint32;
+                    default:
+                        System.Diagnostics.Debug.Assert(false);
+                        return SampleFormatType.Unknown;
+                    }
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return SampleFormatType.Unknown;
+                }
+            } else {
+                // float
+                switch (bitsPerSample) {
+                case 32:
+                    return SampleFormatType.Sfloat;
+                case 64:
+                    return SampleFormatType.Sdouble;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return SampleFormatType.Unknown;
+                }
             }
         }
 
@@ -272,6 +315,8 @@ namespace Wasapi {
                 return 32;
             case SampleFormatType.Sfloat:
                 return 32;
+            case SampleFormatType.Sdouble:
+                return 64;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return 0;

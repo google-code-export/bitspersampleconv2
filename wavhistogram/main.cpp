@@ -342,6 +342,7 @@ main(int argc, char *argv[])
         hr = E_FAIL;
         goto end;
     }
+    int totalSamples = readBytes/(fmt.bits/8);
 
     switch (fmt.bits) {
     case 16:
@@ -356,22 +357,23 @@ main(int argc, char *argv[])
                 continue;
             }
             if (prevPosition != i-1) {
-                printf("%d %d\n", i-1-65536, prevValue);
+                printf("%d %d %f\n", i-1-65536, prevValue, (double)prevValue / totalSamples);
             }
             prevValue = histogram16[i];
             prevPosition = i;
-            printf("%d %d\n", i-65536, histogram16[i]);
+            printf("%d %d %f\n", i-65536, histogram16[i], (double)histogram16[i] / totalSamples);
         }
+        prevPosition -= 65536;
         for (int i=0; i<32768; ++i) {
             if (prevValue == histogram16[i]) {
                 continue;
             }
             if (prevPosition != i-1) {
-                printf("%d %d\n", i-1, prevValue);
+                printf("%d %d %f\n", i-1, prevValue, (double)prevValue / totalSamples);
             }
             prevValue = histogram16[i];
             prevPosition = i;
-            printf("%d %d\n", i, histogram16[i]);
+            printf("%d %d %f\n", i, histogram16[i], (double)histogram16[i] / totalSamples);
         }
         break;
     case 24:
@@ -387,22 +389,22 @@ main(int argc, char *argv[])
                 continue;
             }
             if (prevPosition != i-1) {
-                printf("%12d %12d\n", i-1-16777216, prevValue);
+                printf("%12d %12d %f\n", i-1-16777216, prevValue, (double)prevValue / totalSamples);
             }
             prevValue = histogram24[i];
             prevPosition = i;
-            printf("%12d %12d\n", i-16777216, histogram24[i]);
+            printf("%12d %12d %f\n", i-16777216, histogram24[i], (double)histogram24[i] / totalSamples);
         }
         for (int i=0; i<8388608; ++i) {
             if (abs(prevValue - histogram24[i]) < 1) {
                 continue;
             }
             if (prevPosition != i-1) {
-                printf("%12d %12d\n", i-1, prevValue);
+                printf("%12d %12d %f\n", i-1, prevValue, (double)prevValue / totalSamples);
             }
             prevValue = histogram24[i];
             prevPosition = i;
-            printf("%12d %12d\n", i, histogram24[i]);
+            printf("%12d %12d %f\n", i, histogram24[i], (double)histogram24[i] / totalSamples);
         }
         break;
     default:

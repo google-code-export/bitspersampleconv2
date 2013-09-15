@@ -87,6 +87,9 @@ namespace PcmDataLib {
 
         // PCMフォーマット情報 //////////////////////////////////////////////
 
+        /// <summary>
+        /// enum項目はWasapiCS.BitFormatTypeと同じ順番で並べる。
+        /// </summary>
         public enum ValueRepresentationType {
             SInt,
             SFloat
@@ -229,7 +232,7 @@ namespace PcmDataLib {
         /// PCMデータ配列は、SetSampleArrayで別途設定する。
         /// </summary>
         /// <param name="rhs">コピー元</param>
-        private void CopyHeaderInfoFrom(PcmData rhs) {
+        public void CopyHeaderInfoFrom(PcmData rhs) {
             NumChannels   = rhs.NumChannels;
             SampleRate    = rhs.SampleRate;
             BitsPerSample = rhs.BitsPerSample;
@@ -495,6 +498,86 @@ namespace PcmDataLib {
             return BitConverter.ToDouble(data, 0);
         }
 
+        private byte[] ConvI16toF64(byte[] from) {
+            int nSample = from.Length / 2;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                short iv = (short)(from[fromPos]
+                    + (from[fromPos + 1] << 8));
+                double dv = ((double)iv) * (1.0 / 32768.0);
+
+                byte [] b = System.BitConverter.GetBytes(dv);
+
+                for (int j=0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 2;
+            }
+            return to;
+        }
+
+        private byte[] ConvI24toF64(byte[] from) {
+            int nSample = from.Length / 3;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                int iv = ((int)from[fromPos] << 8)
+                    + ((int)from[fromPos + 1] << 16)
+                    + ((int)from[fromPos + 2] << 24);
+                double dv = ((double)iv) * (1.0 / 2147483648.0);
+
+                byte [] b = System.BitConverter.GetBytes(dv);
+
+                for (int j=0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 3;
+            }
+            return to;
+        }
+
+        private byte[] ConvI32toF64(byte[] from) {
+            int nSample = from.Length / 4;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                int iv = ((int)from[fromPos + 1] << 8)
+                    + ((int)from[fromPos + 2] << 16)
+                    + ((int)from[fromPos + 3] << 24);
+                double dv = ((double)iv) * (1.0 / 2147483648.0);
+
+                byte [] b = System.BitConverter.GetBytes(dv);
+
+                for (int j=0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 4;
+            }
+            return to;
+        }
+
+        private byte[] ConvF32toF64(byte[] from) {
+            int nSample = from.Length / 4;
+            byte[] to = new byte[nSample * 8];
+            int fromPos = 0;
+            int toPos = 0;
+            for (int i = 0; i < nSample; ++i) {
+                float fv = System.BitConverter.ToSingle(from, fromPos);
+                double dv = (double)fv;
+
+                byte [] b = System.BitConverter.GetBytes(dv);
+                for (int j=0; j < 8; ++j) {
+                    to[toPos++] = b[j];
+                }
+                fromPos += 4;
+            }
+            return to;
+        }
+
         /// <summary>
         /// double サンプル値セット。フォーマットが64bit SFloatの場合のみ使用可能。
         /// </summary>
@@ -704,812 +787,6 @@ namespace PcmDataLib {
             newPcmData.SetSampleArray(newSampleArray);
 
             return newPcmData;
-        }
-
-        public class BitsPerSampleConvArgs {
-            /// <summary>
-            /// perform noise shaping if applicable
-            /// </summary>
-            public bool noiseShaping;
-
-            /// <summary>
-            /// [out] true if noise shaping is performed
-            /// </summary>
-            public bool noiseShapingPerformed;
-
-            public BitsPerSampleConvArgs(bool noiseShaping) {
-                this.noiseShaping = noiseShaping;
-                noiseShapingPerformed = false;
-            }
-        };
-
-        /// <summary>
-        /// 量子化ビット数をbitsPerSampleに変更した、新しいPcmDataを戻す。
-        /// 自分自身の内容は変更しない。
-        /// </summary>
-        /// <param name="newBitsPerSample">新しい量子化ビット数</param>
-        /// <returns>量子化ビット数変更後のPcmData</returns>
-        public PcmData BitsPerSampleConvertTo(int newBitsPerSample, ValueRepresentationType newValueRepType, BitsPerSampleConvArgs args) {
-            byte [] newSampleArray        = null;
-
-            bool noiseShaping = false;
-            if (args != null) {
-                noiseShaping = args.noiseShaping;
-            }
-            bool noiseShapingCapable = false;
-
-            /// @todo 次に項目を増やすときは、2次元のテーブルにリファクタリングする
-            if (newBitsPerSample == 64) {
-                Debug.Assert(newValueRepType == ValueRepresentationType.SFloat);
-                switch (BitsPerSample) {
-                case 16:
-                    newSampleArray = ConvI16toF64(GetSampleArray());
-                    break;
-                case 24:
-                    newSampleArray = ConvI24toF64(GetSampleArray());
-                    break;
-                case 32:
-                    if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
-                        newSampleArray = ConvF32toF64(GetSampleArray());
-                    } else {
-                        newSampleArray = ConvI32toF64(GetSampleArray());
-                    }
-                    break;
-                case 64:
-                    Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-                    newSampleArray = (byte[])GetSampleArray().Clone();
-                    break;
-                default:
-                    Debug.Assert(false);
-                    return null;
-                }
-            } else if (newBitsPerSample == 32) {
-                if (newValueRepType == ValueRepresentationType.SFloat) {
-                    switch (BitsPerSample) {
-                    case 16:
-                        newSampleArray = ConvI16toF32(GetSampleArray());
-                        break;
-                    case 24:
-                        newSampleArray = ConvI24toF32(GetSampleArray());
-                        break;
-                    case 32:
-                        if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
-                            newSampleArray = (byte[])GetSampleArray().Clone();
-                        } else {
-                            newSampleArray = ConvI32toF32(GetSampleArray());
-                        }
-                        break;
-                    case 64:
-                        Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-                        newSampleArray = ConvF64toF32(GetSampleArray());
-                        break;
-                    default:
-                        Debug.Assert(false);
-                        return null;
-                    }
-                } else if (newValueRepType == ValueRepresentationType.SInt) {
-                    switch (BitsPerSample) {
-                    case 16:
-                        newSampleArray = ConvI16toI32(GetSampleArray());
-                        break;
-                    case 24:
-                        newSampleArray = ConvI24toI32(GetSampleArray());
-                        break;
-                    case 32:
-                        if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
-                            newSampleArray = ConvF32toI32(GetSampleArray());
-                        } else {
-                            newSampleArray = (byte[])GetSampleArray().Clone();
-                        }
-                        break;
-                    case 64:
-                        Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-                        newSampleArray = ConvF64toI32(GetSampleArray());
-                        break;
-                    default:
-                        Debug.Assert(false);
-                        return null;
-                    }
-                } else {
-                    Debug.Assert(false);
-                    return null;
-                }
-            } else if (newBitsPerSample == 24) {
-                switch (BitsPerSample) {
-                case 16:
-                    newSampleArray = ConvI16toI24(GetSampleArray());
-                    break;
-                case 24:
-                    newSampleArray = (byte[])GetSampleArray().Clone();
-                    break;
-                case 32:
-                    if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
-                        newSampleArray = ConvF32toI24(GetSampleArray());
-                    } else {
-                        newSampleArray = ConvI32toI24(GetSampleArray(), noiseShaping);
-                        noiseShapingCapable = true;
-                    }
-                    break;
-                case 64:
-                    Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-                    newSampleArray = ConvF64toI24(GetSampleArray(), noiseShaping);
-                    noiseShapingCapable = true;
-                    break;
-                default:
-                    Debug.Assert(false);
-                    return null;
-                }
-            } else if (newBitsPerSample == 16) {
-                switch (BitsPerSample) {
-                case 16:
-                    newSampleArray = (byte[])GetSampleArray().Clone();
-                    break;
-                case 24:
-                    newSampleArray = ConvI24toI16(GetSampleArray(), noiseShaping);
-                    noiseShapingCapable = true;
-                    break;
-                case 32:
-                    if (SampleValueRepresentationType == ValueRepresentationType.SFloat) {
-                        newSampleArray = ConvF32toI16(GetSampleArray(), noiseShaping);
-                        noiseShapingCapable = true;
-                    } else {
-                        newSampleArray = ConvI32toI16(GetSampleArray(), noiseShaping);
-                        noiseShapingCapable = true;
-                    }
-                    break;
-                case 64:
-                    Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SFloat);
-                    newSampleArray = ConvF64toI16(GetSampleArray(), noiseShaping);
-                    noiseShapingCapable = true;
-                    break;
-                default:
-                    Debug.Assert(false);
-                    return null;
-                }
-            } else {
-                Debug.Assert(false);
-                return null;
-            }
-
-            if (args != null) {
-                args.noiseShapingPerformed = noiseShaping && noiseShapingCapable;
-            }
-
-            // 有効なビット数の計算
-            int newValidBitsPerSample = ValidBitsPerSample;
-            if (newBitsPerSample < newValidBitsPerSample) {
-                // 新しい量子化ビット数が、元の量子化ビット数よりも減った。
-                newValidBitsPerSample = newBitsPerSample;
-            }
-            if (newBitsPerSample == 32 &&
-                newValueRepType == ValueRepresentationType.SFloat) {
-                // FLOAT32は、全てのビット(=32)を有効にしないと意味ないデータになると思われる。
-                newValidBitsPerSample = 32;
-            }
-            if (newBitsPerSample == 64 &&
-                newValueRepType == ValueRepresentationType.SFloat) {
-                // FLOAT64は、全てのビット(=64)を有効にしないと意味ないデータになると思われる。
-                newValidBitsPerSample = 64;
-            }
-
-            PcmData newPcmData = new PcmData();
-            newPcmData.CopyHeaderInfoFrom(this);
-            newPcmData.SetFormat(NumChannels, newBitsPerSample, newValidBitsPerSample, SampleRate, newValueRepType, NumFrames);
-            newPcmData.SetSampleArray(newSampleArray);
-
-            return newPcmData;
-        }
-
-        private byte[] ConvI16toI24(byte[] from) {
-            int nSample = from.Length/2;
-            byte[] to = new byte[nSample * 3];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                // 下位ビットは、0埋めする。
-                to[toPos++] = 0;
-
-                to[toPos++] = from[fromPos++];
-                to[toPos++] = from[fromPos++];
-            }
-            return to;
-        }
-        private byte[] ConvI16toI32(byte[] from) {
-            int nSample = from.Length/2;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                // 下位ビットは、0埋めする。
-                to[toPos++] = 0;
-                to[toPos++] = 0;
-
-                to[toPos++] = from[fromPos++];
-                to[toPos++] = from[fromPos++];
-            }
-            return to;
-        }
-
-        private byte[] ConvI24toI32(byte[] from) {
-            int nSample = from.Length/3;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                // 下位ビットは、0埋めする。
-                to[toPos++] = 0;
-
-                to[toPos++] = from[fromPos++];
-                to[toPos++] = from[fromPos++];
-                to[toPos++] = from[fromPos++];
-            }
-            return to;
-        }
-
-        private byte[] ConvI24toI16(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 3;
-            byte[] to = new byte[nSample * 2];
-            int fromPos = 0;
-            int toPos = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                int [] err = new int[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch=0; ch < NumChannels; ++ch) {
-                        int v = (short)(from[fromPos + 1] + (from[fromPos + 2] << 8));
-
-                        v += err[ch]>>8;
-                        if (32767 < v) {
-                            v = 32767;
-                        }
-                        err[ch] -= ((err[ch])>>8)<<8;
-
-                        err[ch] += from[fromPos];
-
-                        to[toPos++] = (byte)(v&0xff);
-                        to[toPos++] = (byte)((v>>8) & 0xff);
-
-                        fromPos += 3;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットの情報を切り捨てる。
-                    ++fromPos;
-
-                    to[toPos++] = from[fromPos++];
-                    to[toPos++] = from[fromPos++];
-                }
-            }
-            return to;
-        }
-
-        private byte[] ConvI32toI16(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 2];
-            int fromPos = 0;
-            int toPos = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                int [] err = new int[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch=0; ch < NumChannels; ++ch) {
-                        int v = (short)(from[fromPos + 2] + (from[fromPos + 3] << 8));
-
-                        v += err[ch] >> 16;
-                        if (32767 < v) {
-                            v = 32767;
-                        }
-                        err[ch] -= ((err[ch]) >> 16) << 16;
-
-                        err[ch] += from[fromPos] + (from[fromPos + 1] << 8);
-
-                        to[toPos++] = (byte)(v & 0xff);
-                        to[toPos++] = (byte)((v >> 8) & 0xff);
-
-                        fromPos += 4;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットの情報を切り捨てる。
-                    ++fromPos;
-                    ++fromPos;
-
-                    to[toPos++] = from[fromPos++];
-                    to[toPos++] = from[fromPos++];
-                }
-            }
-            return to;
-        }
-
-        private byte[] ConvI32toI24(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 3];
-            int fromPos = 0;
-            int toPos = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                int [] err = new int[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch=0; ch < NumChannels; ++ch) {
-                        int v = (from[fromPos + 1] << 8) + (from[fromPos + 2] << 16) + (from[fromPos + 3] << 24);
-                        v >>= 8;
-
-                        v += err[ch]>>8;
-                        if (8388607 < v) {
-                            v = 8388607;
-                        }
-                        err[ch] -= ((err[ch]) >> 8) << 8;
-
-                        err[ch] += from[fromPos];
-
-                        to[toPos++] = (byte)(v & 0xff);
-                        to[toPos++] = (byte)((v >> 8) & 0xff);
-                        to[toPos++] = (byte)((v >> 16) & 0xff);
-
-                        fromPos += 4;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットの情報を切り捨てる。
-                    ++fromPos;
-
-                    to[toPos++] = from[fromPos++];
-                    to[toPos++] = from[fromPos++];
-                    to[toPos++] = from[fromPos++];
-                }
-            }
-
-            return to;
-        }
-
-        ////////////////////////////////////////////////////////////////////
-        // Clipped counter used for float to int conversion
-
-        private static long mClippedCount;
-
-        private static void IncrementClippedCounter() {
-            Interlocked.Increment(ref mClippedCount);
-        }
-
-        /// <summary>
-        /// clear clipped counter. call before conv start
-        /// </summary>
-        public static void ClearClippedCounter() {
-            mClippedCount = 0;
-        }
-
-        /// <summary>
-        /// read latest clipped counter value
-        /// </summary>
-        /// <returns>clipped counter</returns>
-        public static long ReadClippedCounter() {
-            return Thread.VolatileRead(ref mClippedCount);
-        }
-
-        ////////////////////////////////////////////////////////////////////
-        // F32
-
-        private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I16 = 32767.0f / 32768.0f;
-        private static readonly float SAMPLE_VALUE_MAX_FLOAT_TO_I24 = 8388607.0f / 8388608.0f; //< 0x3f7ffffe
-
-        private byte[] ConvF32toI16(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 2];
-            int fromPos = 0;
-            int toPos = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                float [] err = new float[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch=0; ch < NumChannels; ++ch) {
-                        float fv = System.BitConverter.ToSingle(from, fromPos);
-                        if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
-                            fv = SAMPLE_VALUE_MAX_FLOAT_TO_I16;
-                            IncrementClippedCounter();
-                        }
-                        if (fv < SAMPLE_VALUE_MIN_FLOAT) {
-                            fv = SAMPLE_VALUE_MIN_FLOAT;
-                            IncrementClippedCounter();
-                        }
-                        float fScale = fv * 32768.0f + err[ch];
-                        int iv = (int)fScale;
-                        err[ch] = fScale - (float)iv;
-
-                        to[toPos++] = (byte)(iv & 0xff);
-                        to[toPos++] = (byte)((iv >> 8) & 0xff);
-                        fromPos += 4;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    float fv = System.BitConverter.ToSingle(from, fromPos);
-                    if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
-                        fv = SAMPLE_VALUE_MAX_FLOAT_TO_I16;
-                        IncrementClippedCounter();
-                    }
-                    if (fv < SAMPLE_VALUE_MIN_FLOAT) {
-                        fv = SAMPLE_VALUE_MIN_FLOAT;
-                        IncrementClippedCounter();
-                    }
-                    int iv = (int)(fv * 32768.0f);
-
-                    to[toPos++] = (byte)(iv & 0xff);
-                    to[toPos++] = (byte)((iv >> 8) & 0xff);
-                    fromPos += 4;
-                }
-            }
-            return to;
-        }
-
-        private byte[] ConvF32toI24(byte[] from) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 3];
-            int fromPos = 0;
-            int toPos   = 0;
-            for (int i = 0; i < nSample; ++i) {
-                float fv = System.BitConverter.ToSingle(from, fromPos);
-                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
-                    fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
-                    IncrementClippedCounter();
-                }
-                if (fv < SAMPLE_VALUE_MIN_FLOAT) {
-                    fv = SAMPLE_VALUE_MIN_FLOAT;
-                    IncrementClippedCounter();
-                }
-                int iv = (int)(fv * 8388608.0f);
-
-                to[toPos++] = (byte)(iv & 0xff);
-                to[toPos++] = (byte)((iv>>8) & 0xff);
-                to[toPos++] = (byte)((iv>>16) & 0xff);
-                fromPos += 4;
-            }
-            return to;
-        }
-
-        private byte[] ConvF32toI32(byte[] from) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos   = 0;
-            for (int i = 0; i < nSample; ++i) {
-                float fv = System.BitConverter.ToSingle(from, fromPos);
-                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
-                    fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
-                    IncrementClippedCounter();
-                }
-                if (fv < SAMPLE_VALUE_MIN_FLOAT) {
-                    fv = SAMPLE_VALUE_MIN_FLOAT;
-                    IncrementClippedCounter();
-                }
-                int iv = (int)(fv * 8388608.0f);
-
-                to[toPos++] = 0;
-                to[toPos++] = (byte)(iv & 0xff);
-                to[toPos++] = (byte)((iv>>8) & 0xff);
-                to[toPos++] = (byte)((iv>>16) & 0xff);
-                fromPos += 4;
-            }
-            return to;
-        }
-
-        private byte[] ConvI16toF32(byte[] from) {
-            int nSample = from.Length / 2;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                short iv = (short)(from[fromPos]
-                    + (from[fromPos+1]<<8));
-                float fv = ((float)iv) * (1.0f / 32768.0f);
-
-                byte [] b = System.BitConverter.GetBytes(fv);
-
-                to[toPos++] = b[0];
-                to[toPos++] = b[1];
-                to[toPos++] = b[2];
-                to[toPos++] = b[3];
-                fromPos += 2;
-            }
-            return to;
-        }
-
-        private byte[] ConvI24toF32(byte[] from) {
-            int nSample = from.Length / 3;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                int iv = ((int)from[fromPos]<<8)
-                    + ((int)from[fromPos+1]<<16)
-                    + ((int)from[fromPos+2]<<24);
-                float fv = ((float)iv) * (1.0f / 2147483648.0f);
-
-                byte [] b = System.BitConverter.GetBytes(fv);
-
-                to[toPos++] = b[0];
-                to[toPos++] = b[1];
-                to[toPos++] = b[2];
-                to[toPos++] = b[3];
-                fromPos += 3;
-            }
-            return to;
-        }
-
-        private byte[] ConvI32toF32(byte[] from) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                int iv = ((int)from[fromPos+1]<<8)
-                    + ((int)from[fromPos+2]<<16)
-                    + ((int)from[fromPos+3]<<24);
-                float fv = ((float)iv) * (1.0f / 2147483648.0f);
-
-                byte [] b = System.BitConverter.GetBytes(fv);
-
-                to[toPos++] = b[0];
-                to[toPos++] = b[1];
-                to[toPos++] = b[2];
-                to[toPos++] = b[3];
-                fromPos += 4;
-            }
-            return to;
-        }
-
-        ////////////////////////////////////////////////////////////////
-        // F64
-
-        private static readonly double SAMPLE_VALUE_MAX_DOUBLE_TO_I16 = 32767.0 / 32768.0;
-        private static readonly double SAMPLE_VALUE_MAX_DOUBLE_TO_I24 = 8388607.0 / 8388608.0;
-
-        private byte[] ConvF64toI16(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 8;
-            byte[] to = new byte[nSample * 2];
-            int fromPos = 0;
-            int toPos = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                double [] err = new double[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch = 0; i < NumChannels; ++ch) {
-                        double dv = System.BitConverter.ToDouble(from, fromPos);
-                        if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
-                            dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I16;
-                            IncrementClippedCounter();
-                        }
-                        if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
-                            dv = SAMPLE_VALUE_MIN_DOUBLE;
-                            IncrementClippedCounter();
-                        }
-                        double dScale = dv * 32768.0f + err[ch];
-                        int iv = (int)dScale;
-                        err[ch] = dScale - (double)iv;
-
-                        to[toPos++] = (byte)(iv & 0xff);
-                        to[toPos++] = (byte)((iv >> 8) & 0xff);
-                        fromPos += 8;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    double dv = System.BitConverter.ToDouble(from, fromPos);
-                    if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
-                        dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I16;
-                        IncrementClippedCounter();
-                    }
-                    if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
-                        dv = SAMPLE_VALUE_MIN_DOUBLE;
-                        IncrementClippedCounter();
-                    }
-                    int iv = (int)(dv * 32768.0);
-
-                    to[toPos++] = (byte)(iv & 0xff);
-                    to[toPos++] = (byte)((iv >> 8) & 0xff);
-                    fromPos += 8;
-                }
-            }
-            return to;
-        }
-
-        private byte[] ConvF64toI24(byte[] from, bool noiseShaping) {
-            int nSample = from.Length / 8;
-            byte[] to = new byte[nSample * 3];
-            int fromPos = 0;
-            int toPos   = 0;
-
-            if (noiseShaping) {
-                int nFrame = nSample / NumChannels;
-                double [] err = new double[NumChannels];
-
-                for (int i = 0; i < nFrame; ++i) {
-                    for (int ch = 0; i < NumChannels; ++ch) {
-                        double dv = System.BitConverter.ToDouble(from, fromPos);
-                        if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
-                            dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I24;
-                            IncrementClippedCounter();
-                        }
-                        if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
-                            dv = SAMPLE_VALUE_MIN_DOUBLE;
-                            IncrementClippedCounter();
-                        }
-                        double dScale = dv * 8388608.0 + err[ch];
-                        int iv = (int)dScale;
-                        err[ch] = dScale - (double)iv;
-
-                        to[toPos++] = (byte)(iv & 0xff);
-                        to[toPos++] = (byte)((iv >> 8) & 0xff);
-                        to[toPos++] = (byte)((iv >> 16) & 0xff);
-                        fromPos += 8;
-                    }
-                }
-            } else {
-                for (int i = 0; i < nSample; ++i) {
-                    double dv = System.BitConverter.ToDouble(from, fromPos);
-                    if (SAMPLE_VALUE_MAX_DOUBLE <= dv) {
-                        dv = SAMPLE_VALUE_MAX_DOUBLE_TO_I24;
-                        IncrementClippedCounter();
-                    }
-                    if (dv < SAMPLE_VALUE_MIN_DOUBLE) {
-                        dv = SAMPLE_VALUE_MIN_DOUBLE;
-                        IncrementClippedCounter();
-                    }
-                    int iv = (int)(dv * 8388608.0);
-                    to[toPos++] = (byte)(iv & 0xff);
-                    to[toPos++] = (byte)((iv >> 8) & 0xff);
-                    to[toPos++] = (byte)((iv >> 16) & 0xff);
-                    fromPos += 8;
-                }
-            }
-            return to;
-        }
-
-        private byte[] ConvF64toI32(byte[] from) {
-            int nSample = from.Length / 8;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos   = 0;
-            for (int i = 0; i < nSample; ++i) {
-                double dv = System.BitConverter.ToDouble(from, fromPos);
-
-                int iv = 0;
-                if ((long)Int32.MaxValue < (long)(dv * Int32.MaxValue)) {
-                    iv = Int32.MaxValue;
-                    IncrementClippedCounter();
-                } else if ((long)(-dv * Int32.MinValue) < (long)Int32.MinValue) {
-                    iv = Int32.MinValue;
-                    IncrementClippedCounter();
-                } else {
-                    iv = (int)(-dv * Int32.MinValue);
-                }
-
-                to[toPos++] = (byte)((iv >> 0) & 0xff);
-                to[toPos++] = (byte)((iv >> 8)  & 0xff);
-                to[toPos++] = (byte)((iv >> 16) & 0xff);
-                to[toPos++] = (byte)((iv >> 24) & 0xff);
-                fromPos += 8;
-            }
-            return to;
-        }
-
-        private byte[] ConvF64toF32(byte[] from) {
-            int nSample = from.Length / 8;
-            byte[] to = new byte[nSample * 4];
-            int fromPos = 0;
-            int toPos   = 0;
-
-            for (int i = 0; i < nSample; ++i) {
-                double dv = System.BitConverter.ToDouble(from, fromPos);
-                float fv = (float)dv;
-                if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
-                    fv = SAMPLE_VALUE_MAX_FLOAT_TO_I24;
-                    IncrementClippedCounter();
-                }
-                if (fv < SAMPLE_VALUE_MIN_FLOAT) {
-                    fv = SAMPLE_VALUE_MIN_FLOAT;
-                    IncrementClippedCounter();
-                }
-                byte [] b = System.BitConverter.GetBytes(fv);
-                to[toPos++] = b[0];
-                to[toPos++] = b[1];
-                to[toPos++] = b[2];
-                to[toPos++] = b[3];
-                fromPos += 8;
-            }
-            return to;
-        }
-
-        private byte[] ConvI16toF64(byte[] from) {
-            int nSample = from.Length / 2;
-            byte[] to = new byte[nSample * 8];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                short iv = (short)(from[fromPos]
-                    + (from[fromPos + 1] << 8));
-                double dv = ((double)iv) * (1.0 / 32768.0);
-
-                byte [] b = System.BitConverter.GetBytes(dv);
-
-                for (int j=0; j < 8; ++j) {
-                    to[toPos++] = b[j];
-                }
-                fromPos += 2;
-            }
-            return to;
-        }
-
-        private byte[] ConvI24toF64(byte[] from) {
-            int nSample = from.Length / 3;
-            byte[] to = new byte[nSample * 8];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                int iv = ((int)from[fromPos] << 8)
-                    + ((int)from[fromPos + 1] << 16)
-                    + ((int)from[fromPos + 2] << 24);
-                double dv = ((double)iv) * (1.0 / 2147483648.0);
-
-                byte [] b = System.BitConverter.GetBytes(dv);
-
-                for (int j=0; j < 8; ++j) {
-                    to[toPos++] = b[j];
-                }
-                fromPos += 3;
-            }
-            return to;
-        }
-
-        private byte[] ConvI32toF64(byte[] from) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 8];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                int iv = ((int)from[fromPos + 1] << 8)
-                    + ((int)from[fromPos + 2] << 16)
-                    + ((int)from[fromPos + 3] << 24);
-                double dv = ((double)iv) * (1.0 / 2147483648.0);
-
-                byte [] b = System.BitConverter.GetBytes(dv);
-
-                for (int j=0; j < 8; ++j) {
-                    to[toPos++] = b[j];
-                }
-                fromPos += 4;
-            }
-            return to;
-        }
-
-        private byte[] ConvF32toF64(byte[] from) {
-            int nSample = from.Length / 4;
-            byte[] to = new byte[nSample * 8];
-            int fromPos = 0;
-            int toPos = 0;
-            for (int i = 0; i < nSample; ++i) {
-                float fv = System.BitConverter.ToSingle(from, fromPos);
-                double dv = (double)fv;
-
-                byte [] b = System.BitConverter.GetBytes(dv);
-                for (int j=0; j < 8; ++j) {
-                    to[toPos++] = b[j];
-                }
-                fromPos += 4;
-            }
-            return to;
         }
     }
 }

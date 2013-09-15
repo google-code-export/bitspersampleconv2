@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WasapiPcmUtil;
 using System.Globalization;
+using PcmDataLib;
 
 namespace PlayPcmWin {
     /// <summary>
@@ -40,7 +41,14 @@ namespace PlayPcmWin {
             groupBoxPlaybackThread.Header = Properties.Resources.SettingsGroupBoxPlaybackThread;
             groupBoxFileSettings.Header = Properties.Resources.SettingsGroupBoxFile;
             labelQuantizationBitrate.Content = Properties.Resources.SettingsLabelQuantizationBitrate;
-            checkBoxNoiseShaping.Content = Properties.Resources.SettingsCheckBoxPerformNoiseShaping;
+
+            labelNoiseShaping.Content = Properties.Resources.SettingsLabelNoiseShaping;
+
+            // 順番をPcmDataLib.NoiseShapingTypeと合わせる
+            comboBoxNoiseShaping.Items.Add(Properties.Resources.SettingsNoNoiseShaping);
+            comboBoxNoiseShaping.Items.Add(Properties.Resources.SettingsPerformDither);
+            comboBoxNoiseShaping.Items.Add(Properties.Resources.SettingsPerformNoiseShaping);
+            comboBoxNoiseShaping.Items.Add(Properties.Resources.SettingsPerformDitheredNoiseShaping);
 
             groupBoxTimerResolution.Header = Properties.Resources.SettingsGroupBoxTimerResolution;
             groupBoxRenderThreadTaskType.Header = Properties.Resources.SettingsGroupBoxRenderThreadTaskType;
@@ -124,8 +132,8 @@ namespace PlayPcmWin {
                 comboBoxOutputFormat.SelectedIndex = (int)SettingsBitFormatType.AutoSelect;
                 break;
             }
-            checkBoxNoiseShaping.IsChecked =
-                preference.EnableNoiseShaping;
+
+            comboBoxNoiseShaping.SelectedIndex = (int)preference.BpsConvNoiseShaping;
 
             checkBoxPlaceKokomadeAfterIndex00.IsChecked =
                 preference.ReplaceGapWithKokomade;
@@ -281,8 +289,9 @@ namespace PlayPcmWin {
                 m_preference.BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
                 break;
             }
-            m_preference.EnableNoiseShaping
-                = checkBoxNoiseShaping.IsChecked == true;
+
+            m_preference.BpsConvNoiseShaping = (NoiseShapingType)comboBoxNoiseShaping.SelectedIndex;
+            m_preference.EnableNoiseShaping = m_preference.BpsConvNoiseShaping != NoiseShapingType.None;
 
             m_preference.ReplaceGapWithKokomade
                 = checkBoxPlaceKokomadeAfterIndex00.IsChecked == true;

@@ -24,7 +24,8 @@
                     <StackPanel>
                             <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelQuantizationBitrate" VerticalAlignment="Center" />
                             <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Grid.Row="1" Name="comboBoxOutputFormat" Margin="80,0,6,0" VerticalAlignment="Center" />
-                            <CheckBox Content="Perform noise shaping when bits per sample is reduced" Grid.Row="2" HorizontalAlignment="Left" Margin="6,6,6,0" Name="checkBoxNoiseShaping" VerticalAlignment="Center" IsChecked="True" />
+                            <Label Content="Noise shaping option:" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelNoiseShaping" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" Grid.Row="2" Name="comboBoxNoiseShaping" Margin="80,6,6,0" VerticalAlignment="Center" />
                         </StackPanel>
                 </GroupBox>
                     <GroupBox x:Uid="groupBoxPlaybackThread" Header="Playback thread settings" Margin="4" Name="groupBoxPlaybackThread">

@@ -1,4 +1,5 @@
 ﻿using WasapiPcmUtil;
+using PcmDataLib;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
@@ -64,7 +65,12 @@ namespace PlayPcmWin {
         public bool SootheLimiterApo { get; set; }
 
         public int LastPlayItemIndex { get; set; }
+
+        // deprecated replaced with BpsConvNoiseShaping
         public bool EnableNoiseShaping { get; set; }
+
+        public WasapiPcmUtil.NoiseShapingType BpsConvNoiseShaping { get; set; }
+
         public bool SortDropFolder { get; set; }
         public bool SortDroppedFiles { get; set; }
         public bool BatchReadEndpointToEveryTrack { get; set; }
@@ -113,6 +119,7 @@ namespace PlayPcmWin {
             WasapiDataFeedMode = WasapiDataFeedModeType.EventDriven;
             RenderThreadTaskType = RenderThreadTaskType.ProAudio;
             BitsPerSampleFixType = BitsPerSampleFixType.AutoSelect;
+            BpsConvNoiseShaping = NoiseShapingType.NoiseShaping1stOrder;
             PreferredDeviceName = "";
             PreferredDeviceIdString = "";
             ReplaceGapWithKokomade = false;
@@ -209,6 +216,11 @@ namespace PlayPcmWin {
             // 並列読み込みが有効のときはFLACのMD5計算を行わない。
             if (p.ParallelRead) {
                 p.VerifyFlacMD5Sum = false;
+            }
+
+            // EnableNoiseShaping(古いフラグ)が無効のときはBpsConvNoiseShaping(新しい設定パラメータ)をNoneに設定。
+            if (!p.EnableNoiseShaping) {
+                p.BpsConvNoiseShaping = NoiseShapingType.None;
             }
 
             return p;

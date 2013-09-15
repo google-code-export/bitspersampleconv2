@@ -2506,6 +2506,11 @@ namespace PlayPcmWin
         }
 
         /// <summary>
+        /// ビットフォーマット変換クラス。ノイズシェイピングのerror値を持っているので都度作らないようにする。
+        /// </summary>
+        private WasapiPcmUtil.PcmUtil mPcmUtil;
+
+        /// <summary>
         ///  バックグラウンド読み込み。
         ///  m_readFileWorker.RunWorkerAsync(読み込むgroupId)で開始する。
         ///  完了するとReadFileRunWorkerCompletedが呼ばれる。
@@ -2529,6 +2534,10 @@ namespace PlayPcmWin
                         0, 0, 0, 0, CountWaveDataOnPlayGroup(m_pcmDataListForPlay, readGroupId));
 
                 wasapi.ClearPlayList();
+
+                // ビットフォーマット変換クラス。
+                mPcmUtil = new PcmUtil(m_pcmDataListForPlay[0].NumChannels);
+
                 wasapi.AddPlayPcmDataStart();
                 for (int i = 0; i < m_pcmDataListForPlay.Count; ++i) {
                     PcmDataLib.PcmData pd = m_pcmDataListForPlay[i];
@@ -2540,7 +2549,7 @@ namespace PlayPcmWin
                     // 効果絶大である。
                     GC.Collect();
 
-                    PcmData.ClearClippedCounter();
+                    WasapiPcmUtil.PcmFormatConverter.ClearClippedCounter();
 
                     long startFrame = (long)(pd.StartTick) * pd.SampleRate / 75;
                     long endFrame   = (long)(pd.EndTick) * pd.SampleRate / 75;
@@ -2555,7 +2564,7 @@ namespace PlayPcmWin
                     }
 
                     {
-                        long clippedCount = PcmData.ReadClippedCounter();
+                        long clippedCount = WasapiPcmUtil.PcmFormatConverter.ReadClippedCounter();
                         if (0 < clippedCount) {
                             r.individualResultList.Add(new ReadFileResultClipped(pd.Id, clippedCount));
                         }
@@ -2594,6 +2603,8 @@ namespace PlayPcmWin
                 }
 
                 wasapi.AddPlayPcmDataEnd();
+
+                mPcmUtil = null;
 
                 // 成功。
                 sw.Stop();
@@ -2710,7 +2721,7 @@ namespace PlayPcmWin
             return result;
         }
 
-        private void ReadFileReportProgress(long readFrames, bool noiseShaping) {
+        private void ReadFileReportProgress(long readFrames, WasapiPcmUtil.PcmFormatConverter.BitsPerSampleConvArgs bpsConvArgs) {
             lock (m_readFileWorker) {
                 m_readProgressInfo.readFrames += readFrames;
                 var rpi = m_readProgressInfo;
@@ -2722,8 +2733,10 @@ namespace PlayPcmWin
 
                 double progressPercentage = loadCompletedPercent * (rpi.trackCount + (double)rpi.readFrames / rpi.WantFramesTotal) / rpi.trackNum;
                 m_readFileWorker.ReportProgress((int)progressPercentage, string.Empty);
-                if (noiseShaping) {
-                    m_readFileWorker.ReportProgress((int)progressPercentage, string.Format(CultureInfo.InvariantCulture, "Noise shaping ... done{0}", Environment.NewLine));
+                if (bpsConvArgs != null && bpsConvArgs.noiseShapingOrDitherPerformed) {
+                    m_readFileWorker.ReportProgress((int)progressPercentage, string.Format(CultureInfo.InvariantCulture,
+                            "{0} {1}/{2} frames done{3}",
+                            bpsConvArgs.noiseShaping, rpi.readFrames, rpi.WantFramesTotal, Environment.NewLine));
                 }
             }
         }
@@ -2752,7 +2765,7 @@ namespace PlayPcmWin
             long wantFramesTotal = endFrame - startFrame;
             pd.SetNumFrames(wantFramesTotal);
             m_readProgressInfo.FileReadStart(pd.Id, startFrame, endFrame);
-            ReadFileReportProgress(0, false);
+            ReadFileReportProgress(0, null);
 
             {
                 // このトラックのWasapi PCMデータ領域を確保する。
@@ -2766,7 +2779,8 @@ namespace PlayPcmWin
             }
 
             bool result = true;
-            if (m_preference.ParallelRead && PcmReader.IsTheFormatCompressed(PcmReader.GuessFileFormatFromFilePath(pd.FullPath))) {
+            if (m_preference.ParallelRead && PcmReader.IsTheFormatCompressed(PcmReader.GuessFileFormatFromFilePath(pd.FullPath))
+                    && ((m_preference.BpsConvNoiseShaping == NoiseShapingType.None) || !mPcmUtil.IsNoiseShapingOrDitherCapable(pd, m_deviceSetupParams.SampleFormat))) {
                 // ファイルのstartFrameからendFrameまでを読みだす。(並列化)
                 int fragmentCount = Environment.ProcessorCount;
                 var rri = SetupReadPcmTasks(bw, pd, startFrame, endFrame, fragmentCount);
@@ -2838,10 +2852,10 @@ namespace PlayPcmWin
 
                 // 必要に応じてpartの量子化ビット数の変更処理を行い、pdAfterに新しく確保したPCMデータ配列をセット。
 
-                var bpsConvArgs = new PcmData.BitsPerSampleConvArgs(m_preference.EnableNoiseShaping);
+                var bpsConvArgs = new PcmFormatConverter.BitsPerSampleConvArgs(m_preference.BpsConvNoiseShaping);
                 PcmData pdAfter = null;
                 if (m_preference.WasapiSharedOrExclusive == WasapiSharedOrExclusiveType.Exclusive) {
-                    pdAfter = PcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupParams.SampleFormat, bpsConvArgs);
+                    pdAfter = mPcmUtil.BitsPerSampleConvAsNeeded(pd, m_deviceSetupParams.SampleFormat, bpsConvArgs);
                     pd.ForgetDataPart();
                 } else {
                     pdAfter = pd;
@@ -2871,7 +2885,7 @@ namespace PlayPcmWin
                 // frameCountを進める
                 frameCount += readFrames;
 
-                ReadFileReportProgress(readFrames, bpsConvArgs.noiseShapingPerformed);
+                ReadFileReportProgress(readFrames, bpsConvArgs);
 
                 if (bw.CancellationPending) {
                     pr.StreamAbort();

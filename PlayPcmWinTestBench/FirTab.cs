@@ -436,7 +436,9 @@ namespace PlayPcmWinTestBench {
                 result = string.Format("WAVファイル {0} 読み込み失敗", args.inputPath);
                 return false;
             }
-            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat, null);
+
+            var formatConv = new WasapiPcmUtil.PcmFormatConverter(pcmDataIn.NumChannels);
+            pcmDataIn = formatConv.Convert(pcmDataIn, Wasapi.WasapiCS.SampleFormatType.Sdouble, null);
 
             PcmData pcmDataOutput;
 
@@ -456,9 +458,8 @@ namespace PlayPcmWinTestBench {
                 maxLevel = Math.Max(Math.Abs(maxV), Math.Abs(minV));
             }
 
-            PcmData pcmDataWrite
-                    = pcmDataOutput.BitsPerSampleConvertTo(
-                    args.outputBitsPerSample, args.valueRepresentationType, null);
+            PcmData pcmDataWrite = formatConv.Convert(pcmDataOutput,
+                    Wasapi.WasapiCS.BitAndFormatToSampleFormatType(args.outputBitsPerSample, args.outputBitsPerSample, (Wasapi.WasapiCS.BitFormatType)args.valueRepresentationType), null);
 
             bool writeResult = false;
             try {

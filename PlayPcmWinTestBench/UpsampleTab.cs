@@ -5,6 +5,7 @@ using WWDirectComputeCS;
 using System.ComponentModel;
 using System.Security.Cryptography;
 using System.IO;
+using Wasapi;
 
 namespace PlayPcmWinTestBench {
     public partial class MainWindow : Window {
@@ -495,7 +496,8 @@ namespace PlayPcmWinTestBench {
 
             m_USAQworker.ReportProgress(1);
 
-            pcmDataIn = pcmDataIn.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat, null);
+            var conv = new WasapiPcmUtil.PcmFormatConverter(pcmDataIn.NumChannels);
+            pcmDataIn = conv.Convert(pcmDataIn, WasapiCS.BitAndFormatToSampleFormatType(32, 32, WasapiCS.BitFormatType.SFloat), null);
             PcmData pcmDataOut = new PcmData();
             pcmDataOut.CopyFrom(pcmDataIn);
             int sampleTotalTo = (int)(args.resampleFrequency * pcmDataIn.NumFrames / pcmDataIn.SampleRate);
@@ -578,7 +580,9 @@ namespace PlayPcmWinTestBench {
 
             if (args.outputVRT != PcmData.ValueRepresentationType.SFloat) {
                 // ビットフォーマット変更。
-                pcmDataOut = pcmDataOut.BitsPerSampleConvertTo(args.outputBitsPerSample, args.outputVRT, null);
+                var formatConv = new WasapiPcmUtil.PcmFormatConverter(pcmDataOut.NumChannels);
+                pcmDataOut = formatConv.Convert(pcmDataOut,
+                        WasapiCS.BitAndFormatToSampleFormatType(args.outputBitsPerSample, args.outputBitsPerSample, (WasapiCS.BitFormatType)args.outputVRT), null);
             }
 
             try {

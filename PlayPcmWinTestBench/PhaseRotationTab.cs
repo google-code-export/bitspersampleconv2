@@ -125,7 +125,8 @@ namespace PlayPcmWinTestBench {
         private bool PhaseRotationDo(FirWorkerArgs argsFWA, PcmData pcmDataIn, out PcmData pcmDataOutput) {
             PhaseRotationWorkerArgs args = argsFWA as PhaseRotationWorkerArgs;
 
-            PcmData pcmDataReal = pcmDataIn.BitsPerSampleConvertTo(64, PcmData.ValueRepresentationType.SFloat, null);
+            var conv = new WasapiPcmUtil.PcmFormatConverter(pcmDataIn.NumChannels);
+            PcmData pcmDataReal = conv.Convert(pcmDataIn, Wasapi.WasapiCS.SampleFormatType.Sdouble, null);
 
             pcmDataOutput = new PcmData();
             pcmDataOutput.CopyFrom(pcmDataIn);

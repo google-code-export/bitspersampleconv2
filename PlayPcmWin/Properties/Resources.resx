@@ -545,9 +545,6 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
     <value>Scale maximum magnitude to 0.98 to soothe limiter APO</value>
   </data>
-  <data name="SettingsCheckBoxPerformNoiseShaping" xml:space="preserve">
-    <value>Perform noise shaping when bits per sample is reduced</value>
-  </data>
   <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
     <value>WASAPI exclusive mode settings</value>
   </data>
@@ -588,5 +585,20 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   </data>
   <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
     <value>Timer resolution</value>
+  </data>
+  <data name="SettingsLabelNoiseShaping" xml:space="preserve">
+    <value>Noise shaping option:</value>
+  </data>
+  <data name="SettingsNoNoiseShaping" xml:space="preserve">
+    <value>Just trancate lower bits when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
+    <value>Perform dithered noise shaping when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformNoiseShaping" xml:space="preserve">
+    <value>Perform noise shaping when bits per sample is reduced to 16-bit</value>
+  </data>
+  <data name="SettingsPerformDither" xml:space="preserve">
+    <value>Add dither when bits per sample is reduced to 16-bit</value>
   </data>
 </root>
