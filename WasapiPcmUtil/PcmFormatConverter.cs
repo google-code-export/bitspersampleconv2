@@ -150,7 +150,7 @@ namespace WasapiPcmUtil {
         private ConvertDelegate[][] mConvert;
 
         ////////////////////////////////////////////////////////////////////
-        // Clipped counter used for float to int conversion
+        // Clipped sample counter used for float to int conversion
 
         private static long mClippedCount;
 
@@ -159,14 +159,14 @@ namespace WasapiPcmUtil {
         }
 
         /// <summary>
-        /// clear clipped counter. call before conv start
+        /// clear clipped sample counter. call before conv start
         /// </summary>
         public static void ClearClippedCounter() {
             mClippedCount = 0;
         }
 
         /// <summary>
-        /// read latest clipped counter value
+        /// read latest clipped sample counter value
         /// </summary>
         /// <returns>clipped counter</returns>
         public static long ReadClippedCounter() {
