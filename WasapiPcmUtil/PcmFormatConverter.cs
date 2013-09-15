@@ -97,7 +97,7 @@ namespace WasapiPcmUtil {
                     convertFromF64};
         }
 
-        private bool [][] mNoiseShapingOrDitherCapableTable = new bool[][] {
+        private bool [][] mNoiseShapingOrDitherCapabilityTable = new bool[][] {
             //        to I16    I24    I32v24 I32    F32    F64
             new bool [] {false, false, false, false, false, false}, // fromI16
             new bool [] {true,  false, false, false, false, false}, // fromI24
@@ -110,15 +110,15 @@ namespace WasapiPcmUtil {
         public bool IsConversionNoiseshapingOrDitherCapable(WasapiCS.SampleFormatType fromFormat, WasapiCS.SampleFormatType toFormat) {
             System.Diagnostics.Debug.Assert(0 <= (int)fromFormat && (int)fromFormat <= (int)WasapiCS.SampleFormatType.Sdouble);
             System.Diagnostics.Debug.Assert(0 <= (int)toFormat && (int)toFormat <= (int)WasapiCS.SampleFormatType.Sdouble);
-            return mNoiseShapingOrDitherCapableTable[(int)fromFormat][(int)toFormat];
+            return mNoiseShapingOrDitherCapabilityTable[(int)fromFormat][(int)toFormat];
         }
 
         /// <summary>
-        /// サンプルフォーマットをnewFormatに変更した、新しくnewされたPcmDataを戻す。
-        /// pcmFromの内容は変更しない。
+        /// Converts sample format to toFormat and returns new instance of PcmData.
+        /// pcmFrom is not changed.
         /// </summary>
-        /// <param name="toFormat">新しいサンプルフォーマット</param>
-        /// <returns>サンプルフォーマット変更後のPcmData</returns>
+        /// <param name="toFormat">sample format to convert</param>
+        /// <returns>Newly instanciated PcmData</returns>
         public PcmData Convert(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             if (args == null) {
                 args = new BitsPerSampleConvArgs(NoiseShapingType.None);
