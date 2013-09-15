@@ -91,7 +91,7 @@ namespace WasapiPcmUtil {
             mConvert = new ConvertDelegate[][] {
                     convertFromI16,
                     convertFromI24,
-                    convertError, //< Sint32V24、FromがSint32V24というケースは使われないので…
+                    convertFromI32,
                     convertFromI32,
                     convertFromF32,
                     convertFromF64};
