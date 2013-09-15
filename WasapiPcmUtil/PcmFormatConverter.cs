@@ -142,25 +142,10 @@ namespace WasapiPcmUtil {
             newPcmData.SetFormat(pcmFrom.NumChannels,
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(toFormat),
                     WasapiCS.SampleFormatTypeToValidBitsPerSample(toFormat), pcmFrom.SampleRate,
-                    SampleFormatTypeToRepresentationType(toFormat), pcmFrom.NumFrames);
+                    SampleFormatInfo.BftToVrt(WasapiCS.SampleFormatTypeToBitFormatType(toFormat)), pcmFrom.NumFrames);
             newPcmData.SetSampleArray(newSampleArray);
 
             return newPcmData;
-        }
-
-        PcmData.ValueRepresentationType SampleFormatTypeToRepresentationType(WasapiCS.SampleFormatType t) {
-            switch (t) {
-            case WasapiCS.SampleFormatType.Sint16:
-            case WasapiCS.SampleFormatType.Sint24:
-            case WasapiCS.SampleFormatType.Sint32V24:
-            case WasapiCS.SampleFormatType.Sint32:
-                return PcmData.ValueRepresentationType.SInt;
-            case WasapiCS.SampleFormatType.Sfloat:
-                return PcmData.ValueRepresentationType.SFloat;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return PcmData.ValueRepresentationType.SInt;
-            }
         }
 
         private delegate byte[] ConvertDelegate(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args);

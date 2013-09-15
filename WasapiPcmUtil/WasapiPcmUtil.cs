@@ -62,8 +62,13 @@ namespace WasapiPcmUtil {
         }
 
         public static WasapiCS.BitFormatType
-        VrtToBft(PcmDataLib.PcmData.ValueRepresentationType vrt) {
+        VrtToBft(PcmData.ValueRepresentationType vrt) {
             return (WasapiCS.BitFormatType)vrt;
+        }
+
+        public static PcmData.ValueRepresentationType
+        BftToVrt(WasapiCS.BitFormatType bft) {
+            return (PcmData.ValueRepresentationType)bft;
         }
 
         public WasapiCS.SampleFormatType GetSampleFormatType() {
@@ -227,41 +232,5 @@ namespace WasapiPcmUtil {
             }
             return pd;
         }
-
-        /*
-        /// <summary>
-        /// 量子化ビット数を、もし必要なら変更する。
-        /// </summary>
-        /// <param name="pd">入力PcmData</param>
-        /// <returns>変更後PcmData</returns>
-        public PcmData BitsPerSampleConvAsNeeded(PcmData pd, byte [] sampleArray, WasapiCS.SampleFormatType fmt, WasapiPcmUtil.PcmFormatConverter.BitsPerSampleConvArgs args) {
-            switch (fmt) {
-            case WasapiCS.SampleFormatType.Sfloat:
-                // System.Console.WriteLine("Converting to Sfloat32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SFloat, args);
-                break;
-            case WasapiCS.SampleFormatType.Sint16:
-                // System.Console.WriteLine("Converting to SInt16bit...");
-                pd = pd.BitsPerSampleConvertTo(16, PcmData.ValueRepresentationType.SInt, args);
-                break;
-            case WasapiCS.SampleFormatType.Sint24:
-                // System.Console.WriteLine("Converting to SInt24...");
-                pd = pd.BitsPerSampleConvertTo(24, PcmData.ValueRepresentationType.SInt, args);
-                break;
-            case WasapiCS.SampleFormatType.Sint32V24:
-                // System.Console.WriteLine("Converting to SInt32V24...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
-                break;
-            case WasapiCS.SampleFormatType.Sint32:
-                // System.Console.WriteLine("Converting to SInt32bit...");
-                pd = pd.BitsPerSampleConvertTo(32, PcmData.ValueRepresentationType.SInt, args);
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-            return pd;
-        }
-        */
     }
 }

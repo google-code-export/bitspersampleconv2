@@ -323,6 +323,23 @@ namespace Wasapi {
             }
         }
 
+        public static BitFormatType SampleFormatTypeToBitFormatType(SampleFormatType t) {
+            switch (t) {
+            case SampleFormatType.Sint16:
+            case SampleFormatType.Sint24:
+            case SampleFormatType.Sint32V24:
+            case SampleFormatType.Sint32:
+                return BitFormatType.SInt;
+            case WasapiCS.SampleFormatType.Sfloat:
+                return BitFormatType.SFloat;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return BitFormatType.SInt;
+            }
+        }
+
+
+
         public int Init() {
             return WasapiIO_Init();
         }
