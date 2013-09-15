@@ -40,14 +40,6 @@ namespace WasapiPcmUtil {
             mRand = new Random();
             mErr = new int[numChannels];
 
-            var convertError = new ConvertDelegate[] {
-                new ConvertDelegate(ConvError),
-                new ConvertDelegate(ConvError),
-                new ConvertDelegate(ConvError),
-                new ConvertDelegate(ConvError),
-                new ConvertDelegate(ConvError),
-                new ConvertDelegate(ConvError)};
-
             var convertFromI16 = new ConvertDelegate[] {
                 new ConvertDelegate(ConvClone),
                 new ConvertDelegate(ConvI16toI24),
@@ -148,16 +140,6 @@ namespace WasapiPcmUtil {
         private delegate byte[] ConvertDelegate(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args);
 
         private ConvertDelegate[][] mConvert;
-
-        /* Wasapiで使用できるフォーマットの列挙
-         WasapiCS.SampleFormatType
-            Sint16,
-            Sint24,
-            Sint32V24,
-            Sint32,
-            Sfloat,
-            Sdouble,
-         */
 
         ////////////////////////////////////////////////////////////////////
         // Clipped counter used for float to int conversion
