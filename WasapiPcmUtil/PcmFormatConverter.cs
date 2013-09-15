@@ -56,6 +56,14 @@ namespace WasapiPcmUtil {
                 new ConvertDelegate(ConvI24toF32),
                 new ConvertDelegate(ConvI24toF64)};
 
+            var convertFromI32V24 = new ConvertDelegate[] {
+                new ConvertDelegate(ConvI24or32toI16),
+                new ConvertDelegate(ConvI32V24toI24),
+                new ConvertDelegate(ConvClone),
+                new ConvertDelegate(ConvI32V24toI32),
+                new ConvertDelegate(ConvI32toF32),
+                new ConvertDelegate(ConvI32toF64)};
+
             var convertFromI32 = new ConvertDelegate[] {
                 new ConvertDelegate(ConvI24or32toI16),
                 new ConvertDelegate(ConvI32toI24orI32V24),
@@ -83,7 +91,7 @@ namespace WasapiPcmUtil {
             mConvert = new ConvertDelegate[][] {
                     convertFromI16,
                     convertFromI24,
-                    convertFromI32,
+                    convertFromI32V24,
                     convertFromI32,
                     convertFromF32,
                     convertFromF64};
@@ -224,6 +232,39 @@ namespace WasapiPcmUtil {
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
+                }
+            });
+        }
+
+        private byte[] ConvI32V24toI24(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
+            return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
+                int fromPos = 0;
+                int toPos = 0;
+
+                for (int i = 0; i < nSample; ++i) {
+                    // 下位ビットの情報 from[fromPos + 0]を切り捨てる。
+                    to[toPos++] = from[fromPos + 1];
+                    to[toPos++] = from[fromPos + 2];
+                    to[toPos++] = from[fromPos + 3];
+
+                    fromPos += 4;
+                }
+            });
+        }
+
+        private byte[] ConvI32V24toI32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
+            return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
+                int fromPos = 0;
+                int toPos = 0;
+
+                for (int i = 0; i < nSample; ++i) {
+                    // 下位ビットの情報 from[fromPos + 0]を切り捨てる。
+                    to[toPos++] = 0;
+                    to[toPos++] = from[fromPos + 1];
+                    to[toPos++] = from[fromPos + 2];
+                    to[toPos++] = from[fromPos + 3];
+
+                    fromPos += 4;
                 }
             });
         }
