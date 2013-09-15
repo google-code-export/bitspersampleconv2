@@ -110,6 +110,11 @@ namespace WasapiPcmUtil {
         public bool IsConversionNoiseshapingOrDitherCapable(WasapiCS.SampleFormatType fromFormat, WasapiCS.SampleFormatType toFormat) {
             System.Diagnostics.Debug.Assert(0 <= (int)fromFormat && (int)fromFormat <= (int)WasapiCS.SampleFormatType.Sdouble);
             System.Diagnostics.Debug.Assert(0 <= (int)toFormat && (int)toFormat <= (int)WasapiCS.SampleFormatType.Sdouble);
+            if (fromFormat == WasapiCS.SampleFormatType.Unknown ||
+                    toFormat == WasapiCS.SampleFormatType.Unknown) {
+                return false;
+            }
+
             return mNoiseShapingOrDitherCapabilityTable[(int)fromFormat][(int)toFormat];
         }
 
