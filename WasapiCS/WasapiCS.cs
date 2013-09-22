@@ -6,19 +6,19 @@ namespace Wasapi {
     public class WasapiCS {
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Init();
+        WasapiIO_Init(ref int instanceIdReturn);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_Term();
+        WasapiIO_Term(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_DoDeviceEnumeration(int deviceType);
+        WasapiIO_EnumerateDevices(int instanceId, int deviceType);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetDeviceCount();
+        WasapiIO_GetDeviceCount(int instanceId);
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet=CharSet.Unicode)]
         internal struct WasapiIoDeviceAttributes {
@@ -31,23 +31,23 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_GetDeviceAttributes(int id, out WasapiIoDeviceAttributes attr);
+        WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, out WasapiIoDeviceAttributes attr);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
+        WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_ChooseDevice(int id);
+        WasapiIO_ChooseDevice(int instanceId, int deviceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_UnchooseDevice();
+        WasapiIO_UnchooseDevice(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_GetUseDeviceAttributes(out WasapiIoDeviceAttributes attr);
+        WasapiIO_GetUseDeviceAttributes(int instanceId, out WasapiIoDeviceAttributes attr);
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct SetupArgs {
@@ -65,99 +65,99 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Setup(ref SetupArgs args);
+        WasapiIO_Setup(int instanceId, ref SetupArgs args);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_Unsetup();
+        WasapiIO_Unsetup(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_AddPlayPcmDataStart();
+        WasapiIO_AddPlayPcmDataStart(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_AddPlayPcmData(int id, byte[] data, long bytes);
+        WasapiIO_AddPlayPcmData(int instanceId, int pcmId, byte[] data, long bytes);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_AddPlayPcmDataSetPcmFragment(int id, long posBytes, byte[] data, long bytes);
+        WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, long posBytes, byte[] data, long bytes);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_ResampleIfNeeded(int conversionQuality);
+        WasapiIO_ResampleIfNeeded(int instanceId, int conversionQuality);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_AddPlayPcmDataEnd();
+        WasapiIO_AddPlayPcmDataEnd(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static double
-        WasapiIO_ScanPcmMaxAbsAmplitude();
+        WasapiIO_ScanPcmMaxAbsAmplitude(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_ScalePcmAmplitude(double scale);
+        WasapiIO_ScalePcmAmplitude(int instanceId, double scale);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_ClearPlayList();
+        WasapiIO_ClearPlayList(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_RemovePlayPcmDataAt(int id);
+        WasapiIO_RemovePlayPcmDataAt(int instanceId, int pcmId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_SetPlayRepeat(bool repeat);
+        WasapiIO_SetPlayRepeat(int instanceId, bool repeat);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_GetPcmDataId(int usageType);
+        WasapiIO_GetPcmDataId(int instanceId, int usageType);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_SetNowPlayingPcmDataId(int id);
+        WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_SetupCaptureBuffer(long bytes);
+        WasapiIO_SetupCaptureBuffer(int instanceId, long bytes);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static long
-        WasapiIO_GetCapturedData(byte[] data, long bytes);
+        WasapiIO_GetCapturedData(int instanceId, byte[] data, long bytes);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static long
-        WasapiIO_GetCaptureGlitchCount();
+        WasapiIO_GetCaptureGlitchCount(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_StartPlayback(int wavDataId);
+        WasapiIO_StartPlayback(int instanceId, int wavDataId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_StartRecording();
+        WasapiIO_StartRecording(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_Run(int millisec);
+        WasapiIO_Run(int instanceId, int millisec);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
-        WasapiIO_Stop();
+        WasapiIO_Stop(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Pause();
+        WasapiIO_Pause(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Unpause();
+        WasapiIO_Unpause(int instanceId);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_SetPosFrame(long v);
+        WasapiIO_SetPosFrame(int instanceId, long v);
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct WasapiIoSessionStatus {
@@ -173,7 +173,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_GetSessionStatus(out WasapiIoSessionStatus a);
+        WasapiIO_GetSessionStatus(int instanceId, out WasapiIoSessionStatus a);
 
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
         internal struct WasapiIoCursorLocation {
@@ -183,13 +183,13 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static bool
-        WasapiIO_GetPlayCursorPosition(int usageType, out WasapiIoCursorLocation a);
+        WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, out WasapiIoCursorLocation a);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public delegate void StateChangedCallback(StringBuilder idStr);
 
         [DllImport("WasapiIODLL.dll")]
-        public static extern void WasapiIO_RegisterCallback(StateChangedCallback callback);
+        public static extern void WasapiIO_RegisterCallback(int instanceId, StateChangedCallback callback);
 
         public enum SchedulerTaskType {
             None,
@@ -338,26 +338,26 @@ namespace Wasapi {
             }
         }
 
-
+        private int mId =  -1;
 
         public int Init() {
-            return WasapiIO_Init();
+            return WasapiIO_Init(ref mId);
         }
 
         public void Term() {
-            WasapiIO_Term();
+            WasapiIO_Term(mId);
         }
 
         public void RegisterCallback(StateChangedCallback callback) {
-            WasapiIO_RegisterCallback(callback);
+            WasapiIO_RegisterCallback(mId, callback);
         }
 
         public int DoDeviceEnumeration(DeviceType t) {
-            return WasapiIO_DoDeviceEnumeration((int)t);
+            return WasapiIO_EnumerateDevices(mId, (int)t);
         }
 
         public int GetDeviceCount() {
-            return WasapiIO_GetDeviceCount();
+            return WasapiIO_GetDeviceCount(mId);
         }
 
         public class DeviceAttributes {
@@ -372,29 +372,29 @@ namespace Wasapi {
             }
         };
 
-        public DeviceAttributes GetDeviceAttributes(int id) {
+        public DeviceAttributes GetDeviceAttributes(int deviceId) {
             var a = new WasapiIoDeviceAttributes();
-            if (!WasapiIO_GetDeviceAttributes(id, out a)) {
+            if (!WasapiIO_GetDeviceAttributes(mId, deviceId, out a)) {
                 return null;
             }
             return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
         }
 
-        public int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
-            return WasapiIO_InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
+        public int InspectDevice(int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
+            return WasapiIO_InspectDevice(mId, deviceId, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
         }
 
-        public int ChooseDevice(int id) {
-            return WasapiIO_ChooseDevice(id);
+        public int ChooseDevice(int deviceId) {
+            return WasapiIO_ChooseDevice(mId, deviceId);
         }
 
         public void UnchooseDevice() {
-            WasapiIO_UnchooseDevice();
+            WasapiIO_UnchooseDevice(mId);
         }
 
         public DeviceAttributes GetUseDeviceAttributes() {
             var a = new WasapiIoDeviceAttributes();
-            if (!WasapiIO_GetUseDeviceAttributes(out a)) {
+            if (!WasapiIO_GetUseDeviceAttributes(mId, out a)) {
                 return null;
             }
             return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
@@ -414,27 +414,27 @@ namespace Wasapi {
             args.latencyMillisec = latencyMillisec;
             args.timePeriodHandledNanosec = timePeriodHandredNanosec;
             args.zeroFlushMillisec = zeroFlushMillisec;
-            return WasapiIO_Setup(ref args);
+            return WasapiIO_Setup(mId, ref args);
         }
 
         public void Unsetup() {
-            WasapiIO_Unsetup();
+            WasapiIO_Unsetup(mId);
         }
 
         public bool AddPlayPcmDataStart() {
-            return WasapiIO_AddPlayPcmDataStart();
+            return WasapiIO_AddPlayPcmDataStart(mId);
         }
 
-        public bool AddPlayPcmData(int id, byte[] data) {
-            return WasapiIO_AddPlayPcmData(id, data, data.LongLength);
+        public bool AddPlayPcmData(int pcmId, byte[] data) {
+            return WasapiIO_AddPlayPcmData(mId, pcmId, data, data.LongLength);
         }
 
-        public bool AddPlayPcmDataAllocateMemory(int id, long bytes) {
-            return WasapiIO_AddPlayPcmData(id, null, bytes);
+        public bool AddPlayPcmDataAllocateMemory(int pcmId, long bytes) {
+            return WasapiIO_AddPlayPcmData(mId, pcmId, null, bytes);
         }
 
-        public bool AddPlayPcmDataSetPcmFragment(int id, long posBytes, byte[] data) {
-            return WasapiIO_AddPlayPcmDataSetPcmFragment(id, posBytes, data, data.Length);
+        public bool AddPlayPcmDataSetPcmFragment(int pcmId, long posBytes, byte[] data) {
+            return WasapiIO_AddPlayPcmDataSetPcmFragment(mId, pcmId, posBytes, data, data.Length);
         }
 
         /// <summary>
@@ -443,31 +443,31 @@ namespace Wasapi {
         /// <param name="conversionQuality">1(minimum quality) to 60(maximum quality)</param>
         /// <returns>HRESULT</returns>
         public int ResampleIfNeeded(int conversionQuality) {
-            return WasapiIO_ResampleIfNeeded(conversionQuality);
+            return WasapiIO_ResampleIfNeeded(mId, conversionQuality);
         }
 
         public double ScanPcmMaxAbsAmplitude() {
-            return WasapiIO_ScanPcmMaxAbsAmplitude();
+            return WasapiIO_ScanPcmMaxAbsAmplitude(mId);
         }
 
         public void ScalePcmAmplitude(double scale) {
-            WasapiIO_ScalePcmAmplitude(scale);
+            WasapiIO_ScalePcmAmplitude(mId, scale);
         }
 
         public bool AddPlayPcmDataEnd() {
-            return WasapiIO_AddPlayPcmDataEnd();
+            return WasapiIO_AddPlayPcmDataEnd(mId);
         }
 
-        public void RemovePlayPcmDataAt(int id) {
-            WasapiIO_RemovePlayPcmDataAt(id);
+        public void RemovePlayPcmDataAt(int pcmId) {
+            WasapiIO_RemovePlayPcmDataAt(mId, pcmId);
         }
 
         public void ClearPlayList() {
-            WasapiIO_ClearPlayList();
+            WasapiIO_ClearPlayList(mId);
         }
 
         public void SetPlayRepeat(bool repeat) {
-            WasapiIO_SetPlayRepeat(repeat);
+            WasapiIO_SetPlayRepeat(mId, repeat);
         }
 
         public enum PcmDataUsageType {
@@ -478,7 +478,7 @@ namespace Wasapi {
         };
 
         public int GetPcmDataId(PcmDataUsageType t) {
-            return WasapiIO_GetPcmDataId((int)t);
+            return WasapiIO_GetPcmDataId(mId, (int)t);
         }
 
         /// <summary>
@@ -487,48 +487,48 @@ namespace Wasapi {
         /// 再生中に呼ぶ必要がある。再生中でない場合、空振りする。
         /// </summary>
         /// <param name="id">曲番号</param>
-        public void UpdatePlayPcmDataById(int id) {
-            WasapiIO_SetNowPlayingPcmDataId(id);
+        public void UpdatePlayPcmDataById(int pcmId) {
+            WasapiIO_SetNowPlayingPcmDataId(mId, pcmId);
         }
 
         public bool SetupCaptureBuffer(long bytes) {
-            return WasapiIO_SetupCaptureBuffer(bytes);
+            return WasapiIO_SetupCaptureBuffer(mId, bytes);
         }
 
         public long GetCapturedData(byte[] data) {
-            return WasapiIO_GetCapturedData(data, data.LongLength);
+            return WasapiIO_GetCapturedData(mId, data, data.LongLength);
         }
 
         public long GetCaptureGlitchCount() {
-            return WasapiIO_GetCaptureGlitchCount();
+            return WasapiIO_GetCaptureGlitchCount(mId);
         }
 
         public int StartPlayback(int wavDataId) {
-            return WasapiIO_StartPlayback(wavDataId);
+            return WasapiIO_StartPlayback(mId, wavDataId);
         }
 
         public int StartRecording() {
-            return WasapiIO_StartRecording();
+            return WasapiIO_StartRecording(mId);
         }
 
         public bool Run(int millisec) {
-            return WasapiIO_Run(millisec);
+            return WasapiIO_Run(mId, millisec);
         }
 
         public void Stop() {
-            WasapiIO_Stop();
+            WasapiIO_Stop(mId);
         }
 
         public int Pause() {
-            return WasapiIO_Pause();
+            return WasapiIO_Pause(mId);
         }
 
         public int Unpause() {
-            return WasapiIO_Unpause();
+            return WasapiIO_Unpause(mId);
         }
 
         public bool SetPosFrame(long v) {
-            return WasapiIO_SetPosFrame(v);
+            return WasapiIO_SetPosFrame(mId, v);
         }
 
         public class SessionStatus {
@@ -556,7 +556,7 @@ namespace Wasapi {
 
         public SessionStatus GetSessionStatus() {
             var s = new WasapiIoSessionStatus();
-            if (!WasapiIO_GetSessionStatus(out s)) {
+            if (!WasapiIO_GetSessionStatus(mId, out s)) {
                 return null;
             }
             return new SessionStatus((StreamType)s.streamType, s.pcmDataSampleRate, s.deviceSampleRate, (SampleFormatType)s.deviceSampleFormat,
@@ -574,7 +574,7 @@ namespace Wasapi {
 
         public CursorLocation GetPlayCursorPosition(PcmDataUsageType usageType) {
             var p = new WasapiIoCursorLocation();
-            if (!WasapiIO_GetPlayCursorPosition((int)usageType, out p)) {
+            if (!WasapiIO_GetPlayCursorPosition(mId, (int)usageType, out p)) {
                 return null;
             }
             return new CursorLocation(p.posFrame, p.totalFrameNum);

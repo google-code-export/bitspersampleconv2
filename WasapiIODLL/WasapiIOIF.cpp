@@ -3,10 +3,15 @@
 #include "WWPlayPcmGroup.h"
 #include "WWUtil.h"
 #include <assert.h>
+#include <map>
 
 struct WasapiIO {
     WasapiUser     wasapi;
     WWPlayPcmGroup playPcmGroup;
+    int            instanceId;
+    static int     sNextInstanceId;
+
+    int GetInstanceId(void) const { return instanceId; }
 
     HRESULT Init(void);
     void Term(void);
@@ -23,6 +28,8 @@ struct WasapiIO {
     void ScalePcmAmplitude(double scale);
 };
 
+int WasapiIO::sNextInstanceId = 0;
+
 HRESULT
 WasapiIO::Init(void)
 {
@@ -30,6 +37,11 @@ WasapiIO::Init(void)
     
     hr = wasapi.Init();
     playPcmGroup.Term();
+
+    if (SUCCEEDED(hr)) {
+        instanceId = sNextInstanceId;
+        ++sNextInstanceId;
+    }
 
     return hr;
 }
@@ -154,7 +166,22 @@ WasapiIO::StartRecording(void)
     return wasapi.Start();
 }
 
-static WasapiIO * self = NULL;
+static std::map<int, WasapiIO *> gSelf;
+
+static WasapiIO *
+Instance(int id)
+{
+    if (id < 0) {
+        return NULL;
+    }
+
+    std::map<int, WasapiIO *>::iterator ite = gSelf.find(id);
+    if (ite == gSelf.end()) {
+        return NULL;
+    }
+
+    return ite->second;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -162,33 +189,45 @@ extern "C" {
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Init(void)
+WasapiIO_Init(int *instanceId_return)
 {
     HRESULT hr = S_OK;
 
-    if(!self) {
-        self = new WasapiIO();
-        hr = self->Init();
+    WasapiIO * self = new WasapiIO();
+    if (self == NULL) {
+        return E_FAIL;
     }
 
+    hr = self->Init();
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    *instanceId_return = self->GetInstanceId();
+    gSelf[*instanceId_return] = self;
     return hr;
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Term(void)
+WasapiIO_Term(int instanceId)
 {
-    if (self) {
-        self->Term();
-        delete self;
-        self = NULL;
+    std::map<int, WasapiIO *>::iterator ite = gSelf.find(instanceId);
+    if (ite == gSelf.end()) {
+        assert(0);
+        return;
     }
+
+    ite->second->Term();
+    SAFE_DELETE(ite->second);
+    gSelf.erase(ite);
 }
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_DoDeviceEnumeration(int deviceType)
+WasapiIO_EnumerateDevices(int instanceId, int deviceType)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     WWDeviceType t = (WWDeviceType)deviceType;
     return self->wasapi.DoDeviceEnumeration(t);
@@ -196,22 +235,24 @@ WasapiIO_DoDeviceEnumeration(int deviceType)
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_GetDeviceCount(void)
+WasapiIO_GetDeviceCount(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.GetDeviceCount();
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetDeviceAttributes(int id, WasapiIoDeviceAttributes &attr_return)
+WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttributes &attr_return)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    attr_return.deviceId = id;
-    if (!self->wasapi.GetDeviceName(id, attr_return.name, sizeof attr_return.name)) {
+    attr_return.deviceId = deviceId;
+    if (!self->wasapi.GetDeviceName(deviceId, attr_return.name, sizeof attr_return.name)) {
         return false;
     }
-    if (!self->wasapi.GetDeviceIdString(id, attr_return.deviceIdString, sizeof attr_return.deviceIdString)) {
+    if (!self->wasapi.GetDeviceIdString(deviceId, attr_return.deviceIdString, sizeof attr_return.deviceIdString)) {
         return false;
     }
     return true;
@@ -219,40 +260,45 @@ WasapiIO_GetDeviceAttributes(int id, WasapiIoDeviceAttributes &attr_return)
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
+WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.InspectDevice(id, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
+    return self->wasapi.InspectDevice(deviceId, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
 }
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_ChooseDevice(int id)
+WasapiIO_ChooseDevice(int instanceId, int deviceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.ChooseDevice(id);
+    return self->wasapi.ChooseDevice(deviceId);
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_UnchooseDevice(void)
+WasapiIO_UnchooseDevice(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.UnchooseDevice();
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetUseDeviceAttributes(WasapiIoDeviceAttributes &attr_return)
+WasapiIO_GetUseDeviceAttributes(int instanceId, WasapiIoDeviceAttributes &attr_return)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    return WasapiIO_GetDeviceAttributes(self->wasapi.GetUseDeviceId(), attr_return);
+    return WasapiIO_GetDeviceAttributes(instanceId, self->wasapi.GetUseDeviceId(), attr_return);
 }
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(const WasapiIoSetupArgs &args)
+WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.SetStreamType((WWStreamType)args.streamType);
     self->wasapi.SetShareMode((WWShareMode)args.shareMode);
@@ -268,16 +314,18 @@ WasapiIO_Setup(const WasapiIoSetupArgs &args)
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Unsetup(void)
+WasapiIO_Unsetup(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.Unsetup();
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataStart(void)
+WasapiIO_AddPlayPcmDataStart(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     return self->AddPcmDataStart();
@@ -285,16 +333,18 @@ WasapiIO_AddPlayPcmDataStart(void)
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmData(int id, unsigned char *data, int64_t bytes)
+WasapiIO_AddPlayPcmData(int instanceId, int pcmId, unsigned char *data, int64_t bytes)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->playPcmGroup.AddPlayPcmData(id, data, bytes);
+    return self->playPcmGroup.AddPlayPcmData(pcmId, data, bytes);
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *data, int64_t bytes)
+WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posBytes, unsigned char *data, int64_t bytes)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 #ifdef _X86_
     if (0x7fffffffL < posBytes + bytes) {
@@ -303,7 +353,7 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *d
     }
 #endif
 
-    WWPcmData *p = self->playPcmGroup.FindPcmDataById(id);
+    WWPcmData *p = self->playPcmGroup.FindPcmDataById(pcmId);
     if (NULL == p) {
         return false;
     }
@@ -316,16 +366,18 @@ WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *d
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_ResampleIfNeeded(int conversionQuality)
+WasapiIO_ResampleIfNeeded(int instanceId, int conversionQuality)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->ResampleIfNeeded(conversionQuality);
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataEnd(void)
+WasapiIO_AddPlayPcmDataEnd(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     self->AddPcmDataEnd();
@@ -335,25 +387,28 @@ WasapiIO_AddPlayPcmDataEnd(void)
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_RemovePlayPcmDataAt(int id)
+WasapiIO_RemovePlayPcmDataAt(int instanceId, int pcmId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
-    self->playPcmGroup.RemoveAt(id);
+    self->playPcmGroup.RemoveAt(pcmId);
     self->UpdatePlayRepeat(self->playPcmGroup.GetRepatFlag());
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_ClearPlayList(void)
+WasapiIO_ClearPlayList(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->playPcmGroup.Clear();
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_SetPlayRepeat(bool b)
+WasapiIO_SetPlayRepeat(int instanceId, bool b)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     self->UpdatePlayRepeat(b);
@@ -361,22 +416,24 @@ WasapiIO_SetPlayRepeat(bool b)
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_GetPcmDataId(int usageType)
+WasapiIO_GetPcmDataId(int instanceId, int usageType)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.GetPcmDataId((WWPcmDataUsageType)usageType);
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_SetNowPlayingPcmDataId(int id)
+WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    WWPcmData *p = self->playPcmGroup.FindPcmDataById(id);
+    WWPcmData *p = self->playPcmGroup.FindPcmDataById(pcmId);
     if (NULL == p) {
         dprintf("%s(%d) PcmData not found\n",
-            __FUNCTION__, id);
+            __FUNCTION__, pcmId);
         return;
     }
 
@@ -385,32 +442,36 @@ WasapiIO_SetNowPlayingPcmDataId(int id)
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_SetupCaptureBuffer(int64_t bytes)
+WasapiIO_SetupCaptureBuffer(int instanceId, int64_t bytes)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.SetupCaptureBuffer(bytes);
 }
 
 __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetCapturedData(unsigned char *data, int64_t bytes)
+WasapiIO_GetCapturedData(int instanceId, unsigned char *data, int64_t bytes)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.GetCapturedData(data, bytes);
 }
 
 __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetCaptureGlitchCount(void)
+WasapiIO_GetCaptureGlitchCount(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.GetCaptureGlitchCount();
 }
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_StartPlayback(int wavDataId)
+WasapiIO_StartPlayback(int instanceId, int wavDataId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     return self->StartPlayback(wavDataId);
@@ -418,8 +479,9 @@ WasapiIO_StartPlayback(int wavDataId)
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_StartRecording(void)
+WasapiIO_StartRecording(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     return self->StartRecording();
@@ -427,40 +489,45 @@ WasapiIO_StartRecording(void)
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_Run(int millisec)
+WasapiIO_Run(int instanceId, int millisec)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.Run(millisec);
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Stop(void)
+WasapiIO_Stop(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.Stop();
 }
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_Pause(void)
+WasapiIO_Pause(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.Pause();
 }
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_Unpause(void)
+WasapiIO_Unpause(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.Unpause();
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetPlayCursorPosition(int usageType, WasapiIoCursorLocation &pos_return)
+WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, WasapiIoCursorLocation &pos_return)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     pos_return.posFrame      = self->wasapi.GetPosFrame(     (WWPcmDataUsageType)usageType);
     pos_return.totalFrameNum = self->wasapi.GetTotalFrameNum((WWPcmDataUsageType)usageType);
@@ -469,16 +536,18 @@ WasapiIO_GetPlayCursorPosition(int usageType, WasapiIoCursorLocation &pos_return
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_SetPosFrame(int64_t v)
+WasapiIO_SetPosFrame(int instanceId, int64_t v)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->wasapi.SetPosFrame(v);
 }
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return)
+WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
 
     stat_return.streamType          = self->wasapi.GetStreamType();
@@ -496,24 +565,27 @@ WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return)
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_RegisterCallback(WWStateChanged callback)
+WasapiIO_RegisterCallback(int instanceId, WWStateChanged callback)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.RegisterCallback(callback);
 }
 
 __declspec(dllexport)
 double __stdcall
-WasapiIO_ScanPcmMaxAbsAmplitude(void)
+WasapiIO_ScanPcmMaxAbsAmplitude(int instanceId)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->ScanPcmMaxAbsAmplitude();
 }
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_ScalePcmAmplitude(double scale)
+WasapiIO_ScalePcmAmplitude(int instanceId, double scale)
 {
+    WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->ScalePcmAmplitude(scale);
 }

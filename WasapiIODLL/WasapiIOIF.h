@@ -6,21 +6,24 @@
 
 extern "C" {
 
+/// @param instanceId_return [out] instance id
+/// @return 0: success. -1 or less: failed. returns error code HRESULT
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Init(void);
+WasapiIO_Init(int *instanceId_return);
 
+/// @param instanceId instanceId returned from WasapiIO_Init
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Term(void);
+WasapiIO_Term(int instanceId);
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_DoDeviceEnumeration(int deviceType);
+WasapiIO_EnumerateDevices(int instanceId, int deviceType);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_GetDeviceCount(void);
+WasapiIO_GetDeviceCount(int instanceId);
 
 #define WASAPI_IO_DEVICE_STR_COUNT (256)
 
@@ -34,23 +37,23 @@ struct WasapiIoDeviceAttributes {
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetDeviceAttributes(int id, WasapiIoDeviceAttributes &attr_return);
+WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttributes &attr_return);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
+WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_ChooseDevice(int id);
+WasapiIO_ChooseDevice(int instanceId, int deviceId);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_UnchooseDevice(void);
+WasapiIO_UnchooseDevice(int instanceId);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetUseDeviceAttributes(WasapiIoDeviceAttributes &attr_return);
+WasapiIO_GetUseDeviceAttributes(int instanceId, WasapiIoDeviceAttributes &attr_return);
 
 #pragma pack(push, 4)
 struct WasapiIoSetupArgs {
@@ -69,80 +72,80 @@ struct WasapiIoSetupArgs {
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(const WasapiIoSetupArgs &args);
+WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Unsetup(void);
+WasapiIO_Unsetup(int instanceId);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataStart(void);
+WasapiIO_AddPlayPcmDataStart(int instanceId);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmData(int id, unsigned char *data, int64_t bytes);
+WasapiIO_AddPlayPcmData(int instanceId, int pcmId, unsigned char *data, int64_t bytes);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataSetPcmFragment(int id, int64_t posBytes, unsigned char *data, int64_t bytes);
+WasapiIO_AddPlayPcmDataSetPcmFragment(int instanceId, int pcmId, int64_t posBytes, unsigned char *data, int64_t bytes);
 
 /// @return HRESULT
 __declspec(dllexport)
 int __stdcall
-WasapiIO_ResampleIfNeeded(int conversionQuality);
+WasapiIO_ResampleIfNeeded(int instanceId, int conversionQuality);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_AddPlayPcmDataEnd(void);
+WasapiIO_AddPlayPcmDataEnd(int instanceId);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_ClearPlayList(void);
+WasapiIO_ClearPlayList(int instanceId);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_SetPlayRepeat(bool b);
+WasapiIO_SetPlayRepeat(int instanceId, bool b);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_GetPcmDataId(int usageType);
+WasapiIO_GetPcmDataId(int instanceId, int usageType);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_SetNowPlayingPcmDataId(int id);
+WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_SetupCaptureBuffer(int64_t bytes);
+WasapiIO_SetupCaptureBuffer(int instanceId, int64_t bytes);
 
 __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetCapturedData(unsigned char *data, int64_t bytes);
+WasapiIO_GetCapturedData(int instanceId, unsigned char *data, int64_t bytes);
 
 __declspec(dllexport)
 int64_t __stdcall
-WasapiIO_GetCaptureGlitchCount(void);
+WasapiIO_GetCaptureGlitchCount(int instanceId);
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Start(int wavDataId);
+WasapiIO_Start(int instanceId, int pcmId);
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_Run(int millisec);
+WasapiIO_Run(int instanceId, int millisec);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_Stop(void);
+WasapiIO_Stop(int instanceId);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_Pause(void);
+WasapiIO_Pause(int instanceId);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_Unpause(void);
+WasapiIO_Unpause(int instanceId);
 
 #pragma pack(push, 4)
 struct WasapiIoSessionStatus {
@@ -159,7 +162,7 @@ struct WasapiIoSessionStatus {
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetSessionStatus(WasapiIoSessionStatus &stat_return);
+WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return);
 
 #pragma pack(push, 8)
 struct WasapiIoCursorLocation {
@@ -170,22 +173,22 @@ struct WasapiIoCursorLocation {
 
 __declspec(dllexport)
 bool __stdcall
-WasapiIO_GetPlayCursorPosition(int usageType, WasapiIoCursorLocation &pos_return);
+WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, WasapiIoCursorLocation &pos_return);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_RegisterCallback(WWStateChanged callback);
+WasapiIO_RegisterCallback(int instanceId, WWStateChanged callback);
 
 __declspec(dllexport)
 int __stdcall
-WasapiIO_GetTimePeriodHundredNanosec(void);
+WasapiIO_GetTimePeriodHundredNanosec(int instanceId);
 
 __declspec(dllexport)
 double __stdcall
-WasapiIO_ScanPcmMaxAbsAmplitude(void);
+WasapiIO_ScanPcmMaxAbsAmplitude(int instanceId);
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_ScalePcmAmplitude(double scale);
+WasapiIO_ScalePcmAmplitude(int instanceId, double scale);
 
 }; // extern "C"
