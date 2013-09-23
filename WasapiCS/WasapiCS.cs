@@ -112,6 +112,10 @@ namespace Wasapi {
         WasapiIO_SetPlayRepeat(int instanceId, bool repeat);
 
         [DllImport("WasapiIODLL.dll")]
+        private extern static bool
+        WasapiIO_ConnectPcmDataNext(int instanceId, int fromIdx, int toIdx);
+
+        [DllImport("WasapiIODLL.dll")]
         private extern static int
         WasapiIO_GetPcmDataId(int instanceId, int usageType);
 
@@ -189,7 +193,13 @@ namespace Wasapi {
         public delegate void StateChangedCallback(StringBuilder idStr);
 
         [DllImport("WasapiIODLL.dll")]
-        public static extern void WasapiIO_RegisterCallback(int instanceId, StateChangedCallback callback);
+        public static extern void WasapiIO_RegisterStateChangedCallback(int instanceId, StateChangedCallback callback);
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public delegate void CaptureCallback(byte[] data, long bytes);
+
+        [DllImport("WasapiIODLL.dll")]
+        public static extern void WasapiIO_RegisterCaptureCallback(int instanceId, CaptureCallback callback);
 
         public enum SchedulerTaskType {
             None,
@@ -348,11 +358,15 @@ namespace Wasapi {
             WasapiIO_Term(mId);
         }
 
-        public void RegisterCallback(StateChangedCallback callback) {
-            WasapiIO_RegisterCallback(mId, callback);
+        public void RegisterStateChangedCallback(StateChangedCallback callback) {
+            WasapiIO_RegisterStateChangedCallback(mId, callback);
         }
 
-        public int DoDeviceEnumeration(DeviceType t) {
+        public void RegisterCaptureCallback(CaptureCallback cb) {
+            WasapiIO_RegisterCaptureCallback(mId, cb);
+        }
+
+        public int EnumerateDevices(DeviceType t) {
             return WasapiIO_EnumerateDevices(mId, (int)t);
         }
 
@@ -361,8 +375,19 @@ namespace Wasapi {
         }
 
         public class DeviceAttributes {
+            /// <summary>
+            /// device id. numbered from 0
+            /// </summary>
             public int Id { get; set; }
+
+            /// <summary>
+            /// device friendly name to display
+            /// </summary>
             public string Name { get; set; }
+
+            /// <summary>
+            /// device id string to identify
+            /// </summary>
             public string DeviceIdString { get; set; }
 
             public DeviceAttributes(int id, string name, string deviceIdString) {
@@ -468,6 +493,10 @@ namespace Wasapi {
 
         public void SetPlayRepeat(bool repeat) {
             WasapiIO_SetPlayRepeat(mId, repeat);
+        }
+
+        public bool ConnectPcmDataNext(int fromPcmId, int toPcmId) {
+            return WasapiIO_ConnectPcmDataNext(mId, fromPcmId, toPcmId);
         }
 
         public enum PcmDataUsageType {

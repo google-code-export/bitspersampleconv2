@@ -745,7 +745,7 @@ namespace PlayPcmWin
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Init() {0:X8}{1}", hr, Environment.NewLine));
 
             m_wasapiStateChangedDelegate = new Wasapi.WasapiCS.StateChangedCallback(WasapiStatusChanged);
-            wasapi.RegisterCallback(m_wasapiStateChangedDelegate);
+            wasapi.RegisterStateChangedCallback(m_wasapiStateChangedDelegate);
 
             textBoxLatency.Text = string.Format(CultureInfo.InvariantCulture, "{0}", m_preference.LatencyMillisec);
 
@@ -1359,7 +1359,7 @@ namespace PlayPcmWin
 
             listBoxDevices.Items.Clear();
 
-            hr = wasapi.DoDeviceEnumeration(WasapiCS.DeviceType.Play);
+            hr = wasapi.EnumerateDevices(WasapiCS.DeviceType.Play);
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.DoDeviceEnumeration(Play) {0:X8}{1}", hr, Environment.NewLine));
 
             int nDevices = wasapi.GetDeviceCount();

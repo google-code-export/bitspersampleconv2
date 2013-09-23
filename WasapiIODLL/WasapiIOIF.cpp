@@ -26,6 +26,8 @@ struct WasapiIO {
 
     double ScanPcmMaxAbsAmplitude(void);
     void ScalePcmAmplitude(double scale);
+
+    bool ConnectPcmDataNext(int fromIdx, int toIdx);
 };
 
 int WasapiIO::sNextInstanceId = 0;
@@ -63,6 +65,20 @@ WasapiIO::UpdatePlayRepeat(bool repeat)
         playPcmGroup.SetPlayRepeat(repeat);
         wasapi.UpdatePlayRepeat(repeat, first, last);
     }
+}
+
+bool
+WasapiIO::ConnectPcmDataNext(int fromIdx, int toIdx)
+{
+    WWPcmData *from = playPcmGroup.FindPcmDataById(fromIdx);
+    WWPcmData *to = playPcmGroup.FindPcmDataById(toIdx);
+
+    if (NULL == from || NULL == to) {
+        return false;
+    }
+
+    from->next = to;
+    return true;
 }
 
 bool
@@ -415,6 +431,16 @@ WasapiIO_SetPlayRepeat(int instanceId, bool b)
 }
 
 __declspec(dllexport)
+bool __stdcall
+WasapiIO_ConnectPcmDataNext(int instanceId, int fromIdx, int toIdx)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    return self->ConnectPcmDataNext(fromIdx, toIdx);
+}
+
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetPcmDataId(int instanceId, int usageType)
 {
@@ -565,11 +591,11 @@ WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return)
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_RegisterCallback(int instanceId, WWStateChanged callback)
+WasapiIO_RegisterStateChangedCallback(int instanceId, WWStateChanged callback)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    self->wasapi.RegisterCallback(callback);
+    self->wasapi.RegisterStateChangedCallback(callback);
 }
 
 __declspec(dllexport)
@@ -588,6 +614,15 @@ WasapiIO_ScalePcmAmplitude(int instanceId, double scale)
     WasapiIO *self = Instance(instanceId);
     assert(self);
     return self->ScalePcmAmplitude(scale);
+}
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_RegisterCaptureCallback(int instanceId, WWCaptureCallback callback)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+    self->wasapi.RegisterCaptureCallback(callback);
 }
 
 }; // extern "C"

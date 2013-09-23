@@ -14,6 +14,10 @@
 
 typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
 
+/// @param data captured data
+/// @param dataBytes captured data size in bytes
+typedef void (__stdcall WWCaptureCallback)(unsigned char *data, int64_t dataBytes);
+
 struct WWDeviceInfo {
     int id;
     wchar_t name[WW_DEVICE_NAME_COUNT];
@@ -141,6 +145,9 @@ public:
     int GetPcmDataId(WWPcmDataUsageType t);
 
     // recording buffer setup
+    void RegisterCaptureCallback(WWCaptureCallback cb) {
+        m_captureCallback = cb;
+    }
     bool SetupCaptureBuffer(int64_t bytes);
     int64_t GetCapturedData(BYTE *data, int64_t bytes);
     int64_t GetCaptureGlitchCount(void);
@@ -176,7 +183,7 @@ public:
         return m_dataFlow;
     }
 
-    void RegisterCallback(WWStateChanged callback) {
+    void RegisterStateChangedCallback(WWStateChanged callback) {
         m_stateChangedCallback = callback;
     }
 
@@ -238,6 +245,7 @@ private:
     WWPcmData    m_endSilenceBuffer;
     WWPcmData    m_pauseBuffer;
 
+    WWCaptureCallback *m_captureCallback;
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
     IMMNotificationClient *m_pNotificationClient;

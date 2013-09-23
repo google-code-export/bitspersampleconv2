@@ -96,7 +96,7 @@ namespace PlayPcmWinTestBench {
         }
 
         private void ListDevices() {
-            int hr = wasapi.DoDeviceEnumeration(WasapiCS.DeviceType.Play);
+            int hr = wasapi.EnumerateDevices(WasapiCS.DeviceType.Play);
 
             ComboBoxDeviceInit(comboBoxDeviceA);
             ComboBoxDeviceInit(comboBoxDeviceB);

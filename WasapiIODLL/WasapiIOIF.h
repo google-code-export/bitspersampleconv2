@@ -108,6 +108,10 @@ void __stdcall
 WasapiIO_SetPlayRepeat(int instanceId, bool b);
 
 __declspec(dllexport)
+bool __stdcall
+WasapiIO_ConnectPcmDataNext(int instanceId, int fromIdx, int toIdx);
+
+__declspec(dllexport)
 int __stdcall
 WasapiIO_GetPcmDataId(int instanceId, int usageType);
 
@@ -177,7 +181,7 @@ WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, WasapiIoCursorLoca
 
 __declspec(dllexport)
 void __stdcall
-WasapiIO_RegisterCallback(int instanceId, WWStateChanged callback);
+WasapiIO_RegisterStateChangedCallback(int instanceId, WWStateChanged callback);
 
 __declspec(dllexport)
 int __stdcall
@@ -190,5 +194,9 @@ WasapiIO_ScanPcmMaxAbsAmplitude(int instanceId);
 __declspec(dllexport)
 void __stdcall
 WasapiIO_ScalePcmAmplitude(int instanceId, double scale);
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_RegisterCaptureCallback(int instanceId, WWCaptureCallback callback);
 
 }; // extern "C"
