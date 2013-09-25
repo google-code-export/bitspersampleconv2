@@ -124,14 +124,6 @@ namespace Wasapi {
         WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId);
 
         [DllImport("WasapiIODLL.dll")]
-        private extern static bool
-        WasapiIO_SetupCaptureBuffer(int instanceId, long bytes);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static long
-        WasapiIO_GetCapturedData(int instanceId, byte[] data, long bytes);
-
-        [DllImport("WasapiIODLL.dll")]
         private extern static long
         WasapiIO_GetCaptureGlitchCount(int instanceId);
 
@@ -540,14 +532,6 @@ namespace Wasapi {
         /// <param name="id">曲番号</param>
         public void UpdatePlayPcmDataById(int pcmId) {
             WasapiIO_SetNowPlayingPcmDataId(mId, pcmId);
-        }
-
-        public bool SetupCaptureBuffer(long bytes) {
-            return WasapiIO_SetupCaptureBuffer(mId, bytes);
-        }
-
-        public long GetCapturedData(byte[] data) {
-            return WasapiIO_GetCapturedData(mId, data, data.LongLength);
         }
 
         public long GetCaptureGlitchCount() {
