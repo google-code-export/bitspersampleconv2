@@ -16,7 +16,7 @@ typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
 
 /// @param data captured data
 /// @param dataBytes captured data size in bytes
-typedef void (__stdcall WWCaptureCallback)(unsigned char *data, int64_t dataBytes);
+typedef void (__stdcall WWCaptureCallback)(unsigned char *data, int dataBytes);
 
 struct WWDeviceInfo {
     int id;
@@ -148,8 +148,6 @@ public:
     void RegisterCaptureCallback(WWCaptureCallback cb) {
         m_captureCallback = cb;
     }
-    bool SetupCaptureBuffer(int64_t bytes);
-    int64_t GetCapturedData(BYTE *data, int64_t bytes);
     int64_t GetCaptureGlitchCount(void);
 
     /// 再生リピートの更新。
@@ -188,6 +186,10 @@ public:
     }
 
     void DeviceStateChanged(LPCWSTR deviceIdStr);
+
+    void MutexWait(void);
+
+    void MutexRelease(void);
 
 private:
     std::vector<WWDeviceInfo> m_deviceInfo;
@@ -236,7 +238,6 @@ private:
     wchar_t      m_useDeviceName[WW_DEVICE_NAME_COUNT];
     wchar_t      m_useDeviceIdStr[WW_DEVICE_IDSTR_COUNT];
 
-    WWPcmData    *m_capturedPcmData;
     WWPcmData    *m_nowPlayingPcmData;
     WWPcmData    *m_pauseResumePcmData;
     WWPcmData    m_spliceBuffer;
@@ -263,7 +264,6 @@ private:
     bool AudioSamplesSendProc(void);
     bool AudioSamplesRecvProc(void);
 
-    void ClearCapturedPcmData(void);
     void ClearPlayPcmData(void);
 
     DWORD SetTimerResolution(void);

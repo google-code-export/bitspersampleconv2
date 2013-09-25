@@ -120,14 +120,6 @@ void __stdcall
 WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId);
 
 __declspec(dllexport)
-bool __stdcall
-WasapiIO_SetupCaptureBuffer(int instanceId, int64_t bytes);
-
-__declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetCapturedData(int instanceId, unsigned char *data, int64_t bytes);
-
-__declspec(dllexport)
 int64_t __stdcall
 WasapiIO_GetCaptureGlitchCount(int instanceId);
 

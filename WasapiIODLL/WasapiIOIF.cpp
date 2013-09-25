@@ -77,7 +77,10 @@ WasapiIO::ConnectPcmDataNext(int fromIdx, int toIdx)
         return false;
     }
 
+    wasapi.MutexWait();
     from->next = to;
+    wasapi.MutexRelease();
+
     return true;
 }
 
@@ -464,24 +467,6 @@ WasapiIO_SetNowPlayingPcmDataId(int instanceId, int pcmId)
     }
 
     self->wasapi.UpdatePlayPcmData(*p);
-}
-
-__declspec(dllexport)
-bool __stdcall
-WasapiIO_SetupCaptureBuffer(int instanceId, int64_t bytes)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
-    return self->wasapi.SetupCaptureBuffer(bytes);
-}
-
-__declspec(dllexport)
-int64_t __stdcall
-WasapiIO_GetCapturedData(int instanceId, unsigned char *data, int64_t bytes)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
-    return self->wasapi.GetCapturedData(data, bytes);
 }
 
 __declspec(dllexport)

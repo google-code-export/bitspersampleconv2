@@ -193,13 +193,15 @@ namespace Wasapi {
         public delegate void StateChangedCallback(StringBuilder idStr);
 
         [DllImport("WasapiIODLL.dll")]
-        public static extern void WasapiIO_RegisterStateChangedCallback(int instanceId, StateChangedCallback callback);
+        private static extern void WasapiIO_RegisterStateChangedCallback(int instanceId, StateChangedCallback callback);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public delegate void CaptureCallback(byte[] data, long bytes);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate void NativeCaptureCallback(IntPtr data, int bytes);
+
+        public delegate void CaptureCallback(byte[] data);
 
         [DllImport("WasapiIODLL.dll")]
-        public static extern void WasapiIO_RegisterCaptureCallback(int instanceId, CaptureCallback callback);
+        private static extern void WasapiIO_RegisterCaptureCallback(int instanceId, NativeCaptureCallback callback);
 
         public enum SchedulerTaskType {
             None,
@@ -350,20 +352,40 @@ namespace Wasapi {
 
         private int mId =  -1;
 
+        private NativeCaptureCallback mNativeCaptureCallback;
+        private CaptureCallback mCaptureCallback;
+
         public int Init() {
             return WasapiIO_Init(ref mId);
         }
 
         public void Term() {
             WasapiIO_Term(mId);
+            mNativeCaptureCallback = null;
+            mCaptureCallback = null;
         }
 
         public void RegisterStateChangedCallback(StateChangedCallback callback) {
             WasapiIO_RegisterStateChangedCallback(mId, callback);
         }
+        
+        private void NativeCaptureCallbackImpl(IntPtr ptr, int bytes) {
+            var data = new byte[bytes];
+            Marshal.Copy(ptr, data, 0, bytes);
+            mCaptureCallback(data);
+        }
 
         public void RegisterCaptureCallback(CaptureCallback cb) {
-            WasapiIO_RegisterCaptureCallback(mId, cb);
+            if (cb == null) {
+                mNativeCaptureCallback = null;
+                mCaptureCallback = null;
+                WasapiIO_RegisterCaptureCallback(mId, null);
+                return;
+            }
+
+            mNativeCaptureCallback = new NativeCaptureCallback(NativeCaptureCallbackImpl);
+            mCaptureCallback = cb;
+            WasapiIO_RegisterCaptureCallback(mId, mNativeCaptureCallback);
         }
 
         public int EnumerateDevices(DeviceType t) {

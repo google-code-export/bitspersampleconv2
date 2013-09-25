@@ -219,9 +219,9 @@ WasapiUser::WasapiUser(void)
     memset(m_useDeviceName, 0, sizeof m_useDeviceName);
     memset(m_useDeviceIdStr, 0, sizeof m_useDeviceIdStr);
 
-    m_capturedPcmData      = NULL;
     m_nowPlayingPcmData    = NULL;
     m_pauseResumePcmData   = NULL;
+    m_captureCallback      = NULL;
     m_stateChangedCallback = NULL;
     m_deviceEnumerator     = NULL;
     m_pNotificationClient  = NULL;
@@ -279,6 +279,9 @@ WasapiUser::Term(void)
         m_deviceEnumerator->UnregisterEndpointNotificationCallback(
             m_pNotificationClient);
     }
+
+    m_captureCallback      = NULL;
+    m_stateChangedCallback = NULL;
 
     SafeRelease(&m_deviceCollection);
     SafeRelease(&m_deviceEnumerator);
@@ -964,8 +967,6 @@ WasapiUser::Start(void)
 
     dprintf("D: %s()\n", __FUNCTION__);
 
-    assert(m_nowPlayingPcmData || m_capturedPcmData);
-
     HRG(m_audioClient->Reset());
 
     assert(!m_shutdownEvent);
@@ -974,6 +975,8 @@ WasapiUser::Start(void)
 
     switch (m_dataFlow) {
     case eRender:
+        assert(m_nowPlayingPcmData);
+
         assert(NULL == m_thread);
         m_thread = CreateThread(NULL, 0, RenderEntry, this, 0, NULL);
         assert(m_thread);
@@ -1001,6 +1004,7 @@ WasapiUser::Start(void)
         break;
 
     case eCapture:
+        assert(m_captureCallback);
         m_thread = CreateThread(NULL, 0, CaptureEntry, this, 0, NULL);
         assert(m_thread);
 
@@ -1190,16 +1194,6 @@ WasapiUser::ClearPlayPcmData(void)
     m_nowPlayingPcmData = NULL;
 }
 
-void
-WasapiUser::ClearCapturedPcmData(void)
-{
-    if (m_capturedPcmData) {
-        m_capturedPcmData->Term();
-        delete m_capturedPcmData;
-        m_capturedPcmData = NULL;
-    }
-}
-
 /// 再生開始直後は、Start無音を再生する。
 /// その後startPcmDataを再生する。
 /// endPcmDataの次に、End無音を再生する。
@@ -1252,7 +1246,7 @@ WasapiUser::GetPcmDataByUsageType(WWPcmDataUsageType t)
         pcm = m_spliceBuffer.next;
         break;
     case WWPDUCapture:
-        pcm = m_capturedPcmData;
+        assert(0);
         break;
     default:
         assert(0);
@@ -1438,51 +1432,6 @@ WasapiUser::SetPosFrame(int64_t v)
     ReleaseMutex(m_mutex);
 
     return result;
-}
-
-bool
-WasapiUser::SetupCaptureBuffer(int64_t bytes)
-{
-    if (m_dataFlow != eCapture) {
-        assert(0);
-        return false;
-    }
-#ifdef _X86_
-    if (0x7fffffffL < bytes) {
-        // cannot alloc 2GB buffer on 32bit build
-        return false;
-    }
-#endif
-
-    ClearCapturedPcmData();
-
-    // 録音時は
-    //   pcmData->posFrame: 有効な録音データのフレーム数
-    //   pcmData->nFrames: 録音可能総フレーム数
-    m_capturedPcmData = new WWPcmData();
-    m_capturedPcmData->posFrame = 0;
-    m_capturedPcmData->nFrames = bytes/m_deviceBytesPerFrame;
-    m_capturedPcmData->stream = (BYTE*)malloc(bytes);
-
-    return  m_capturedPcmData->stream != NULL;
-}
-
-int64_t
-WasapiUser::GetCapturedData(BYTE *data, int64_t bytes)
-{
-    if (m_dataFlow != eCapture) {
-        assert(0);
-        return 0;
-    }
-
-    assert(m_capturedPcmData);
-
-    if (m_capturedPcmData->posFrame * m_deviceBytesPerFrame < bytes) {
-        bytes = m_capturedPcmData->posFrame * m_deviceBytesPerFrame;
-    }
-    memcpy(data, m_capturedPcmData->stream, bytes);
-
-    return bytes;
 }
 
 int64_t
@@ -1813,7 +1762,6 @@ WasapiUser::AudioSamplesRecvProc(void)
     BYTE    *pData     = NULL;
     HRESULT hr         = 0;
     UINT64  devicePosition = 0;
-    int     writeFrames = 0;
 
     WaitForSingleObject(m_mutex, INFINITE);
 
@@ -1829,36 +1777,16 @@ WasapiUser::AudioSamplesRecvProc(void)
     HRG(m_captureClient->GetBuffer(&pData,
         &numFramesAvailable, &flags, &devicePosition, NULL));
 
-    if ((m_capturedPcmData->nFrames - m_capturedPcmData->posFrame)
-        < (int)numFramesAvailable) {
-        HRG(m_captureClient->ReleaseBuffer(numFramesAvailable));
-        result = false;
-        goto end;
-    }
-
     if (flags & AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY) {
         ++m_glitchCount;
     }
 
-    writeFrames = (int)(numFramesAvailable);
-
-    if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
-        // 無音を録音した。
-        dprintf("flags & AUDCLNT_BUFFERFLAGS_SILENT\n");
-        memset(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_deviceBytesPerFrame],
-            0, writeFrames * m_deviceBytesPerFrame);
-    } else {
-        dprintf("numFramesAvailable=%u fb=%d pos=%lld devPos=%llu nextPos=%lld te=%d\n",
-            numFramesAvailable, m_deviceBytesPerFrame, m_capturedPcmData->posFrame, devicePosition,
-            (m_capturedPcmData->posFrame + numFramesAvailable),
-            !!(flags & AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR));
-
-        memcpy(&m_capturedPcmData->stream[m_capturedPcmData->posFrame * m_deviceBytesPerFrame],
-            pData, writeFrames * m_deviceBytesPerFrame);
+    if (m_captureCallback != NULL) {
+        // 都度コールバックを呼ぶ
+        m_captureCallback(pData, numFramesAvailable * m_deviceBytesPerFrame);
+        HRG(m_captureClient->ReleaseBuffer(numFramesAvailable));
+        goto end;
     }
-    m_capturedPcmData->posFrame += writeFrames;
-
-    HRG(m_captureClient->ReleaseBuffer(numFramesAvailable));
 
 end:
     ReleaseMutex(m_mutex);
@@ -1883,3 +1811,12 @@ WasapiUser::SetZeroFlushMillisec(int zeroFlushMillisec)
     m_zeroFlushMillisec = zeroFlushMillisec;
 }
 
+void
+WasapiUser::MutexWait(void) {
+    WaitForSingleObject(m_mutex, INFINITE);
+}
+
+void
+WasapiUser::MutexRelease(void) {
+    ReleaseMutex(m_mutex);
+}
