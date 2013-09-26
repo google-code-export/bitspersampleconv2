@@ -637,6 +637,37 @@ namespace PcmDataLib {
             Buffer.BlockCopy(byteArray, 0, mSampleArray, (int)offset, 4);
         }
 
+        public int GetSampleValueInInt32(int ch, long pos) {
+            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SInt);
+            Debug.Assert(0 <= ch && ch < NumChannels);
+            if (pos < 0 || NumFrames <= pos) {
+                return 0;
+            }
+
+            long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
+            Debug.Assert(offset <= 0x7fffffffL);
+
+            switch (BitsPerSample) {
+            case 16:
+                return (mSampleArray[offset] << 16) + (mSampleArray[offset+1] << 24);
+            case 24:
+                return (mSampleArray[offset] << 8) + (mSampleArray[offset + 1] << 16) + (mSampleArray[offset + 2] << 24);
+            case 32:
+                switch (ValidBitsPerSample) {
+                case 24:
+                    return (mSampleArray[offset + 1] << 8) + (mSampleArray[offset + 2] << 16) + (mSampleArray[offset + 3] << 24);
+                case 32:
+                    return (mSampleArray[offset]) + (mSampleArray[offset + 1] << 8) + (mSampleArray[offset + 2] << 16) + (mSampleArray[offset + 3] << 24);
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return 0;
+                }
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return 0;
+            }
+        }
+
         /// <summary>
         /// doubleのバッファをスケーリングする。ダブルバッファとは関係ない
         /// </summary>

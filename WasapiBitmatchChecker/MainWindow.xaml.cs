@@ -16,7 +16,14 @@ namespace WasapiBitmatchChecker {
         private static string AssemblyVersion {
             get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
-        
+
+        enum State {
+            Init,
+            Syncing,
+            Running,
+            RecCompleted,
+        };
+
         private WasapiCS mWasapiPlay;
         private WasapiCS mWasapiRec;
 
@@ -24,6 +31,29 @@ namespace WasapiBitmatchChecker {
         private BackgroundWorker mRecWorker;
 
         private Wasapi.WasapiCS.CaptureCallback mCaptureDataArrivedDelegate;
+
+        private static int NUM_PROLOGUE_FRAMES = 262144;
+        private int mNumTestFrames = 1024 * 1024;
+        private static int NUM_CHANNELS = 2;
+        private int mSampleRate;
+        private WasapiCS.SampleFormatType mPlaySampleFormat;
+        private WasapiCS.SampleFormatType mRecSampleFormat;
+        private WasapiCS.DataFeedMode mPlayDataFeedMode;
+        private WasapiCS.DataFeedMode mRecDataFeedMode;
+        private int mPlayBufferMillisec;
+        private int mRecBufferMillisec;
+
+        private DispatcherTimer mSyncTimeout;
+
+        private State mState = State.Init;
+
+        private PcmDataLib.PcmData mPcmSync;
+        private PcmDataLib.PcmData mPcmReady;
+        private PcmDataLib.PcmData mPcmTest;
+        private PcmDataLib.PcmData mPcmRecorded;
+
+        private byte[] mCapturedPcmData;
+        private int mCapturedBytes;
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mWasapiPlay = new WasapiCS();
@@ -55,7 +85,6 @@ namespace WasapiBitmatchChecker {
             mSyncTimeout.Interval = new TimeSpan(0, 0, 5);
 
             textBoxLog.Text = string.Format("WasapiBitmatchChecker version {0}\r\n", AssemblyVersion);
-
         }
 
         private void UpdateDeviceList() {
@@ -152,32 +181,6 @@ namespace WasapiBitmatchChecker {
             Term();
         }
 
-        enum State {
-            Init,
-            Syncing,
-            Running,
-            RecCompleted,
-        };
-
-        private static int NUM_PROLOGUE_FRAMES = 262144;
-        private int mNumTestFrames = 1024 * 1024;
-        private static int NUM_CHANNELS = 2;
-        private int mSampleRate;
-        private WasapiCS.SampleFormatType mPlaySampleFormat;
-        private WasapiCS.SampleFormatType mRecSampleFormat;
-        private WasapiCS.DataFeedMode mPlayDataFeedMode;
-        private WasapiCS.DataFeedMode mRecDataFeedMode;
-        private int mPlayBufferMillisec;
-        private int mRecBufferMillisec;
-
-        private DispatcherTimer mSyncTimeout;
-
-        private State mState = State.Init;
-
-        private PcmDataLib.PcmData mPcmSync;
-        private PcmDataLib.PcmData mPcmReady;
-        private PcmDataLib.PcmData mPcmTest;
-
         private bool UpdateTestParamsFromUI() {
 
             if (!Int32.TryParse(textBoxTestFrames.Text, out mNumTestFrames) || mNumTestFrames <= 0) {
@@ -261,60 +264,60 @@ namespace WasapiBitmatchChecker {
 
             switch (mPlaySampleFormat) {
             case WasapiCS.SampleFormatType.Sint16: {
-                    mPcmSync.SetFormat(2, 16, 16, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[2 * 2 * mPcmSync.NumFrames];
+                    mPcmSync.SetFormat(NUM_CHANNELS, 16, 16, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
+                    var data = new byte[NUM_CHANNELS * 2 * mPcmSync.NumFrames];
                     data[0] = 4;
                     mPcmSync.SetSampleArray(data);
                     
                     mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[2 * 2 * mPcmSync.NumFrames];
+                    data = new byte[NUM_CHANNELS * 2 * mPcmSync.NumFrames];
                     data[0] = 3;
                     mPcmReady.SetSampleArray(data);
 
                     mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[2 * 2 * mNumTestFrames];
+                    data = new byte[NUM_CHANNELS * 2 * mNumTestFrames];
                     mRand.NextBytes(data);
                     mPcmTest.SetSampleArray(mNumTestFrames, data);
 
-                    mCapturedPcmData = new byte[2 * 2 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
+                    mCapturedPcmData = new byte[NUM_CHANNELS * 2 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
                 }
                 break;
             case WasapiCS.SampleFormatType.Sint24: {
-                    mPcmSync.SetFormat(2, 24, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[2 * 3 * mPcmSync.NumFrames];
+                    mPcmSync.SetFormat(NUM_CHANNELS, 24, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
+                    var data = new byte[NUM_CHANNELS * 3 * mPcmSync.NumFrames];
                     data[0] = 4;
                     mPcmSync.SetSampleArray(data);
 
                     mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[2 * 3 * mPcmSync.NumFrames];
+                    data = new byte[NUM_CHANNELS * 3 * mPcmSync.NumFrames];
                     data[0] = 3;
                     mPcmReady.SetSampleArray(data);
 
                     mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[2 * 3 * mNumTestFrames];
+                    data = new byte[NUM_CHANNELS * 3 * mNumTestFrames];
                     mRand.NextBytes(data);
                     mPcmTest.SetSampleArray(mNumTestFrames, data);
 
-                    mCapturedPcmData = new byte[2 * 3 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
+                    mCapturedPcmData = new byte[NUM_CHANNELS * 3 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
                 }
                 break;
             case WasapiCS.SampleFormatType.Sint32V24: {
-                    mPcmSync.SetFormat(2, 32, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[2 * 4 * mPcmSync.NumFrames];
+                    mPcmSync.SetFormat(NUM_CHANNELS, 32, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
+                    var data = new byte[NUM_CHANNELS * 4 * mPcmSync.NumFrames];
                     data[1] = 4;
                     mPcmSync.SetSampleArray(data);
 
                     mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[2 * 4 * mPcmSync.NumFrames];
+                    data = new byte[NUM_CHANNELS * 4 * mPcmSync.NumFrames];
                     data[1] = 3;
                     mPcmReady.SetSampleArray(data);
 
                     mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[2 * 4 * mNumTestFrames];
+                    data = new byte[NUM_CHANNELS * 4 * mNumTestFrames];
                     mRand.NextBytes(data);
                     mPcmTest.SetSampleArray(mNumTestFrames, data);
 
-                    mCapturedPcmData = new byte[2 * 4 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
+                    mCapturedPcmData = new byte[NUM_CHANNELS * 4 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
                 }
                 break;
             default:
@@ -509,7 +512,7 @@ namespace WasapiBitmatchChecker {
             mWasapiRec.Unsetup();
             mWasapiRec.UnchooseDevice();
             mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
-            UpdateDeviceList();
+            UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
         }
 
         private void AbortTest() {
@@ -529,109 +532,139 @@ namespace WasapiBitmatchChecker {
             AbortTest();
         }
 
-        private byte[] mCapturedPcmData;
-        private int mCapturedBytes;
-
         private void CaptureSync(byte[] data) {
-            switch (mRecSampleFormat) {
-            case WasapiCS.SampleFormatType.Sint16: {
-                    int nFrames = (int)(data.Length / 2 / NUM_CHANNELS);
-                    int mRecSyncPosInBytes = -1;
-                    int zeroSamples = 0;
-                    int syncSamples = 0;
-                    for (int pos=0; pos < data.Length; pos += 2) {
-                        if (data[pos] == 0 && data[pos + 1] == 0) {
-                            ++zeroSamples;
-                        }
-                        if (data[pos] == 4 && data[pos + 1] == 0) {
-                            ++syncSamples;
-                            mRecSyncPosInBytes = pos;
-                        }
-                    }
-                    if (0 <= mRecSyncPosInBytes && zeroSamples + syncSamples == nFrames * NUM_CHANNELS) {
-                        // sync frame arrived
-                        mSyncTimeout.Stop();
-
-                        //System.Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
-
-                        Array.Copy(data, mRecSyncPosInBytes, mCapturedPcmData, 0, data.Length - mRecSyncPosInBytes);
-                        mCapturedBytes = data.Length - mRecSyncPosInBytes;
-
-                        mWasapiPlay.ConnectPcmDataNext(0, 1);
-                        mState = State.Running;
-                    }
-                }
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-        }
-
-        private void CaptureRunning(byte[] data) {
-            switch (mRecSampleFormat) {
-            case WasapiCS.SampleFormatType.Sint16:
-                if (mCapturedBytes + data.Length <= mCapturedPcmData.Length) {
-                    Array.Copy(data, 0, mCapturedPcmData, mCapturedBytes, data.Length);
-                    mCapturedBytes += data.Length;
-
-                    int capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
-
-                    //System.Console.WriteLine("Captured {0} frames", capturedFrames);
-                } else {
-                    // キャプチャー終了. データの整合性チェックはRecRunWorkerCompletedで行う。
-                    mState = State.RecCompleted;
-                }
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
-        }
-
-        private void CompareRecordedData() {
-            int numTestBytes = mNumTestFrames * NUM_CHANNELS * (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
-
-            if (mState == State.RecCompleted) {
-                // 開始合図位置をサーチ
-                int dataStartBytes = -1;
-
+            int useBitsPerSample = WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8;
+            int nFrames = (int)(data.Length / useBitsPerSample / NUM_CHANNELS);
+            int mRecSyncPosInBytes = -1;
+            int zeroSamples = 0;
+            int syncSamples = 0;
+            for (int pos=0; pos < data.Length; pos += useBitsPerSample) {
                 switch (mRecSampleFormat) {
                 case WasapiCS.SampleFormatType.Sint16:
-                    for (int pos=0; pos < mCapturedBytes / 2; pos += 2) {
-                        if (mCapturedPcmData[pos] == 3 && mCapturedPcmData[pos + 1] == 0) {
-                            dataStartBytes = pos;
-                            break;
-                        }
+                    if (data[pos] == 0 && data[pos + 1] == 0) {
+                        ++zeroSamples;
                     }
-                    if (dataStartBytes < 0) {
-                        textBoxLog.Text += "Error. Start marker is not found in recorded PCM\r\n";
-                        return;
+                    if (data[pos] == 4 && data[pos + 1] == 0) {
+                        ++syncSamples;
+                        mRecSyncPosInBytes = pos;
                     }
-
-                    dataStartBytes += mPcmReady.GetSampleArray().Length;
-
-                    if (mCapturedBytes - dataStartBytes < numTestBytes) {
-                        textBoxLog.Text += "Error. Recorded data insufficient to analyze.\r\n";
-                        return;
+                    break;
+                case WasapiCS.SampleFormatType.Sint24:
+                    if (data[pos] == 0 && data[pos + 1] == 0 && data[pos + 2] == 0) {
+                        ++zeroSamples;
                     }
-
-                    var original = mPcmTest.GetSampleArray();
-                    for (int i=0; i < numTestBytes; ++i) {
-                        if (original[i] != mCapturedPcmData[dataStartBytes + i]) {
-                            textBoxLog.Text += string.Format("Test Completed. Received data is different from transmitted data!\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
-                            return;
-                        }
+                    if (data[pos] == 4 && data[pos + 1] == 0 && data[pos + 2] == 0) {
+                        ++syncSamples;
+                        mRecSyncPosInBytes = pos;
                     }
-
-                    textBoxLog.Text += string.Format("Test Completed. Bitmatch transfer succeeded.\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                            numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
+                    break;
+                case WasapiCS.SampleFormatType.Sint32V24:
+                    if (data[pos + 1] == 0 && data[pos + 2] == 0 && data[pos + 3] == 0) {
+                        ++zeroSamples;
+                    }
+                    if (data[pos + 1] == 4 && data[pos + 2] == 0 && data[pos + 3] == 0) {
+                        ++syncSamples;
+                        mRecSyncPosInBytes = pos;
+                    }
                     break;
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     break;
                 }
+            }
+            if (0 <= mRecSyncPosInBytes && zeroSamples + syncSamples == nFrames * NUM_CHANNELS) {
+                // SYNC frame arrived
+                mSyncTimeout.Stop();
+
+                //System.Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
+
+                Array.Copy(data, mRecSyncPosInBytes, mCapturedPcmData, 0, data.Length - mRecSyncPosInBytes);
+                mCapturedBytes = data.Length - mRecSyncPosInBytes;
+
+                mWasapiPlay.ConnectPcmDataNext(0, 1);
+                mState = State.Running;
+            }
+        }
+
+        private void CaptureRunning(byte[] data) {
+            if (mCapturedBytes + data.Length <= mCapturedPcmData.Length) {
+                Array.Copy(data, 0, mCapturedPcmData, mCapturedBytes, data.Length);
+                mCapturedBytes += data.Length;
+
+                int capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
+
+                //System.Console.WriteLine("Captured {0} frames", capturedFrames);
+            } else {
+                // キャプチャー終了. データの整合性チェックはRecRunWorkerCompletedで行う。
+                mState = State.RecCompleted;
+            }
+        }
+
+        private void CompareRecordedData() {
+            textBoxLog.Text += "Test data received. now comparing recorded PCM with sent PCM...\r\n";
+
+            mPcmRecorded = new PcmDataLib.PcmData();
+            mPcmRecorded.SetFormat(NUM_CHANNELS,
+                    WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat),
+                    WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat),
+                    mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt,
+                    mCapturedPcmData.Length / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
+            mPcmRecorded.SetSampleArray(mCapturedPcmData);
+
+            if (mState == State.RecCompleted) {
+                // 開始合図位置compareStartFrameをサーチ
+                int compareStartFrame = -1;
+                switch (mRecSampleFormat) {
+                case WasapiCS.SampleFormatType.Sint16:
+                    for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                        if (0x00030000 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
+                            compareStartFrame = pos;
+                            break;
+                        }
+                    }
+                    break;
+                case WasapiCS.SampleFormatType.Sint24:
+                case WasapiCS.SampleFormatType.Sint32V24:
+                    for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                        if (0x00000300 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
+                            compareStartFrame = pos;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
+                if (compareStartFrame < 0) {
+                    textBoxLog.Text += "Error. Test start marker is not found in recorded PCM\r\n";
+                    return;
+                }
+
+                compareStartFrame += (int)mPcmReady.NumFrames;
+
+                if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
+                    textBoxLog.Text += "Error. Captured data size is insufficient to analyze.\r\n";
+                    return;
+                }
+
+                // 送信データmPcmTestと受信データmPcmRecordedを比較
+                int numTestBytes = mNumTestFrames * NUM_CHANNELS
+                    * (WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat) / 8);
+
+                for (int pos=0; pos < mNumTestFrames; ++pos) {
+                    for (int ch=0; ch<NUM_CHANNELS; ++ch) {
+                        if (mPcmTest.GetSampleValueInInt32(ch, pos)
+                                != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
+                            textBoxLog.Text += string.Format("Captured data is different from rendered data!\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
+                                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
+                            return;
+                        }
+                    }
+                }
+
+                textBoxLog.Text += string.Format("Test succeeded! Captured data is exactly the same as rendered data.\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
+                        numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
             } else {
                 textBoxLog.Text += "Error. Recorded data is insufficient to analyze.\r\n";
             }
