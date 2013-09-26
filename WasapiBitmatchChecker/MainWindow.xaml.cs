@@ -422,7 +422,7 @@ namespace WasapiBitmatchChecker {
 
             hr = mWasapiPlay.ChooseDevice(listBoxPlayDevices.SelectedIndex);
             if (hr < 0) {
-                MessageBox.Show("Playback device select error");
+                MessageBox.Show("Error. Playback device select failed");
                 return;
             }
 
@@ -459,7 +459,7 @@ namespace WasapiBitmatchChecker {
 
             hr = mWasapiRec.ChooseDevice(listBoxRecDevices.SelectedIndex);
             if (hr < 0) {
-                MessageBox.Show("Error. recording device select failed");
+                MessageBox.Show("Error. Recording device select failed");
                 StopUnsetup();
                 return;
             }
@@ -499,7 +499,7 @@ namespace WasapiBitmatchChecker {
 
         void SyncTimeoutTickCallback(object sender, EventArgs e) {
             mSyncTimeout.Stop();
-            textBoxLog.Text += "Error. could not receive Sync signal. Check your S/PDIF cabling.\r\n";
+            textBoxLog.Text += "Error. Could not receive Sync signal. Check your S/PDIF cabling.\r\n";
             textBoxLog.ScrollToEnd();
             AbortTest();
         }
@@ -601,7 +601,7 @@ namespace WasapiBitmatchChecker {
         }
 
         private void CompareRecordedData() {
-            textBoxLog.Text += "Test data received. now comparing recorded PCM with sent PCM...\r\n";
+            textBoxLog.Text += "PCM data received. Now comparing recorded PCM with sent PCM...\r\n";
 
             mPcmRecorded = new PcmDataLib.PcmData();
             mPcmRecorded.SetFormat(NUM_CHANNELS,
@@ -637,14 +637,14 @@ namespace WasapiBitmatchChecker {
                     break;
                 }
                 if (compareStartFrame < 0) {
-                    textBoxLog.Text += "Error. Test start marker is not found in recorded PCM\r\n";
+                    textBoxLog.Text += "Error. Test start marker was not found in recorded PCM\r\n";
                     return;
                 }
 
                 compareStartFrame += (int)mPcmReady.NumFrames;
 
                 if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
-                    textBoxLog.Text += "Error. Captured data size is insufficient to analyze.\r\n";
+                    textBoxLog.Text += "Error. Captured data size was not sufficient to analyze.\r\n";
                     return;
                 }
 
@@ -656,17 +656,17 @@ namespace WasapiBitmatchChecker {
                     for (int ch=0; ch<NUM_CHANNELS; ++ch) {
                         if (mPcmTest.GetSampleValueInInt32(ch, pos)
                                 != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
-                            textBoxLog.Text += string.Format("Captured data is different from rendered data!\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
+                            textBoxLog.Text += string.Format("Captured data was different from rendered data!\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
+                                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
                             return;
                         }
                     }
                 }
 
-                textBoxLog.Text += string.Format("Test succeeded! Captured data is exactly the same as rendered data.\r\n  PCM size played = {0} MB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                        numTestBytes / 1024 / 1024, numTestBytes * 8L / 1024 / 1024, mNumTestFrames / mSampleRate);
+                textBoxLog.Text += string.Format("Test succeeded! Captured data was exactly the same as rendered data.\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
+                        numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
             } else {
-                textBoxLog.Text += "Error. Recorded data is insufficient to analyze.\r\n";
+                textBoxLog.Text += "Error. Captured data was not sufficient to analyze.\r\n";
             }
         }
 
