@@ -669,6 +669,53 @@ namespace PcmDataLib {
         }
 
         /// <summary>
+        /// サンプル値セット。フォーマットがSintの場合のみ使用可能。
+        /// </summary>
+        public void SetSampleValueInInt32(int ch, long pos, int val) {
+            Debug.Assert(SampleValueRepresentationType == ValueRepresentationType.SInt);
+            Debug.Assert(0 <= ch && ch < NumChannels);
+            if (pos < 0 || NumFrames <= pos) {
+                return;
+            }
+
+            long offset = pos * BitsPerFrame / 8 + ch * BitsPerSample / 8;
+            Debug.Assert(offset <= 0x7fffffffL);
+
+            switch (BitsPerSample) {
+            case 16:
+                mSampleArray[offset + 0] = (byte)(0xff & (val >> 16));
+                mSampleArray[offset + 1] = (byte)(0xff & (val >> 24));
+                return;
+            case 24:
+                mSampleArray[offset + 0] = (byte)(0xff & (val >> 8));
+                mSampleArray[offset + 1] = (byte)(0xff & (val >> 16));
+                mSampleArray[offset + 2] = (byte)(0xff & (val >> 24));
+                return;
+            case 32:
+                switch (ValidBitsPerSample) {
+                case 24:
+                    mSampleArray[offset + 0] = 0;
+                    mSampleArray[offset + 1] = (byte)(0xff & (val >> 8));
+                    mSampleArray[offset + 2] = (byte)(0xff & (val >> 16));
+                    mSampleArray[offset + 3] = (byte)(0xff & (val >> 24));
+                    return;
+                case 32:
+                    mSampleArray[offset + 0] = (byte)(0xff & (val));
+                    mSampleArray[offset + 1] = (byte)(0xff & (val >> 8));
+                    mSampleArray[offset + 2] = (byte)(0xff & (val >> 16));
+                    mSampleArray[offset + 3] = (byte)(0xff & (val >> 24));
+                    return;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    return;
+                }
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return;
+            }
+        }
+
+        /// <summary>
         /// doubleのバッファをスケーリングする。ダブルバッファとは関係ない
         /// </summary>
         public void ScaleDoubleBuffer(double scale) {

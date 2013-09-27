@@ -3,6 +3,8 @@ using System.Windows;
 using Wasapi;
 using System.ComponentModel;
 using System.Windows.Threading;
+using System.Text;
+using System.Threading;
 
 namespace WasapiBitmatchChecker {
     /// <summary>
@@ -52,8 +54,14 @@ namespace WasapiBitmatchChecker {
         private PcmDataLib.PcmData mPcmTest;
         private PcmDataLib.PcmData mPcmRecorded;
 
+        Random mRand = new Random();
+
         private byte[] mCapturedPcmData;
         private int mCapturedBytes;
+
+        private Object mLock = new Object();
+
+        private Wasapi.WasapiCS.StateChangedCallback mStateChanged;
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mWasapiPlay = new WasapiCS();
@@ -85,35 +93,72 @@ namespace WasapiBitmatchChecker {
             mSyncTimeout.Interval = new TimeSpan(0, 0, 5);
 
             textBoxLog.Text = string.Format("WasapiBitmatchChecker version {0}\r\n", AssemblyVersion);
+
+            mStateChanged = new Wasapi.WasapiCS.StateChangedCallback(StateChangedCallback);
+            mWasapiPlay.RegisterStateChangedCallback(mStateChanged);
+        }
+
+        public void StateChangedCallback(StringBuilder idStr) {
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                lock (mLock) {
+                    if (mState == State.Init) {
+                        mWasapiPlay.Unsetup();
+                        mWasapiPlay.UnchooseDevice();
+                        mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
+
+                        mWasapiRec.Unsetup();
+                        mWasapiRec.UnchooseDevice();
+                        mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
+                        UpdateDeviceList();
+                    } else {
+                        var playDevice = listBoxPlayDevices.SelectedItem as string;
+                        if (playDevice.Equals(idStr.ToString())) {
+                            Term();
+                            MessageBox.Show(string.Format("Playing device state is changed: {0} \r\nExiting program...", playDevice));
+                            Close();
+                        }
+
+                        var recDevice = listBoxRecDevices.SelectedItem as string;
+                        if (recDevice.Equals(idStr.ToString())) {
+                            Term();
+                            MessageBox.Show(string.Format("Recording device state is changed: {0} \r\nExiting program...", recDevice));
+                            Close();
+                        }
+                    }
+                }
+            }));
         }
 
         private void UpdateDeviceList() {
-            int prevPlayDeviceIdx = listBoxPlayDevices.SelectedIndex;
-            int prevRecDeviceIdx = listBoxRecDevices.SelectedIndex;
+            {
+                string prevDevice = string.Empty;
+                if (0 <= listBoxPlayDevices.SelectedIndex) {
+                    prevDevice = listBoxPlayDevices.SelectedItem as string;
+                }
 
-            listBoxPlayDevices.Items.Clear();
-            for (int i=0; i < mWasapiPlay.GetDeviceCount(); ++i) {
-                var attr = mWasapiPlay.GetDeviceAttributes(i);
-                listBoxPlayDevices.Items.Add(attr.Name);
-            }
-            if (0 < listBoxPlayDevices.Items.Count) {
-                if (0 <= prevPlayDeviceIdx && prevPlayDeviceIdx < listBoxPlayDevices.Items.Count) {
-                    listBoxPlayDevices.SelectedIndex = prevPlayDeviceIdx;
-                } else {
-                    listBoxPlayDevices.SelectedIndex = 0;
+                listBoxPlayDevices.Items.Clear();
+                for (int i=0; i < mWasapiPlay.GetDeviceCount(); ++i) {
+                    var attr = mWasapiPlay.GetDeviceAttributes(i);
+                    listBoxPlayDevices.Items.Add(attr.Name);
+                    if (attr.Name.Equals(prevDevice)) {
+                        listBoxPlayDevices.SelectedIndex = i;
+                    }
                 }
             }
 
-            listBoxRecDevices.Items.Clear();
-            for (int i=0; i < mWasapiPlay.GetDeviceCount(); ++i) {
-                var attr = mWasapiRec.GetDeviceAttributes(i);
-                listBoxRecDevices.Items.Add(attr.Name);
-            }
-            if (0 < listBoxRecDevices.Items.Count) {
-                if (0 <= prevRecDeviceIdx && prevRecDeviceIdx < listBoxRecDevices.Items.Count) {
-                    listBoxRecDevices.SelectedIndex = prevRecDeviceIdx;
-                } else {
-                    listBoxRecDevices.SelectedIndex = 0;
+            {
+                string prevDevice = string.Empty;
+                if (0 <= listBoxRecDevices.SelectedIndex) {
+                    prevDevice = listBoxRecDevices.SelectedItem as string;
+                }
+
+                listBoxRecDevices.Items.Clear();
+                for (int i=0; i < mWasapiRec.GetDeviceCount(); ++i) {
+                    var attr = mWasapiRec.GetDeviceAttributes(i);
+                    listBoxRecDevices.Items.Add(attr.Name);
+                    if (attr.Name.Equals(prevDevice)) {
+                        listBoxRecDevices.SelectedIndex = i;
+                    }
                 }
             }
 
@@ -123,7 +168,11 @@ namespace WasapiBitmatchChecker {
             } else {
                 buttonStart.IsEnabled = false;
             }
+        }
 
+        private void Exit() {
+            Term();
+            Close();
         }
 
         private void Term() {
@@ -169,12 +218,6 @@ namespace WasapiBitmatchChecker {
 
                 System.Threading.Thread.Sleep(100);
             }
-        }
-
-        private void Exit() {
-            Term();
-            // Application.Current.Shutdown();
-            Close();
         }
 
         private void Window_Closed(object sender, EventArgs e) {
@@ -253,8 +296,6 @@ namespace WasapiBitmatchChecker {
             return true;
         }
 
-        Random mRand = new Random();
-
         private void PreparePcmData() {
             var ss = mWasapiPlay.GetSessionStatus();
             
@@ -262,69 +303,39 @@ namespace WasapiBitmatchChecker {
             mPcmReady = new PcmDataLib.PcmData();
             mPcmTest = new PcmDataLib.PcmData();
 
+            mPcmSync.SetFormat(NUM_CHANNELS,
+                    WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
+                    WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
+                    mSampleRate,
+                    PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
+            var data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames];
+            mPcmSync.SetSampleArray(data);
+
+            mPcmReady.CopyFrom(mPcmSync);
+            data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames];
+            mPcmReady.SetSampleArray(data);
+
+            mPcmTest.CopyFrom(mPcmSync);
+            data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mNumTestFrames];
+            mRand.NextBytes(data);
+            mPcmTest.SetSampleArray(mNumTestFrames, data);
+
+            mCapturedPcmData = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8) * NUM_CHANNELS * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
+
             switch (mPlaySampleFormat) {
-            case WasapiCS.SampleFormatType.Sint16: {
-                    mPcmSync.SetFormat(NUM_CHANNELS, 16, 16, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[NUM_CHANNELS * 2 * mPcmSync.NumFrames];
-                    data[0] = 4;
-                    mPcmSync.SetSampleArray(data);
-                    
-                    mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 2 * mPcmSync.NumFrames];
-                    data[0] = 3;
-                    mPcmReady.SetSampleArray(data);
-
-                    mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 2 * mNumTestFrames];
-                    mRand.NextBytes(data);
-                    mPcmTest.SetSampleArray(mNumTestFrames, data);
-
-                    mCapturedPcmData = new byte[NUM_CHANNELS * 2 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
-                }
+            case WasapiCS.SampleFormatType.Sint16:
+                mPcmSync.SetSampleValueInInt32(0, 0, 0x00040000);
+                mPcmReady.SetSampleValueInInt32(0, 0, 0x00030000);
                 break;
-            case WasapiCS.SampleFormatType.Sint24: {
-                    mPcmSync.SetFormat(NUM_CHANNELS, 24, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[NUM_CHANNELS * 3 * mPcmSync.NumFrames];
-                    data[0] = 4;
-                    mPcmSync.SetSampleArray(data);
-
-                    mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 3 * mPcmSync.NumFrames];
-                    data[0] = 3;
-                    mPcmReady.SetSampleArray(data);
-
-                    mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 3 * mNumTestFrames];
-                    mRand.NextBytes(data);
-                    mPcmTest.SetSampleArray(mNumTestFrames, data);
-
-                    mCapturedPcmData = new byte[NUM_CHANNELS * 3 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
-                }
-                break;
-            case WasapiCS.SampleFormatType.Sint32V24: {
-                    mPcmSync.SetFormat(NUM_CHANNELS, 32, 24, mSampleRate, PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
-                    var data = new byte[NUM_CHANNELS * 4 * mPcmSync.NumFrames];
-                    data[1] = 4;
-                    mPcmSync.SetSampleArray(data);
-
-                    mPcmReady.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 4 * mPcmSync.NumFrames];
-                    data[1] = 3;
-                    mPcmReady.SetSampleArray(data);
-
-                    mPcmTest.CopyFrom(mPcmSync);
-                    data = new byte[NUM_CHANNELS * 4 * mNumTestFrames];
-                    mRand.NextBytes(data);
-                    mPcmTest.SetSampleArray(mNumTestFrames, data);
-
-                    mCapturedPcmData = new byte[NUM_CHANNELS * 4 * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
-                }
+            case WasapiCS.SampleFormatType.Sint24:
+            case WasapiCS.SampleFormatType.Sint32V24:
+                mPcmSync.SetSampleValueInInt32(0, 0, 0x00000400);
+                mPcmReady.SetSampleValueInInt32(0, 0, 0x00000300);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
-
         }
 
         /// <summary>
@@ -368,6 +379,7 @@ namespace WasapiBitmatchChecker {
             mWasapiPlay.UnchooseDevice();
             // FIXME: この仕様はどうかと思う UnchooseDeviceを呼ぶとデバイス一覧が破壊されるので一覧を再取得する
             mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
+            // このあと録音も程なく終わり、RecRunWorkerCompletedでデバイス一覧表示は更新される。
         }
 
         private void RecDoWork(object o, DoWorkEventArgs args) {
@@ -389,26 +401,29 @@ namespace WasapiBitmatchChecker {
         }
 
         private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
-            mWasapiRec.Unsetup();
-            mWasapiRec.UnchooseDevice();
-            mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
+            lock (mLock) {
+                mWasapiRec.Unsetup();
+                mWasapiRec.UnchooseDevice();
+                mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
 
-            CompareRecordedData();
-            textBoxLog.ScrollToEnd();
+                CompareRecordedData();
+                textBoxLog.ScrollToEnd();
 
-            // 完了。UIの状態を戻す。
-            buttonStart.IsEnabled = false;
-            buttonStop.IsEnabled = false;
+                // 完了。UIの状態を戻す。
+                buttonStart.IsEnabled = false;
+                buttonStop.IsEnabled = false;
 
-            groupBoxPcmDataSettings.IsEnabled = true;
-            groupBoxPlayback.IsEnabled = true;
-            groupBoxRecording.IsEnabled = true;
+                groupBoxPcmDataSettings.IsEnabled = true;
+                groupBoxPlayback.IsEnabled = true;
+                groupBoxRecording.IsEnabled = true;
 
-            progressBar1.Value = 0;
+                progressBar1.Value = 0;
 
-            mState = State.Init;
+                UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
 
-            UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
+                mState = State.Init;
+            }
+
         }
 
         //=========================================================================================================
@@ -418,83 +433,86 @@ namespace WasapiBitmatchChecker {
                 return;
             }
 
-            int hr = 0;
-
-            hr = mWasapiPlay.ChooseDevice(listBoxPlayDevices.SelectedIndex);
-            if (hr < 0) {
-                MessageBox.Show("Error. Playback device select failed");
-                return;
-            }
-
-            hr = mWasapiPlay.Setup(WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
-                NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
-            if (hr < 0) {
-                MessageBox.Show(string.Format("Playback Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
-                        mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
-                mWasapiPlay.Unsetup();
-                mWasapiPlay.UnchooseDevice();
-                mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
-                UpdateDeviceList();
-                return;
-            }
-
             PreparePcmData();
 
-            mWasapiPlay.ClearPlayList();
-            mWasapiPlay.AddPlayPcmDataStart();
-            mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleArray());
-            mWasapiPlay.AddPlayPcmData(1, mPcmReady.GetSampleArray());
-            mWasapiPlay.AddPlayPcmData(2, mPcmTest.GetSampleArray());
-            mWasapiPlay.AddPlayPcmDataEnd();
+            lock (mLock) {
+                int hr = 0;
 
-            mWasapiPlay.SetPlayRepeat(false);
-            mWasapiPlay.ConnectPcmDataNext(0, 0);
+                hr = mWasapiPlay.ChooseDevice(listBoxPlayDevices.SelectedIndex);
+                if (hr < 0) {
+                    MessageBox.Show("Error. Playback device select failed");
+                    return;
+                }
 
-            hr = mWasapiPlay.StartPlayback(0);
-            mPlayWorker.RunWorkerAsync();
+                hr = mWasapiPlay.Setup(WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
+                    NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                    mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
+                if (hr < 0) {
+                    MessageBox.Show(string.Format("Playback Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
+                            mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
+                    mWasapiPlay.Unsetup();
+                    mWasapiPlay.UnchooseDevice();
+                    mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
+                    UpdateDeviceList();
+                    return;
+                }
 
-            // 録音
-            mCapturedBytes = 0;
 
-            hr = mWasapiRec.ChooseDevice(listBoxRecDevices.SelectedIndex);
-            if (hr < 0) {
-                MessageBox.Show("Error. Recording device select failed");
-                StopUnsetup();
-                return;
+                mWasapiPlay.ClearPlayList();
+                mWasapiPlay.AddPlayPcmDataStart();
+                mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleArray());
+                mWasapiPlay.AddPlayPcmData(1, mPcmReady.GetSampleArray());
+                mWasapiPlay.AddPlayPcmData(2, mPcmTest.GetSampleArray());
+                mWasapiPlay.AddPlayPcmDataEnd();
+
+                mWasapiPlay.SetPlayRepeat(false);
+                mWasapiPlay.ConnectPcmDataNext(0, 0);
+
+                hr = mWasapiPlay.StartPlayback(0);
+                mPlayWorker.RunWorkerAsync();
+
+                // 録音
+                mCapturedBytes = 0;
+
+                hr = mWasapiRec.ChooseDevice(listBoxRecDevices.SelectedIndex);
+                if (hr < 0) {
+                    MessageBox.Show("Error. Recording device select failed");
+                    StopUnsetup();
+                    return;
+                }
+
+                hr = mWasapiRec.Setup(WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
+                    NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                    mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
+                if (hr < 0) {
+                    MessageBox.Show(string.Format("Recording Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
+                            mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode, mRecBufferMillisec));
+                    StopUnsetup();
+                    return;
+                }
+
+                textBoxLog.Text += string.Format("Test started. SampleRate={0}Hz, PCM data duration={1} seconds.\r\n", mSampleRate, mNumTestFrames / mSampleRate);
+                textBoxLog.Text += string.Format("  Playback:  {0}, buffer size={1}ms, {2}, {3}\r\n",
+                        mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, listBoxPlayDevices.SelectedItem);
+                textBoxLog.Text += string.Format("  Recording: {0}, buffer size={1}ms, {2}, {3}\r\n",
+                        mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, listBoxRecDevices.SelectedItem);
+                textBoxLog.ScrollToEnd();
+
+                groupBoxPcmDataSettings.IsEnabled = false;
+                groupBoxPlayback.IsEnabled = false;
+                groupBoxRecording.IsEnabled = false;
+
+                buttonStart.IsEnabled = false;
+                buttonStop.IsEnabled = true;
+
+                // SYNC失敗タイマーのセット
+                mSyncTimeout.Start();
+
+                hr = mWasapiRec.StartRecording();
+                mRecWorker.RunWorkerAsync();
+
+                mState = State.Syncing;
             }
-
-            hr = mWasapiRec.Setup(WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
-                NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
-            if (hr < 0) {
-                MessageBox.Show(string.Format("Recording Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
-                        mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode, mRecBufferMillisec));
-                StopUnsetup();
-                return;
-            }
-
-            textBoxLog.Text += string.Format("Test started. SampleRate={0}Hz, PCM data duration={1} seconds.\r\n", mSampleRate, mNumTestFrames / mSampleRate);
-            textBoxLog.Text += string.Format("  Playback:  {0}, buffer size={1}ms, {2}, {3}\r\n",
-                    mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, listBoxPlayDevices.SelectedItem);
-            textBoxLog.Text += string.Format("  Recording: {0}, buffer size={1}ms, {2}, {3}\r\n",
-                    mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, listBoxRecDevices.SelectedItem);
-            textBoxLog.ScrollToEnd();
-
-            groupBoxPcmDataSettings.IsEnabled = false;
-            groupBoxPlayback.IsEnabled = false;
-            groupBoxRecording.IsEnabled = false;
-
-            buttonStart.IsEnabled = false;
-            buttonStop.IsEnabled = true;
-
-            // SYNC失敗タイマーのセット
-            mSyncTimeout.Start();
-
-            hr = mWasapiRec.StartRecording();
-            mRecWorker.RunWorkerAsync();
-
-            mState = State.Syncing;
         }
 
         void SyncTimeoutTickCallback(object sender, EventArgs e) {
