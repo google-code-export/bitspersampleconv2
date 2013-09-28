@@ -66,11 +66,9 @@ namespace WasapiBitmatchChecker {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             mWasapiPlay = new WasapiCS();
             mWasapiPlay.Init();
-            mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
 
             mWasapiRec = new WasapiCS();
             mWasapiRec.Init();
-            mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
             mCaptureDataArrivedDelegate = new Wasapi.WasapiCS.CaptureCallback(CaptureDataArrived);
             mWasapiRec.RegisterCaptureCallback(mCaptureDataArrivedDelegate);
 
@@ -102,13 +100,7 @@ namespace WasapiBitmatchChecker {
             Dispatcher.BeginInvoke(new Action(delegate() {
                 lock (mLock) {
                     if (mState == State.Init) {
-                        StopBlocking();
-                        mWasapiPlay.Unsetup();
-                        mWasapiPlay.UnchooseDevice();
-                        mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
-                        mWasapiRec.Unsetup();
-                        mWasapiRec.UnchooseDevice();
-                        mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
+                        StopUnsetup();
                         UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
                     } else {
                         var playDevice = listBoxPlayDevices.SelectedItem as string;
@@ -131,6 +123,7 @@ namespace WasapiBitmatchChecker {
 
         private void UpdateDeviceList() {
             {
+                mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
                 string prevDevice = string.Empty;
                 if (0 <= listBoxPlayDevices.SelectedIndex) {
                     prevDevice = listBoxPlayDevices.SelectedItem as string;
@@ -147,6 +140,7 @@ namespace WasapiBitmatchChecker {
             }
 
             {
+                mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
                 string prevDevice = string.Empty;
                 if (0 <= listBoxRecDevices.SelectedIndex) {
                     prevDevice = listBoxRecDevices.SelectedItem as string;
@@ -196,6 +190,10 @@ namespace WasapiBitmatchChecker {
             }
         }
 
+        private void Window_Closed(object sender, EventArgs e) {
+            Term();
+        }
+
         private void StopBlocking() {
             if (mRecWorker.IsBusy) {
                 mRecWorker.CancelAsync();
@@ -220,10 +218,6 @@ namespace WasapiBitmatchChecker {
             }
         }
 
-        private void Window_Closed(object sender, EventArgs e) {
-            Term();
-        }
-
         private bool UpdateTestParamsFromUI() {
 
             if (!Int32.TryParse(textBoxTestFrames.Text, out mNumTestFrames) || mNumTestFrames <= 0) {
@@ -231,7 +225,7 @@ namespace WasapiBitmatchChecker {
                 return false;
             }
             if (0x7fffffff / 8 / 1024 / 1024 < mNumTestFrames) {
-                MessageBox.Show(string.Format("PCM size must be smaller than {0}", 0x7fffffff / 8 / 1024 / 1024));
+                MessageBox.Show(string.Format("PCM size must be smaller than or equal to {0}", 0x7fffffff / 8 / 1024 / 1024));
                 return false;
             }
             mNumTestFrames *= 1024 * 1024;
@@ -311,7 +305,7 @@ namespace WasapiBitmatchChecker {
         private void PreparePcmData() {
             mPcmSync  = new PcmDataLib.PcmData();
             mPcmReady = new PcmDataLib.PcmData();
-            mPcmTest = new PcmDataLib.PcmData();
+            mPcmTest  = new PcmDataLib.PcmData();
 
             mPcmSync.SetFormat(NUM_CHANNELS,
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
@@ -387,8 +381,6 @@ namespace WasapiBitmatchChecker {
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
             mWasapiPlay.Unsetup();
             mWasapiPlay.UnchooseDevice();
-            // FIXME: この仕様はどうかと思う UnchooseDeviceを呼ぶとデバイス一覧が破壊されるので一覧を再取得する
-            mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
             // このあと録音も程なく終わり、RecRunWorkerCompletedでデバイス一覧表示は更新される。
         }
 
@@ -414,13 +406,16 @@ namespace WasapiBitmatchChecker {
             lock (mLock) {
                 mWasapiRec.Unsetup();
                 mWasapiRec.UnchooseDevice();
-                mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
 
                 CompareRecordedData();
-                textBoxLog.ScrollToEnd();
 
                 // 完了。UIの状態を戻す。
-                buttonStart.IsEnabled = false;
+                if (0 < listBoxPlayDevices.Items.Count &&
+                        0 < listBoxRecDevices.Items.Count) {
+                    buttonStart.IsEnabled = true;
+                } else {
+                    buttonStart.IsEnabled = false;
+                }
                 buttonStop.IsEnabled = false;
 
                 groupBoxPcmDataSettings.IsEnabled = true;
@@ -429,11 +424,8 @@ namespace WasapiBitmatchChecker {
 
                 progressBar1.Value = 0;
 
-                UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
-
                 mState = State.Init;
             }
-
         }
 
         //=========================================================================================================
@@ -455,15 +447,13 @@ namespace WasapiBitmatchChecker {
                 }
 
                 hr = mWasapiPlay.Setup(WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
-                    NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                    mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
+                        NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                        mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format("Playback Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
                             mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
                     mWasapiPlay.Unsetup();
                     mWasapiPlay.UnchooseDevice();
-                    mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
-                    UpdateDeviceList();
                     return;
                 }
 
@@ -505,8 +495,8 @@ namespace WasapiBitmatchChecker {
                 }
 
                 hr = mWasapiRec.Setup(WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
-                    NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
-                    mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
+                        NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                        mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format("Recording Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
                             mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode, mRecBufferMillisec));
@@ -552,15 +542,19 @@ namespace WasapiBitmatchChecker {
             StopBlocking();
             mWasapiPlay.Unsetup();
             mWasapiPlay.UnchooseDevice();
-            mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
             mWasapiRec.Unsetup();
             mWasapiRec.UnchooseDevice();
-            mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
-            UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
         }
 
         private void AbortTest() {
-            buttonStart.IsEnabled = false;
+            StopUnsetup();
+
+            if (0 <= listBoxPlayDevices.SelectedIndex &&
+                    0 <= listBoxRecDevices.SelectedIndex) {
+                buttonStart.IsEnabled = true;
+            } else {
+                buttonStart.IsEnabled = false;
+            }
             buttonStop.IsEnabled = false;
 
             groupBoxPcmDataSettings.IsEnabled = true;
@@ -568,8 +562,6 @@ namespace WasapiBitmatchChecker {
             groupBoxRecording.IsEnabled = true;
 
             progressBar1.Value = 0;
-
-            StopUnsetup(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
         }
 
         private void buttonStop_Click(object sender, RoutedEventArgs e) {
@@ -682,6 +674,7 @@ namespace WasapiBitmatchChecker {
                 }
                 if (compareStartFrame < 0) {
                     textBoxLog.Text += "Error. Test start marker was not found in recorded PCM\r\n";
+                    textBoxLog.ScrollToEnd();
                     return;
                 }
 
@@ -689,6 +682,7 @@ namespace WasapiBitmatchChecker {
 
                 if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
                     textBoxLog.Text += "Error. Captured data size was not sufficient to analyze.\r\n";
+                    textBoxLog.ScrollToEnd();
                     return;
                 }
 
@@ -702,6 +696,7 @@ namespace WasapiBitmatchChecker {
                                 != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
                             textBoxLog.Text += string.Format("Captured data was different from rendered data!\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
                                     numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
+                            textBoxLog.ScrollToEnd();
                             return;
                         }
                     }
@@ -709,8 +704,10 @@ namespace WasapiBitmatchChecker {
 
                 textBoxLog.Text += string.Format("Test succeeded! Captured data was exactly the same as rendered data.\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
                         numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
+                textBoxLog.ScrollToEnd();
             } else {
                 textBoxLog.Text += "Error. Captured data was not sufficient to analyze.\r\n";
+                textBoxLog.ScrollToEnd();
             }
         }
 
