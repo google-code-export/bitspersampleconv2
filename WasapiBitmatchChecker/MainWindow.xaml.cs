@@ -469,8 +469,18 @@ namespace WasapiBitmatchChecker {
 
                 var ss = mWasapiPlay.GetSessionStatus();
 
-                mPcmSync.SetSampleArray(ss.EndpointBufferFrameNum, mPcmSync.GetSampleArray());
-                mPcmReady.SetSampleArray(ss.EndpointBufferFrameNum, mPcmSync.GetSampleArray());
+                {
+                    var data = mPcmSync.GetSampleArray();
+                    var trimmed = new byte[ss.EndpointBufferFrameNum * mPcmSync.BitsPerFrame/8];
+                    Array.Copy(data, trimmed,trimmed.Length);
+                    mPcmSync.SetSampleArray(ss.EndpointBufferFrameNum, trimmed);
+                }
+                {
+                    var data = mPcmReady.GetSampleArray();
+                    var trimmed = new byte[ss.EndpointBufferFrameNum * mPcmReady.BitsPerFrame/8];
+                    Array.Copy(data, trimmed,trimmed.Length);
+                    mPcmReady.SetSampleArray(ss.EndpointBufferFrameNum, trimmed);
+                }
                 mWasapiPlay.ClearPlayList();
                 mWasapiPlay.AddPlayPcmDataStart();
                 mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleArray());
