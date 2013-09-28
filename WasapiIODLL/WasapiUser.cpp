@@ -266,6 +266,8 @@ WasapiUser::Init(void)
     assert(!m_mutex);
     m_mutex = CreateMutex(NULL, FALSE, NULL);
 
+    m_pNotificationClient = new CMMNotificationClient(this);
+
     return hr;
 }
 
@@ -425,22 +427,17 @@ WasapiUser::DoDeviceEnumeration(WWDeviceType t)
 
     dprintf("D: %s() t=%d\n", __FUNCTION__, (int)t);
 
-    bool needCreate = false;
-    if (NULL == m_deviceEnumerator) {
-        needCreate = true;
-    }
+    assert(m_pNotificationClient);
 
     switch (t) {
     case WWDTPlay:
         if (m_dataFlow != eRender) {
             m_dataFlow = eRender;
-            needCreate = true;
         }
         break;
     case WWDTRec:
         if (m_dataFlow != eCapture) {
             m_dataFlow = eCapture;
-            needCreate = true;
         }
         break;
     default:
@@ -449,24 +446,19 @@ WasapiUser::DoDeviceEnumeration(WWDeviceType t)
     }
 
     m_deviceInfo.clear();
+    SafeRelease(&m_deviceCollection);
 
-    if (needCreate) {
-        if (m_deviceEnumerator && m_pNotificationClient) {
-            m_deviceEnumerator->UnregisterEndpointNotificationCallback(
-                m_pNotificationClient);
-        }
-        SafeRelease(&m_deviceEnumerator);
-        SAFE_DELETE(m_pNotificationClient);
-
-        HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
-            NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
-    }
-
-    if (NULL == m_pNotificationClient) {
-        m_pNotificationClient = new CMMNotificationClient(this);
-        m_deviceEnumerator->RegisterEndpointNotificationCallback(
+    if (m_deviceEnumerator) {
+        m_deviceEnumerator->UnregisterEndpointNotificationCallback(
             m_pNotificationClient);
     }
+    SafeRelease(&m_deviceEnumerator);
+
+    HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
+        NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
+
+    m_deviceEnumerator->RegisterEndpointNotificationCallback(
+        m_pNotificationClient);
 
     HRR(m_deviceEnumerator->EnumAudioEndpoints(
         m_dataFlow, DEVICE_STATE_ACTIVE, &m_deviceCollection));
@@ -602,7 +594,6 @@ WasapiUser::ChooseDevice(int id)
     wcscpy_s(m_useDeviceIdStr, m_deviceInfo[id].idStr);
 
 end:
-    SafeRelease(&m_deviceCollection);
     return hr;
 }
 

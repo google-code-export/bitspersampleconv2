@@ -102,14 +102,14 @@ namespace WasapiBitmatchChecker {
             Dispatcher.BeginInvoke(new Action(delegate() {
                 lock (mLock) {
                     if (mState == State.Init) {
+                        StopBlocking();
                         mWasapiPlay.Unsetup();
                         mWasapiPlay.UnchooseDevice();
                         mWasapiPlay.EnumerateDevices(WasapiCS.DeviceType.Play);
-
                         mWasapiRec.Unsetup();
                         mWasapiRec.UnchooseDevice();
                         mWasapiRec.EnumerateDevices(WasapiCS.DeviceType.Rec);
-                        UpdateDeviceList();
+                        UpdateDeviceList(); //< この中でbuttonStart.IsEnabledの状態が適切に更新される
                     } else {
                         var playDevice = listBoxPlayDevices.SelectedItem as string;
                         if (playDevice.Equals(idStr.ToString())) {
@@ -230,6 +230,10 @@ namespace WasapiBitmatchChecker {
                 MessageBox.Show("PCM size must be greater than or equals to 1");
                 return false;
             }
+            if (0x7fffffff / 8 / 1024 / 1024 < mNumTestFrames) {
+                MessageBox.Show(string.Format("PCM size must be smaller than {0}", 0x7fffffff / 8 / 1024 / 1024));
+                return false;
+            }
             mNumTestFrames *= 1024 * 1024;
 
             if (radioButton44100.IsChecked == true) {
@@ -289,16 +293,22 @@ namespace WasapiBitmatchChecker {
                 MessageBox.Show("Playback buffer size parse error");
                 return false;
             }
+            if (mPlayBufferMillisec <= 0 || 1000 <= mPlayBufferMillisec) {
+                MessageBox.Show("Playback buffer size must be smaller than 1000 ms");
+
+            }
             if (!Int32.TryParse(textBoxRecBufferSize.Text, out mRecBufferMillisec)) {
                 MessageBox.Show("Recording buffer size parse error");
                 return false;
+            }
+            if (mRecBufferMillisec <= 0 || 1000 <= mRecBufferMillisec) {
+                MessageBox.Show("Recording buffer size must be smaller than 1000 ms");
+
             }
             return true;
         }
 
         private void PreparePcmData() {
-            var ss = mWasapiPlay.GetSessionStatus();
-            
             mPcmSync  = new PcmDataLib.PcmData();
             mPcmReady = new PcmDataLib.PcmData();
             mPcmTest = new PcmDataLib.PcmData();
@@ -307,7 +317,7 @@ namespace WasapiBitmatchChecker {
                     WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat),
                     WasapiCS.SampleFormatTypeToValidBitsPerSample(mPlaySampleFormat),
                     mSampleRate,
-                    PcmDataLib.PcmData.ValueRepresentationType.SInt, ss.EndpointBufferFrameNum);
+                    PcmDataLib.PcmData.ValueRepresentationType.SInt, mSampleRate);
             var data = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mPlaySampleFormat) / 8) * NUM_CHANNELS * mPcmSync.NumFrames];
             mPcmSync.SetSampleArray(data);
 
@@ -457,7 +467,10 @@ namespace WasapiBitmatchChecker {
                     return;
                 }
 
+                var ss = mWasapiPlay.GetSessionStatus();
 
+                mPcmSync.SetSampleArray(ss.EndpointBufferFrameNum, mPcmSync.GetSampleArray());
+                mPcmReady.SetSampleArray(ss.EndpointBufferFrameNum, mPcmSync.GetSampleArray());
                 mWasapiPlay.ClearPlayList();
                 mWasapiPlay.AddPlayPcmDataStart();
                 mWasapiPlay.AddPlayPcmData(0, mPcmSync.GetSampleArray());
@@ -491,11 +504,14 @@ namespace WasapiBitmatchChecker {
                     return;
                 }
 
+                var playAttr = mWasapiPlay.GetUseDeviceAttributes();
+                var recAttr = mWasapiRec.GetUseDeviceAttributes();
+
                 textBoxLog.Text += string.Format("Test started. SampleRate={0}Hz, PCM data duration={1} seconds.\r\n", mSampleRate, mNumTestFrames / mSampleRate);
                 textBoxLog.Text += string.Format("  Playback:  {0}, buffer size={1}ms, {2}, {3}\r\n",
-                        mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, listBoxPlayDevices.SelectedItem);
+                        mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, playAttr.Name);
                 textBoxLog.Text += string.Format("  Recording: {0}, buffer size={1}ms, {2}, {3}\r\n",
-                        mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, listBoxRecDevices.SelectedItem);
+                        mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, recAttr.Name);
                 textBoxLog.ScrollToEnd();
 
                 groupBoxPcmDataSettings.IsEnabled = false;
