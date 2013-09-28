@@ -63,7 +63,40 @@ namespace WasapiBitmatchChecker {
 
         private Wasapi.WasapiCS.StateChangedCallback mStateChanged;
 
+        private void LocalizeUI() {
+            groupBoxPcmDataSettings.Header = Properties.Resources.groupBoxPcmDataSettings;
+            groupBoxSampleRate.Header = Properties.Resources.groupBoxSampleRate;
+            groupBoxDataPattern.Header = Properties.Resources.groupBoxDataPattern;
+            groupBoxPlayback.Header = Properties.Resources.groupBoxPlayback;
+            groupBoxPlaybackDevice.Header = Properties.Resources.groupBoxPlaybackDevice;
+            groupBoxPlaybackDataFeedMode.Header = Properties.Resources.groupBoxDataFeed;
+            groupBoxPlayBufferSize.Header = Properties.Resources.groupBoxBufferSize;
+            groupBoxPlayPcmFormat.Header = Properties.Resources.groupBoxPcmFormat;
+            groupBoxRecording.Header = Properties.Resources.groupBoxRecording;
+            groupBoxRecordingDevice.Header = Properties.Resources.groupBoxRecordingDevice;
+            groupBoxRecordingDataFeed.Header = Properties.Resources.groupBoxDataFeed;
+            groupBoxRecordingBufferSize.Header = Properties.Resources.groupBoxBufferSize;
+            groupBoxRecPcmFormat.Header = Properties.Resources.groupBoxPcmFormat;
+            groupBoxLog.Header = Properties.Resources.groupBoxLog;
+            radioButtonPcmRandom.Content = Properties.Resources.radioButtonPcmRandom;
+            labelPcmSize.Content = Properties.Resources.labelPcmSize;
+            radioButtonPlayEvent.Content = Properties.Resources.radioButtonEventDriven;
+            radioButtonPlayTimer.Content = Properties.Resources.radioButtonTimerDriven;
+            radioButtonPlayPcm16.Content = Properties.Resources.radioButtonSint16;
+            radioButtonPlayPcm24.Content = Properties.Resources.radioButtonSint24;
+            radioButtonPlayPcm32v24.Content = Properties.Resources.radioButtonSint32v24;
+            radioButtonRecEvent.Content = Properties.Resources.radioButtonEventDriven;
+            radioButtonRecTimer.Content = Properties.Resources.radioButtonTimerDriven;
+            radioButtonRecPcm16.Content = Properties.Resources.radioButtonSint16;
+            radioButtonRecPcm24.Content = Properties.Resources.radioButtonSint24;
+            radioButtonRecPcm32v24.Content = Properties.Resources.radioButtonSint32v24;
+            buttonStart.Content = Properties.Resources.buttonStart;
+            buttonStop.Content = Properties.Resources.buttonStop;
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e) {
+            LocalizeUI();
+
             mWasapiPlay = new WasapiCS();
             mWasapiPlay.Init();
 
@@ -106,14 +139,14 @@ namespace WasapiBitmatchChecker {
                         var playDevice = listBoxPlayDevices.SelectedItem as string;
                         if (playDevice.Equals(idStr.ToString())) {
                             Term();
-                            MessageBox.Show(string.Format("Playing device state is changed: {0} \r\nExiting program...", playDevice));
+                            MessageBox.Show(string.Format(Properties.Resources.msgPlayDeviceStateChanged, playDevice));
                             Close();
                         }
 
                         var recDevice = listBoxRecDevices.SelectedItem as string;
                         if (recDevice.Equals(idStr.ToString())) {
                             Term();
-                            MessageBox.Show(string.Format("Recording device state is changed: {0} \r\nExiting program...", recDevice));
+                            MessageBox.Show(string.Format(Properties.Resources.msgRecDeviceStateChanged, recDevice));
                             Close();
                         }
                     }
@@ -221,11 +254,11 @@ namespace WasapiBitmatchChecker {
         private bool UpdateTestParamsFromUI() {
 
             if (!Int32.TryParse(textBoxTestFrames.Text, out mNumTestFrames) || mNumTestFrames <= 0) {
-                MessageBox.Show("PCM size must be greater than or equals to 1");
+                MessageBox.Show(Properties.Resources.msgPcmSizeError);
                 return false;
             }
             if (0x7fffffff / 8 / 1024 / 1024 < mNumTestFrames) {
-                MessageBox.Show(string.Format("PCM size must be smaller than or equal to {0}", 0x7fffffff / 8 / 1024 / 1024));
+                MessageBox.Show(string.Format(Properties.Resources.msgPcmSizeTooLarge, 0x7fffffff / 8 / 1024 / 1024));
                 return false;
             }
             mNumTestFrames *= 1024 * 1024;
@@ -284,19 +317,19 @@ namespace WasapiBitmatchChecker {
             }
 
             if (!Int32.TryParse(textBoxPlayBufferSize.Text, out mPlayBufferMillisec)) {
-                MessageBox.Show("Playback buffer size parse error");
+                MessageBox.Show(Properties.Resources.msgPlayBufferSizeError);
                 return false;
             }
             if (mPlayBufferMillisec <= 0 || 1000 <= mPlayBufferMillisec) {
-                MessageBox.Show("Playback buffer size must be smaller than 1000 ms");
+                MessageBox.Show(Properties.Resources.msgPlayBufferSizeTooLarge);
 
             }
             if (!Int32.TryParse(textBoxRecBufferSize.Text, out mRecBufferMillisec)) {
-                MessageBox.Show("Recording buffer size parse error");
+                MessageBox.Show(Properties.Resources.msgRecBufferSizeError);
                 return false;
             }
             if (mRecBufferMillisec <= 0 || 1000 <= mRecBufferMillisec) {
-                MessageBox.Show("Recording buffer size must be smaller than 1000 ms");
+                MessageBox.Show(Properties.Resources.msgRecBufferSizeTooLarge);
 
             }
             return true;
@@ -442,7 +475,7 @@ namespace WasapiBitmatchChecker {
 
                 hr = mWasapiPlay.ChooseDevice(listBoxPlayDevices.SelectedIndex);
                 if (hr < 0) {
-                    MessageBox.Show("Error. Playback device select failed");
+                    MessageBox.Show(Properties.Resources.msgPlayDeviceSelectError);
                     return;
                 }
 
@@ -450,7 +483,7 @@ namespace WasapiBitmatchChecker {
                         NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
                 if (hr < 0) {
-                    MessageBox.Show(string.Format("Playback Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
+                    MessageBox.Show(string.Format(Properties.Resources.msgPlaySetupError,
                             mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
                     mWasapiPlay.Unsetup();
                     mWasapiPlay.UnchooseDevice();
@@ -489,7 +522,7 @@ namespace WasapiBitmatchChecker {
 
                 hr = mWasapiRec.ChooseDevice(listBoxRecDevices.SelectedIndex);
                 if (hr < 0) {
-                    MessageBox.Show("Error. Recording device select failed");
+                    MessageBox.Show(Properties.Resources.msgRecDeviceSelectError);
                     StopUnsetup();
                     return;
                 }
@@ -498,7 +531,7 @@ namespace WasapiBitmatchChecker {
                         NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
                 if (hr < 0) {
-                    MessageBox.Show(string.Format("Recording Setup error. {0}Hz {1} {2}ch ProAudio Exclusive {3} {4}ms",
+                    MessageBox.Show(string.Format(Properties.Resources.msgRecSetupError,
                             mSampleRate, mRecSampleFormat, NUM_CHANNELS, mRecDataFeedMode, mRecBufferMillisec));
                     StopUnsetup();
                     return;
@@ -507,10 +540,10 @@ namespace WasapiBitmatchChecker {
                 var playAttr = mWasapiPlay.GetUseDeviceAttributes();
                 var recAttr = mWasapiRec.GetUseDeviceAttributes();
 
-                textBoxLog.Text += string.Format("Test started. SampleRate={0}Hz, PCM data duration={1} seconds.\r\n", mSampleRate, mNumTestFrames / mSampleRate);
-                textBoxLog.Text += string.Format("  Playback:  {0}, buffer size={1}ms, {2}, {3}\r\n",
+                textBoxLog.Text += string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate);
+                textBoxLog.Text += string.Format(Properties.Resources.msgPlaySettings,
                         mPlaySampleFormat, mPlayBufferMillisec, mPlayDataFeedMode, playAttr.Name);
-                textBoxLog.Text += string.Format("  Recording: {0}, buffer size={1}ms, {2}, {3}\r\n",
+                textBoxLog.Text += string.Format(Properties.Resources.msgRecSettings,
                         mRecSampleFormat, mRecBufferMillisec, mRecDataFeedMode, recAttr.Name);
                 textBoxLog.ScrollToEnd();
 
@@ -533,7 +566,7 @@ namespace WasapiBitmatchChecker {
 
         void SyncTimeoutTickCallback(object sender, EventArgs e) {
             mSyncTimeout.Stop();
-            textBoxLog.Text += "Error. Could not receive Sync signal. Check your S/PDIF cabling.\r\n";
+            textBoxLog.Text += Properties.Resources.msgSyncError;
             textBoxLog.ScrollToEnd();
             AbortTest();
         }
@@ -637,7 +670,12 @@ namespace WasapiBitmatchChecker {
         }
 
         private void CompareRecordedData() {
-            textBoxLog.Text += "PCM data received. Now comparing recorded PCM with sent PCM...\r\n";
+            if (mState != State.RecCompleted) {
+                textBoxLog.Text += Properties.Resources.msgCompareCaptureTooSmall;
+                textBoxLog.ScrollToEnd();
+                return;
+            }
+            textBoxLog.Text += Properties.Resources.msgCompareStarted;
 
             mPcmRecorded = new PcmDataLib.PcmData();
             mPcmRecorded.SetFormat(NUM_CHANNELS,
@@ -647,68 +685,63 @@ namespace WasapiBitmatchChecker {
                     mCapturedPcmData.Length / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8));
             mPcmRecorded.SetSampleArray(mCapturedPcmData);
 
-            if (mState == State.RecCompleted) {
-                // 開始合図位置compareStartFrameをサーチ
-                int compareStartFrame = -1;
-                switch (mRecSampleFormat) {
-                case WasapiCS.SampleFormatType.Sint16:
-                    for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
-                        if (0x00030000 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
-                            compareStartFrame = pos;
-                            break;
-                        }
-                    }
-                    break;
-                case WasapiCS.SampleFormatType.Sint24:
-                case WasapiCS.SampleFormatType.Sint32V24:
-                    for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
-                        if (0x00000300 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
-                            compareStartFrame = pos;
-                            break;
-                        }
-                    }
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    break;
-                }
-                if (compareStartFrame < 0) {
-                    textBoxLog.Text += "Error. Test start marker was not found in recorded PCM\r\n";
-                    textBoxLog.ScrollToEnd();
-                    return;
-                }
-
-                compareStartFrame += (int)mPcmReady.NumFrames;
-
-                if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
-                    textBoxLog.Text += "Error. Captured data size was not sufficient to analyze.\r\n";
-                    textBoxLog.ScrollToEnd();
-                    return;
-                }
-
-                // 送信データmPcmTestと受信データmPcmRecordedを比較
-                int numTestBytes = mNumTestFrames * NUM_CHANNELS
-                    * (WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat) / 8);
-
-                for (int pos=0; pos < mNumTestFrames; ++pos) {
-                    for (int ch=0; ch<NUM_CHANNELS; ++ch) {
-                        if (mPcmTest.GetSampleValueInInt32(ch, pos)
-                                != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
-                            textBoxLog.Text += string.Format("Captured data was different from rendered data!\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
-                            textBoxLog.ScrollToEnd();
-                            return;
-                        }
+            // 開始合図位置compareStartFrameをサーチ
+            int compareStartFrame = -1;
+            switch (mRecSampleFormat) {
+            case WasapiCS.SampleFormatType.Sint16:
+                for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                    if (0x00030000 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
+                        compareStartFrame = pos;
+                        break;
                     }
                 }
-
-                textBoxLog.Text += string.Format("Test succeeded! Captured data was exactly the same as rendered data.\r\n  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds\r\n",
-                        numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
-                textBoxLog.ScrollToEnd();
-            } else {
-                textBoxLog.Text += "Error. Captured data was not sufficient to analyze.\r\n";
-                textBoxLog.ScrollToEnd();
+                break;
+            case WasapiCS.SampleFormatType.Sint24:
+            case WasapiCS.SampleFormatType.Sint32V24:
+                for (int pos=0; pos < mPcmRecorded.NumFrames; ++pos) {
+                    if (0x00000300 == mPcmRecorded.GetSampleValueInInt32(0, pos)) {
+                        compareStartFrame = pos;
+                        break;
+                    }
+                }
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
             }
+            if (compareStartFrame < 0) {
+                textBoxLog.Text += Properties.Resources.msgCompareStartNotFound;
+                textBoxLog.ScrollToEnd();
+                return;
+            }
+
+            compareStartFrame += (int)mPcmReady.NumFrames;
+
+            if (mPcmRecorded.NumFrames - compareStartFrame < mNumTestFrames) {
+                textBoxLog.Text += Properties.Resources.msgCompareCaptureTooSmall;
+                textBoxLog.ScrollToEnd();
+                return;
+            }
+
+            // 送信データmPcmTestと受信データmPcmRecordedを比較
+            int numTestBytes = mNumTestFrames * NUM_CHANNELS
+                * (WasapiCS.SampleFormatTypeToValidBitsPerSample(mRecSampleFormat) / 8);
+
+            for (int pos=0; pos < mNumTestFrames; ++pos) {
+                for (int ch=0; ch<NUM_CHANNELS; ++ch) {
+                    if (mPcmTest.GetSampleValueInInt32(ch, pos)
+                            != mPcmRecorded.GetSampleValueInInt32(ch, pos + compareStartFrame)) {
+                        textBoxLog.Text += string.Format(Properties.Resources.msgCompareDifferent,
+                                numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
+                        textBoxLog.ScrollToEnd();
+                        return;
+                    }
+                }
+            }
+
+            textBoxLog.Text += string.Format(Properties.Resources.msgCompareIdentical,
+                    numTestBytes / 1024 / 1024, numTestBytes * 8L / 1000 / 1000, mNumTestFrames / mSampleRate);
+            textBoxLog.ScrollToEnd();
         }
 
         private void CaptureDataArrived(byte[] data) {
