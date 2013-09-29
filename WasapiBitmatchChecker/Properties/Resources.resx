@@ -165,12 +165,12 @@
   </data>
   <data name="msgCompareDifferent" xml:space="preserve">
     <value>Captured data was different from rendered data!
-  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds
+  PCM size played = {0} MiB ({1} Mbit). Tested PCM Duration = {2} seconds
 </value>
   </data>
   <data name="msgCompareIdentical" xml:space="preserve">
     <value>Test succeeded! Captured data was exactly the same as rendered data.
-  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds
+  PCM size played = {0} MiB ({1} Mbit). Tested PCM Duration = {2} seconds
 </value>
   </data>
   <data name="msgCompareStarted" xml:space="preserve">

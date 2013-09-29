@@ -198,7 +198,7 @@ namespace WasapiBitmatchChecker.Properties {
         
         /// <summary>
         ///   Captured data was different from rendered data!
-        ///  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds
+        ///  PCM size played = {0} MiB ({1} Mbit). Tested PCM Duration = {2} seconds
         /// に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string msgCompareDifferent {
@@ -209,7 +209,7 @@ namespace WasapiBitmatchChecker.Properties {
         
         /// <summary>
         ///   Test succeeded! Captured data was exactly the same as rendered data.
-        ///  PCM size played = {0} MiB ({1} Mbits). Tested PCM Duration = {2} seconds
+        ///  PCM size played = {0} MiB ({1} Mbit). Tested PCM Duration = {2} seconds
         /// に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string msgCompareIdentical {

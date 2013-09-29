@@ -165,12 +165,12 @@
   </data>
   <data name="msgCompareDifferent" xml:space="preserve">
     <value>失敗! 録音したPCMデータと再生したPCMデータのサンプル値が異なっています.
-  PCMデータサイズ = {0} MiB ({1} Mbits). PCMデータの長さ = {2} 秒
+  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
 </value>
   </data>
   <data name="msgCompareIdentical" xml:space="preserve">
     <value>成功! 録音したPCMデータと再生したPCMデータのサンプル値が全て一致.
-  PCMデータサイズ = {0} MiB ({1} Mbits). PCMデータの長さ = {2} 秒
+  PCMデータサイズ = {0} MiB ({1} Mビット). PCMデータの長さ = {2} 秒
 </value>
   </data>
   <data name="msgCompareStarted" xml:space="preserve">
