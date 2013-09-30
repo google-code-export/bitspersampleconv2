@@ -745,17 +745,18 @@ namespace WasapiBitmatchChecker {
         }
 
         private void CaptureDataArrived(byte[] data) {
-            // System.Console.WriteLine("CaptureDataArrived {0} bytes", data.Length);
-
-            switch (mState) {
-            case State.Syncing:
-                CaptureSync(data);
-                break;
-            case State.Running:
-                CaptureRunning(data);
-                break;
-            default:
-                break;
+            lock (mLock) {
+                // System.Console.WriteLine("CaptureDataArrived {0} bytes", data.Length);
+                switch (mState) {
+                case State.Syncing:
+                    CaptureSync(data);
+                    break;
+                case State.Running:
+                    CaptureRunning(data);
+                    break;
+                default:
+                    break;
+                }
             }
         }
 
