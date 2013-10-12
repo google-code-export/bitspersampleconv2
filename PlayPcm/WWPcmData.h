@@ -1,6 +1,5 @@
 #pragma once
 
-
 enum WWBitsPerSampleType {
     WWBpsNone,
     WWBps24,
@@ -12,8 +11,8 @@ struct WWPcmData {
     int validBitsPerSample;
     int nSamplesPerSec;
     int nChannels;
-    int  nFrames;
-    int  posFrame;
+    int nFrames;
+    int posFrame;
 
     unsigned char *stream;
 

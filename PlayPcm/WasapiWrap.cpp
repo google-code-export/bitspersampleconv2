@@ -65,7 +65,7 @@ WasapiWrap::WasapiWrap(void)
     m_audioSamplesReadyEvent = NULL;
     m_audioClient      = NULL;
     m_frameBytes       = 0;
-    m_bufferFrameNum    = 0;
+    m_bufferFrameNum   = 0;
     m_renderClient     = NULL;
     m_renderThread     = NULL;
     m_pcmData          = NULL;
@@ -259,16 +259,6 @@ end:
     SafeRelease(&m_audioClient);
 }
 
-#define IS_FORMAT_SUPPORTED(x)                                                   \
-    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, x, NULL); \
-    if (AUDCLNT_E_UNSUPPORTED_FORMAT == hr) {                                    \
-        printf("not supported.\n");                                              \
-    } else if (FAILED(hr)) {                                                     \
-        printf("IAudioClient::IsFormatSupported failed: hr = 0x%08x.\n", hr);    \
-    } else {                                                                     \
-        printf("supported.\n");                                                  \
-    }
-
 int
 WasapiWrap::Inspect(const WWInspectArg & arg)
 {
@@ -298,7 +288,14 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
     printf("WAVEFORMATEXTENSIBLE KSFORMAT_SUBTYPE_PCM %dHz %dbit %dch: ",
         arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
 
-    IS_FORMAT_SUPPORTED(pWfex);
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, pWfex, NULL); 
+    if (AUDCLNT_E_UNSUPPORTED_FORMAT == hr) {
+        printf("not supported.\n");
+    } else if (FAILED(hr)) {
+        printf("IAudioClient::IsFormatSupported failed: hr = 0x%08x.\n", hr);
+    } else {
+        printf("supported.\n");
+    }
 
 end:
     SafeRelease(&m_audioClient);
@@ -490,11 +487,9 @@ WasapiWrap::Stop(void)
 bool
 WasapiWrap::Run(int millisec)
 {
-    //printf("%s WaitForSingleObject(%p, %d)\n", __FUNCTION__, m_renderThread, millisec);
     DWORD rv = WaitForSingleObject(m_renderThread, millisec);
     if (rv == WAIT_TIMEOUT) {
         Sleep(10);
-        //printf(".\n");
         return false;
     }
     printf("%s WaitForSingleObject rv=%08x (ends successfully)\n", __FUNCTION__, rv);
@@ -502,7 +497,6 @@ WasapiWrap::Run(int millisec)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// callbacks
 
 DWORD
 WasapiWrap::RenderEntry(LPVOID lpThreadParameter)
