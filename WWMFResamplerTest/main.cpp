@@ -207,9 +207,6 @@ ReadWavHeader(FILE *fpr, WWMFPcmFormat *format_return, DWORD *dataBytes_return)
                         printf("unrecognized format guid");
                         goto end;
                     }
-
-                    hr = S_OK;
-                    goto end;
                 } else {
                     printf("unrecognized format");
                     goto end;
