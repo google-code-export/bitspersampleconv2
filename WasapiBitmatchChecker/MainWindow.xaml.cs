@@ -258,7 +258,7 @@ namespace WasapiBitmatchChecker {
                 return false;
             }
             if (0x7fffffff / 8 / 1024 / 1024 < mNumTestFrames) {
-                MessageBox.Show(string.Format(Properties.Resources.msgPcmSizeTooLarge, 0x7fffffff / 8 / 1024 / 1024));
+                MessageBox.Show(string.Format(Properties.Resources.msgPcmSizeTooLarge, 0x70000000 / 8 / 1024 / 1024));
                 return false;
             }
             mNumTestFrames *= 1024 * 1024;
@@ -358,6 +358,7 @@ namespace WasapiBitmatchChecker {
             mPcmTest.SetSampleArray(mNumTestFrames, data);
 
             mCapturedPcmData = new byte[(WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8) * NUM_CHANNELS * (mNumTestFrames + NUM_PROLOGUE_FRAMES)];
+            Array.Clear(mCapturedPcmData, 0, mCapturedPcmData.Length);
 
             switch (mPlaySampleFormat) {
             case WasapiCS.SampleFormatType.Sint16:

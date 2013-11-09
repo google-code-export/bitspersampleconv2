@@ -216,7 +216,12 @@
     <value>イベント駆動</value>
   </data>
   <data name="LicenseText" xml:space="preserve">
-    <value>PlayPcmWinは libFLACを使用しています。
+    <value>Copyright (C)  2010 yamamoto2002
+
+■Special Thanks■
+簡体中文翻訳: Tsong Zhang
+
+PlayPcmWinは libFLACを使用しています。
 libFLACのライセンスは、New BSD Licenseです。PlayPcmWin.exeと同じフォルダに入っているlibFlacLicense.txtをご覧ください。
 
 PlayPcmWinは Jcode.pmの文字コード判別関数を使用しています。
@@ -327,7 +332,7 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
     <value>ツール(_T)</value>
   </data>
   <data name="MainButtonClearPlayList" xml:space="preserve">
-    <value>再生リストをクリア(_C)</value>
+    <value>再生リストをクリアー(_C)</value>
   </data>
   <data name="MainButtonDelistSelected" xml:space="preserve">
     <value>選択曲除外(_R)</value>

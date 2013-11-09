@@ -216,7 +216,12 @@
     <value>Event driven</value>
   </data>
   <data name="LicenseText" xml:space="preserve">
-    <value>PlayPcmWin uses libFLAC.
+    <value>Copyright (C)  2010 yamamoto2002
+
+■Special Thanks■
+Simplified-chinese localization: Tsong Zhang
+
+PlayPcmWin uses libFLAC.
 libFLAC license is a New BSD License. libFlacLicense.txt on the PlayPcmWin.exe folder contains full text of license.
 
 PlayPcmWin uses Jcode.pm character encoding detect function.

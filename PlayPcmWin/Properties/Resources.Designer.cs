@@ -198,7 +198,12 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   PlayPcmWin uses libFLAC.
+        ///   Copyright (C)  2010 yamamoto2002
+        ///
+        ///■Special Thanks■
+        ///Simplified-chinese localization: Tsong Zhang
+        ///
+        ///PlayPcmWin uses libFLAC.
         ///libFLAC license is a New BSD License. libFlacLicense.txt on the PlayPcmWin.exe folder contains full text of license.
         ///
         ///PlayPcmWin uses Jcode.pm character encoding detect function.
