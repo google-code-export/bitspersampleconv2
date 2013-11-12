@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotAddFile" xml:space="preserve">
-    <value>请停止播放之后再添加文件到播放列表。</value>
+    <value>请停止播放之后再添加文件。</value>
   </data>
   <data name="DroppedDataIsNotFile" xml:space="preserve">
     <value>添加的数据有一部分不是文件或文件夹。
@@ -224,10 +224,10 @@
     <value>播放控制</value>
   </data>
   <data name="MainGroupBoxPlaylist" xml:space="preserve">
-    <value>播放列表(把音频文件拉到下面方框添加音频文件)</value>
+    <value>播放列表(把文件拉到下面添加音乐)</value>
   </data>
   <data name="MainGroupBoxWasapiDataFeedMode" xml:space="preserve">
-    <value>数据注入模式</value>
+    <value>数据输入模式</value>
   </data>
   <data name="MainGroupBoxWasapiOperationMode" xml:space="preserve">
     <value>工作模式</value>
@@ -412,10 +412,10 @@
     <value>播放时最小化GUI重绘</value>
   </data>
   <data name="SettingsCheckBoxSetBatchReadEndpoint" xml:space="preserve">
-    <value>设置 [文件组结束标志] 当文件被添加到列表时</value>
+    <value>当文件添加到列表时设置[文件组结束标志]</value>
   </data>
   <data name="SettingsCheckboxSortDropFolder" xml:space="preserve">
-    <value>整理列表中拖放的文件夹</value>
+    <value>整理列表中放入的文件夹</value>
   </data>
   <data name="SettingsCheckBoxSortDroppedFiles" xml:space="preserve">
     <value>整理添加到列表的文件</value>
@@ -451,7 +451,7 @@
     <value>渲染线程任务类型</value>
   </data>
   <data name="SettingsGroupBoxTimerResolution" xml:space="preserve">
-    <value>播放线程唤醒周期</value>
+    <value>播放线程唤醒时间精度</value>
   </data>
   <data name="SettingsGroupBoxWasapiExclusive" xml:space="preserve">
     <value>WASAPI 独占模式设置</value>
@@ -469,7 +469,7 @@
     <value>播放时间字体:</value>
   </data>
   <data name="SettingsLabelZeroFlushSeconds" xml:space="preserve">
-    <value>播放开始时空白输出周期：</value>
+    <value>播放开始时空白输出时间:</value>
   </data>
   <data name="SettingsLabelZeroFlushUnit" xml:space="preserve">
     <value>秒</value>
@@ -490,31 +490,31 @@
     <value>自动选择</value>
   </data>
   <data name="SettingsRadioButtonBpsSfloat32" xml:space="preserve">
-    <value>Binary32(IEEE754 单精度浮点格式：支持这个格式的硬件设备很少)</value>
+    <value>Binary32(IEEE754单精度浮点格式:支持这个格式的硬件设备很少)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint16" xml:space="preserve">
-    <value>16位整数(接收到24位和32位数据时将移除末尾的位)</value>
+    <value>16位整数(如果数据位深是24位或32位则移除末尾的位)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint24" xml:space="preserve">
-    <value>24位整数(接收到16位数据时将对其填0，接收到32位数据时将移除末尾的位)</value>
+    <value>24位整数(如果数据位深是16位则对其填0补充,数据位深是32位则移除末尾的位)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32" xml:space="preserve">
-    <value>32位整数(接收到不足32位的数据将对其填0，有效位32位)</value>
+    <value>32位整数(如果数据位深小于32位则对其填0补充，有效位32位)</value>
   </data>
   <data name="SettingsRadioButtonBpsSint32V24" xml:space="preserve">
-    <value>32位整数，有效24位(数据32位，有效位24位)</value>
+    <value>32位整数,有效24位(数据32位,有效位24位)</value>
   </data>
   <data name="SettingsSootheLimiterApo" xml:space="preserve">
-    <value>把最大振幅缩放为0.98来缓和APO限制器</value>
+    <value>把最大振幅限制为0.98以缓和APO音量限制器</value>
   </data>
   <data name="SettingsTimerResolution1Millisec" xml:space="preserve">
-    <value>播放线程唤醒周期=1ms</value>
+    <value>播放线程唤醒时间精度=1ms</value>
   </data>
   <data name="SettingsTimerResolution500Microsec" xml:space="preserve">
-    <value>播放线程唤醒周期=0.5ms (不稳定)</value>
+    <value>播放线程唤醒时间精度=0.5ms(不稳定)</value>
   </data>
   <data name="SettingsTimerResolutionDefault" xml:space="preserve">
-    <value>默认播放线程唤醒周期</value>
+    <value>默认播放线程唤醒时间精度</value>
   </data>
   <data name="SettingsWindowTitle" xml:space="preserve">
     <value>PlayPcmWin详细设置</value>
@@ -567,6 +567,6 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>播放列表可编辑(_E)</value>
   </data>
   <data name="SettingsLabelQuantizationBitrate" xml:space="preserve">
-    <value>进入WASAPI的音频流位深(载入文件时进行转换)</value>
+    <value>进入WASAPI的音频数据位深(载入文件时进行转换)</value>
   </data>
 </root>
