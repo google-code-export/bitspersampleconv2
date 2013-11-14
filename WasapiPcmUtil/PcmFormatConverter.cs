@@ -202,9 +202,10 @@ namespace WasapiPcmUtil {
                 int fromPos = 0;
                 int toPos = 0;
                 for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットは、0埋めする。
+                    // Lower 8-bit: fill 0s
                     to[toPos++] = 0;
 
+                    // Higher 16-bit: copy PCM
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
                 }
@@ -216,10 +217,11 @@ namespace WasapiPcmUtil {
                 int fromPos = 0;
                 int toPos = 0;
                 for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットは、0埋めする。
+                    // Lower 16-bit: fill 0s
                     to[toPos++] = 0;
                     to[toPos++] = 0;
 
+                    // Higher 16-bit: copy PCM
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
                 }
@@ -231,9 +233,10 @@ namespace WasapiPcmUtil {
                 int fromPos = 0;
                 int toPos = 0;
                 for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットは、0埋めする。
+                    // Lower 8-bit: fill 0s
                     to[toPos++] = 0;
 
+                    // Higher 24-bit: copy PCM
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
                     to[toPos++] = from[fromPos++];
@@ -247,7 +250,7 @@ namespace WasapiPcmUtil {
                 int toPos = 0;
 
                 for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットの情報 from[fromPos + 0]を切り捨てる。
+                    // truncate lower 8-bit of 32-bit PCM to create 24-bit PCM
                     to[toPos++] = from[fromPos + 1];
                     to[toPos++] = from[fromPos + 2];
                     to[toPos++] = from[fromPos + 3];
@@ -263,7 +266,7 @@ namespace WasapiPcmUtil {
                 int toPos = 0;
 
                 for (int i = 0; i < nSample; ++i) {
-                    // 下位ビットの情報 from[fromPos + 0]を切り捨てる。
+                    // discard lower 8-bit because it is garbage
                     to[toPos++] = 0;
                     to[toPos++] = from[fromPos + 1];
                     to[toPos++] = from[fromPos + 2];
@@ -283,8 +286,7 @@ namespace WasapiPcmUtil {
                 switch (noiseShaping) {
                 case NoiseShapingType.None: {
                         for (int i = 0; i < nSample; ++i) {
-
-                            // 下位ビットの情報 from[fromPos + 0]を切り捨てる。
+                            // discard lower 8-bit
                             if (writePad) {
                                 to[toPos++] = 0;
                             }
