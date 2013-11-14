@@ -200,7 +200,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI16toI24(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     // Lower 8-bit: fill 0s
                     to[toPos++] = 0;
@@ -215,7 +216,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI16toI32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     // Lower 16-bit: fill 0s
                     to[toPos++] = 0;
@@ -231,7 +233,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI24toI32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     // Lower 8-bit: fill 0s
                     to[toPos++] = 0;
@@ -247,7 +250,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvI32V24toI24(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
 
                 for (int i = 0; i < nSample; ++i) {
                     // truncate lower 8-bit of 32-bit PCM to create 24-bit PCM
@@ -263,7 +266,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvI32V24toI32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
 
                 for (int i = 0; i < nSample; ++i) {
                     // discard lower 8-bit because it is garbage
@@ -280,7 +283,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvI32toI24orI32V24(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
                 bool writePad = toFormat == WasapiCS.SampleFormatType.Sint32V24;
 
                 switch (noiseShaping) {
@@ -402,7 +405,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvI24or32toI16(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
                 int fromBytesPerSample = pcmFrom.BitsPerSample / 8;
 
                 switch (noiseShaping) {
@@ -539,7 +542,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvF32toI16(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
 
                 switch (noiseShaping) {
                 case NoiseShapingType.None:
@@ -712,6 +715,7 @@ namespace WasapiPcmUtil {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
                 int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     float fv = System.BitConverter.ToSingle(from, fromPos);
                     if (SAMPLE_VALUE_MAX_FLOAT <= fv) {
@@ -736,7 +740,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI16toF32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     short iv = (short)(from[fromPos]
                         + (from[fromPos + 1] << 8));
@@ -756,7 +761,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI24toF32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     int iv = ((int)from[fromPos] << 8)
                            + ((int)from[fromPos + 1] << 16)
@@ -777,7 +783,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI32toF32(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     int iv = ((int)from[fromPos + 1] << 8)
                            + ((int)from[fromPos + 2] << 16)
@@ -804,7 +811,7 @@ namespace WasapiPcmUtil {
         private byte[] ConvF64toI16(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
 
                 for (int i = 0; i < nSample; ++i) {
                     double dv = System.BitConverter.ToDouble(from, fromPos);
@@ -858,6 +865,7 @@ namespace WasapiPcmUtil {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
                 int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     double dv = System.BitConverter.ToDouble(from, fromPos);
 
@@ -910,7 +918,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI16toF64(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     short iv = (short)(from[fromPos]
                         + (from[fromPos + 1] << 8));
@@ -929,7 +938,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI24toF64(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     int iv = ((int)from[fromPos] << 8)
                            + ((int)from[fromPos + 1] << 16)
@@ -949,7 +959,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvI32toF64(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     int iv = ((int)from[fromPos + 1] << 8)
                            + ((int)from[fromPos + 2] << 16)
@@ -969,7 +980,8 @@ namespace WasapiPcmUtil {
         private byte[] ConvF32toF64(PcmData pcmFrom, WasapiCS.SampleFormatType toFormat, BitsPerSampleConvArgs args) {
             return ConvCommon(pcmFrom, toFormat, args, (from, to, nSample, noiseShaping) => {
                 int fromPos = 0;
-                int toPos = 0;
+                int toPos   = 0;
+
                 for (int i = 0; i < nSample; ++i) {
                     float fv = System.BitConverter.ToSingle(from, fromPos);
                     double dv = (double)fv;
