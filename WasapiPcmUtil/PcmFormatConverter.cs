@@ -416,7 +416,7 @@ namespace WasapiPcmUtil {
                         }
 
                         for (int i = 0; i < nSample; ++i) {
-                            // 下位ビットの情報を切り捨てる。
+                            // discard lower bits
                             fromPos += fromSkipCount;
 
                             to[toPos++] = from[fromPos++];
@@ -426,7 +426,7 @@ namespace WasapiPcmUtil {
                     break;
                 case NoiseShapingType.AddDither: {
                         if (pcmFrom.BitsPerSample == 32) {
-                            // 最下位バイトをスキップする。以降4バイトずつ移動。
+                            // discard lower 8-bit
                             ++fromPos;
                         }
 
@@ -460,7 +460,7 @@ namespace WasapiPcmUtil {
                         System.Diagnostics.Debug.Assert(mErr != null && mErr.Length == pcmFrom.NumChannels);
 
                         if (pcmFrom.BitsPerSample == 32) {
-                            // 最下位バイトをスキップする。以降4バイトずつ移動。
+                            // discard lower 8-bit
                             ++fromPos;
                         }
 
@@ -490,7 +490,7 @@ namespace WasapiPcmUtil {
                         System.Diagnostics.Debug.Assert(mErr != null && mErr.Length == pcmFrom.NumChannels);
 
                         if (pcmFrom.BitsPerSample == 32) {
-                            // 最下位バイトをスキップする。以降4バイトずつ移動。
+                            // discard lower 8-bit
                             ++fromPos;
                         }
 
