@@ -11,7 +11,7 @@ namespace PlayPcmWin {
         private AiffReader mAiffR;
         private DsfReader mDsfR;
         private DsdiffReader mDsdiffR;
-        private WavData mWaveR;
+        private WavReader mWaveR;
         private BinaryReader mBr;
 
         public long NumFrames { get; set; }
@@ -317,7 +317,7 @@ namespace PlayPcmWin {
         private int StreamBeginWave(string path, long startFrame) {
             int ercd = -1;
 
-            mWaveR = new WavData();
+            mWaveR = new WavReader();
             mBr = new BinaryReader(
                 File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read));
 

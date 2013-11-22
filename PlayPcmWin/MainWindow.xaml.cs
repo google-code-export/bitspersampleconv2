@@ -1128,12 +1128,7 @@ namespace PlayPcmWin
             buttonClearPlayList.IsEnabled    = false;
             buttonDelistSelected.IsEnabled = false;
 
-            if (0 == listBoxDevices.Items.Count) {
-                // 再生デバイスが全く存在しない時
-                buttonInspectDevice.IsEnabled = false;
-            } else {
-                buttonInspectDevice.IsEnabled = true;
-            }
+            buttonInspectDevice.IsEnabled = 0 < listBoxDevices.Items.Count;
 
             buttonSettings.IsEnabled = true;
             menuItemToolSettings.IsEnabled = true;
@@ -1169,7 +1164,7 @@ namespace PlayPcmWin
 
             buttonClearPlayList.IsEnabled = true;
             buttonDelistSelected.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
-            buttonInspectDevice.IsEnabled = false;
+            buttonInspectDevice.IsEnabled = 0 < listBoxDevices.Items.Count;
 
             buttonSettings.IsEnabled = true;
             menuItemToolSettings.IsEnabled = true;
@@ -1843,32 +1838,33 @@ namespace PlayPcmWin
         {
             bool result = false;
 
-            var wavData = new WavData();
+            var wavR = new WavReader();
             using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                if (wavData.ReadHeader(br)) {
+                if (wavR.ReadHeader(br)) {
                     // WAVヘッダ読み込み成功。PcmDataを作って再生リストに足す。
 
                     var pd = new PcmDataLib.PcmData();
-                    pd.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.ValidBitsPerSample,
-                            wavData.SampleRate, wavData.SampleValueRepresentationType, wavData.NumFrames);
-                    if ("RIFFINFO_INAM".Equals(wavData.Title) &&
-                            "RIFFINFO_IART".Equals(wavData.ArtistName)) {
+                    pd.SetFormat(wavR.NumChannels, wavR.BitsPerSample, wavR.ValidBitsPerSample,
+                            (int)wavR.SampleRate, wavR.SampleValueRepresentationType, wavR.NumFrames);
+                    if ("RIFFINFO_INAM".Equals(wavR.Title) &&
+                            "RIFFINFO_IART".Equals(wavR.ArtistName)) {
                         // Issue 79 workaround
                     } else {
-                        if (wavData.Title != null) {
-                            pd.DisplayName = wavData.Title;
+                        if (wavR.Title != null) {
+                            pd.DisplayName = wavR.Title;
                         }
-                        if (wavData.AlbumName != null) {
-                            pd.AlbumTitle = wavData.AlbumName;
+                        if (wavR.AlbumName != null) {
+                            pd.AlbumTitle = wavR.AlbumName;
                         }
-                        if (wavData.ArtistName != null) {
-                            pd.ArtistName = wavData.ArtistName;
+                        if (wavR.ArtistName != null) {
+                            pd.ArtistName = wavR.ArtistName;
                         }
                     }
+                    pd.SetPicture(wavR.PictureBytes, wavR.PictureData);
                     result = CheckAddPcmData(plti, path, pd);
                 } else {
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}",
-                            "WAV", path, Environment.NewLine));
+                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1} : {2}{3}",
+                            "WAV", path, wavR.ErrorReason, Environment.NewLine));
                 }
             }
 
@@ -3202,7 +3198,7 @@ namespace PlayPcmWin
             }
 
             if (pcmData.GroupId != m_loadedGroupId) {
-                // m_LoadedGroupIdと、wavData.GroupIdが異なる場合。
+                // m_LoadedGroupIdと、wavR.GroupIdが異なる場合。
                 // 再生するためには、ロードする必要がある。
                 UnsetupDevice();
 

@@ -53,7 +53,7 @@ namespace PlayPcmWin {
 
         public CompressionType Compression { get; set; }
 
-        private ID3Reader mId3Reader = new ID3Reader();
+        private PcmDataLib.ID3Reader mId3Reader = new PcmDataLib.ID3Reader();
 
         private ResultType ReadFormChunkHeader(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
@@ -203,13 +203,13 @@ namespace PlayPcmWin {
 
             ResultType result = ResultType.Success;
             switch (id3r) {
-            case ID3Reader.ID3Result.ReadError:
+            case PcmDataLib.ID3Reader.ID3Result.ReadError:
                 result = ResultType.ReadError;
                 break;
-            case ID3Reader.ID3Result.NotSupportedID3version:
+            case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
                 result = ResultType.NotSupportID3version;
                 break;
-            case ID3Reader.ID3Result.Success:
+            case PcmDataLib.ID3Reader.ID3Result.Success:
                 result = ResultType.Success;
                 PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                 break;

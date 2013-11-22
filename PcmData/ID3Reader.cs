@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 
-namespace PlayPcmWin {
-    class ID3Reader {
+namespace PcmDataLib {
+    public class ID3Reader {
         public enum ID3Result {
             Success,
             ReadError,

@@ -267,14 +267,14 @@ namespace PlayPcmWinTestBench {
 
             using (BinaryReader br = new BinaryReader(
                     File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                WavData wavData = new WavData();
-                bool readSuccess = wavData.ReadHeaderAndSamples(br, 0, -1);
+                var wavR = new WavReader();
+                bool readSuccess = wavR.ReadHeaderAndSamples(br, 0, -1);
                 if (!readSuccess) {
                     return null;
                 }
-                pcmData.SetFormat(wavData.NumChannels, wavData.BitsPerSample, wavData.BitsPerSample,
-                    wavData.SampleRate, wavData.SampleValueRepresentationType, wavData.NumFrames);
-                pcmData.SetSampleArray(wavData.GetSampleArray());
+                pcmData.SetFormat(wavR.NumChannels, wavR.BitsPerSample, wavR.BitsPerSample,
+                    wavR.SampleRate, wavR.SampleValueRepresentationType, wavR.NumFrames);
+                pcmData.SetSampleArray(wavR.GetSampleArray());
             }
 
             return pcmData;
@@ -283,10 +283,10 @@ namespace PlayPcmWinTestBench {
         private bool WriteWavFile(PcmData pcmData, string path) {
             using (BinaryWriter bw = new BinaryWriter(
                     File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Write))) {
-                WavData wavData = new WavData();
-                wavData.Set(pcmData.NumChannels, pcmData.BitsPerSample, pcmData.ValidBitsPerSample, pcmData.SampleRate,
+                var wavW = new WavWriter();
+                wavW.Set(pcmData.NumChannels, pcmData.BitsPerSample, pcmData.ValidBitsPerSample, pcmData.SampleRate,
                     pcmData.SampleValueRepresentationType, pcmData.NumFrames, pcmData.GetSampleArray());
-                wavData.Write(bw);
+                wavW.Write(bw);
             }
 
             return true;
