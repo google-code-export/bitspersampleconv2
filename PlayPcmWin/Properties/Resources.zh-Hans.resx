@@ -178,7 +178,7 @@
   <data name="MainButtonResume" xml:space="preserve">
     <value>继续(_U)</value>
   </data>
-  <data name="MainButtonSetting" xml:space="preserve">
+  <data name="MainButtonSettings" xml:space="preserve">
     <value>详细设置...(_D)</value>
   </data>
   <data name="MainButtonStop" xml:space="preserve">
