@@ -1235,7 +1235,7 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
-        ///   Just trancate lower bits when bits per sample is reduced to 16-bit に類似しているローカライズされた文字列を検索します。
+        ///   Just truncate lower bits when bits per sample is reduced to 16-bit に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string SettingsNoNoiseShaping {
             get {

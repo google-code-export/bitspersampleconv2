@@ -595,7 +595,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>Noise shaping option:</value>
   </data>
   <data name="SettingsNoNoiseShaping" xml:space="preserve">
-    <value>Just trancate lower bits when bits per sample is reduced to 16-bit</value>
+    <value>Just truncate lower bits when bits per sample is reduced to 16-bit</value>
   </data>
   <data name="SettingsPerformDitheredNoiseShaping" xml:space="preserve">
     <value>Perform dithered noise shaping when bits per sample is reduced to 16-bit</value>
