@@ -2902,8 +2902,8 @@ namespace PlayPcmWin
         }
 
         private void ReadFileWorkerProgressChanged(object sender, ProgressChangedEventArgs e) {
-            string s = (string)e.UserState;
-            if (0 < s.Length) {
+            string s = e.UserState as string;
+            if (s != null && 0 < s.Length) {
                 AddLogText(s);
             }
             progressBar1.Value = e.ProgressPercentage;

@@ -140,16 +140,16 @@
     <value>失败</value>
   </data>
   <data name="FilterCueFiles" xml:space="preserve">
-    <value>CUE文件</value>
+    <value>CUE文件|*.CUE</value>
   </data>
   <data name="FilterM3uFiles" xml:space="preserve">
-    <value>M3U文件</value>
+    <value>M3U文件|*.M3U;*.M3U8</value>
   </data>
   <data name="FilterPpwplFiles" xml:space="preserve">
-    <value>PPWPL文件</value>
+    <value>PPWPL文件|*.PPWPL</value>
   </data>
   <data name="FilterSupportedFiles" xml:space="preserve">
-    <value>支持的文件</value>
+    <value>支持的文件|*.WAV;*.WAVE;*.FLAC;*.AIF;*.AIFF;*.AIFC;*.AIFFC;*.DSF;*.DFF;*.CUE;*.PPWPL;*.M3U;*.M3U8|WAVE文件|*.WAV;*.WAVE|FLAC文件|*.FLAC|AIFF文件|*.AIF;*.AIFF;*.AIFC;*AIFFC|DSF文件|*.DSF|DFF文件|*.DFF|CUE文件|*.CUE|PPWPL文件|*.PPWPL|M3U文件|*.M3U;*.M3U8|All文件|*.*</value>
   </data>
   <data name="Latency" xml:space="preserve">
     <value>延迟</value>
