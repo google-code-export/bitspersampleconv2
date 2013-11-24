@@ -128,7 +128,7 @@
     <value>错误</value>
   </data>
   <data name="ErrorCode" xml:space="preserve">
-    <value>错误码 {0}</value>
+    <value>错误码</value>
   </data>
   <data name="EventDriven" xml:space="preserve">
     <value>Event模式</value>
@@ -301,7 +301,7 @@
          PCM数据MD5 = {2}</value>
   </data>
   <data name="MD5SumValid" xml:space="preserve">
-    <value>MD5比对成功。</value>
+    <value>MD5比对成功。{0}</value>
   </data>
   <data name="MemoryExhausted" xml:space="preserve">
     <value>内存耗尽，请减少播放列表中的音乐文件。</value>
