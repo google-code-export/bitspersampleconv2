@@ -522,7 +522,7 @@ namespace FftTest {
             var timeDomainUpsampled = new WWComplex[upsampledSampleCount];
             {
                 var fft = new WWRadix2Fft(upsampledSampleCount);
-                fft.InverseFft(freqDomainUpsampled, timeDomainUpsampled, 1.0/(timeDomainUpsampled.Length/2));
+                fft.InverseFft(freqDomainUpsampled, timeDomainUpsampled, 1.0 / SampleCount());
             }
 
             freqDomainUpsampled = null;
