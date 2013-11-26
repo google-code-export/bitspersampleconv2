@@ -858,7 +858,7 @@ void
 WasapiUser::PrepareBuffers(void)
 {
     // 再生前無音0(初回再生用) 再生前無音1(一時停止再開用)、再生後無音の準備。
-    // これらのバッファのフレーム数は2の倍数になるようにする。
+    // DoPマーカーが2フレームを1周期として繰り返されているため、これらのバッファのフレーム数は2の倍数になるようにする。
     {
         DWORD startZeroFlushMillisec = m_zeroFlushMillisec;
         if (startZeroFlushMillisec < m_latencyMillisec) {
