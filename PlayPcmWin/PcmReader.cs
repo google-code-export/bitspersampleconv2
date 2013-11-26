@@ -1,4 +1,7 @@
-﻿using WavRWLib2;
+﻿// このファイルは改善の余地あり。
+// ファイルフォーマットごとのReaderを汎化するスーパークラスを作って抽象化するとここで行われているswitch-case処理は消えてなくなるであろう。
+
+using WavRWLib2;
 using PcmDataLib;
 using System;
 using System.IO;
