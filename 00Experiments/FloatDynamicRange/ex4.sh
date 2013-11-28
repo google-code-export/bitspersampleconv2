@@ -94,7 +94,7 @@ diff -s original.bin M765dBP765dB.bin
 # 127 * -6.0205999 == 765dB
 # 126 * -6.0205999 == 758dB
 
-./FloatDynamicRange.exe -convert32 M722dB.bin  1 64 M758.bin
+./FloatDynamicRange.exe -convert32 M722dB.bin  1 64 M758dB.bin
 
 ./FloatDynamicRange.exe -convert32 M758dB.bin        1048576 1 M758dBP120dB.bin
 ./FloatDynamicRange.exe -convert32 M758dBP120dB.bin  1048576 1 M758dBP241dB.bin
@@ -106,5 +106,7 @@ diff -s original.bin M765dBP765dB.bin
 
 diff -s original.bin M758dBP758dB.bin
 
-# -753dBして+753dBすると元に戻る。
-# -758dBして+758dBすると元に戻らない。
+# -758dBして+758dBすると元に戻る。
+# -765dBして+765dBすると元に戻らない。
+
+
