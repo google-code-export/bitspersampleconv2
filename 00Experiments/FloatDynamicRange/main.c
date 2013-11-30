@@ -13,6 +13,54 @@ static void PrintUsage(const char *programName)
         programName, programName);
 }
 
+static int Generate32(int argc, char *argv[])
+{
+    FILE *fpw = NULL;
+    int rv = 1;
+    float *buff = NULL;
+    const int floatNum = 16777216;
+    const int buffBytes = floatNum * sizeof(float);
+    size_t sz = 0;
+    int i;
+    errno_t ercd;
+
+    if (0 != strcmp(argv[1], "-generate32")) {
+        PrintUsage(argv[0]);
+        return 1;
+    }
+
+    buff = (float *)malloc(floatNum * sizeof(float));
+    if (buff == NULL) {
+        printf("E: could not allocate memory\n");
+        return 1;
+    }
+
+    ercd = fopen_s(&fpw, argv[2], "wb");
+    if (ercd != 0 || NULL == fpw) {
+        printf("E: file open error %d %s\n", ercd, argv[2]);
+        return 1;
+    }
+
+    for (i=0; i<floatNum; ++i) {
+        buff[i] = ((float)(i - 8388608)) / 8388608.0f;
+    }
+
+    sz = fwrite(buff, 1, buffBytes, fpw);
+    if (sz != buffBytes) {
+        printf("E: fwrite() failed\n");
+        buff = NULL;
+        return 1;
+    }
+
+    free(buff);
+    buff = NULL;
+
+    fclose(fpw);
+    fpw = NULL;
+
+    return rv;
+}
+
 static int Convert32(FILE *fpr, float multiplier, FILE *fpw)
 {
     int i;
@@ -111,54 +159,6 @@ static int ReadConvertWrite32(int argc, char *argv[])
     fpw = NULL;
     fclose(fpr);
     fpr = NULL;
-
-    return rv;
-}
-
-static int Generate32(int argc, char *argv[])
-{
-    FILE *fpw = NULL;
-    int rv = 1;
-    float *buff = NULL;
-    const int floatNum = 16777216;
-    const int buffBytes = floatNum * sizeof(float);
-    size_t sz = 0;
-    int i;
-    errno_t ercd;
-
-    if (0 != strcmp(argv[1], "-generate32")) {
-        PrintUsage(argv[0]);
-        return 1;
-    }
-
-    buff = (float *)malloc(floatNum * sizeof(float));
-    if (buff == NULL) {
-        printf("E: could not allocate memory\n");
-        return 1;
-    }
-
-    ercd = fopen_s(&fpw, argv[2], "wb");
-    if (ercd != 0 || NULL == fpw) {
-        printf("E: file open error %d %s\n", ercd, argv[2]);
-        return 1;
-    }
-
-    for (i=0; i<floatNum; ++i) {
-        buff[i] = ((float)(i - 8388608)) / 8388608.0f;
-    }
-
-    sz = fwrite(buff, 1, buffBytes, fpw);
-    if (sz != buffBytes) {
-        printf("E: fwrite() failed\n");
-        buff = NULL;
-        return 1;
-    }
-
-    free(buff);
-    buff = NULL;
-
-    fclose(fpw);
-    fpw = NULL;
 
     return rv;
 }
