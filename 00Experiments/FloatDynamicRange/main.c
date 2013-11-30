@@ -6,9 +6,9 @@
 static void PrintUsage(const char *programName)
 {
     printf("Usage\n"
-        "%s -generate32 writeFilePath\n"
+        "%s -generate32 bitdepth writeFilePath\n"
         "    Generate file that contains 32bit float values\n"
-        "%s -convert32 readFilePath numerator denominator writeFilePath\n"
+        "%s -convert32 bitdepth readFilePath numerator denominator writeFilePath\n"
         "    read float values from readFilePath and scale sample value by numerator/deniminator and write to writeFilePath\n",
         programName, programName);
 }
@@ -18,8 +18,9 @@ static int Generate32(int argc, char *argv[])
     FILE *fpw = NULL;
     int rv = 1;
     float *buff = NULL;
-    const int floatNum = 16777216;
-    const int buffBytes = floatNum * sizeof(float);
+    int bitDepth = 0;
+    int floatNum;
+    int buffBytes;
     size_t sz = 0;
     int i;
     errno_t ercd;
@@ -29,20 +30,29 @@ static int Generate32(int argc, char *argv[])
         return 1;
     }
 
+    bitDepth = atoi(argv[2]);
+    if (bitDepth <= 0 || 28 < bitDepth) {
+        printf("E: bitdepth must be larger than 0 and smaller than 29\n");
+        PrintUsage(argv[0]);
+        return 1;
+    }
+
+    floatNum = 2 << (bitDepth-1);
+    buffBytes = floatNum * sizeof(float);
     buff = (float *)malloc(floatNum * sizeof(float));
     if (buff == NULL) {
         printf("E: could not allocate memory\n");
         return 1;
     }
 
-    ercd = fopen_s(&fpw, argv[2], "wb");
+    ercd = fopen_s(&fpw, argv[3], "wb");
     if (ercd != 0 || NULL == fpw) {
-        printf("E: file open error %d %s\n", ercd, argv[2]);
+        printf("E: file open error %d %s\n", ercd, argv[3]);
         return 1;
     }
 
     for (i=0; i<floatNum; ++i) {
-        buff[i] = ((float)(i - 8388608)) / 8388608.0f;
+        buff[i] = ((float)(i - floatNum/2)) / (floatNum/2);
     }
 
     sz = fwrite(buff, 1, buffBytes, fpw);
@@ -123,14 +133,22 @@ static int ReadConvertWrite32(int argc, char *argv[])
     int denominator;
     float multiplier;
     int rv = 1;
+    int bitDepth = 0;
 
     if (0 != strcmp(argv[1], "-convert32")) {
         PrintUsage(argv[0]);
         return 1;
     }
 
-    numerator   = atoi(argv[3]);
-    denominator = atoi(argv[4]);
+    bitDepth = atoi(argv[2]);
+    if (bitDepth <= 0 || 28 < bitDepth) {
+        printf("E: bitdepth must be larger than 0 and smaller than 29\n");
+        PrintUsage(argv[0]);
+        return 1;
+    }
+
+    numerator   = atoi(argv[4]);
+    denominator = atoi(argv[5]);
     if (numerator == 0 || denominator == 0) {
         printf("E: numerator and denominator must not be zero\n");
         return 1;
@@ -138,15 +156,15 @@ static int ReadConvertWrite32(int argc, char *argv[])
 
     multiplier = (float)numerator / denominator;
 
-    ercd = fopen_s(&fpr, argv[2], "rb");
+    ercd = fopen_s(&fpr, argv[3], "rb");
     if (ercd != 0 || NULL == fpr) {
-        printf("E: file open error %d %s\n", ercd, argv[2]);
+        printf("E: file open error %d %s\n", ercd, argv[3]);
         return 1;
     }
 
-    ercd = fopen_s(&fpw, argv[5], "wb");
+    ercd = fopen_s(&fpw, argv[6], "wb");
     if (ercd != 0 || NULL == fpw) {
-        printf("E: file open error %d %s\n", ercd, argv[5]);
+        printf("E: file open error %d %s\n", ercd, argv[6]);
 
         fclose(fpr);
         fpr = NULL;
@@ -167,10 +185,10 @@ int main(int argc, char *argv[])
 {
     int rv = 1;
     switch (argc) {
-    case 3:
+    case 4:
         return Generate32(argc, argv);
         break;
-    case 6:
+    case 7:
         return ReadConvertWrite32(argc, argv);
     default:
         PrintUsage(argv[0]);
