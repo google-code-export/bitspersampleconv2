@@ -93,21 +93,21 @@ diff -s original.bin M765dBP765dB.bin
 
 # 125 * -6.0205999 == 753dB
 # 127 * -6.0205999 == 765dB
-# 126 * -6.0205999 == 758dB
+# 126 * -6.0205999 == 759dB
 
-./FloatDynamicRange -convert32 24 M722dB.bin  1 64 M758dB.bin
+./FloatDynamicRange -convert32 24 M722dB.bin  1 64 M759dB.bin
 
-./FloatDynamicRange -convert32 24 M758dB.bin       1048576 1 M758dBP120dB.bin
-./FloatDynamicRange -convert32 24 M758dBP120dB.bin 1048576 1 M758dBP241dB.bin
-./FloatDynamicRange -convert32 24 M758dBP241dB.bin 1048576 1 M758dBP361dB.bin
-./FloatDynamicRange -convert32 24 M758dBP361dB.bin 1048576 1 M758dBP482dB.bin
-./FloatDynamicRange -convert32 24 M758dBP482dB.bin 1048576 1 M758dBP602dB.bin
-./FloatDynamicRange -convert32 24 M758dBP602dB.bin 1048576 1 M758dBP722dB.bin
-./FloatDynamicRange -convert32 24 M758dBP722dB.bin 64      1 M758dBP758dB.bin
+./FloatDynamicRange -convert32 24 M759dB.bin       1048576 1 M759dBP120dB.bin
+./FloatDynamicRange -convert32 24 M759dBP120dB.bin 1048576 1 M759dBP241dB.bin
+./FloatDynamicRange -convert32 24 M759dBP241dB.bin 1048576 1 M759dBP361dB.bin
+./FloatDynamicRange -convert32 24 M759dBP361dB.bin 1048576 1 M759dBP482dB.bin
+./FloatDynamicRange -convert32 24 M759dBP482dB.bin 1048576 1 M759dBP602dB.bin
+./FloatDynamicRange -convert32 24 M759dBP602dB.bin 1048576 1 M759dBP722dB.bin
+./FloatDynamicRange -convert32 24 M759dBP722dB.bin 64      1 M759dBP759dB.bin
 
-diff -s original.bin M758dBP758dB.bin
+diff -s original.bin M759dBP759dB.bin
 
-# -758dBして+758dBすると元に戻る。
+# -759dBして+759dBすると元に戻る。
 # -765dBして+765dBすると元に戻らない。
 
 
