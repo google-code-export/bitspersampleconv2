@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
-# FTZフラグを立てて、subnormal numberを0にしたときの24bit signed int PCM を格納する[-1.0, 1.0)の32bit floatデータのダイナミックレンジ。
+# FTZフラグを立てて、subnormal numberを0にしたときの
+# 24bit signed int PCM を格納する[-1.0, 1.0)の32bit floatデータのダイナミックレンジを調べる。
 
 ./FloatDynamicRange -generate32 24 original.bin
 
