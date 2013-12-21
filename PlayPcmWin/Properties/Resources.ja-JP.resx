@@ -606,4 +606,8 @@ Jcode.pmのCopyright: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsPerformDither" xml:space="preserve">
     <value>量子化ビット数を減らすときにディザを加算する</value>
   </data>
+  <data name="MD5SumNotAvailable" xml:space="preserve">
+    <value>ファイルにSTREAMINFO MD5値が埋まっていないのでPCMデータについて算出したMD5値との照合は行いません: {0}
+  MD5 from PCM data= {1}</value>
+  </data>
 </root>

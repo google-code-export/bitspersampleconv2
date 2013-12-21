@@ -207,7 +207,9 @@ namespace PlayPcmWin {
                 result = ResultType.ReadError;
                 break;
             case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
-                result = ResultType.NotSupportID3version;
+                // ID3が読めなくても再生はできるようにする。
+                result = ResultType.Success;
+                PcmDataLib.Util.BinaryReaderSkip(br, PcmDataLib.Util.ChunkSizeWithPad(ckSize) - mId3Reader.ReadBytes);
                 break;
             case PcmDataLib.ID3Reader.ID3Result.Success:
                 result = ResultType.Success;

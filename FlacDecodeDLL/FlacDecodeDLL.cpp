@@ -140,6 +140,7 @@ struct FlacDecodeInfo {
     int               retrievedFrames;
     FILE              *logFP;
 
+    bool md5Available;
     char md5sum[FLACDECODE_MD5SUM_BYTES];
 
     wchar_t fromFlacPathUtf16[FLACDECODE_MAXPATH];
@@ -183,6 +184,7 @@ struct FlacDecodeInfo {
         retrievedFrames = 0;
         logFP           = NULL;
 
+        md5Available = false;
         fromFlacPathUtf16[0] = 0;
         titleStr[0]     = 0;
         artistStr[0]    = 0;
@@ -339,6 +341,9 @@ MetadataCallback(const FLAC__StreamDecoder *decoder,
         fdi->minBlockSize  = metadata->data.stream_info.min_blocksize;
         fdi->maxFrameSize  = metadata->data.stream_info.max_framesize;
         fdi->maxBlockSize  = metadata->data.stream_info.max_blocksize;
+
+        // MD5値が0のときMD5値のメタ情報が利用不可を表すという仕様のようだ。
+        fdi->md5Available = !!memcmp(metadata->data.stream_info.md5sum, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16);
         memcpy(fdi->md5sum, metadata->data.stream_info.md5sum, FLACDECODE_MD5SUM_BYTES);
     }
 
@@ -490,8 +495,9 @@ DecodeMain(FlacDecodeInfo *fdi)
 
     dprintf(fdi->logFP, "%s FLAC_stream_decoder=%p\n", __FUNCTION__, fdi->decoder);
 
-    FLAC__stream_decoder_set_md5_checking(fdi->decoder, true);
-    
+    // MD5チェックはPCMを読み出し終わった後に自分で行うので無効にしておく。
+    //FLAC__stream_decoder_set_md5_checking(fdi->decoder, true);
+
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_STREAMINFO);
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_VORBIS_COMMENT);
     FLAC__stream_decoder_set_metadata_respond(fdi->decoder, FLAC__METADATA_TYPE_PICTURE);
@@ -1036,6 +1042,10 @@ FlacDecodeDLL_GetMD5Sum(int id, char *md5_return)
 {
     FlacDecodeInfo *fdi = FlacDecodeInfoFindById(id);
     assert(fdi);
+
+    if (!fdi->md5Available) {
+        return 0;
+    }
 
     memcpy(md5_return, fdi->md5sum, FLACDECODE_MD5SUM_BYTES);
     return FLACDECODE_MD5SUM_BYTES;

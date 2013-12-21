@@ -48,6 +48,20 @@ namespace PlayPcmWin {
         /// </summary>
         public long OutputFrames { get; set; }
 
+        public string TitleName { get { return mId3Reader.TitleName; } }
+        public string AlbumName { get { return mId3Reader.AlbumName; } }
+        public string ArtistName { get { return mId3Reader.ArtistName; } }
+
+        /// <summary>
+        /// 画像データバイト数(無いときは0)
+        /// </summary>
+        public int PictureBytes { get { return mId3Reader.PictureBytes; } }
+
+        /// <summary>
+        /// 画像データ
+        /// </summary>
+        public byte[] PictureData { get { return mId3Reader.PictureData; } }
+
         /// <summary>
         /// stream data offset from the start of the file
         /// </summary>
@@ -164,7 +178,8 @@ namespace PlayPcmWin {
                 result = ResultType.ReadError;
                 break;
             case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
-                result = ResultType.NotSupportID3version;
+                // ID3が読めなくても再生はできるようにする。
+                result = ResultType.Success;
                 break;
             case PcmDataLib.ID3Reader.ID3Result.Success:
                 result = ResultType.Success;
@@ -177,20 +192,6 @@ namespace PlayPcmWin {
             }
             return result;
         }
-
-        public string TitleName { get { return mId3Reader.TitleName; } }
-        public string AlbumName { get { return mId3Reader.AlbumName; } }
-        public string ArtistName { get { return mId3Reader.ArtistName; } }
-
-        /// <summary>
-        /// 画像データバイト数(無いときは0)
-        /// </summary>
-        public int PictureBytes { get { return mId3Reader.PictureBytes; } }
-
-        /// <summary>
-        /// 画像データ
-        /// </summary>
-        public byte[] PictureData { get { return mId3Reader.PictureData; } }
 
         enum ReadHeaderMode {
             AllHeadersWithID3,

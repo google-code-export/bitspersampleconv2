@@ -27,6 +27,7 @@ namespace PlayPcmWin {
         private int mPictureBytes;
         private byte[] mPictureData;
 
+        private bool md5MetaAvailable;
         private MD5 md5;
         private byte[] mMD5SumOfPcm;
         private byte[] mMD5SumInMetadata;
@@ -34,7 +35,14 @@ namespace PlayPcmWin {
         private const int MD5_BYTES = 16;
 
         public bool CalcMD5 { get; set; }
-        public byte[] MD5SumInMetadata { get { return mMD5SumInMetadata; } }
+        public byte[] MD5SumInMetadata {
+            get {
+                if (md5MetaAvailable) {
+                    return mMD5SumInMetadata;
+                }
+                return null;
+            }
+        }
         public byte[] MD5SumOfPcm { get { return mMD5SumOfPcm; } }
 
         public long NumFrames {
@@ -192,6 +200,9 @@ namespace PlayPcmWin {
             string titleStr = mBinaryReader.ReadString();
             string albumStr = mBinaryReader.ReadString();
             string artistStr = mBinaryReader.ReadString();
+
+            byte md5Available = mBinaryReader.ReadByte();
+            md5MetaAvailable = md5Available != 0;
 
             mMD5SumInMetadata = mBinaryReader.ReadBytes(MD5_BYTES);
 

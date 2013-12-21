@@ -2424,20 +2424,34 @@ namespace PlayPcmWin
                 PcmDataId = pcmDataId;
                 this.md5SumOfPcm = md5SumOfPcm;
                 this.md5SumInMetadata = md5SumInMetadata;
-                IsSucceeded = md5SumOfPcm.SequenceEqual(md5SumInMetadata);
+                if (null == md5SumInMetadata) {
+                    // MD5値がメタ情報から取得できなかったので照合は行わずに成功を戻す。
+                    IsSucceeded = true;
+                } else {
+                    IsSucceeded = md5SumOfPcm.SequenceEqual(md5SumInMetadata);
+                }
                 HasMessage = true;
             }
 
             public override string ToString(string fileName) {
+                if (null == md5SumInMetadata) {
+                    return string.Format(CultureInfo.InvariantCulture, Properties.Resources.MD5SumNotAvailable,
+                        fileName, MD5SumToStr(md5SumOfPcm)) + Environment.NewLine;
+                }
+
                 if (IsSucceeded) {
                     return string.Format(CultureInfo.InvariantCulture, Properties.Resources.MD5SumValid, fileName) + Environment.NewLine;
                 }
 
                 return string.Format(CultureInfo.InvariantCulture, Properties.Resources.MD5SumMismatch,
                         fileName, MD5SumToStr(md5SumInMetadata), MD5SumToStr(md5SumOfPcm)) + Environment.NewLine;
+
             }
 
             private static string MD5SumToStr(byte[] a) {
+                if (null == a) {
+                    return "NA";
+                }
                 return string.Format(CultureInfo.InvariantCulture,
                         "{0:x2}{1:x2}{2:x2}{3:x2}{4:x2}{5:x2}{6:x2}{7:x2}{8:x2}{9:x2}{10:x2}{11:x2}{12:x2}{13:x2}{14:x2}{15:x2}",
                         a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7],

@@ -24,6 +24,7 @@ namespace PlayPcmWin {
             NotSupportFileTooLarge,
             NotSupportNumChannels,
             NotSupportSampleFrequency,
+            NotSupportID3version,
             ReadError
         }
 
@@ -52,6 +53,22 @@ namespace PlayPcmWin {
         /// stream data offset from the start of the file
         /// </summary>
         private const int STREAM_DATA_OFFSET = 92;
+
+        private PcmDataLib.ID3Reader mId3Reader = new PcmDataLib.ID3Reader();
+
+        public string TitleName { get { return mId3Reader.TitleName; } }
+        public string AlbumName { get { return mId3Reader.AlbumName; } }
+        public string ArtistName { get { return mId3Reader.ArtistName; } }
+
+        /// <summary>
+        /// 画像データバイト数(無いときは0)
+        /// </summary>
+        public int PictureBytes { get { return mId3Reader.PictureBytes; } }
+
+        /// <summary>
+        /// 画像データ
+        /// </summary>
+        public byte[] PictureData { get { return mId3Reader.PictureData; } }
 
         private static ResultType ReadDsdChunk(BinaryReader br) {
             ulong chunkBytes = Util.ReadBigU64(br);
@@ -142,7 +159,7 @@ namespace PlayPcmWin {
             return ResultType.Success;
         }
 
-        private ResultType ReadSoundDataChunkHeader(BinaryReader br) {
+        private ResultType ReadSoundDataChunkHeader(BinaryReader br, ReadHeaderMode mode) {
             ulong chunkBytes = Util.ReadBigU64(br);
             if (chunkBytes == 0 || 0x7fffffff < chunkBytes) {
                 return ResultType.NotSupportFileTooLarge;
@@ -150,7 +167,47 @@ namespace PlayPcmWin {
 
             mDataFrames = (long)chunkBytes / 2 / NumChannels;
 
+            switch (mode) {
+            case ReadHeaderMode.AllHeadersWithID3:
+                // skip dsd data
+                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes);
+                break;
+            case ReadHeaderMode.ReadStopBeforeSoundData:
+                break;
+            }
+
             return ResultType.Success;
+        }
+
+        private ResultType ReadID3Chunk(BinaryReader br) {
+            ulong chunkBytes = Util.ReadBigU64(br);
+            if (chunkBytes == 0 || 0x7fffffff < chunkBytes) {
+                return ResultType.NotSupportFileTooLarge;
+            }
+            
+            var id3r = mId3Reader.Read(br);
+
+            ResultType result = ResultType.Success;
+            switch (id3r) {
+            case PcmDataLib.ID3Reader.ID3Result.ReadError:
+                result = ResultType.ReadError;
+                break;
+            case PcmDataLib.ID3Reader.ID3Result.NotSupportedID3version:
+                // ID3が読めなくても再生はできるようにする。
+                result = ResultType.Success;
+                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
+                break;
+            case PcmDataLib.ID3Reader.ID3Result.Success:
+                result = ResultType.Success;
+                PcmDataLib.Util.BinaryReaderSkip(br, (long)chunkBytes - mId3Reader.ReadBytes);
+                break;
+            default:
+                // 追加忘れ
+                System.Diagnostics.Debug.Assert(false);
+                result = ResultType.ReadError;
+                break;
+            }
+            return result;
         }
 
         private static ResultType SkipUnknownChunk(BinaryReader br) {
@@ -168,13 +225,19 @@ namespace PlayPcmWin {
         const int FOURCC_FRM8 = 0x384d5246;
         const int FOURCC_FVER = 0x52455646;
         const int FOURCC_PROP = 0x504f5250;
-        const int FOURCC_FS =   0x20205346;
-        const int FOURCC_SND =  0x20444e53;
+        const int FOURCC_FS   = 0x20205346;
+        const int FOURCC_SND  = 0x20444e53;
         const int FOURCC_CHNL = 0x4c4e4843;
         const int FOURCC_CMPR = 0x52504d43;
-        const int FOURCC_DSD =  0x20445344;
+        const int FOURCC_DSD  = 0x20445344;
+        const int FOURCC_ID3  = 0x20334449;
 
-        private ResultType ReadHeader1(BinaryReader br, out PcmDataLib.PcmData pcmData) {
+        enum ReadHeaderMode {
+            AllHeadersWithID3,
+            ReadStopBeforeSoundData,
+        };
+
+        private ResultType ReadHeader1(BinaryReader br, ReadHeaderMode mode, out PcmDataLib.PcmData pcmData) {
             pcmData = new PcmDataLib.PcmData();
             bool done = false;
 
@@ -202,8 +265,17 @@ namespace PlayPcmWin {
                         rt = ReadCompressionTypeChunk(br);
                         break;
                     case FOURCC_DSD:
-                        rt = ReadSoundDataChunkHeader(br);
-                        done = true;
+                        rt = ReadSoundDataChunkHeader(br, mode);
+                        switch (mode) {
+                        case ReadHeaderMode.ReadStopBeforeSoundData:
+                            done = true;
+                            break;
+                        case ReadHeaderMode.AllHeadersWithID3:
+                            break;
+                        }
+                        break;
+                    case FOURCC_ID3:
+                        rt = ReadID3Chunk(br);
                         break;
                     default:
                         rt = SkipUnknownChunk(br);
@@ -214,12 +286,11 @@ namespace PlayPcmWin {
                     }
                 }
             } catch (EndOfStreamException ex) {
-                // unexpected end of stream
+                // this is only way to exit from the while loop above
                 System.Console.WriteLine(ex);
             }
 
-            if (!done ||
-                0 == SampleRate ||   // SampleRateChunkが存在しないとき。
+            if (0 == SampleRate ||   // SampleRateChunkが存在しないとき。
                 2 != NumChannels ||
                 0 == mDataFrames) {
                 return ResultType.ReadError;
@@ -242,11 +313,24 @@ namespace PlayPcmWin {
                 OutputFrames);
             pcmData.SampleDataType = PcmDataLib.PcmData.DataType.DoP;
 
+            if (null != TitleName) {
+                pcmData.DisplayName = TitleName;
+            }
+            if (null != AlbumName) {
+                pcmData.AlbumTitle = AlbumName;
+            }
+            if (null != ArtistName) {
+                pcmData.ArtistName = ArtistName;
+            }
+            if (0 < PictureBytes) {
+                pcmData.SetPicture(PictureBytes, PictureData);
+            }
+
             return 0;
         }
 
         public ResultType ReadHeader(BinaryReader br, out PcmDataLib.PcmData pcmData) {
-            return ReadHeader1(br, out pcmData);
+            return ReadHeader1(br, ReadHeaderMode.AllHeadersWithID3, out pcmData);
         }
 
         // 1フレームは
@@ -256,7 +340,7 @@ namespace PlayPcmWin {
 
         public ResultType ReadStreamBegin(BinaryReader br, out PcmDataLib.PcmData pcmData) {
             ResultType rt = ResultType.Success;
-            rt = ReadHeader1(br, out pcmData);
+            rt = ReadHeader1(br, ReadHeaderMode.ReadStopBeforeSoundData, out pcmData);
             mPosFrame = 0;
 
             return rt;

@@ -606,4 +606,8 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
   <data name="SettingsPerformDither" xml:space="preserve">
     <value>Add dither when bits per sample is reduced to 16-bit</value>
   </data>
+  <data name="MD5SumNotAvailable" xml:space="preserve">
+    <value>File does not have STREAMINFO MD5 signature. Could not perform MD5 validation: {0}
+  MD5 from PCM data= {1}</value>
+  </data>
 </root>

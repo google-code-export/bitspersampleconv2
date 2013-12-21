@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+
+
 static void
 PrintUsage(const wchar_t *argv0)
 {
@@ -31,9 +33,9 @@ wmain(int argc, wchar_t* argv[])
         return 1;
     }
 
-    int bitsPerSample  = FlacDecodeDLL_GetBitsPerSample(id);
-    int channels       = FlacDecodeDLL_GetNumOfChannels(id);
-    int sampleRate     = FlacDecodeDLL_GetSampleRate(id);
+    int bitsPerSample = FlacDecodeDLL_GetBitsPerSample(id);
+    int channels      = FlacDecodeDLL_GetNumOfChannels(id);
+    int sampleRate    = FlacDecodeDLL_GetSampleRate(id);
     int64_t numFrames = FlacDecodeDLL_GetNumFrames(id);
     int numFramesPerBlock = FlacDecodeDLL_GetNumFramesPerBlock(id);
 
@@ -111,7 +113,7 @@ wmain(int argc, wchar_t* argv[])
                 fwrite(data, 1, rv * bytesPerFrame, fp);
                 pcmPos += rv;
             }
-            printf("D: GetNextPcmData get %d samples. total %lld\n", rv, pcmPos);
+            // printf("D: GetNextPcmData get %d samples. total %lld\n", rv, pcmPos);
 
             if (rv <= 0 || ercd == FDRT_Completed) {
                 printf("D: GetNextPcmData rv=%d ercd=%d\n", rv, ercd);

@@ -677,6 +677,16 @@ namespace PlayPcmWin.Properties {
         }
         
         /// <summary>
+        ///   File does not have STREAMINFO MD5 signature. Could not perform MD5 validation: {0}
+        ///  MD5 from PCM data= {1} に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string MD5SumNotAvailable {
+            get {
+                return ResourceManager.GetString("MD5SumNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   MD5sum validation succeeded. {0} に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string MD5SumValid {

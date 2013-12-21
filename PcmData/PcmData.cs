@@ -13,6 +13,10 @@ namespace PcmDataLib {
         /// readerのデータをcountバイトだけスキップする。
         /// </summary>
         public static void BinaryReaderSkip(BinaryReader reader, long count) {
+            if (count == 0) {
+                return;
+            }
+
             if (reader.BaseStream.CanSeek) {
                 reader.BaseStream.Seek(count, SeekOrigin.Current);
             } else {

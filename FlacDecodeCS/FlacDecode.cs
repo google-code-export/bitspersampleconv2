@@ -237,13 +237,17 @@ namespace FlacDecodeCS {
              * 28         titleLen       タイトル文字列
              * 28+titleLen albumLen      アルバム文字列
              * 28+t+al     artistLen      アーティスト文字列
-             * 28+t+al+ar  4             画像データバイト数
-             * 32+t+al+ar  pictureBytes   画像データ
-             * 32+t+al+ar+pic   4         CUEシートトラック数 nct
-             * 36+t+al+ar+pic+tOffs  4    CUEシートトラック0のトラック番号
-             * 40+t+al+ar+pic+tOffs  8    CUEシートトラック0のオフセット
-             * 48+t+al+ar+pic+tOffs  4    CUEシートトラック0のインデックス数nIdx0
-             * 52+t+al+ar+pic+tOffs  8    CUEシートトラック0インデックス0のインデックス番号
+             * 
+             * 28+t+al+ar  1             MD5利用可能の時1 利用不可の時0
+             * 29+t+al+ar  16            PCMデータ全体のMD5
+             * 
+             * 45+t+al+ar  4             画像データバイト数
+             * 49+t+al+ar  pictureBytes   画像データ
+             * 49+t+al+ar+pic   4         CUEシートトラック数 nct
+             * 53+t+al+ar+pic+tOffs  4    CUEシートトラック0のトラック番号
+             * 57+t+al+ar+pic+tOffs  8    CUEシートトラック0のオフセット
+             * 65+t+al+ar+pic+tOffs  4    CUEシートトラック0のインデックス数nIdx0
+             * 69+t+al+ar+pic+tOffs  8    CUEシートトラック0インデックス0のインデックス番号
              * …
              * frameOffs    4             frameCount1 (ヘッダのみの場合なし)
              * frameOffs+4  ※1           PCMデータ1(リトルエンディアン、LRLRLR…) (ヘッダのみの場合なし)
@@ -316,7 +320,7 @@ namespace FlacDecodeCS {
 
             byte [] md5sum = new byte[MD5_BYTES];
             rv = NativeMethods.FlacDecodeDLL_GetMD5Sum(id, md5sum);
-            System.Diagnostics.Debug.Assert(rv == MD5_BYTES);
+            byte md5Available = (rv != 0) ? (byte)1 : (byte)0;
 
             bw.Write(nChannels);
             bw.Write(bitsPerSample);
@@ -328,6 +332,7 @@ namespace FlacDecodeCS {
             bw.Write(albumStr);
             bw.Write(artistStr);
 
+            bw.Write(md5Available);
             bw.Write(md5sum);
 
             bw.Write(pictureBytes);
