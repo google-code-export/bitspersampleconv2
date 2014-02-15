@@ -39,17 +39,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\work\flac-1.2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <IncludePath>$(ProjectDir)libFlacInclude;$(IncludePath)</IncludePath>
     <OutDir>bin\x86\$(Configuration)\</OutDir>
     <IntDir>obj\x86\$(Configuration)\</IntDir>
-    <LibraryPath>C:\work\flac-1.2.1\Debug;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
+    <LibraryPath>$(ProjectDir)libFlacPrebuilt;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\work\flac-1.2.1\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;</IncludePath>
+    <IncludePath>$(ProjectDir)libFlacInclude;$(IncludePath)</IncludePath>
     <OutDir>bin\x86\$(Configuration)\</OutDir>
     <IntDir>obj\x86\$(Configuration)\</IntDir>
-    <LibraryPath>C:\work\flac-1.2.1\Release;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
+    <LibraryPath>$(ProjectDir)libFlacPrebuilt;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,6 +87,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FLAC__NO_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +108,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FlacDecodeDLL.h" />
+    <ClInclude Include="libFlacInclude\FLAC\export.h" />
+    <ClInclude Include="libFlacInclude\FLAC\format.h" />
+    <ClInclude Include="libFlacInclude\FLAC\ordinals.h" />
+    <ClInclude Include="libFlacInclude\FLAC\stream_decoder.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

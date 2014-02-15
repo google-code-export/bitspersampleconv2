@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ヘッダー ファイル\FLAC">
+      <UniqueIdentifier>{d2ab8b8f-5d5c-487c-af42-38a39a3a9409}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -20,6 +23,18 @@
     </ClInclude>
     <ClInclude Include="FlacDecodeDLL.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="libFlacInclude\FLAC\export.h">
+      <Filter>ヘッダー ファイル\FLAC</Filter>
+    </ClInclude>
+    <ClInclude Include="libFlacInclude\FLAC\format.h">
+      <Filter>ヘッダー ファイル\FLAC</Filter>
+    </ClInclude>
+    <ClInclude Include="libFlacInclude\FLAC\ordinals.h">
+      <Filter>ヘッダー ファイル\FLAC</Filter>
+    </ClInclude>
+    <ClInclude Include="libFlacInclude\FLAC\stream_decoder.h">
+      <Filter>ヘッダー ファイル\FLAC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
