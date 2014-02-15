@@ -124,8 +124,6 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     IMFSample *pSample = NULL;
     IMFMediaBuffer *pBuffer = NULL;
     BYTE  *pByteBufferTo = NULL;
-    //LONGLONG hnsSampleDuration;
-    //LONGLONG hnsSampleTime;
     int frameCount;
 
     assert(ppSample);
@@ -144,12 +142,6 @@ WWMFResampler::ConvertWWSampleDataToMFSample(WWMFSampleData &sampleData, IMFSamp
     HRG(pSample->AddBuffer(pBuffer));
 
     frameCount = sampleData.bytes / m_inputFormat.FrameBytes();
-    /*
-    hnsSampleDuration = (LONGLONG)(10.0 * 1000 * 1000 * frameCount        / m_inputFormat.sampleRate);
-    hnsSampleTime     = (LONGLONG)(10.0 * 1000 * 1000 * m_inputFrameTotal / m_inputFormat.sampleRate);
-    HRG(pSample->SetSampleDuration(hnsSampleDuration));
-    HRG(pSample->SetSampleTime(hnsSampleTime));
-    */
 
     m_inputFrameTotal += frameCount;
 
@@ -312,7 +304,7 @@ WWMFResampler::Drain(DWORD resampleInputBytes, WWMFSampleData *sampleData_return
         tmpData.bytes = cbOutputBytes;
         hr = GetSampleDataFromMFTransform(&tmpData);
         if (MF_E_TRANSFORM_NEED_MORE_INPUT == hr) {
-            // 終わり。
+            // end successfully.
             HRG(m_pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL));
             goto end;
         }
@@ -331,8 +323,7 @@ end:
 void
 WWMFResampler::Finalize(void)
 {
-    // Initialize()が中で失敗してm_pTransform==NULLのままここに来ても
-    // 正常にFinalizeが終了するようにする。
+    // Finalize() is called even when Initialize() failed and m_pTransform==NULL
 
     SafeRelease(&m_pTransform);
     if (m_isMFStartuped) {
