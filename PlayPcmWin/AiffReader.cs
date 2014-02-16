@@ -55,6 +55,9 @@ namespace PlayPcmWin {
 
         private PcmDataLib.ID3Reader mId3Reader = new PcmDataLib.ID3Reader();
 
+        private const uint AIFC_TIMESTAMP   = 0xa2805140;
+        private const uint COMPRESSION_SOWT = 0x736f7774;
+
         private ResultType ReadFormChunkHeader(BinaryReader br) {
             byte[] ckID = br.ReadBytes(4);
             if (!PcmDataLib.Util.FourCCHeaderIs(ckID, 0, "FORM")) {
@@ -112,7 +115,7 @@ namespace PlayPcmWin {
             
             uint timestamp = Util.ReadBigU32(br);
 
-            if (0xa2805140 != timestamp) {
+            if (AIFC_TIMESTAMP != timestamp) {
                 return ResultType.NotSupportAifcVersion;
             }
 
@@ -138,7 +141,7 @@ namespace PlayPcmWin {
                 readSize += 4;
 
                 switch (compressionId) {
-                case 0x736f7774:
+                case COMPRESSION_SOWT:
                     Compression = CompressionType.Sowt;
                     break;
                 default:
