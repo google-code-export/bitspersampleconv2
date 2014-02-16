@@ -67,7 +67,6 @@ namespace PlayPcmWin {
         /// </summary>
         private const int STREAM_DATA_OFFSET = 92;
 
-        private ulong mTotalFileBytes;
         private ulong mMetadataOffset;
 
         /// <summary>
@@ -91,7 +90,7 @@ namespace PlayPcmWin {
                 return ResultType.NotSupportDsdChunkBytes;
             }
 
-            mTotalFileBytes = br.ReadUInt64();
+            ulong totalFileBytes = br.ReadUInt64();
 
             mMetadataOffset = br.ReadUInt64();
 

@@ -8,18 +8,6 @@ namespace PlayPcmWin {
     class M3uTrackInfo {
         private string path;
 
-        public void Clear() {
-            path = string.Empty;
-        }
-
-        public void CopyFrom(M3uTrackInfo rhs) {
-            path = rhs.path;
-        }
-
-        public void Debug() {
-            Console.WriteLine("    path={0}", path);
-        }
-
         public M3uTrackInfo(string aPath) {
             path = aPath;
         }

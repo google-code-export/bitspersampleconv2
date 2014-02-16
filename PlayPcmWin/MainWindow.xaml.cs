@@ -2508,13 +2508,6 @@ namespace PlayPcmWin
         /// </summary>
         ReadProgressInfo m_readProgressInfo;
 
-        private static ReadFileRunWorkerCompletedArgs CreateRunWorkerCompletedArgsWhenException(
-                ReadFileRunWorkerCompletedArgs r, Exception ex) {
-            r.message = ex.ToString();
-            r.hr = -1;
-            return r;
-        }
-
         /// <summary>
         /// ビットフォーマット変換クラス。ノイズシェイピングのerror値を持っているので都度作らないようにする。
         /// </summary>
@@ -3787,18 +3780,6 @@ namespace PlayPcmWin
             }
         }
 
-        private static WasapiCS.BitFormatType
-        VrtToBft(PcmDataLib.PcmData.ValueRepresentationType vrt) {
-            switch (vrt) {
-            case PcmDataLib.PcmData.ValueRepresentationType.SInt:
-                return WasapiCS.BitFormatType.SInt;
-            case PcmDataLib.PcmData.ValueRepresentationType.SFloat:
-                return WasapiCS.BitFormatType.SFloat;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                return WasapiCS.BitFormatType.SInt;
-            }
-        }
         #endregion
 
         // イベント処理 /////////////////////////////////////////////////////
@@ -3899,13 +3880,6 @@ namespace PlayPcmWin
             buttonNextOrPrevClicked((x) => { return --x; });
         }
 
-        private void checkBoxContinuous_CheckedChanged(object sender, RoutedEventArgs e) {
-            if (buttonStop.IsEnabled) {
-                // 再生中に連続再生かどうかが変更された。
-                UpdatePlayRepeat();
-            }
-        }
-
         private void dataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
             e.Row.MouseDoubleClick += new MouseButtonEventHandler(dataGridPlayList_RowMouseDoubleClick);
         }
@@ -3981,17 +3955,7 @@ namespace PlayPcmWin
             }
         }
 
-        private void buttonClose_Click(object sender, RoutedEventArgs e) {
-            Exit();
-        }
-
-        private void buttonMinimize_Click(object sender, RoutedEventArgs e) {
-            WindowState = System.Windows.WindowState.Minimized;
-        }
-
-        private Point mPrevPos;
-
-        bool IsWindowMoveMode(MouseEventArgs e) {
+        private bool IsWindowMoveMode(MouseEventArgs e) {
             if (e.LeftButton != MouseButtonState.Pressed) {
                 return false;
             }
@@ -4002,18 +3966,6 @@ namespace PlayPcmWin
                 }
             }
             return true;
-        }
-
-        private void menu1_MouseMove(object sender, MouseEventArgs e) {
-            if (IsWindowMoveMode(e)) {
-                var pos   = e.GetPosition(this);
-                var delta = new Point(pos.X - mPrevPos.X, pos.Y - mPrevPos.Y);
-
-                Left += delta.X;
-                Top  += delta.Y;
-            } else {
-                mPrevPos = e.GetPosition(this);
-            }
         }
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e) {

@@ -12,32 +12,6 @@ namespace PlayPcmWin {
         public bool readSeparatorAfter;
 
         public string albumTitle;
-
-        public void Clear() {
-            path = "";
-            title = string.Empty;
-            trackId = 0;
-            startTick = 0;
-            endTick = -1;
-
-            indexId = -1;
-            performer = string.Empty;
-            albumTitle = string.Empty;
-            readSeparatorAfter = false;
-        }
-
-        public void CopyFrom(PlaylistTrackInfo rhs) {
-            path = rhs.path;
-            title = rhs.title;
-            trackId = rhs.trackId;
-            startTick = rhs.startTick;
-            endTick = rhs.endTick;
-
-            indexId = rhs.indexId;
-            performer = rhs.performer;
-            albumTitle = rhs.albumTitle;
-            readSeparatorAfter = rhs.readSeparatorAfter;
-        }
     }
     
     interface PlaylistReader {

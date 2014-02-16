@@ -236,13 +236,6 @@ namespace PlayPcmWin {
         public byte[] MD5SumOfPcm { get { return mMD5SumOfPcm; } }
         public byte[] MD5SumInMetadata { get { return mMD5SumInMetadata; } }
 
-        /// <summary>
-        /// StreamEndの戻り値を文字列に変換。
-        /// </summary>
-        public static string ErrorCodeToStr(int ercd) {
-            return FlacDecodeIF.ErrorCodeToStr(ercd);
-        }
-
         public static bool CalcMD5SumIfAvailable { get; set; }
 
         private int StreamBeginFlac(string path, long startFrame, long wantFrames, int typicalReadFrames)
