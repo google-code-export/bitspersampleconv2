@@ -216,7 +216,7 @@ namespace WWAudioFilter {
             }
 
             public void SetPcmInDouble(double[] pcm, long writeOffs) {
-                if (0 != (writeOffs & 7)) {
+                if (bitsPerSample == 1 && 0 != (writeOffs & 7)) {
                     throw new ArgumentException("writeOffs must be multiple of 8");
                 }
 
