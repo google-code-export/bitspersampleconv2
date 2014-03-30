@@ -17,6 +17,7 @@ namespace WWAudioFilter {
         NoiseShaping,
         NoiseShaping4th,
         TagEdit,
+        Downsampler
     }
 
     public struct TagData {

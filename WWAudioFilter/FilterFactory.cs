@@ -115,6 +115,8 @@ namespace WWAudioFilter {
                 return NoiseShaping4thFilter.Restore(tokens);
             case "TagEdit":
                 return TagEditFilter.Restore(tokens);
+            case "Downsampler":
+                return Downsampler.Restore(tokens);
             default:
                 return null;
             }

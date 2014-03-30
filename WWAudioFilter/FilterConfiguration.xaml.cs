@@ -70,6 +70,14 @@ namespace WWAudioFilter {
             groupBoxTagEdit.Header = Properties.Resources.GroupTagEdit;
             labelTagType.Content = Properties.Resources.LabelTagType;
             labelTagText.Content = Properties.Resources.LabelTagText;
+
+            groupBoxDownsampler.Header = Properties.Resources.GroupDownsampler;
+            labelDownsamplerOption.Content = Properties.Resources.LabelDownsamplerOption;
+            labelDownsamplerType.Content = Properties.Resources.LabelDownsamplerType;
+            cbItemDownsamplerType2x.Content = Properties.Resources.CbItemDownsamplerType2x;
+            cbItemDownsamplerOption0.Content = Properties.Resources.CbItemDownsamplerOption0;
+            cbItemDownsamplerOption1.Content = Properties.Resources.CbItemDownsamplerOption1;
+            buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
         public FilterBase Filter {
@@ -429,10 +437,33 @@ namespace WWAudioFilter {
                 type = TagEditFilter.Type.Genre;
                 break;
             default:
+                System.Diagnostics.Debug.Assert(false);
                 return;
             }
 
             mFilter = new TagEditFilter(type, textBoxTagText.Text);
+            DialogResult = true;
+            Close();
+        }
+
+        enum DownsamplerType {
+            Down2x,
+        };
+
+        private void buttonUseDownsampler_Click(object sender, RoutedEventArgs e) {
+            int factor = 0;
+            switch (comboBoxDownsampleType.SelectedIndex) {
+            case (int)DownsamplerType.Down2x:
+                factor = 2;
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return;
+            }
+
+            int pickSampleIndex = (int)comboBoxDownsampleOption.SelectedIndex;
+
+            mFilter = new Downsampler(factor, pickSampleIndex);
             DialogResult = true;
             Close();
         }

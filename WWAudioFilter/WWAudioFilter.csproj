@@ -89,6 +89,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Downsampler.cs" />
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="MashFilter.cs" />
     <Compile Include="TagEditFilter.cs" />

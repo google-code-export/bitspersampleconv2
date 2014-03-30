@@ -338,4 +338,25 @@
   <data name="LabelTagType" xml:space="preserve">
     <value>タグ項目:</value>
   </data>
+  <data name="CbItemDownsamplerOption0" xml:space="preserve">
+    <value>2つあるうちの最初のサンプルを取り出し、2番めのサンプルは捨てる</value>
+  </data>
+  <data name="CbItemDownsamplerOption1" xml:space="preserve">
+    <value>2つあるうちの2番めのサンプルを取り出し、最初のサンプルは捨てる</value>
+  </data>
+  <data name="CbItemDownsamplerType2x" xml:space="preserve">
+    <value>2倍</value>
+  </data>
+  <data name="FilterDownsamplerDesc" xml:space="preserve">
+    <value>ダウンサンプル: {0}倍, {1}番目のサンプルを取り出す</value>
+  </data>
+  <data name="GroupDownsampler" xml:space="preserve">
+    <value>ダウンサンプラー</value>
+  </data>
+  <data name="LabelDownsamplerOption" xml:space="preserve">
+    <value>オプション:</value>
+  </data>
+  <data name="LabelDownsamplerType" xml:space="preserve">
+    <value>種類:</value>
+  </data>
 </root>
