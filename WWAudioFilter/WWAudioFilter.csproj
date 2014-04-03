@@ -89,12 +89,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AudioData.cs" />
     <Compile Include="Downsampler.cs" />
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="MashFilter.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
     <Compile Include="NoiseShapingFilter.cs" />
+    <Compile Include="WWAudioFilterCore.cs" />
     <Compile Include="WWComplex.cs" />
     <Compile Include="LowpassFilter.cs" />
     <Compile Include="WWDsfWriter.cs" />
