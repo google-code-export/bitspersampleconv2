@@ -1,17 +1,14 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWAudioFilter", "WWAudioFilter.csproj", "{03E90420-3E92-4F6D-82FC-1FCB242CF6E4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A} = {C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWFlacRW", "..\WWFlacRW\WWFlacRW.vcxproj", "{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WWFlacRWTest", "..\WWFlacRWTest\WWFlacRWTest.vcxproj", "{26FD4521-08C1-477A-B452-92B27C31E70B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A} = {C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WWFlacRWCS", "..\WWFlacRWCS\WWFlacRWCS.csproj", "{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -56,18 +53,6 @@ Global
 		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}.Release|Win32.Build.0 = Release|Win32
 		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}.Release|x64.ActiveCfg = Release|x64
 		{C2210BF3-3EAF-42BF-992D-BE6D84A3CC8A}.Release|x64.Build.0 = Release|x64
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|Win32.Build.0 = Debug|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Debug|x64.ActiveCfg = Debug|x64
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|Any CPU.ActiveCfg = Release|x64
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|Win32.ActiveCfg = Release|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|Win32.Build.0 = Release|Win32
-		{26FD4521-08C1-477A-B452-92B27C31E70B}.Release|x64.ActiveCfg = Release|x64
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA071B6A-B2E2-4567-84D1-5A9122DAB75C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
