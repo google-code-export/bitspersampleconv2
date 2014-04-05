@@ -206,61 +206,6 @@ namespace WWAudioFilter {
             }
         }
 
-        private static string ErrorCodeToStr(int ercd) {
-            switch (ercd) {
-            case       (int)WWFlacRWCS.FlacErrorCode.DataNotReady:
-                return Properties.Resources.FlacErrorDataNotReady;
-            case       (int)WWFlacRWCS.FlacErrorCode.WriteOpenFailed:
-                return Properties.Resources.FlacerrorWriteOpenFailed;
-            case       (int)WWFlacRWCS.FlacErrorCode.StreamDecoderNewFailed:
-                return Properties.Resources.FlacErrorStreamDecoderNewFailed;
-            case       (int)WWFlacRWCS.FlacErrorCode.StreamDecoderInitFailed:
-                return Properties.Resources.FlacErrorStreamDecoderInitFailed;
-            case       (int)WWFlacRWCS.FlacErrorCode.DecoderProcessFailed:
-                return Properties.Resources.FlacErrorDecoderProcessFailed;
-            case       (int)WWFlacRWCS.FlacErrorCode.LostSync:
-                return Properties.Resources.FlacErrorLostSync;
-            case       (int)WWFlacRWCS.FlacErrorCode.BadHeader:
-                return Properties.Resources.FlacErrorBadHeader;
-            case       (int)WWFlacRWCS.FlacErrorCode.FrameCrcMismatch:
-                return Properties.Resources.FlacErrorFrameCrcMismatch;
-            case       (int)WWFlacRWCS.FlacErrorCode.Unparseable:
-                return Properties.Resources.FlacErrorUnparseable;
-            case       (int)WWFlacRWCS.FlacErrorCode.NumFrameIsNotAligned:
-                return Properties.Resources.FlacErrorNumFrameIsNotAligned;
-            case       (int)WWFlacRWCS.FlacErrorCode.RecvBufferSizeInsufficient:
-                return Properties.Resources.FlacErrorRecvBufferSizeInsufficient;
-            case       (int)WWFlacRWCS.FlacErrorCode.Other:
-                return Properties.Resources.FlacErrorOther;
-            case       (int)WWFlacRWCS.FlacErrorCode.FileReadOpen:
-                return Properties.Resources.FlacErrorFileReadOpen;
-            case       (int)WWFlacRWCS.FlacErrorCode.BufferSizeMismatch:
-                return Properties.Resources.FlacErrorBufferSizeMismatch;
-            case       (int)WWFlacRWCS.FlacErrorCode.MemoryExhausted:
-                return Properties.Resources.FlacErrorMemoryExhausted;
-            case       (int)WWFlacRWCS.FlacErrorCode.Encoder:
-                return Properties.Resources.FlacErrorEncoder;
-            case       (int)WWFlacRWCS.FlacErrorCode.InvalidNumberOfChannels:
-                return Properties.Resources.FlacErrorInvalidNumberOfChannels;
-            case       (int)WWFlacRWCS.FlacErrorCode.InvalidBitsPerSample:
-                return Properties.Resources.FlacErrorInvalidBitsPerSample;
-            case       (int)WWFlacRWCS.FlacErrorCode.InvalidSampleRate:
-                return Properties.Resources.FlacErrorInvalidSampleRate;
-            case       (int)WWFlacRWCS.FlacErrorCode.InvalidMetadata:
-                return Properties.Resources.FlacErrorInvalidMetadata;
-            case       (int)WWFlacRWCS.FlacErrorCode.BadParams:
-                return Properties.Resources.FlacErrorBadParams;
-            case       (int)WWFlacRWCS.FlacErrorCode.IdNotFound:
-                return Properties.Resources.FlacErrorIdNotFound;
-            case       (int)WWFlacRWCS.FlacErrorCode.EncoderProcessFailed:
-                return Properties.Resources.FlacErrorEncoderProcessFailed;
-            case       (int)WWFlacRWCS.FlacErrorCode.OutputFileTooLarge:
-                return Properties.Resources.FlacErrorOutputFileTooLarge;
-            default:
-                return Properties.Resources.FlacErrorOther;
-            }
-        }
-
         void Background_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             int rv = (int)e.Result;
 
@@ -273,7 +218,7 @@ namespace WWAudioFilter {
             buttonStartConversion.IsEnabled = true;
 
             if (rv < 0) {
-                var s = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}\r\n", Properties.Resources.Error, rv, ErrorCodeToStr(rv));
+                var s = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}\r\n", Properties.Resources.Error, rv, WWFlacRWCS.FlacRW.ErrorCodeToStr(rv));
                 MessageBox.Show(s, Properties.Resources.Error, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 textBoxLog.Text += s;

@@ -257,75 +257,6 @@
     <value>Process completed. now writing to {0} ...
 </value>
   </data>
-  <data name="FlacErrorBadHeader" xml:space="preserve">
-    <value>FLAC header corrupted</value>
-  </data>
-  <data name="FlacErrorBadParams" xml:space="preserve">
-    <value>FLAC bad parameter error</value>
-  </data>
-  <data name="FlacErrorBufferSizeMismatch" xml:space="preserve">
-    <value>FLAC buffer size mismatch</value>
-  </data>
-  <data name="FlacErrorDataNotReady" xml:space="preserve">
-    <value>Data not ready</value>
-  </data>
-  <data name="FlacErrorDecoderProcessFailed" xml:space="preserve">
-    <value>FLAC decoder process failed</value>
-  </data>
-  <data name="FlacErrorEncoder" xml:space="preserve">
-    <value>FLAC encoder error</value>
-  </data>
-  <data name="FlacErrorEncoderProcessFailed" xml:space="preserve">
-    <value>FLAC encoder process failed</value>
-  </data>
-  <data name="FlacErrorFileReadOpen" xml:space="preserve">
-    <value>FLAC file read open error</value>
-  </data>
-  <data name="FlacErrorFrameCrcMismatch" xml:space="preserve">
-    <value>FLAC frame CRC mismatch</value>
-  </data>
-  <data name="FlacErrorIdNotFound" xml:space="preserve">
-    <value>Internal error (id not found)</value>
-  </data>
-  <data name="FlacErrorInvalidBitsPerSample" xml:space="preserve">
-    <value>FLAC bits per sample error</value>
-  </data>
-  <data name="FlacErrorInvalidMetadata" xml:space="preserve">
-    <value>FLAC metadata error</value>
-  </data>
-  <data name="FlacErrorInvalidNumberOfChannels" xml:space="preserve">
-    <value>FLAC number of channels is invalid (must be smaller than or equal to 8)</value>
-  </data>
-  <data name="FlacErrorInvalidSampleRate" xml:space="preserve">
-    <value>FLAC sample rate is out of range (must be smaller than or equal to 655,350Hz)</value>
-  </data>
-  <data name="FlacErrorLostSync" xml:space="preserve">
-    <value>FLAC lost sync error</value>
-  </data>
-  <data name="FlacErrorMemoryExhausted" xml:space="preserve">
-    <value>FLAC memory exhausted</value>
-  </data>
-  <data name="FlacErrorNumFrameIsNotAligned" xml:space="preserve">
-    <value>FLAC number of frames is not aligned</value>
-  </data>
-  <data name="FlacErrorOther" xml:space="preserve">
-    <value>FLAC other error</value>
-  </data>
-  <data name="FlacErrorRecvBufferSizeInsufficient" xml:space="preserve">
-    <value>FLAC receive buffer size is insufficient</value>
-  </data>
-  <data name="FlacErrorStreamDecoderInitFailed" xml:space="preserve">
-    <value>FLAC stream decoder init failed</value>
-  </data>
-  <data name="FlacErrorStreamDecoderNewFailed" xml:space="preserve">
-    <value>FLAC stream decoder new failed</value>
-  </data>
-  <data name="FlacErrorUnparseable" xml:space="preserve">
-    <value>FLAC unparseable error</value>
-  </data>
-  <data name="FlacerrorWriteOpenFailed" xml:space="preserve">
-    <value>Write open failed</value>
-  </data>
   <data name="CbItemFftUpsampler" xml:space="preserve">
     <value>FFT Upsampler</value>
   </data>
@@ -376,9 +307,6 @@
   </data>
   <data name="ErrorOutputDataTooLarge" xml:space="preserve">
     <value>Output data becomes too large! {0} Gbytes</value>
-  </data>
-  <data name="FlacErrorOutputFileTooLarge" xml:space="preserve">
-    <value>Output data size exceeds 2GB per channel! Process aborted.</value>
   </data>
   <data name="CbItemNoiseShaping2nd" xml:space="preserve">
     <value>2nd order</value>
