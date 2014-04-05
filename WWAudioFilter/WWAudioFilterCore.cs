@@ -5,13 +5,91 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WWAudioFilter {
     class WWAudioFilterCore {
         private const int FILE_READ_COMPLETE_PERCENTAGE = 5;
         private const int FILE_PROCESS_COMPLETE_PERCENTAGE = 95;
 
+        private const int FILTER_FILE_VERSION = 1;
+
         private long mProgressSamples = 0;
+
+        public static List<FilterBase> LoadFiltersFromFile(string path) {
+            try {
+                var filters = new List<FilterBase>();
+
+                using (StreamReader r = new StreamReader(path)) {
+                    int filterNum = 0;
+
+                    {
+                        // ヘッダ部分。バージョン番号とフィルタの個数が入っている。
+                        var s = r.ReadLine();
+                        s = s.Trim();
+                        var tokens = s.Split(null);
+                        if (tokens.Length != 2) {
+                            MessageBox.Show("Read failed: " + path);
+                            return null;
+                        }
+                        int version;
+                        if (!Int32.TryParse(tokens[0], out version) || version != FILTER_FILE_VERSION) {
+                            MessageBox.Show(
+                                string.Format(CultureInfo.CurrentCulture, Properties.Resources.ErrorFilterFileVersionMismatch,
+                                    FILTER_FILE_VERSION, tokens[0]));
+                            return null;
+                        }
+
+                        if (!Int32.TryParse(tokens[1], out filterNum) || filterNum < 0) {
+                            MessageBox.Show(
+                                string.Format(CultureInfo.CurrentCulture, "Read failed. bad filter count {0}",
+                                    tokens[1]));
+                            return null;
+                        }
+                    }
+
+                    for (int i = 0; i < filterNum; ++i) {
+                        var s = r.ReadLine();
+                        s = s.Trim();
+                        var f = FilterFactory.Create(s);
+                        if (null == f) {
+                            MessageBox.Show(
+                                string.Format(CultureInfo.CurrentCulture, "Read failed. line={0}, {1}",
+                                    i + 2, s));
+                        }
+                        filters.Add(f);
+                    }
+                }
+
+                return filters;
+            } catch (IOException ex) {
+                MessageBox.Show("{0}", ex.Message);
+            } catch (UnauthorizedAccessException ex) {
+                MessageBox.Show("{0}", ex.Message);
+            }
+
+            return null;
+        }
+
+        public static bool SaveFilteresToFile(List<FilterBase> filters, string path) {
+            try {
+                using (StreamWriter w = new StreamWriter(path)) {
+                    w.WriteLine("{0} {1}", FILTER_FILE_VERSION, filters.Count());
+                    foreach (var f in filters) {
+                        w.WriteLine("{0} {1}", f.FilterType, f.ToSaveText());
+                    }
+                }
+
+                return true;
+            } catch (IOException ex) {
+                MessageBox.Show("{0}", ex.Message);
+            } catch (UnauthorizedAccessException ex) {
+                MessageBox.Show("{0}", ex.Message);
+            }
+            return false;
+        }
+
+
 
         private int SetupResultPcm(AudioData from,  List<FilterBase> filters, out AudioData to, FileFormatType toFileFormat) {
             to = new AudioData();

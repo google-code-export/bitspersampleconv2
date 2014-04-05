@@ -35,8 +35,6 @@ namespace WWAudioFilter {
 
         private List<FilterBase> mFilters = new List<FilterBase>();
 
-        private const int FILTER_FILE_VERSION = 1;
-
         public MainWindow() {
             InitializeComponent();
 
@@ -48,6 +46,12 @@ namespace WWAudioFilter {
             mBackgroundWorker.DoWork += new DoWorkEventHandler(Background_DoWork);
             mBackgroundWorker.ProgressChanged += new ProgressChangedEventHandler(Background_ProgressChanged);
             mBackgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Background_RunWorkerCompleted);
+
+            var commandLine = new WWAudioFilterCommandLine();
+            if (commandLine.ParseCommandLine()) {
+                Application.Current.Shutdown();
+                return;
+            }
         }
 
         public void Dispose() {
@@ -306,19 +310,7 @@ namespace WWAudioFilter {
                 return;
             }
 
-            // 保存する
-            try {
-                using (StreamWriter w = new StreamWriter(dlg.FileName)) {
-                    w.WriteLine("{0} {1}", FILTER_FILE_VERSION, mFilters.Count());
-                    foreach (var f in mFilters) {
-                        w.WriteLine("{0} {1}", f.FilterType, f.ToSaveText());
-                    }
-                }
-            } catch (IOException ex) {
-                MessageBox.Show("{0}", ex.Message);
-            } catch (UnauthorizedAccessException ex) {
-                MessageBox.Show("{0}", ex.Message);
-            }
+            WWAudioFilterCore.SaveFilteresToFile(mFilters, dlg.FileName);
         }
 
         private void buttonFilterLoad_Click(object sender, RoutedEventArgs e) {
@@ -331,58 +323,12 @@ namespace WWAudioFilter {
                 return;
             }
 
-            // 読み込む
-            try {
-                var filters = new List<FilterBase>();
-
-                using (StreamReader r = new StreamReader(dlg.FileName)) {
-                    int filterNum = 0;
-
-                    {
-                        // ヘッダ部分。バージョン番号とフィルタの個数が入っている。
-                        var s = r.ReadLine();
-                        s = s.Trim();
-                        var tokens = s.Split(null);
-                        if (tokens.Length != 2) {
-                            MessageBox.Show("Read failed: " + dlg.FileName);
-                            return;
-                        }
-                        int version;
-                        if (!Int32.TryParse(tokens[0], out version) || version != FILTER_FILE_VERSION) {
-                            MessageBox.Show(
-                                string.Format(CultureInfo.CurrentCulture, Properties.Resources.ErrorFilterFileVersionMismatch,
-                                    FILTER_FILE_VERSION, tokens[0]));
-                            return;
-                        }
-
-                        if (!Int32.TryParse(tokens[1], out filterNum) || filterNum < 0) {
-                            MessageBox.Show(
-                                string.Format(CultureInfo.CurrentCulture, "Read failed. bad filter count {0}",
-                                    tokens[1]));
-                            return;
-                        }
-                    }
-
-                    for (int i=0; i < filterNum; ++i) {
-                        var s = r.ReadLine();
-                        s = s.Trim();
-                        var f = FilterFactory.Create(s);
-                        if (null == f) {
-                            MessageBox.Show(
-                                string.Format(CultureInfo.CurrentCulture, "Read failed. line={0}, {1}",
-                                    i+2, s));
-                        }
-                        filters.Add(f);
-                    }
-                }
-
-                mFilters = filters;
-            } catch (IOException ex) {
-                MessageBox.Show("{0}", ex.Message);
-            } catch (UnauthorizedAccessException ex) {
-                MessageBox.Show("{0}", ex.Message);
+            var filters = WWAudioFilterCore.LoadFiltersFromFile(dlg.FileName);
+            if (filters == null) {
+                return;
             }
 
+            mFilters = filters;
             Update();
         }
 

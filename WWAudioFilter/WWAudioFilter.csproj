@@ -96,6 +96,7 @@
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />
     <Compile Include="NoiseShapingFilter.cs" />
+    <Compile Include="WWAudioFilterCommandLine.cs" />
     <Compile Include="WWAudioFilterCore.cs" />
     <Compile Include="WWComplex.cs" />
     <Compile Include="LowpassFilter.cs" />
