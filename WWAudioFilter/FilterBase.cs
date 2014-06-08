@@ -14,10 +14,13 @@ namespace WWAudioFilter {
         LowPassFilter,
         FftUpsampler,
         Mash2,
+
         NoiseShaping,
         NoiseShaping4th,
         TagEdit,
-        Downsampler
+        Downsampler,
+        CicDecimator,
+        CicInterpolator,
     }
 
     public struct TagData {

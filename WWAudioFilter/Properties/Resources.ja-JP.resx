@@ -359,4 +359,25 @@
   <data name="LabelDownsamplerType" xml:space="preserve">
     <value>種類:</value>
   </data>
+  <data name="CbItemCicDownsamplerType8x" xml:space="preserve">
+    <value>8倍 1次Sincデシメーション</value>
+  </data>
+  <data name="CbItemCicDownsamplerType8xWithCompensation" xml:space="preserve">
+    <value>8倍 1次Sincデシメーション＋逆Sinc補償FIR</value>
+  </data>
+  <data name="CbItemCicUpsamplerType4x" xml:space="preserve">
+    <value>4倍 1次Sincインターポーレーション</value>
+  </data>
+  <data name="FilterCicDecimatorDesc" xml:space="preserve">
+    <value>CICダウンサンプラー: {0}, {1}x</value>
+  </data>
+  <data name="FilterCicInterpolatorDesc" xml:space="preserve">
+    <value>CICアップサンプラー: {0}, {1}x</value>
+  </data>
+  <data name="GroupCic" xml:space="preserve">
+    <value>CICフィルター</value>
+  </data>
+  <data name="LabelCicDownsamplerType" xml:space="preserve">
+    <value>種類:</value>
+  </data>
 </root>

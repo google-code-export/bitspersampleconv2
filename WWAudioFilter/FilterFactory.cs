@@ -117,6 +117,10 @@ namespace WWAudioFilter {
                 return TagEditFilter.Restore(tokens);
             case "Downsampler":
                 return Downsampler.Restore(tokens);
+            case "CicDecimator":
+                return CicDecimator.Restore(tokens);
+            case "CicInterpolator":
+                return CicInterpolator.Restore(tokens);
             default:
                 return null;
             }

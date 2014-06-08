@@ -7,167 +7,188 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="36" />
         </Grid.RowDefinitions>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Grid.Row="0">
             <Grid>
-                <GroupBox Header="Gain" Height="140" HorizontalAlignment="Left" Margin="6,6,0,0" Name="groupBoxGain" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Label   Grid.Column="0" Grid.Row="0" Content="Gain in Amplitude:" Name="labelGainInAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="0.5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitudeUnit" VerticalAlignment="Center" />
-                        <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label   Grid.Column="2" Grid.Row="1" Content="dB" VerticalAlignment="Center" />
-                        <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="FIR Linear-Phase Lowpass Filter" Height="166" HorizontalAlignment="Left" Margin="6,152,0,0" Name="groupBoxLPF" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Grid.Row="0" Content="Cutoff frequency:" Name="labelLpfCutoff" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxLpfCutoff" Text="20000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label Grid.Column="2" Grid.Row="0" Content="Hz" VerticalAlignment="Center" />
-                        <Label Grid.Column="0" Grid.Row="1" Content="Gain roll off slopes:" Name="labelLpfSlope" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxLpfSlope" Text="600" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label Grid.Column="2" Grid.Row="1" Content="dB/oct" VerticalAlignment="Center" />
-                        <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelLpfLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxLpfLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                            <ComboBoxItem Content="255" />
-                            <ComboBoxItem Content="1023" />
-                            <ComboBoxItem Content="4095" IsSelected="True" />
-                            <ComboBoxItem Content="16383" />
-                            <ComboBoxItem Content="65535" />
-                        </ComboBox>
-                        <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelLpfLenUnit" VerticalAlignment="Center" />
-                        <Button Content="Use this filter" Grid.Row="3" Margin="6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseLpf_Click" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Upsampler" Height="166" HorizontalAlignment="Left" Margin="6,324,0,0" Name="groupBoxUpsampler" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Label Grid.Row="0" Content="Upsampler type:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsamplerType" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxUpsamplerType" VerticalAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" SelectionChanged="comboBoxUpsamplerType_SelectionChanged">
-                            <ComboBoxItem Content="FFT Upsampler" IsSelected="True" Name="cbItemFftUpsampler" />
-                            <ComboBoxItem Content="Zero-Order Hold Upsampler" Name="cbItemZohUpsampler" />
-                        </ComboBox>
-                        <Label Grid.Row="1" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
-                        <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                            <ComboBoxItem Content="2x" IsSelected="True" />
-                            <ComboBoxItem Content="4x" />
-                            <ComboBoxItem Content="8x" />
-                            <ComboBoxItem Content="16x" />
-                        </ComboBox>
-                        <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelUpsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsampleLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                            <ComboBoxItem Content="1024" />
-                            <ComboBoxItem Content="4096" IsSelected="True" />
-                            <ComboBoxItem Content="16384" />
-                            <ComboBoxItem Content="65536" />
-                            <ComboBoxItem Content="262144" />
-                        </ComboBox>
-                        <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelUpsampleLenUnit" VerticalAlignment="Center" />
-                        <Button Grid.Row="3" Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseUpsampler_Click" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox  Header="Downsampler" Height="116" HorizontalAlignment="Left" Margin="390,292,0,0" x:Name="groupBoxDownsampler" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="3*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Label x:Name="labelDownsamplerType" Content="Type:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxDownsampleType" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="cbItemDownsamplerType2x" Content="2x" IsSelected="True" />
-                        </ComboBox>
-                        <Label x:Name="labelDownsamplerOption" Content="Option:" Grid.Row="1" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="1" Grid.Column="1" Name="comboBoxDownsampleOption" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="cbItemDownsamplerOption0" Content="pick 1st sample from incoming two samples" IsSelected="True" />
-                            <ComboBoxItem x:Name="cbItemDownsamplerOption1" Content="pick 2nd sample from incoming two samples" />
-                        </ComboBox>
-                        <Button x:Name="buttonUseDownsampler" Content="Use this filter" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2" Click="buttonUseDownsampler_Click" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Noise Shaping" Height="140" HorizontalAlignment="Left" Margin="390,6,0,0" Name="groupBoxNoiseShaping" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Grid.Row="0" Content="Target Quantized Bit Rate:" Name="labelNoiseShapingTargetBit" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxNoiseShapingTargetBit" Text="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
-                        <Label Grid.Column="2" Grid.Row="0" Content="bit" VerticalAlignment="Center" />
-                        <Label Grid.Column="0" Grid.Row="1" Content="Noise shaper method:" Name="labelNoiseShapingMethod" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxNoiseShapingMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                            <ComboBoxItem Content="2nd order 6dB gain" Name="cbItemNoiseShaping2nd" IsSelected="True"/>
-                            <ComboBoxItem Content="4th order" Name="cbItemNoiseShaping4th" />
-                        </ComboBox>
-                        <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseNoiseShaping" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseNoiseShaping_Click" />
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Edit tag" Height="140" HorizontalAlignment="Left" Margin="390,146,0,0" Name="groupBoxTagEdit" VerticalAlignment="Top" Width="380">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Grid.Row="0" Content="Tag type:" Name="labelTagType" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <ComboBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxTagType" VerticalAlignment="Center" HorizontalContentAlignment="Center">
-                            <ComboBoxItem Content="Title" Name="cbItemTagTypeTitle" IsSelected="True"/>
-                            <ComboBoxItem Content="Album" Name="cbItemTagTypeAlbum" />
-                            <ComboBoxItem Content="AlbumArtist" Name="cbItemTagTypeAlbumArtist" />
-                            <ComboBoxItem Content="Artist" Name="cbItemTagTypeArtist" />
-                            <ComboBoxItem Content="Genre" Name="cbItemTagTypeGenre" />
-                        </ComboBox>
-                        <Label Grid.Column="0" Grid.Row="1" Content="Text:"  Name="labelTagText" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxTagText" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
-                        <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseTagEdit" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseTagEdit_Click" />
-                    </Grid>
-                </GroupBox>
+                <WrapPanel>
+                    <GroupBox Header="Gain" Name="groupBoxGain" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="3*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label   Grid.Column="0" Grid.Row="0" Content="Gain in Amplitude:" Name="labelGainInAmplitude" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxGainInAmplitude" Text="0.5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="0" Content="x" Name="labelGainAmplitudeUnit" VerticalAlignment="Center" />
+                            <Label   Grid.Column="0" Grid.Row="1" Content="Gain in dB:" Name="labelGainInDB" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxGainInDB" Text="-6.0205999132796239042747778944899" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label   Grid.Column="2" Grid.Row="1" Content="dB" VerticalAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseGain" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseGain_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="FIR Linear-Phase Lowpass Filter" Name="groupBoxLPF" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Cutoff frequency:" Name="labelLpfCutoff" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxLpfCutoff" Text="20000" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label Grid.Column="2" Grid.Row="0" Content="Hz" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="1" Content="Gain roll off slopes:" Name="labelLpfSlope" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxLpfSlope" Text="600" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label Grid.Column="2" Grid.Row="1" Content="dB/oct" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelLpfLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxLpfLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="255" />
+                                <ComboBoxItem Content="1023" />
+                                <ComboBoxItem Content="4095" IsSelected="True" />
+                                <ComboBoxItem Content="16383" />
+                                <ComboBoxItem Content="65535" />
+                            </ComboBox>
+                            <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelLpfLenUnit" VerticalAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="3" Margin="6,0" Name="buttonUseLpf" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseLpf_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Upsampler" Name="groupBoxUpsampler" Width="380">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Content="Upsampler type:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsamplerType" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" Margin="6,0" Name="comboBoxUpsamplerType" VerticalAlignment="Center" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" SelectionChanged="comboBoxUpsamplerType_SelectionChanged">
+                                <ComboBoxItem Content="FFT Upsampler" IsSelected="True" Name="cbItemFftUpsampler" />
+                                <ComboBoxItem Content="Zero-Order Hold Upsampler" Name="cbItemZohUpsampler" />
+                            </ComboBox>
+                            <Label Grid.Row="1" Content="Upsampling factor:" HorizontalAlignment="Right" Margin="0,0,6,0" Name="labelUpsampleFactor" VerticalAlignment="Center" />
+                            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsamplingFactor" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="2x" IsSelected="True" />
+                                <ComboBoxItem Content="4x" />
+                                <ComboBoxItem Content="8x" />
+                                <ComboBoxItem Content="16x" />
+                            </ComboBox>
+                            <Label Grid.Column="0" Grid.Row="2" Content="Filter length:" Name="labelUpsampleLen" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxUpsampleLen" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="1024" />
+                                <ComboBoxItem Content="4096" IsSelected="True" />
+                                <ComboBoxItem Content="16384" />
+                                <ComboBoxItem Content="65536" />
+                                <ComboBoxItem Content="262144" />
+                            </ComboBox>
+                            <Label Grid.Column="2" Grid.Row="2" Content="samples" Name="labelUpsampleLenUnit" VerticalAlignment="Center" />
+                            <Button Grid.Row="3" Content="Use this Filter" Margin="6,0" Name="buttonUseUpsampler" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseUpsampler_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox  Header="Downsampler" x:Name="groupBoxDownsampler" Width="380">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="3*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Label x:Name="labelDownsamplerType" Content="Type:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxDownsampleType" VerticalAlignment="Center">
+                                <ComboBoxItem x:Name="cbItemDownsamplerType2x" Content="2x" IsSelected="True" />
+                            </ComboBox>
+                            <Label x:Name="labelDownsamplerOption" Content="Option:" Grid.Row="1" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="1" Grid.Column="1" Name="comboBoxDownsampleOption" VerticalAlignment="Center">
+                                <ComboBoxItem x:Name="cbItemDownsamplerOption0" Content="pick 1st sample from incoming two samples" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemDownsamplerOption1" Content="pick 2nd sample from incoming two samples" />
+                            </ComboBox>
+                            <Button x:Name="buttonUseDownsampler" Content="Use this filter" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2" Click="buttonUseDownsampler_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Noise Shaping" Name="groupBoxNoiseShaping" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Target Quantized Bit Rate:" Name="labelNoiseShapingTargetBit" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="6,3,6,3" Name="textBoxNoiseShapingTargetBit" Text="1" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Label Grid.Column="2" Grid.Row="0" Content="bit" VerticalAlignment="Center" />
+                            <Label Grid.Column="0" Grid.Row="1" Content="Noise shaper method:" Name="labelNoiseShapingMethod" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxNoiseShapingMethod" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="2nd order 6dB gain" Name="cbItemNoiseShaping2nd" IsSelected="True"/>
+                                <ComboBoxItem Content="4th order" Name="cbItemNoiseShaping4th" />
+                            </ComboBox>
+                            <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseNoiseShaping" VerticalAlignment="Center" Grid.ColumnSpan="3" Click="buttonUseNoiseShaping_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Edit tag" Name="groupBoxTagEdit" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Tag type:" Name="labelTagType" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="6,0,6,0" Name="comboBoxTagType" VerticalAlignment="Center" HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="Title" Name="cbItemTagTypeTitle" IsSelected="True"/>
+                                <ComboBoxItem Content="Album" Name="cbItemTagTypeAlbum" />
+                                <ComboBoxItem Content="AlbumArtist" Name="cbItemTagTypeAlbumArtist" />
+                                <ComboBoxItem Content="Artist" Name="cbItemTagTypeArtist" />
+                                <ComboBoxItem Content="Genre" Name="cbItemTagTypeGenre" />
+                            </ComboBox>
+                            <Label Grid.Column="0" Grid.Row="1" Content="Text:"  Name="labelTagText" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="1" Margin="6,3,6,3" Name="textBoxTagText" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="2" Margin="6,0" Name="buttonUseTagEdit" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseTagEdit_Click" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox  Header="CIC Filter" x:Name="groupBoxCic" Width="380">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="4*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Label x:Name="labelCicDownsamplerType" Content="Type:" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <ComboBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.Row="0" Grid.Column="1" Name="comboBoxCicType" VerticalAlignment="Center">
+                                <ComboBoxItem x:Name="cbItemCicType8xDecimation" Content="8x 1st-order decimation" IsSelected="True" />
+                                <ComboBoxItem x:Name="cbItemCicType8xDecimationWithCompensation" Content="8x 1st-order decimation with inverse sinc compensator" />
+                                <ComboBoxItem x:Name="cbItemCicType4xInterpolation" Content="4x 1st-order interpolation" />
+                            </ComboBox>
+                            <Button x:Name="buttonUseCic" Content="Use this filter" VerticalAlignment="Center" Grid.Row="1" Grid.ColumnSpan="2" Click="buttonUseCic_Click" />
+                        </Grid>
+                    </GroupBox>
+                </WrapPanel>
             </Grid>
         </ScrollViewer>
         <Button Grid.Row="1" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,6,6" Name="buttonCancel" VerticalAlignment="Bottom" Width="100" Click="buttonCancel_Click" />

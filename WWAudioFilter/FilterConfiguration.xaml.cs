@@ -78,6 +78,13 @@ namespace WWAudioFilter {
             cbItemDownsamplerOption0.Content = Properties.Resources.CbItemDownsamplerOption0;
             cbItemDownsamplerOption1.Content = Properties.Resources.CbItemDownsamplerOption1;
             buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxCic.Header = Properties.Resources.GroupCic;
+            labelCicDownsamplerType.Content = Properties.Resources.LabelCicDownsamplerType;
+            cbItemCicType8xDecimation.Content = Properties.Resources.CbItemCicDownsamplerType8x;
+            cbItemCicType8xDecimationWithCompensation.Content = Properties.Resources.CbItemCicDownsamplerType8xWithCompensation;
+            cbItemCicType4xInterpolation.Content = Properties.Resources.CbItemCicUpsamplerType4x;
+            buttonUseCic.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
         public FilterBase Filter {
@@ -464,6 +471,26 @@ namespace WWAudioFilter {
             int pickSampleIndex = (int)comboBoxDownsampleOption.SelectedIndex;
 
             mFilter = new Downsampler(factor, pickSampleIndex);
+            DialogResult = true;
+            Close();
+        }
+
+        enum CicFilterType {
+            Decimation1stOrder8x,
+            Decimation1stOrder8xWithCompensation,
+            Interpolation1stOrder4x,
+        };
+
+        private void buttonUseCic_Click(object sender, RoutedEventArgs e) {
+            switch (comboBoxCicType.SelectedIndex) {
+            case (int)CicFilterType.Interpolation1stOrder4x:
+                mFilter = new CicInterpolator(CicInterpolator.CicType.Interpolation1stOrder4x);
+                break;
+            default:
+                mFilter = new CicDecimator((CicDecimator.CicType)comboBoxCicType.SelectedIndex);
+                break;
+            }
+            
             DialogResult = true;
             Close();
         }
