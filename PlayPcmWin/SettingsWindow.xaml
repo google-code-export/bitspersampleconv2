@@ -12,22 +12,22 @@
         </Grid.RowDefinitions>
         <ScrollViewer x:Uid="ScrollViewer_1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <Grid x:Uid="Grid_2" RenderTransformOrigin="0.0,0.0">
-            <Grid.LayoutTransform>
-                <TransformGroup x:Uid="TransformGroup_1">
-                    <ScaleTransform 
+                <Grid.LayoutTransform>
+                    <TransformGroup x:Uid="TransformGroup_1">
+                        <ScaleTransform 
                     x:Uid="ScaleTransform_1" ScaleY="{Binding Path=Value, ElementName=sliderWindowScaling}" 
                     ScaleX="{Binding Path=Value, ElementName=sliderWindowScaling}"/>
-                </TransformGroup>
-            </Grid.LayoutTransform>
+                    </TransformGroup>
+                </Grid.LayoutTransform>
                 <WrapPanel>
                     <GroupBox x:Uid="groupBoxWasapiExclusive" Header="Wasapi exclusive mode settings" Margin="4" Name="groupBoxWasapiExclusive" Width="500">
-                    <StackPanel>
+                        <StackPanel>
                             <Label Content="Quantization bit rate to pass through WASAPI(Converts on file loading):" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelQuantizationBitrate" VerticalAlignment="Center" />
                             <ComboBox x:Uid="comboBoxOutputFormat" HorizontalAlignment="Stretch" Grid.Row="1" Name="comboBoxOutputFormat" Margin="80,0,6,0" VerticalAlignment="Center" />
                             <Label Content="Noise shaping option:" HorizontalAlignment="Left" Margin="4,6,6,0" Name="labelNoiseShaping" VerticalAlignment="Center" />
                             <ComboBox HorizontalAlignment="Stretch" Grid.Row="2" Name="comboBoxNoiseShaping" Margin="80,6,6,0" VerticalAlignment="Center" />
                         </StackPanel>
-                </GroupBox>
+                    </GroupBox>
                     <GroupBox x:Uid="groupBoxPlaybackThread" Header="Playback thread settings" Margin="4" Name="groupBoxPlaybackThread">
                         <StackPanel>
                             <GroupBox x:Uid="groupBoxTimerResolution" Header="Timer resolution" Margin="4" Name="groupBoxTimerResolution" >
@@ -53,35 +53,35 @@
                         </StackPanel>
                     </GroupBox>
                     <GroupBox x:Uid="groupBoxWasapiSharedSettings" Header="Wasapi shared mode settings" Margin="4" Height="90" Name="groupBoxWasapiShared" Width="400">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
-                        <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
-                        <CheckBox Content="Scale maximum magnitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
-                    </Grid>
-                </GroupBox>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Label x:Uid="labelConversionQuality" Content="Resampler MFT quality (1 to 60):" HorizontalContentAlignment="Right" Margin="0,0,6,0" Name="labelConversionQuality" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                            <TextBox x:Uid="textBoxConversionQuality" HorizontalContentAlignment="Right" Margin="6,0,6,0" Name="textBoxConversionQuality" VerticalAlignment="Center" Text="60" Grid.Column="1" />
+                            <CheckBox Content="Scale maximum magnitude to 0.98 to soothe limiter APO" Grid.Row="1" HorizontalAlignment="Left" Margin="6,0,0,0" Name="checkBoxSootheLimiterApo" VerticalAlignment="Center" Grid.ColumnSpan="3" />
+                        </Grid>
+                    </GroupBox>
                     <GroupBox x:Uid="groupBoxCuesheetSettings" Header="CUE sheet settings" Margin="4" Height="90" Name="groupBoxCuesheetSettings" Width="360">
-                    <Grid x:Uid="Grid_4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Margin="6,0,0,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" />
-                        <ComboBox Height="24" Margin="6,0,6,0" Name="comboBoxCueEncoding" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" />
-                        <Label Content="Encoding:" Margin="0,0,6,0" Name="labelCueEncoding" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="76" VerticalAlignment="Center" Grid.Row="1" />
-                    </Grid>
-                </GroupBox>
+                        <Grid x:Uid="Grid_4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <CheckBox x:Uid="checkBoxPlaceKokomadeAfterIndex00" Content="Set [Batch read endpoint] flag after INDEX00" Margin="6,0,0,0" Name="checkBoxPlaceKokomadeAfterIndex00" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" />
+                            <ComboBox Height="24" Margin="6,0,6,0" Name="comboBoxCueEncoding" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" />
+                            <Label Content="Encoding:" Margin="0,0,6,0" Name="labelCueEncoding" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Width="76" VerticalAlignment="Center" Grid.Row="1" />
+                        </Grid>
+                    </GroupBox>
                     <GroupBox x:Uid="groupBoxDeviceBufferFlush" Header="Device buffer flush settings" Margin="4" Height="59" Name="groupBoxDeviceBufferFlush" Width="350">
                         <Grid x:Uid="Grid_6">
                             <Grid.ColumnDefinitions>
@@ -121,10 +121,10 @@
                             <TextBox x:Uid="textBoxPlayingTimeSize" Margin="328,0,0,0" Name="textBoxPlayingTimeSize" VerticalAlignment="Top" HorizontalAlignment="Left" Width="53" Text="16" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" TextChanged="textBoxPlayingTimeSize_TextChanged" />
                             <Label x:Uid="labelFontPoints" Content="pt" HorizontalAlignment="Left" Margin="383,0,0,0" Name="labelFontPoints" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalContentAlignment="Center" />
                             <Label x:Uid="labelPlayingTime" Content="00:00:00/00:00:00" FontFamily="Courier New" FontSize="16" Height="29" HorizontalContentAlignment="Right" Margin="86,0,0,0" Name="labelPlayingTime" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Width="214" />
-                        <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold"  HorizontalAlignment="Left" Margin="414,56,6,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
-                        
-                    </Grid>
-                </GroupBox>
+                            <CheckBox x:Uid="checkBoxPlayingTimeBold" Content="Bold"  HorizontalAlignment="Left" Margin="414,56,6,0" Name="checkBoxPlayingTimeBold" VerticalAlignment="Top" Checked="checkBoxPlayingTimeBold_Checked" Unchecked="checkBoxPlayingTimeBold_Unchecked" />
+
+                        </Grid>
+                    </GroupBox>
                     <GroupBox x:Uid="groupBoxFileSettings" Header="File read settings" Margin="4" Name="groupBoxFileSettings" >
                         <StackPanel>
                             <CheckBox x:Uid="checkBoxParallelRead" Content="Parallelize file read"  Margin="6,6,6,0" Name="checkBoxParallelRead" VerticalAlignment="Top" IsChecked="False" HorizontalAlignment="Left" Checked="checkBoxParallelRead_Checked" Unchecked="checkBoxParallelRead_Unchecked" />
