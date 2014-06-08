@@ -1,8 +1,8 @@
-﻿using System;
+﻿// Still does not work properly !!!
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace WWAudioFilter {
     class CicDecimator : FilterBase {
