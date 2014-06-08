@@ -24,8 +24,8 @@ namespace PolynomialVisualize {
 
         private bool mInitialized = false;
 
-        float [] mDenominators = new float[5];
-        float [] mNumerators = new float[5];
+        float [] mDenominators = new float[9];
+        float [] mNumerators = new float[9];
 
         private WWComplex EvalH(WWComplex z) {
             var zRecip = new WWComplex(z).Reciprocal();
@@ -33,20 +33,32 @@ namespace PolynomialVisualize {
             var zRecip2 = new WWComplex(zRecip).Mul(zRecip);
             var zRecip3 = new WWComplex(zRecip2).Mul(zRecip);
             var zRecip4 = new WWComplex(zRecip3).Mul(zRecip);
+            var zRecip5 = new WWComplex(zRecip4).Mul(zRecip);
+            var zRecip6 = new WWComplex(zRecip5).Mul(zRecip);
+            var zRecip7 = new WWComplex(zRecip6).Mul(zRecip);
+            var zRecip8 = new WWComplex(zRecip7).Mul(zRecip);
 
             var hDenom0 = new WWComplex(mDenominators[0], 0.0f);
             var hDenom1 = new WWComplex(mDenominators[1], 0.0f).Mul(zRecip);
             var hDenom2 = new WWComplex(mDenominators[2], 0.0f).Mul(zRecip2);
             var hDenom3 = new WWComplex(mDenominators[3], 0.0f).Mul(zRecip3);
             var hDenom4 = new WWComplex(mDenominators[4], 0.0f).Mul(zRecip4);
-            var hDenom = new WWComplex(hDenom0).Add(hDenom1).Add(hDenom2).Add(hDenom3).Add(hDenom4).Reciprocal();
+            var hDenom5 = new WWComplex(mDenominators[5], 0.0f).Mul(zRecip5);
+            var hDenom6 = new WWComplex(mDenominators[6], 0.0f).Mul(zRecip6);
+            var hDenom7 = new WWComplex(mDenominators[7], 0.0f).Mul(zRecip7);
+            var hDenom8 = new WWComplex(mDenominators[8], 0.0f).Mul(zRecip8);
+            var hDenom = new WWComplex(hDenom0).Add(hDenom1).Add(hDenom2).Add(hDenom3).Add(hDenom4).Add(hDenom5).Add(hDenom6).Add(hDenom7).Add(hDenom8).Reciprocal();
 
             var hNumer0 = new WWComplex(mNumerators[0], 0.0f);
             var hNumer1 = new WWComplex(mNumerators[1], 0.0f).Mul(zRecip);
             var hNumer2 = new WWComplex(mNumerators[2], 0.0f).Mul(zRecip2);
             var hNumer3 = new WWComplex(mNumerators[3], 0.0f).Mul(zRecip3);
             var hNumer4 = new WWComplex(mNumerators[4], 0.0f).Mul(zRecip4);
-            var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4);
+            var hNumer5 = new WWComplex(mNumerators[5], 0.0f).Mul(zRecip5);
+            var hNumer6 = new WWComplex(mNumerators[6], 0.0f).Mul(zRecip6);
+            var hNumer7 = new WWComplex(mNumerators[7], 0.0f).Mul(zRecip7);
+            var hNumer8 = new WWComplex(mNumerators[8], 0.0f).Mul(zRecip8);
+            var hNumer = new WWComplex(hNumer0).Add(hNumer1).Add(hNumer2).Add(hNumer3).Add(hNumer4).Add(hNumer5).Add(hNumer6).Add(hNumer7).Add(hNumer8);
             var h = new WWComplex(hNumer).Mul(hDenom);
 
             // 孤立特異点や極で起きる異常を適当に除去する
@@ -508,12 +520,20 @@ namespace PolynomialVisualize {
             mDenominators[2] = float.Parse(textBoxD2.Text);
             mDenominators[3] = float.Parse(textBoxD3.Text);
             mDenominators[4] = float.Parse(textBoxD4.Text);
+            mDenominators[5] = float.Parse(textBoxD5.Text);
+            mDenominators[6] = float.Parse(textBoxD6.Text);
+            mDenominators[7] = float.Parse(textBoxD7.Text);
+            mDenominators[8] = float.Parse(textBoxD8.Text);
 
             mNumerators[0] = float.Parse(textBoxN0.Text);
             mNumerators[1] = float.Parse(textBoxN1.Text);
             mNumerators[2] = float.Parse(textBoxN2.Text);
             mNumerators[3] = float.Parse(textBoxN3.Text);
             mNumerators[4] = float.Parse(textBoxN4.Text);
+            mNumerators[5] = float.Parse(textBoxN5.Text);
+            mNumerators[6] = float.Parse(textBoxN6.Text);
+            mNumerators[7] = float.Parse(textBoxN7.Text);
+            mNumerators[8] = float.Parse(textBoxN8.Text);
 
             UpdateZ();
             UpdateFR();
@@ -525,10 +545,18 @@ namespace PolynomialVisualize {
             textBoxN2.Text = "0";
             textBoxN3.Text = "0";
             textBoxN4.Text = "0";
+            textBoxN5.Text = "0";
+            textBoxN6.Text = "0";
+            textBoxN7.Text = "0";
+            textBoxN8.Text = "0";
             textBoxD1.Text = "-0.9";
             textBoxD2.Text = "0";
             textBoxD3.Text = "0";
             textBoxD4.Text = "0";
+            textBoxD5.Text = "0";
+            textBoxD6.Text = "0";
+            textBoxD7.Text = "0";
+            textBoxD8.Text = "0";
             Update();
         }
 
