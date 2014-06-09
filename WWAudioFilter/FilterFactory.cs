@@ -119,6 +119,8 @@ namespace WWAudioFilter {
                 return Downsampler.Restore(tokens);
             case "CicFilter":
                 return CicFilter.Restore(tokens);
+            case "InsertZeroesUpsampler":
+                return InsertZeroesUpsampler.Restore(tokens);
             default:
                 return null;
             }

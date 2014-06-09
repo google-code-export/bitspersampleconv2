@@ -380,4 +380,10 @@
   <data name="LabelCicDelaySamples" xml:space="preserve">
     <value>サンプル</value>
   </data>
+  <data name="CbItemInsertZeroesUpsampler" xml:space="preserve">
+    <value>零挿入アップサンプラー</value>
+  </data>
+  <data name="FilterInsertZeroesDesc" xml:space="preserve">
+    <value>零挿入アップサンプラー: {0}x</value>
+  </data>
 </root>

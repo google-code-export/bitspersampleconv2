@@ -205,6 +205,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Insert Zeroes Upsampler.
+        /// </summary>
+        internal static string CbItemInsertZeroesUpsampler {
+            get {
+                return ResourceManager.GetString("CbItemInsertZeroesUpsampler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 2nd order.
         /// </summary>
         internal static string CbItemNoiseShaping2nd {
@@ -418,6 +427,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterGainDesc {
             get {
                 return ResourceManager.GetString("FilterGainDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Insert Zeroes Upsampler: {0}x.
+        /// </summary>
+        internal static string FilterInsertZeroesDesc {
+            get {
+                return ResourceManager.GetString("FilterInsertZeroesDesc", resourceCulture);
             }
         }
         

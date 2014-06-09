@@ -55,6 +55,7 @@ namespace WWAudioFilter {
             labelUpsamplerType.Content = Properties.Resources.LabelUpsamplerType;
             cbItemFftUpsampler.Content = Properties.Resources.CbItemFftUpsampler;
             cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
+            cbItemInsertZeroesUpsampler.Content = Properties.Resources.CbItemInsertZeroesUpsampler;
             labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
             buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
             labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
@@ -109,22 +110,23 @@ namespace WWAudioFilter {
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(zoh.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.ZOH;
                 break;
-            case FilterType.FftUpsampler:
-                var fftu = filter as FftUpsampler;
-                comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
-                comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
-                comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
-                break;
             case FilterType.LowPassFilter:
                 var lpf = filter as LowpassFilter;
                 textBoxLpfCutoff.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.CutoffFrequency);
                 comboBoxLpfLen.SelectedIndex = (int)LpfLenToLpfLenType(lpf.FilterLength);
                 textBoxLpfSlope.Text = string.Format(CultureInfo.CurrentCulture, "{0}", lpf.FilterSlopeDbOct);
                 break;
+            case FilterType.FftUpsampler:
+                var fftu = filter as FftUpsampler;
+                comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(fftu.Factor);
+                comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.FFT;
+                comboBoxUpsampleLen.SelectedIndex = (int)UpsampleLenToUpsampleLenType(fftu.FftLength);
+                break;
             case FilterType.Mash2:
                 var mash = filter as MashFilter;
                 textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", mash.TargetBitsPerSample);
                 break;
+
             case FilterType.NoiseShaping:
                 var ns = filter as NoiseShapingFilter;
                 textBoxNoiseShapingTargetBit.Text = string.Format(CultureInfo.CurrentCulture, "{0}", ns.TargetBitsPerSample);
@@ -139,6 +141,20 @@ namespace WWAudioFilter {
                 var te = filter as TagEditFilter;
                 comboBoxTagType.SelectedIndex = (int)te.TagType;
                 textBoxTagText.Text = te.Text;
+                break;
+            case FilterType.Downsampler:
+                var ds = filter as Downsampler;
+                comboBoxDownsampleOption.SelectedIndex = ds.PickSampleIndex;
+                break;
+            case FilterType.CicFilter:
+                var cic = filter as CicFilter;
+                textBoxCicDelay.Text = string.Format(CultureInfo.CurrentCulture, "{0}", cic.Delay);
+                break;
+
+            case FilterType.InsertZeroesUpsampler:
+                var izu = filter as InsertZeroesUpsampler;
+                comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(izu.Factor);
+                comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.InsertZeroes;
                 break;
             }
         }
@@ -249,7 +265,8 @@ namespace WWAudioFilter {
 
         enum UpsamplerType {
             FFT,
-            ZOH
+            ZOH,
+            InsertZeroes
         };
 
         enum UpsampleLenType {
@@ -333,6 +350,9 @@ namespace WWAudioFilter {
                 break;
             case (int)UpsamplerType.FFT:
                 mFilter = new FftUpsampler(factor, len);
+                break;
+            case (int)UpsamplerType.InsertZeroes:
+                mFilter = new InsertZeroesUpsampler(factor);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);

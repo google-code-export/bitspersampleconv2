@@ -104,6 +104,7 @@
     <Compile Include="WWDsfWriter.cs" />
     <Compile Include="WWRadix2Fft.cs" />
     <Compile Include="WWWindowFunc.cs" />
+    <Compile Include="InsertZeroesUpsampler.cs" />
     <Compile Include="ZeroOrderHoldUpsampler.cs" />
     <Page Include="FilterConfiguration.xaml">
       <SubType>Designer</SubType>

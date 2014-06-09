@@ -19,8 +19,9 @@ namespace WWAudioFilter {
         NoiseShaping4th,
         TagEdit,
         Downsampler,
-        CicDecimator,
         CicFilter,
+
+        InsertZeroesUpsampler,
     }
 
     public struct TagData {

@@ -377,4 +377,10 @@
   <data name="LabelCicDelaySamples" xml:space="preserve">
     <value>samples</value>
   </data>
+  <data name="CbItemInsertZeroesUpsampler" xml:space="preserve">
+    <value>Insert Zeroes Upsampler</value>
+  </data>
+  <data name="FilterInsertZeroesDesc" xml:space="preserve">
+    <value>Insert Zeroes Upsampler: {0}x</value>
+  </data>
 </root>
