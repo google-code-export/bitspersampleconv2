@@ -90,8 +90,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AudioData.cs" />
-    <Compile Include="CicInterpolator.cs" />
-    <Compile Include="CicDecimator.cs" />
+    <Compile Include="CicFilter.cs" />
     <Compile Include="Downsampler.cs" />
     <Compile Include="FftUpsampler.cs" />
     <Compile Include="MashFilter.cs" />

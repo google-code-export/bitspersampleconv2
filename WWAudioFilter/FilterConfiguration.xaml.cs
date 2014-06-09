@@ -80,10 +80,10 @@ namespace WWAudioFilter {
             buttonUseDownsampler.Content = Properties.Resources.ButtonUseThisFilter;
 
             groupBoxCic.Header = Properties.Resources.GroupCic;
-            labelCicDownsamplerType.Content = Properties.Resources.LabelCicDownsamplerType;
-            cbItemCicType8xDecimation.Content = Properties.Resources.CbItemCicDownsamplerType8x;
-            cbItemCicType8xDecimationWithCompensation.Content = Properties.Resources.CbItemCicDownsamplerType8xWithCompensation;
-            cbItemCicType4xInterpolation.Content = Properties.Resources.CbItemCicUpsamplerType4x;
+            labelCicFilterType.Content = Properties.Resources.LabelCicFilterType;
+            cbItemCicTypeSingleStage.Content = Properties.Resources.CbItemCicTypeSingleStage;
+            labelCicDelay.Content = Properties.Resources.LabelCicDelay;
+            labelCicDelaySamples.Content = Properties.Resources.LabelCicDelaySamples;
             buttonUseCic.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
@@ -482,15 +482,17 @@ namespace WWAudioFilter {
         };
 
         private void buttonUseCic_Click(object sender, RoutedEventArgs e) {
-            switch (comboBoxCicType.SelectedIndex) {
-            case (int)CicFilterType.Interpolation1stOrder4x:
-                mFilter = new CicInterpolator(CicInterpolator.CicType.Interpolation1stOrder4x);
-                break;
-            default:
-                mFilter = new CicDecimator((CicDecimator.CicType)comboBoxCicType.SelectedIndex);
-                break;
+            int delay;
+            if (!Int32.TryParse(textBoxCicDelay.Text, out delay)) {
+                MessageBox.Show(Properties.Resources.ErrorCicDelay);
+                return;
             }
-            
+            if (delay <= 0) {
+                MessageBox.Show(Properties.Resources.ErrorCicDelay);
+                return;
+            }
+
+            mFilter = new CicFilter(CicFilter.CicType.SingleStage, delay);
             DialogResult = true;
             Close();
         }

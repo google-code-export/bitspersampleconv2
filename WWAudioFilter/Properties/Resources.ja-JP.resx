@@ -359,25 +359,25 @@
   <data name="LabelDownsamplerType" xml:space="preserve">
     <value>種類:</value>
   </data>
-  <data name="CbItemCicDownsamplerType8x" xml:space="preserve">
-    <value>8倍 1次Sincデシメーション</value>
-  </data>
-  <data name="CbItemCicDownsamplerType8xWithCompensation" xml:space="preserve">
-    <value>8倍 1次Sincデシメーション＋逆Sinc補償FIR</value>
-  </data>
-  <data name="CbItemCicUpsamplerType4x" xml:space="preserve">
-    <value>4倍 1次Sincインターポーレーション</value>
-  </data>
-  <data name="FilterCicDecimatorDesc" xml:space="preserve">
-    <value>CICダウンサンプラー: {0}, {1}x</value>
-  </data>
-  <data name="FilterCicInterpolatorDesc" xml:space="preserve">
-    <value>CICアップサンプラー: {0}, {1}x</value>
-  </data>
   <data name="GroupCic" xml:space="preserve">
     <value>CICフィルター</value>
   </data>
-  <data name="LabelCicDownsamplerType" xml:space="preserve">
+  <data name="LabelCicFilterType" xml:space="preserve">
     <value>種類:</value>
+  </data>
+  <data name="CbItemCicTypeSingleStage" xml:space="preserve">
+    <value>1段CIC</value>
+  </data>
+  <data name="ErrorCicDelay" xml:space="preserve">
+    <value>Cicディレイ値は1以上の整数の値を入力してください</value>
+  </data>
+  <data name="FilterCicFilterDesc" xml:space="preserve">
+    <value>CICフィルター: {0}, Combディレイ={1}</value>
+  </data>
+  <data name="LabelCicDelay" xml:space="preserve">
+    <value>ディレイ:</value>
+  </data>
+  <data name="LabelCicDelaySamples" xml:space="preserve">
+    <value>サンプル</value>
   </data>
 </root>

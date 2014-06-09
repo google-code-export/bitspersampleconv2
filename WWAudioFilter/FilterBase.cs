@@ -20,7 +20,7 @@ namespace WWAudioFilter {
         TagEdit,
         Downsampler,
         CicDecimator,
-        CicInterpolator,
+        CicFilter,
     }
 
     public struct TagData {

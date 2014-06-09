@@ -160,29 +160,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 8x 1st-order decimation.
+        ///   Looks up a localized string similar to Single stage CIC.
         /// </summary>
-        internal static string CbItemCicDownsamplerType8x {
+        internal static string CbItemCicTypeSingleStage {
             get {
-                return ResourceManager.GetString("CbItemCicDownsamplerType8x", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 8x 1st-order decimation with inverse sinc compensator.
-        /// </summary>
-        internal static string CbItemCicDownsamplerType8xWithCompensation {
-            get {
-                return ResourceManager.GetString("CbItemCicDownsamplerType8xWithCompensation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 4x 1st-order interpolation.
-        /// </summary>
-        internal static string CbItemCicUpsamplerType4x {
-            get {
-                return ResourceManager.GetString("CbItemCicUpsamplerType4x", resourceCulture);
+                return ResourceManager.GetString("CbItemCicTypeSingleStage", resourceCulture);
             }
         }
         
@@ -264,6 +246,15 @@ namespace WWAudioFilter.Properties {
         internal static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please input Cic delay value in larger than 1 integer.
+        /// </summary>
+        internal static string ErrorCicDelay {
+            get {
+                return ResourceManager.GetString("ErrorCicDelay", resourceCulture);
             }
         }
         
@@ -386,20 +377,11 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CIC Downsampler: {0}, {1}x.
+        ///   Looks up a localized string similar to CIC Filter: {0}, Comb delay={1}.
         /// </summary>
-        internal static string FilterCicDecimatorDesc {
+        internal static string FilterCicFilterDesc {
             get {
-                return ResourceManager.GetString("FilterCicDecimatorDesc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CIC Upsampler: {0}, {1}x.
-        /// </summary>
-        internal static string FilterCicInterpolatorDesc {
-            get {
-                return ResourceManager.GetString("FilterCicInterpolatorDesc", resourceCulture);
+                return ResourceManager.GetString("FilterCicFilterDesc", resourceCulture);
             }
         }
         
@@ -611,11 +593,29 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delay:.
+        /// </summary>
+        internal static string LabelCicDelay {
+            get {
+                return ResourceManager.GetString("LabelCicDelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to samples.
+        /// </summary>
+        internal static string LabelCicDelaySamples {
+            get {
+                return ResourceManager.GetString("LabelCicDelaySamples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type:.
         /// </summary>
-        internal static string LabelCicDownsamplerType {
+        internal static string LabelCicFilterType {
             get {
-                return ResourceManager.GetString("LabelCicDownsamplerType", resourceCulture);
+                return ResourceManager.GetString("LabelCicFilterType", resourceCulture);
             }
         }
         

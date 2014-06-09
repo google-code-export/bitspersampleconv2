@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\..\flac-1.3.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\..\flac-1.3.0\x64\Release;$(SolutionDir)..\..\libogg-1.3.1\x64\Release;$(LibraryPath);C:\WinDDK\7600.16385.1\lib\win7\amd64</LibraryPath>
+    <IncludePath>$(ProjectDir)libFLAC\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)libFLAC\lib\$(Platform)\Release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
