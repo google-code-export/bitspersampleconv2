@@ -386,4 +386,16 @@
   <data name="FilterInsertZeroesDesc" xml:space="preserve">
     <value>零挿入アップサンプラー: {0}x</value>
   </data>
+  <data name="ErrorHalfbandTaps" xml:space="preserve">
+    <value>フィルタータップ数Nは、1足すと4の倍数になる整数値を入力して下さい。</value>
+  </data>
+  <data name="GroupHalfbandFilter" xml:space="preserve">
+    <value>ハーフバンドフィルター</value>
+  </data>
+  <data name="LabelHalfBandFilterTaps" xml:space="preserve">
+    <value>フィルタータップ数:</value>
+  </data>
+  <data name="FilterHalfbandDesc" xml:space="preserve">
+    <value>ハーフバンドフィルター: タップ数={0}</value>
+  </data>
 </root>

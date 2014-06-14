@@ -3,10 +3,7 @@ using System.Globalization;
 
 namespace WWAudioFilter {
     class LowpassFilter : FilterBase {
-        // フィルターの長さ-1。2のべき乗の値である必要がある
         private readonly int FILTER_LENP1;
-
-        // 対称なフィルタなのでFILTER_LENP1-1になる
         private readonly int FILTER_DELAY;
 
         // FILTER_LENP1 * 4程度にする

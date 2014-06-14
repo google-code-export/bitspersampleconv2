@@ -304,6 +304,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please input Filter taps value N where N+1 equals power of 4.
+        /// </summary>
+        internal static string ErrorHalfbandTaps {
+            get {
+                return ResourceManager.GetString("ErrorHalfbandTaps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please input Low pass filter cutoff frequency in number.
         /// </summary>
         internal static string ErrorLpfCutoffFreqIsNan {
@@ -431,6 +440,15 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Half-band Filter: taps={0}.
+        /// </summary>
+        internal static string FilterHalfbandDesc {
+            get {
+                return ResourceManager.GetString("FilterHalfbandDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Insert Zeroes Upsampler: {0}x.
         /// </summary>
         internal static string FilterInsertZeroesDesc {
@@ -544,6 +562,15 @@ namespace WWAudioFilter.Properties {
         internal static string GroupGain {
             get {
                 return ResourceManager.GetString("GroupGain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Half-band Filter.
+        /// </summary>
+        internal static string GroupHalfbandFilter {
+            get {
+                return ResourceManager.GetString("GroupHalfbandFilter", resourceCulture);
             }
         }
         
@@ -697,6 +724,15 @@ namespace WWAudioFilter.Properties {
         internal static string LabelGainRolloffSlopes {
             get {
                 return ResourceManager.GetString("LabelGainRolloffSlopes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filter taps:.
+        /// </summary>
+        internal static string LabelHalfBandFilterTaps {
+            get {
+                return ResourceManager.GetString("LabelHalfBandFilterTaps", resourceCulture);
             }
         }
         

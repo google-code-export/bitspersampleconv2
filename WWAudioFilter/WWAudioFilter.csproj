@@ -93,6 +93,7 @@
     <Compile Include="CicFilter.cs" />
     <Compile Include="Downsampler.cs" />
     <Compile Include="FftUpsampler.cs" />
+    <Compile Include="HalfbandFilter.cs" />
     <Compile Include="MashFilter.cs" />
     <Compile Include="TagEditFilter.cs" />
     <Compile Include="NoiseShaping4thFilter.cs" />

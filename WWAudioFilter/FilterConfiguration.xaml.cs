@@ -57,9 +57,9 @@ namespace WWAudioFilter {
             cbItemZohUpsampler.Content = Properties.Resources.CbItemZohUpsampler;
             cbItemInsertZeroesUpsampler.Content = Properties.Resources.CbItemInsertZeroesUpsampler;
             labelUpsampleFactor.Content = Properties.Resources.LabelUpsamplingFactor;
-            buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
             labelUpsampleLen.Content = Properties.Resources.LabelUpsamplerLength;
             labelUpsampleLenUnit.Content = Properties.Resources.LabelSamples;
+            buttonUseUpsampler.Content = Properties.Resources.ButtonUseThisFilter;
 
             groupBoxNoiseShaping.Header = Properties.Resources.GroupNoiseShaping;
             labelNoiseShapingTargetBit.Content = Properties.Resources.LabelNoiseShapingTargetBit;
@@ -71,6 +71,7 @@ namespace WWAudioFilter {
             groupBoxTagEdit.Header = Properties.Resources.GroupTagEdit;
             labelTagType.Content = Properties.Resources.LabelTagType;
             labelTagText.Content = Properties.Resources.LabelTagText;
+            buttonUseTagEdit.Content = Properties.Resources.ButtonUseThisFilter;
 
             groupBoxDownsampler.Header = Properties.Resources.GroupDownsampler;
             labelDownsamplerOption.Content = Properties.Resources.LabelDownsamplerOption;
@@ -86,6 +87,10 @@ namespace WWAudioFilter {
             labelCicDelay.Content = Properties.Resources.LabelCicDelay;
             labelCicDelaySamples.Content = Properties.Resources.LabelCicDelaySamples;
             buttonUseCic.Content = Properties.Resources.ButtonUseThisFilter;
+
+            groupBoxHalfBandFilter.Header = Properties.Resources.GroupHalfbandFilter;
+            labelHalfBandFilterTap.Content = Properties.Resources.LabelHalfBandFilterTaps;
+            buttonUseHalfBandFilter.Content = Properties.Resources.ButtonUseThisFilter;
         }
 
         public FilterBase Filter {
@@ -155,6 +160,10 @@ namespace WWAudioFilter {
                 var izu = filter as InsertZeroesUpsampler;
                 comboBoxUpsamplingFactor.SelectedIndex = (int)UpsamplingFactorToUpsamplingFactorType(izu.Factor);
                 comboBoxUpsamplerType.SelectedIndex = (int)UpsamplerType.InsertZeroes;
+                break;
+            case FilterType.HalfbandFilter:
+                var hbf = filter as HalfbandFilter;
+                textBoxHalfBandFilterTap.Text = string.Format(CultureInfo.CurrentCulture, "{0}", hbf.FilterLength);
                 break;
             }
         }
@@ -513,6 +522,22 @@ namespace WWAudioFilter {
             }
 
             mFilter = new CicFilter(CicFilter.CicType.SingleStage, delay);
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonUseHalfBandFilter_Click(object sender, RoutedEventArgs e) {
+            int taps;
+            if (!Int32.TryParse(textBoxHalfBandFilterTap.Text, out taps)) {
+                MessageBox.Show(Properties.Resources.ErrorHalfbandTaps);
+                return;
+            }
+            if (taps <= 0) {
+                MessageBox.Show(Properties.Resources.ErrorHalfbandTaps);
+                return;
+            }
+
+            mFilter = new HalfbandFilter(taps);
             DialogResult = true;
             Close();
         }

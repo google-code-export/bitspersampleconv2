@@ -383,4 +383,16 @@
   <data name="FilterInsertZeroesDesc" xml:space="preserve">
     <value>Insert Zeroes Upsampler: {0}x</value>
   </data>
+  <data name="ErrorHalfbandTaps" xml:space="preserve">
+    <value>Please input Filter taps value N where N+1 equals power of 4</value>
+  </data>
+  <data name="FilterHalfbandDesc" xml:space="preserve">
+    <value>Half-band Filter: taps={0}</value>
+  </data>
+  <data name="GroupHalfbandFilter" xml:space="preserve">
+    <value>Half-band Filter</value>
+  </data>
+  <data name="LabelHalfBandFilterTaps" xml:space="preserve">
+    <value>Filter taps:</value>
+  </data>
 </root>

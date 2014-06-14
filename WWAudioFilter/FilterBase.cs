@@ -22,6 +22,7 @@ namespace WWAudioFilter {
         CicFilter,
 
         InsertZeroesUpsampler,
+        HalfbandFilter,
     }
 
     public struct TagData {

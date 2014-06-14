@@ -192,6 +192,21 @@
                             <Button x:Name="buttonUseCic" Content="Use this filter" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="3" Click="buttonUseCic_Click" />
                         </Grid>
                     </GroupBox>
+                    <GroupBox Header="Half-band Filter" Name="groupBoxHalfBandFilter" Width="380">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Grid.Row="0" Content="Filter taps:"  Name="labelHalfBandFilterTap" HorizontalContentAlignment="Right" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Grid.Row="0" Margin="3" Text="255" Name="textBoxHalfBandFilterTap" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+                            <Button Content="Use this filter" Grid.Row="1" Margin="6,0" Name="buttonUseHalfBandFilter" VerticalAlignment="Center" Grid.ColumnSpan="2" Click="buttonUseHalfBandFilter_Click" />
+                        </Grid>
+                    </GroupBox>
                 </WrapPanel>
             </Grid>
         </ScrollViewer>
