@@ -72,6 +72,9 @@ namespace WWAudioFilter {
 
         private void DesignFilter() {
             mFilterCoeffs = new double[FilterLength];
+
+            double[] sine90Table = new double [] { 0.0, 1.0, 0.0, -1.0 };
+
             for (int i = 0; i < FILTER_DELAY; ++i) {
                 if (i != 0 && 0 == (i & 1)) {
                     // coefficient is 0
@@ -80,13 +83,13 @@ namespace WWAudioFilter {
                 double theta = Math.PI * (i * 90.0)/180.0f;
                 double v = 1.0;
                 if (Double.Epsilon < Math.Abs(theta)) {
-                    v = Math.Sin(theta) / theta;
+                    v = sine90Table[i&3] / theta;
                 }
                 mFilterCoeffs[FILTER_DELAY - 1 - i] = v;
                 mFilterCoeffs[FILTER_DELAY - 1 + i] = v;
             }
 
-            // Kaiser窓をかける
+            // Kaiser窓(α==9)をかける
             var w = WWWindowFunc.KaiserWindow(FilterLength, 9.0);
             for (int i=0; i < FilterLength; ++i) {
                 mFilterCoeffs[i] *=w[i];
