@@ -54,7 +54,6 @@ namespace WWAudioFilter {
         }
 
         public override double[] FilterDo(double[] inPcm) {
-
             double [] outPcm = new double[inPcm.LongLength * Factor];
             long pos=0;
             for (long i=0; i < inPcm.LongLength; ++i) {
