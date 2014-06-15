@@ -11,6 +11,8 @@ namespace WWAudioFilter {
         public CicType Type { get; set; }
         public int Delay { get; set; }
 
+        private const int BATCH_PROCESS_SAMPLES = 4096;
+
         public CicFilter(CicType type, int delay)
                 : base(FilterType.CicFilter) {
             Type = type;
@@ -48,11 +50,12 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return 1;
+            return BATCH_PROCESS_SAMPLES;
         }
 
         public override void FilterStart() {
             base.FilterStart();
+
             mCombQueue.Clear();
             mIntegratorZ = 0.0;
         }
@@ -70,15 +73,23 @@ namespace WWAudioFilter {
 
         public override double[] FilterDo(double[] inPcm) {
             System.Diagnostics.Debug.Assert(inPcm.LongLength == NumOfSamplesNeeded());
-            double v = inPcm[0];
-            mCombQueue.Enqueue(v);
-            if (Delay < mCombQueue.Count) {
-                v -= mCombQueue.Dequeue();
+
+            var result = new double[inPcm.LongLength];
+            for (int i = 0; i < inPcm.LongLength; ++i) {
+                double v = inPcm[i];
+
+                mCombQueue.Enqueue(v);
+                if (Delay < mCombQueue.Count) {
+                    v -= mCombQueue.Dequeue();
+                }
+
+                v += mIntegratorZ;
+                mIntegratorZ = v;
+
+                result[i] = v;
             }
 
-            v += mIntegratorZ;
-            mIntegratorZ = v;
-            return new double[] {v};
+            return result;
         }
     }
 }

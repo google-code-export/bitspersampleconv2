@@ -7,6 +7,7 @@ using System.Globalization;
 namespace WWAudioFilter {
     class InsertZeroesUpsampler : FilterBase {
         public int Factor { get; set; }
+        private const int BATCH_PROCESS_SAMPLES = 4096;
 
         public InsertZeroesUpsampler(int factor)
                 : base(FilterType.InsertZeroesUpsampler) {
@@ -43,7 +44,7 @@ namespace WWAudioFilter {
         }
 
         public override long NumOfSamplesNeeded() {
-            return 1;
+            return BATCH_PROCESS_SAMPLES;
         }
 
         public override PcmFormat Setup(PcmFormat inputFormat) {
@@ -57,7 +58,9 @@ namespace WWAudioFilter {
             System.Diagnostics.Debug.Assert(inPcm.Length == NumOfSamplesNeeded());
 
             double [] outPcm = new double[inPcm.Length * Factor];
-            outPcm[0] = inPcm[0];
+            for (int i = 0; i < inPcm.Length; ++i) {
+                outPcm[i*Factor] = inPcm[i];
+            }
             return outPcm;
         }
     }
