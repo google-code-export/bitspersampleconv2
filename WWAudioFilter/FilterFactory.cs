@@ -109,6 +109,7 @@ namespace WWAudioFilter {
                 return FftUpsampler.Restore(tokens);
             case "Mash2":
                 return MashFilter.Restore(tokens);
+
             case "NoiseShaping":
                 return NoiseShapingFilter.Restore(tokens);
             case "NoiseShaping4th":
@@ -119,8 +120,11 @@ namespace WWAudioFilter {
                 return Downsampler.Restore(tokens);
             case "CicFilter":
                 return CicFilter.Restore(tokens);
+
             case "InsertZeroesUpsampler":
                 return InsertZeroesUpsampler.Restore(tokens);
+            case "HalfbandFilter":
+                return HalfbandFilter.Restore(tokens);
             default:
                 return null;
             }
