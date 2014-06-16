@@ -73,7 +73,7 @@ namespace WWAudioFilter {
         private void DesignFilter() {
             mFilterCoeffs = new double[FilterLength];
 
-            double[] sine90Table = new double[] { 0.0, 1.0, 0.0, -1.0 };
+            var sine90Table = new double[] { 0.0, 1.0, 0.0, -1.0 };
 
             for (int i = 0; i < FILTER_DELAY; ++i) {
                 if (i != 0 && 0 == (i & 1)) {
