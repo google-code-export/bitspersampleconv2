@@ -9,7 +9,7 @@ using System.Windows.Media.Media3D;
 namespace WWCrossFeed {
     class WWVirtualTrackball {
         Point mPressPosXY;
-        public float SphereRadius { get; set; }
+        public double SphereRadius { get; set; }
         public Size ScreenWH { get; set; }
         Quaternion mRotationAnchor = new Quaternion();
         Quaternion mRotationCurrent = new Quaternion();
@@ -32,7 +32,7 @@ namespace WWCrossFeed {
             if (SphereRadius <= xy.Length) {
                 xyz = new Vector3D(xy.X * SphereRadius / xy.Length, xy.Y * SphereRadius / xy.Length, 0);
             } else {
-                float z = (float)Math.Sqrt(SphereRadius * SphereRadius - xy.LengthSquared);
+                double z = Math.Sqrt(SphereRadius * SphereRadius - xy.LengthSquared);
                 xyz = new Vector3D(xy.X, xy.Y, z);
             }
 
@@ -59,9 +59,9 @@ namespace WWCrossFeed {
             }
 
             Vector3D axis = Vector3D.CrossProduct(xyzFrom, xyzTo);
-            float angle = (float)Math.Acos(Vector3D.DotProduct(xyzFrom, xyzTo));
+            double angle = Math.Acos(Vector3D.DotProduct(xyzFrom, xyzTo));
 
-            var q = new Quaternion(axis, angle * 180.0f / Math.PI);
+            var q = new Quaternion(axis, angle * 180.0 / Math.PI);
 
             mRotationCurrent = mRotationAnchor * q;
         }

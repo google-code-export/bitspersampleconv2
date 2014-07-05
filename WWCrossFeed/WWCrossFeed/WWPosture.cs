@@ -7,7 +7,7 @@ namespace WWCrossFeed {
 
         public WWPosture() {
             Pos = new Point3D();
-            Dir = new Vector3D(0.0f, 0.0f, 1.0f);
+            Dir = new Vector3D(0.0, 0.0, 1.0);
         }
 
         public WWPosture(Point3D pos, Vector3D dir) {

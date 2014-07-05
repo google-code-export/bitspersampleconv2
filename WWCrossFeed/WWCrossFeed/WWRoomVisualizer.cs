@@ -15,9 +15,9 @@ namespace WWCrossFeed {
         private Canvas mCanvas;
         private WWRoom mRoom;
         private Matrix3D mWorldProjectionMatrix;
-        private float mCameraNear = 1.0f;
-        public float CameraFovHDegree { get; set; }
-        private float mCameraDistanceCurrent;
+        private double mCameraNear = 1.0;
+        public double CameraFovHDegree { get; set; }
+        private double mCameraDistanceCurrent;
 
         private WWVirtualTrackball mVirtualTrackball = new WWVirtualTrackball();
 
@@ -29,7 +29,7 @@ namespace WWCrossFeed {
             mCanvas.MouseWheel += mCanvas_MouseWheel;
 
             mVirtualTrackball.ScreenWH = new Size(mCanvas.Width, mCanvas.Height);
-            mVirtualTrackball.SphereRadius = (float)mCanvas.Width/2;
+            mVirtualTrackball.SphereRadius = mCanvas.Width/2;
         }
 
         void mCanvas_MouseWheel(object sender, MouseWheelEventArgs e) {
@@ -57,7 +57,7 @@ namespace WWCrossFeed {
             mVirtualTrackball.Up();
         }
 
-        public void ResetCamera(float cameraDistance) {
+        public void ResetCamera(double cameraDistance) {
             mCameraDistanceCurrent = cameraDistance;
             mVirtualTrackball.Reset();
         }
@@ -67,69 +67,23 @@ namespace WWCrossFeed {
 
 #if false
             // front view
-            var eye = new Vector3D(0.0f, 0.0f, -CameraDistance);
-            var at = new Vector3D(0.0f, 0.0f, 0.0f);
-            var up = new Vector3D(0.0f, 1.0f, 0.0f);
-            var lookAt = CalculateLookAt(eye, at, up);
+            var eye = new Vector3D(0.0, 0.0, -CameraDistance);
+            var at = new Vector3D(0.0, 0.0, 0.0);
+            var up = new Vector3D(0.0, 1.0, 0.0);
+            var lookAt = WWMatrixUtil.CalculateLookAt(eye, at, up);
 #else
             // virtual trackball
             var cameraRot = mVirtualTrackball.RotationMatrix();
             var cameraTranslate = new Matrix3D();
-            cameraTranslate.Translate(new Vector3D(0.0f, 0.0f, -mCameraDistanceCurrent));
+            cameraTranslate.Translate(new Vector3D(0.0, 0.0, -mCameraDistanceCurrent));
             var cameraMat = cameraTranslate * cameraRot;
             var lookAt = cameraMat;
             lookAt.Invert();
 #endif
 
-            var viewProjectionMatrix = CreatePerspectiveProjectionMatrix(1.0f);
+            var viewProjectionMatrix = WWMatrixUtil.CreatePerspectiveProjectionMatrix(mCameraNear, mCameraDistanceCurrent * 2.0, CameraFovHDegree, 1.0);
 
             mWorldProjectionMatrix = lookAt * viewProjectionMatrix;
-        }
-
-        internal static Matrix3D CalculateLookAt(Vector3D eye, Vector3D at, Vector3D up) {
-            var zaxis = (at - eye);
-            zaxis.Normalize();
-            var xaxis = Vector3D.CrossProduct(up, zaxis);
-            xaxis.Normalize();
-            var yaxis = Vector3D.CrossProduct(zaxis, xaxis);
-
-            return new Matrix3D(
-                xaxis.X, yaxis.X, zaxis.X, 0,
-                xaxis.Y, yaxis.Y, zaxis.Y, 0,
-                xaxis.Z, yaxis.Z, zaxis.Z, 0,
-                Vector3D.DotProduct(xaxis, -eye), Vector3D.DotProduct(yaxis, -eye), Vector3D.DotProduct(zaxis, -eye), 1
-                );
-        }
-
-        internal static Matrix3D CalculatePostureMatrix(Vector3D eye, Vector3D at, Vector3D up) {
-            var zaxis = (at - eye);
-            zaxis.Normalize();
-            var xaxis = Vector3D.CrossProduct(up, zaxis);
-            xaxis.Normalize();
-            var yaxis = Vector3D.CrossProduct(zaxis, xaxis);
-
-            return new Matrix3D(
-                xaxis.X, yaxis.X, zaxis.X, 0,
-                xaxis.Y, yaxis.Y, zaxis.Y, 0,
-                xaxis.Z, yaxis.Z, zaxis.Z, 0,
-                eye.X, eye.Y, eye.Z, 1.0);
-        }
-
-        private Matrix3D CreatePerspectiveProjectionMatrix(float aspectRatio) {
-            // near screen size = 2x2
-
-            float hFoV = (float)(CameraFovHDegree * Math.PI / 180.0f);
-            float zn = mCameraNear;
-            float zf = mCameraDistanceCurrent * 2.0f;
-            float xScale = (float)(1.0f / Math.Tan(hFoV / 2.0f));
-            float yScale = aspectRatio * xScale;
-            float a = (zf+zn) / (zn - zf);
-            float b = 2.0f * zn / (zn - zf);
-            return new Matrix3D(
-                    xScale, 0, 0, 0,
-                    0, yScale, 0, 0,
-                    0, 0, a, -1,
-                    0, 0, b, 0);
         }
 
         public void SetRoom(WWRoom room) {
@@ -145,20 +99,20 @@ namespace WWCrossFeed {
         }
 
         private void RedrawRoom() {
-            DrawModel(mRoom.RoomModel, Matrix3D.Identity, new SolidColorBrush(Colors.Black));
+            DrawModel(mRoom.RoomModel, Matrix3D.Identity, new SolidColorBrush(Colors.White));
 
             Matrix3D listenerMatrix = new Matrix3D();
             listenerMatrix.Translate(mRoom.ListenerPos);
-            DrawModel(mRoom.ListenerModel, listenerMatrix, new SolidColorBrush(Colors.Brown));
+            DrawModel(mRoom.ListenerModel, listenerMatrix, new SolidColorBrush(Colors.Gray));
 
             for (int i = 0; i < WWRoom.NUM_OF_SPEAKERS; ++i) {
                 var pos = mRoom.SpeakerPos(i);
                 var dir = mRoom.SpeakerDir(i);
                 Vector3D posV = new Vector3D(pos.X, pos.Y, pos.Z);
                 Vector3D at = new Vector3D(pos.X +dir.X, pos.Y + dir.Y, pos.Z + dir.Z);
-                Vector3D up = new Vector3D(0.0f, 1.0f, 0.0f);
+                Vector3D up = new Vector3D(0.0, 1.0, 0.0);
 
-                Matrix3D speakerMatrix = CalculatePostureMatrix(posV, at, up);
+                Matrix3D speakerMatrix = WWMatrixUtil.CalculatePostureMatrix(posV, at, up);
 
                 DrawModel(mRoom.SpeakerModel, speakerMatrix, new SolidColorBrush(Colors.Gray));
             }
@@ -180,7 +134,7 @@ namespace WWCrossFeed {
         }
 
         private Vector ScaleToCanvas(Point3D v) {
-            return new Vector(mCanvas.Width/2 * (v.X+1.0f), mCanvas.Height/2 * (v.Y+1.0f));
+            return new Vector(mCanvas.Width/2 * (v.X+1.0), mCanvas.Height/2 * (v.Y+1.0));
         }
 
         private void AddNewLine(Point3D p0, Point3D p1, Brush brush) {
