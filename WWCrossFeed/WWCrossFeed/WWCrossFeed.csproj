@@ -54,6 +54,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="WW3DModel.cs" />
+    <Compile Include="WWIntersection.cs" />
     <Compile Include="WWMatrixUtil.cs" />
     <Compile Include="WWModeler.cs" />
     <Compile Include="WWPosture.cs" />

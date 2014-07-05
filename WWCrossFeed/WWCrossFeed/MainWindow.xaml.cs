@@ -268,5 +268,11 @@ namespace WWCrossFeed {
 
         }
 
+        private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
+            mRoomVisualizer.Redraw();
+            var crossFeed = new WWCrossFeed();
+
+        }
+
     }
 }
