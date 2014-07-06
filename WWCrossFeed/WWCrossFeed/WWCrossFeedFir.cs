@@ -32,7 +32,7 @@ namespace WWCrossFeed {
             var route = new WWRoute();
 
             // 耳の位置
-            var earPos = room.ListenerEarPos(earCh);
+            var rayPos = room.ListenerEarPos(earCh);
             var earDir = room.ListenerEarDir(earCh);
 
             Vector3D rayDir = RayGen(earDir);
@@ -41,13 +41,25 @@ namespace WWCrossFeed {
             Point3D hitPos;
             Vector3D hitSurfaceNormal;
             double rayLength;
-            if (!room.RayIntersection(earPos, rayDir, out hitPos, out hitSurfaceNormal, out rayLength)) {
+            if (!room.RayIntersection(rayPos, rayDir, out hitPos, out hitSurfaceNormal, out rayLength)) {
                 // 終わり。
                 return;
             }
 
-            route.Add(new WWLineSegment(earPos, rayDir, rayLength, 1.0f));
+            route.Add(new WWLineSegment(rayPos, rayDir, rayLength, 1.0f));
             mRouteList.Add(route);
+
+            for (int i = 0; i < 2; ++i) {
+                rayPos = hitPos;
+                rayDir = RayGen(hitSurfaceNormal);
+                if (!room.RayIntersection(rayPos, rayDir, out hitPos, out hitSurfaceNormal, out rayLength)) {
+                    // 終わり。
+                    return;
+                }
+
+                route.Add(new WWLineSegment(rayPos, rayDir, rayLength, 1.0f));
+                mRouteList.Add(route);
+            }
         }
 
         private Vector3D RayGen(Vector3D dir) {

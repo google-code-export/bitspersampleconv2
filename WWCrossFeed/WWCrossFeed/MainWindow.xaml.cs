@@ -271,7 +271,7 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < 5; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
             }
 
