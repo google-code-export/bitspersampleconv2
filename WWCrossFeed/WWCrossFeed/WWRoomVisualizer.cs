@@ -47,6 +47,7 @@ namespace WWCrossFeed {
 
         void mCanvas_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             mVirtualTrackball.Down(e.GetPosition(mCanvas));
+            Mouse.Capture(mCanvas);
         }
 
         void mCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e) {
@@ -60,6 +61,7 @@ namespace WWCrossFeed {
 
         void mCanvas_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             mVirtualTrackball.Up();
+            Mouse.Capture(null);
         }
 
         public void ResetCamera(double cameraDistance) {
