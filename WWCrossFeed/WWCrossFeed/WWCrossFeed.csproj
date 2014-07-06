@@ -54,12 +54,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="WW3DModel.cs" />
+    <Compile Include="WWCrossFeedFir.cs" />
     <Compile Include="WWIntersection.cs" />
+    <Compile Include="WWLineSegment.cs" />
     <Compile Include="WWMatrixUtil.cs" />
     <Compile Include="WWModeler.cs" />
     <Compile Include="WWPosture.cs" />
     <Compile Include="WWRoomVisualizer.cs" />
     <Compile Include="WWRoom.cs" />
+    <Compile Include="WWRoute.cs" />
     <Compile Include="WWVirtualTrackball.cs" />
     <Compile Include="WWWaveFrontObjReader.cs" />
     <Page Include="MainWindow.xaml">

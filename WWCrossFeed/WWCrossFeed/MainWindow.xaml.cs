@@ -23,6 +23,7 @@ namespace WWCrossFeed {
         private WWRoom mRoom = new WWRoom();
         private WWRoomVisualizer mRoomVisualizer;
         private bool mInitialized = false;
+        private WWCrossFeedFir mCrossFeed = new WWCrossFeedFir();
 
         public MainWindow() {
             InitializeComponent();
@@ -33,6 +34,7 @@ namespace WWCrossFeed {
             mRoomVisualizer = new WWRoomVisualizer(mCanvas);
             mRoomVisualizer.SetRoom(mRoom);
             mRoomVisualizer.ResetCamera(CAMERA_DISTANCE_DEFAULT);
+            mRoomVisualizer.SetCrossFeed(mCrossFeed);
 
             if (!UpdateParameters()) {
                 Close();
@@ -104,7 +106,7 @@ namespace WWCrossFeed {
                 MessageBox.Show("Error: Listener position parse error");
                 return false;
             }
-            mRoom.ListenerPos = new Vector3D(x, y, z);
+            mRoom.ListenerPos = new Point3D(x, y, z);
             return true;
         }
 
@@ -253,7 +255,7 @@ namespace WWCrossFeed {
             mRoomVisualizer.ResetCamera(CAMERA_DISTANCE_DEFAULT);
             SetupCamera();
 
-            mRoomVisualizer.Redraw();
+            UpdateRoomCanvas();
         }
 
         private void mRadioButtonGenerateDefaultSpeaker_Checked(object sender, RoutedEventArgs e) {
@@ -269,9 +271,11 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
-            mRoomVisualizer.Redraw();
-            var crossFeed = new WWCrossFeed();
+            for (int i = 0; i < 100; ++i) {
+                mCrossFeed.Trace(mRoom, 0);
+            }
 
+            UpdateRoomCanvas();
         }
 
     }

@@ -187,7 +187,7 @@
                         <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
                         x (0==center of the room, minus=left, plus=right)
                         </TextBlock>
-                        <TextBox x:Name="mTextBoxLeftSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="2.0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="mTextBoxLeftSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.0" VerticalAlignment="Center"/>
                         <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
                         y (0==floor height, plus=goes up)
@@ -230,7 +230,7 @@
                         <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
                         x (0==center of the room, minus=left, plus=right)
                         </TextBlock>
-                        <TextBox x:Name="mTextBoxRightSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="mTextBoxRightSpeakerX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="2.0" VerticalAlignment="Center"/>
                         <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
                         y (0==floor height, plus=goes up)

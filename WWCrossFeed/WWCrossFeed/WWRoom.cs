@@ -2,12 +2,14 @@
 
 namespace WWCrossFeed {
     class WWRoom {
+        public const double LISTENER_HEAD_RADIUS = 0.125;
+
         public const int NUM_OF_SPEAKERS = 2;
         public WW3DModel ListenerModel { get; set; }
         public WW3DModel SpeakerModel { get; set; }
         public WW3DModel RoomModel { get; set; }
         private WWPosture[] mSpeakerPos = new WWPosture[NUM_OF_SPEAKERS];
-        public Vector3D ListenerPos { get; set; }
+        public Point3D ListenerPos { get; set; }
 
         public WWRoom() {
             for (int i=0; i<NUM_OF_SPEAKERS; ++i) {
@@ -28,6 +30,39 @@ namespace WWCrossFeed {
 
         public void SetSpeakerDir(int idx, Vector3D dir) {
             mSpeakerPos[idx].Dir = dir;
+        }
+
+        public Point3D ListenerEarPos(int ch) {
+            switch (ch) {
+            case 0:
+                return ListenerPos + new Vector3D(-LISTENER_HEAD_RADIUS, 0.0, 0.0);
+            case 1:
+                return ListenerPos + new Vector3D(LISTENER_HEAD_RADIUS, 0.0, 0.0);
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return ListenerPos;
+            }
+        }
+
+        public Vector3D ListenerEarDir(int ch) {
+            switch (ch) {
+            case 0:
+                return new Vector3D(-1.0, 0.0, 0.0);
+            case 1:
+                return new Vector3D(1.0, 0.0, 0.0);
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return new Vector3D(1.0, 0.0, 0.0);
+            }
+        }
+
+        public bool RayIntersection(Point3D rayPos, Vector3D rayDir, out Point3D hitPos, out Vector3D hitSurfaceNormal, out double rayLength) {
+            // 部屋との当たり
+            // 部屋のモデルはワールド座標に置いてあるのでそのまま当たり判定する
+            if (!WWIntersection.ModelRayIntersection(RoomModel, rayPos, rayDir, out hitPos, out hitSurfaceNormal, out rayLength)) {
+                return false;
+            }
+            return true;
         }
     }
 }

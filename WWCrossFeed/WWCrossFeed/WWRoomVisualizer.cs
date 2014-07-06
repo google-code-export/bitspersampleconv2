@@ -20,6 +20,7 @@ namespace WWCrossFeed {
         private double mCameraDistanceCurrent;
 
         private WWVirtualTrackball mVirtualTrackball = new WWVirtualTrackball();
+        private WWCrossFeedFir mCrossFeed;
 
         public WWRoomVisualizer(Canvas canvas) {
             mCanvas = canvas;
@@ -30,6 +31,10 @@ namespace WWCrossFeed {
 
             mVirtualTrackball.ScreenWH = new Size(mCanvas.Width, mCanvas.Height);
             mVirtualTrackball.SphereRadius = mCanvas.Width/2;
+        }
+
+        public void SetCrossFeed(WWCrossFeedFir crossFeed) {
+            mCrossFeed = crossFeed;
         }
 
         void mCanvas_MouseWheel(object sender, MouseWheelEventArgs e) {
@@ -90,19 +95,26 @@ namespace WWCrossFeed {
             mRoom = room;
         }
 
+        private void Draw(WWCrossFeedFir crossFeed) {
+            for (int i = 0; i < crossFeed.Count(); ++i) {
+                DrawRoute(crossFeed.GetNth(i), Matrix3D.Identity, new SolidColorBrush(Colors.Cyan));
+            }
+        }
+
         public void Redraw() {
             mCanvas.Children.Clear();
 
             UpdateCameraMatrix();
 
             RedrawRoom();
+            Draw(mCrossFeed);
         }
 
         private void RedrawRoom() {
             DrawModel(mRoom.RoomModel, Matrix3D.Identity, new SolidColorBrush(Colors.White));
 
             Matrix3D listenerMatrix = new Matrix3D();
-            listenerMatrix.Translate(mRoom.ListenerPos);
+            listenerMatrix.Translate((Vector3D)mRoom.ListenerPos);
             DrawModel(mRoom.ListenerModel, listenerMatrix, new SolidColorBrush(Colors.Gray));
 
             for (int i = 0; i < WWRoom.NUM_OF_SPEAKERS; ++i) {
@@ -112,7 +124,9 @@ namespace WWCrossFeed {
                 Vector3D at = new Vector3D(pos.X +dir.X, pos.Y + dir.Y, pos.Z + dir.Z);
                 Vector3D up = new Vector3D(0.0, 1.0, 0.0);
 
-                Matrix3D speakerMatrix = WWMatrixUtil.CalculatePostureMatrix(posV, at, up);
+                Matrix3D speakerMatrixInv = WWMatrixUtil.CalculateLookAt(posV, at, up);
+                var speakerMatrix = speakerMatrixInv;
+                speakerMatrix.Invert();
 
                 DrawModel(mRoom.SpeakerModel, speakerMatrix, new SolidColorBrush(Colors.Gray));
             }
@@ -124,12 +138,35 @@ namespace WWCrossFeed {
             var pointArray = model.TriangleList();
             var indexArray = model.IndexList();
             for (int i = 0; i < indexArray.Length / 3; ++i) {
-                Point3D p0 = Point3D.Multiply(pointArray[indexArray[i * 3 + 0]], modelProjectionMatrix);
-                Point3D p1 = Point3D.Multiply(pointArray[indexArray[i * 3 + 1]], modelProjectionMatrix);
-                Point3D p2 = Point3D.Multiply(pointArray[indexArray[i * 3 + 2]], modelProjectionMatrix);
-                AddNewLine(p0, p1, brush);
-                AddNewLine(p1, p2, brush);
-                AddNewLine(p2, p0, brush);
+                {
+                    Point3D p0 = Point3D.Multiply(pointArray[indexArray[i * 3 + 0]], modelProjectionMatrix);
+                    Point3D p1 = Point3D.Multiply(pointArray[indexArray[i * 3 + 1]], modelProjectionMatrix);
+                    Point3D p2 = Point3D.Multiply(pointArray[indexArray[i * 3 + 2]], modelProjectionMatrix);
+                    AddNewLine(p0, p1, brush);
+                    AddNewLine(p1, p2, brush);
+                    AddNewLine(p2, p0, brush);
+                }
+#if true
+                // 法線のデバッグ表示
+                Point3D po0 = pointArray[indexArray[i * 3 + 0]];
+                Point3D po1 = pointArray[indexArray[i * 3 + 1]];
+                Point3D po2 = pointArray[indexArray[i * 3 + 2]];
+                var edge0 = po1 - po0;
+                var edge1 = po2 - po1;
+                var n = Vector3D.CrossProduct(edge0, edge1);
+                n.Normalize();
+                var center = new Point3D((po0.X + po1.X + po2.X)/3, (po0.Y + po1.Y + po2.Y)/3, (po0.Z + po1.Z + po2.Z)/3);
+                Point3D pN0 = Point3D.Multiply(center, modelProjectionMatrix);
+                Point3D pN1 = Point3D.Multiply(center+n*0.1, modelProjectionMatrix);
+                AddNewLine(pN0, pN1, brush);
+                TextBlock tb = new TextBlock();
+                tb.Text = i.ToString();
+                tb.Foreground = brush;
+                mCanvas.Children.Add(tb);
+                var textPos = ScaleToCanvas(pN0);
+                Canvas.SetLeft(tb, textPos.X);
+                Canvas.SetTop(tb, textPos.Y);
+#endif
             }
         }
 
@@ -149,6 +186,17 @@ namespace WWCrossFeed {
             line.Stroke = brush;
 
             mCanvas.Children.Add(line);
+        }
+
+        private void DrawRoute(WWRoute route, Matrix3D modelWorldMatrix, Brush brush) {
+            var modelProjectionMatrix = modelWorldMatrix * mWorldProjectionMatrix;
+
+            for (int i = 0; i < route.Count(); ++i) {
+                var lineSegment = route.GetNth(i);
+                Point3D p0 = Point3D.Multiply(lineSegment.StartPos, modelProjectionMatrix);
+                Point3D p1 = Point3D.Multiply(lineSegment.StartPos + lineSegment.Length*lineSegment.Direction, modelProjectionMatrix);
+                AddNewLine(p0, p1, brush);
+            }
         }
     }
 }
