@@ -146,7 +146,7 @@ namespace WWCrossFeed {
                     AddNewLine(p1, p2, brush);
                     AddNewLine(p2, p0, brush);
                 }
-#if true
+#if false
                 // 法線のデバッグ表示
                 Point3D po0 = pointArray[indexArray[i * 3 + 0]];
                 Point3D po1 = pointArray[indexArray[i * 3 + 1]];
@@ -159,6 +159,8 @@ namespace WWCrossFeed {
                 Point3D pN0 = Point3D.Multiply(center, modelProjectionMatrix);
                 Point3D pN1 = Point3D.Multiply(center+n*0.1, modelProjectionMatrix);
                 AddNewLine(pN0, pN1, brush);
+
+                // 面の番号表示
                 TextBlock tb = new TextBlock();
                 tb.Text = i.ToString();
                 tb.Foreground = brush;

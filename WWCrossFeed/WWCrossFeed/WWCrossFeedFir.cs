@@ -66,7 +66,7 @@ namespace WWCrossFeed {
             mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, 1.0 / rr.Length));
 
             // 左スピーカーから右の耳に音が届く。
-            // 振幅が半分くらいになる。
+            // 振幅がだいたい半分くらいになる。
 
             var lr = rightEarPos - leftSpeakerPos;
             mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, 0.5 / lr.Length));
@@ -134,7 +134,7 @@ namespace WWCrossFeed {
                 }
 
                 // スピーカーからの道のりを計算する。
-                var lineSegment = new WWLineSegment(rayPos, rayDir, rayLength, 1.0f);
+                var lineSegment = new WWLineSegment(rayPos, rayDir, rayLength, 1.0f /* 仮 Intensity */ );
 
                 int speakerCh = earCh;
                 var distanceSame = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
