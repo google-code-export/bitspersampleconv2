@@ -280,5 +280,10 @@ namespace WWCrossFeed {
             UpdateRoomCanvas();
         }
 
+        private void ButtonClearRay_Click(object sender, RoutedEventArgs e) {
+            mCrossFeed.Clear();
+            UpdateRoomCanvas();
+        }
+
     }
 }
