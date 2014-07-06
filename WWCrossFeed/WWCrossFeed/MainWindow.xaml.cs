@@ -271,8 +271,10 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
+            mCrossFeed.Start(mRoom);
             for (int i = 0; i < 5; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
+                mCrossFeed.Trace(mRoom, 1);
             }
 
             UpdateRoomCanvas();

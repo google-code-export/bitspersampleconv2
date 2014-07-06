@@ -55,6 +55,7 @@
     </ApplicationDefinition>
     <Compile Include="WW3DModel.cs" />
     <Compile Include="WWCrossFeedFir.cs" />
+    <Compile Include="WWFirCoefficient.cs" />
     <Compile Include="WWIntersection.cs" />
     <Compile Include="WWLineSegment.cs" />
     <Compile Include="WWMatrixUtil.cs" />
