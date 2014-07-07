@@ -99,7 +99,7 @@ namespace WWCrossFeed {
 
         private void Draw(WWCrossFeedFir crossFeed) {
             for (int i = 0; i < crossFeed.Count(); ++i) {
-                DrawRoute(crossFeed.GetNth(i), Matrix3D.Identity);
+                DrawRoute(crossFeed.GetNth(i));
             }
         }
 
@@ -192,9 +192,7 @@ namespace WWCrossFeed {
             mCanvas.Children.Add(line);
         }
 
-        private void DrawRoute(WWRoute route, Matrix3D modelWorldMatrix) {
-            var modelProjectionMatrix = modelWorldMatrix * mWorldProjectionMatrix;
-
+        private void DrawRoute(WWRoute route) {
             Brush[] brushes = new Brush[] {
                 new SolidColorBrush(Colors.Cyan),
                 new SolidColorBrush(Colors.Magenta)
@@ -202,12 +200,17 @@ namespace WWCrossFeed {
 
             for (int i = 0; i < route.Count(); ++i) {
                 var lineSegment = route.GetNth(i);
-                Point3D p0 = Point3D.Multiply(lineSegment.StartPos, modelProjectionMatrix);
-                Point3D p1 = Point3D.Multiply(lineSegment.StartPos + lineSegment.Length*lineSegment.Direction, modelProjectionMatrix);
+                Point3D p0 = Point3D.Multiply(lineSegment.StartPos, mWorldProjectionMatrix);
+                Point3D p1 = Point3D.Multiply(lineSegment.StartPos + lineSegment.Length * lineSegment.Direction, mWorldProjectionMatrix);
 
                 Brush b = brushes[route.EarCh].Clone();
                 b.Opacity = IntensityToOpacity(lineSegment.Intensity);
                 AddNewLine(p0, p1, b);
+
+                Point3D pSL = Point3D.Multiply(mRoom.SpeakerPos(0), mWorldProjectionMatrix);
+                Point3D pSR = Point3D.Multiply(mRoom.SpeakerPos(1), mWorldProjectionMatrix);
+                AddNewLine(pSL, p1, b);
+                AddNewLine(pSR, p1, b);
             }
         }
 

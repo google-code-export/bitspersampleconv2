@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,20 +60,20 @@ namespace WWCrossFeed {
             // 振幅は、距離の1乗に反比例
             // ということにする。
 
-            mLeftSpeakerToLeftEar.Add(new WWFirCoefficient(ll.Length / SoundSpeed, 1.0 / ll.Length));
+            mLeftSpeakerToLeftEar.Add(new WWFirCoefficient(ll.Length / SoundSpeed, 1.0 / ll.Length, true));
 
             // 右スピーカーから右の耳に音が届く
             var rr = rightEarPos - rightSpeakerPos;
-            mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, 1.0 / rr.Length));
+            mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, 1.0 / rr.Length, true));
 
             // 左スピーカーから右の耳に音が届く。
             // 振幅がだいたい半分くらいになる。
 
             var lr = rightEarPos - leftSpeakerPos;
-            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, 0.5 / lr.Length));
+            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, 0.5 / lr.Length, true));
 
             var rl = leftEarPos - rightSpeakerPos;
-            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, 0.5 / rl.Length));
+            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, 0.5 / rl.Length, true));
         }
 
         private double CalcRouteDistance(WWRoom room, int speakerCh, WWRoute route, WWLineSegment lastSegment, Point3D hitPos) {
@@ -138,7 +139,7 @@ namespace WWCrossFeed {
 
                 int speakerCh = earCh;
                 var distanceSame = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, 1.0f / distanceSame * Math.Pow(ReflectionRatio, i+1));
+                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, 1.0f / distanceSame * Math.Pow(ReflectionRatio, i+1), false);
                 lineSegment.Intensity = coeffS.Gain;
 
                 if (coeffS.Gain < SMALL_GAIN_THRESHOLD) {
@@ -149,7 +150,7 @@ namespace WWCrossFeed {
                 
                 speakerCh = (earCh==0)?1:0;
                 var distanceDifferent = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, 1.0f / distanceDifferent * Math.Pow(ReflectionRatio, i + 1));
+                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, 1.0f / distanceDifferent * Math.Pow(ReflectionRatio, i + 1), false);
 
                 if (SMALL_GAIN_THRESHOLD <= coeffD.Gain) {
                     StoreCoeff(earCh, speakerCh, coeffD);
@@ -180,6 +181,29 @@ namespace WWCrossFeed {
                 }
 
                 return d;
+            }
+        }
+
+        public void Debug() {
+            using (StreamWriter sw = new StreamWriter("outputLL.csv")) {
+                foreach (var coeff in mLeftSpeakerToLeftEar) {
+                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+                }
+            }
+            using (StreamWriter sw = new StreamWriter("outputLR.csv")) {
+                foreach (var coeff in mLeftSpeakerToRightEar) {
+                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+                }
+            }
+            using (StreamWriter sw = new StreamWriter("outputRL.csv")) {
+                foreach (var coeff in mRightSpeakerToLeftEar) {
+                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+                }
+            }
+            using (StreamWriter sw = new StreamWriter("outputRR.csv")) {
+                foreach (var coeff in mRightSpeakerToRightEar) {
+                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+                }
             }
         }
     }

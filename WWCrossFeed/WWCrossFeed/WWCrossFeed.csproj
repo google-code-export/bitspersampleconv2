@@ -104,6 +104,7 @@
     <AppDesigner Include="Properties\" />
     <None Include="Resources\listener.obj" />
     <None Include="Resources\speaker.obj" />
+    <None Include="Resources\speaker2.obj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

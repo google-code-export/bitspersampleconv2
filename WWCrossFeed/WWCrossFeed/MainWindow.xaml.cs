@@ -69,7 +69,7 @@ namespace WWCrossFeed {
             }
 
             // speaker
-            model = LoadModel((mRadioButtonGenerateDefaultSpeaker.IsChecked == true) ? "" : mSpeakerModelPath.Text, Properties.Resources.speakerModel);
+            model = LoadModel((mRadioButtonGenerateDefaultSpeaker.IsChecked == true) ? "" : mSpeakerModelPath.Text, Properties.Resources.speakerModel2);
             if (model == null) {
                 return false;
             }
@@ -271,11 +271,14 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
+            mCrossFeed.Clear();
             mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < 10; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
                 mCrossFeed.Trace(mRoom, 1);
             }
+
+            //mCrossFeed.Debug();
 
             UpdateRoomCanvas();
         }

@@ -8,13 +8,12 @@ namespace WWCrossFeed {
     class WWFirCoefficient {
         public double DelaySecond { get; set; }
         public double Gain { get; set; }
-        public WWFirCoefficient(double delaySecond, double gain) {
+        public bool IsDirect { get; set; }
+
+        public WWFirCoefficient(double delaySecond, double gain, bool isDirect) {
             DelaySecond = delaySecond;
             Gain = gain;
-        }
-
-        public WWFirCoefficient() {
-
+            IsDirect = isDirect;
         }
     }
 }
