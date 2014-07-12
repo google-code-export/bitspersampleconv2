@@ -314,13 +314,23 @@ namespace WWCrossFeed {
         }
 
         private void ButtonCreateFirCoefficients(object sender, RoutedEventArgs e) {
+            var dlg = new SaveFileDialog();
+            dlg.DefaultExt = Properties.Resources.FirFilterFileExt;
+            dlg.Filter = Properties.Resources.FirFilterFileFilter;
+            dlg.FileName = "CrossfeedFilterCoeffs.txt";
+            dlg.CheckPathExists = true;
+            var result = dlg.ShowDialog();
+            if (result != true) {
+                return;
+            }
+
             mCrossFeed.Clear();
             mCrossFeed.Start(mRoom);
             for (int i = 0; i < 500000; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
                 mCrossFeed.Trace(mRoom, 1);
             }
-            mCrossFeed.OutputFirCoeffs(44100);
+            mCrossFeed.OutputFirCoeffs(44100, dlg.FileName);
 
             mCrossFeed.Clear();
             UpdateRoomCanvas();

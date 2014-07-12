@@ -61,6 +61,24 @@ namespace WWCrossFeed.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .txt.
+        /// </summary>
+        internal static string FirFilterFileExt {
+            get {
+                return ResourceManager.GetString("FirFilterFileExt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FIR Filter file (.txt)|*.txt.
+        /// </summary>
+        internal static string FirFilterFileFilter {
+            get {
+                return ResourceManager.GetString("FirFilterFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] listenerModel {

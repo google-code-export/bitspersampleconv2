@@ -133,4 +133,10 @@
   <data name="WavefrontObjFilter" xml:space="preserve">
     <value>Wavefront Obj (.obj)|*.obj</value>
   </data>
+  <data name="FirFilterFileExt" xml:space="preserve">
+    <value>.txt</value>
+  </data>
+  <data name="FirFilterFileFilter" xml:space="preserve">
+    <value>FIR Filter file (.txt)|*.txt</value>
+  </data>
 </root>

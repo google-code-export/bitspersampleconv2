@@ -205,27 +205,13 @@ namespace WWCrossFeed {
             }
         }
 
-        public void OutputFirCoeffs(int sampleRate) {
+        public void OutputFirCoeffs(int sampleRate, string path) {
             var ll = CreateFirCoeff(sampleRate, mLeftSpeakerToLeftEar);
             var lr = CreateFirCoeff(sampleRate, mLeftSpeakerToRightEar);
             var rl = CreateFirCoeff(sampleRate, mRightSpeakerToLeftEar);
             var rr = CreateFirCoeff(sampleRate, mRightSpeakerToRightEar);
 
-            int smallestTime = ll.First().Key;
-            if (lr.First().Key < smallestTime) {
-                smallestTime = lr.First().Key;
-            }
-            if (rl.First().Key < smallestTime) {
-                smallestTime = rl.First().Key;
-            }
-            if (rr.First().Key < smallestTime) {
-                smallestTime = rr.First().Key;
-            }
-
-            OutputFile(ll, smallestTime, "FirCoeffLspeakerToLear.csv");
-            OutputFile(lr, smallestTime, "FirCoeffLspeakerToRear.csv");
-            OutputFile(rl, smallestTime, "FirCoeffRspeakerToLear.csv");
-            OutputFile(rr, smallestTime, "FirCoeffRspeakerToRear.csv");
+            OutputFile(new Dictionary<int, double>[] {ll, lr, rl, rr}, path);
         }
 
         private const double FIR_COEFF_RATIO = 0.0002;
@@ -267,15 +253,34 @@ namespace WWCrossFeed {
             return result;
         }
 
-        private void OutputFile(Dictionary<int, double> coeffs, int offset, string path) {
+        private void OutputFile(Dictionary<int, double>[] coeffs, string path) {
+            int smallestTime = int.MaxValue;
+            int largestTime = 0;
+
+            foreach (var c in coeffs) {
+                if (c.First().Key < smallestTime) {
+                    smallestTime = c.First().Key;
+                }
+                if (largestTime < c.Last().Key) {
+                    largestTime = c.Last().Key;
+                }
+            }
+
             using (StreamWriter sw = new StreamWriter(path)) {
-                int lastTime = coeffs.Last().Key - offset;
-                for (int i = 0; i <= lastTime; ++i) {
-                    double coeff = 0.0;
-                    if (coeffs.ContainsKey(i + offset)) {
-                        coeff = coeffs[i + offset];
+                for (int t = 0; t <= largestTime - smallestTime; ++t) {
+                    var v = new double[coeffs.Length];
+
+                    for (int i = 0; i < coeffs.Length; ++i) {
+                        if (coeffs[i].ContainsKey(t + smallestTime)) {
+                            v[i] = coeffs[i][t+smallestTime];
+                        }
+
+                        sw.Write("{0}", v[i]);
+                        if (i != coeffs.Length - 1) {
+                            sw.Write(", ");
+                        }
                     }
-                    sw.WriteLine("{0}", coeff);
+                    sw.WriteLine("");
                 }
             }
         }
