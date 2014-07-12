@@ -127,4 +127,10 @@
   <data name="speakerModel2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\speaker2.obj;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="WavefrontObjFileExt" xml:space="preserve">
+    <value>.obj</value>
+  </data>
+  <data name="WavefrontObjFilter" xml:space="preserve">
+    <value>Wavefront Obj (.obj)|*.obj</value>
+  </data>
 </root>

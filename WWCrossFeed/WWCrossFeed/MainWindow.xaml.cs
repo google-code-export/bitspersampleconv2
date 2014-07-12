@@ -218,25 +218,33 @@ namespace WWCrossFeed {
             mGroupBoxListenerModelFile.IsEnabled = true;
         }
 
-        private void ButtonBrowseListenerModel_Click(object sender, RoutedEventArgs e) {
+        private string OpenFileDialogHelper(string defaultExt, string filter) {
             var dlg = new OpenFileDialog();
             dlg.CheckFileExists = true;
             dlg.CheckPathExists = true;
             dlg.ValidateNames = true;
             dlg.Multiselect = false;
-            dlg.DefaultExt = ".obj";
-            dlg.Filter = "Wavefront Obj (.obj)|*.obj";
+            dlg.DefaultExt = defaultExt;
+            dlg.Filter = filter;
             var result = dlg.ShowDialog();
             if (result != true) {
+                return null;
+            }
+            return dlg.FileName;
+        }
+
+        private void ButtonBrowseListenerModel_Click(object sender, RoutedEventArgs e) {
+            string path = OpenFileDialogHelper(Properties.Resources.WavefrontObjFileExt, Properties.Resources.WavefrontObjFilter);
+            if (path == null) {
                 return;
             }
 
-            var model = WWWaveFrontObjReader.ReadFromFile(dlg.FileName);
+            var model = WWWaveFrontObjReader.ReadFromFile(path);
             if (model == null) {
                 return;
             }
 
-            mListenerModelPath.Text = dlg.FileName;
+            mListenerModelPath.Text = path;
 
             mRoom.ListenerModel = model;
             UpdateRoomCanvas();
@@ -259,31 +267,61 @@ namespace WWCrossFeed {
         }
 
         private void mRadioButtonGenerateDefaultSpeaker_Checked(object sender, RoutedEventArgs e) {
-
+            if (!mInitialized) {
+                return;
+            }
+            mGroupBoxSpeakerModelFile.IsEnabled = false;
         }
 
         private void mRadioButtonGenerateSpeakerFromFile_Checked(object sender, RoutedEventArgs e) {
-
+            if (!mInitialized) {
+                return;
+            }
+            mGroupBoxSpeakerModelFile.IsEnabled = true;
         }
 
         private void ButtonBrowseSpeakerModel_Click(object sender, RoutedEventArgs e) {
+            string path = OpenFileDialogHelper(Properties.Resources.WavefrontObjFileExt, Properties.Resources.WavefrontObjFilter);
+            if (path == null) {
+                return;
+            }
 
+            var model = WWWaveFrontObjReader.ReadFromFile(path);
+            if (model == null) {
+                return;
+            }
+
+            mSpeakerModelPath.Text = path;
+
+            mRoom.SpeakerModel = model;
+            UpdateRoomCanvas();
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
             mCrossFeed.Clear();
             mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 20; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
                 mCrossFeed.Trace(mRoom, 1);
             }
-
-            //mCrossFeed.Debug();
 
             UpdateRoomCanvas();
         }
 
         private void ButtonClearRay_Click(object sender, RoutedEventArgs e) {
+            mCrossFeed.Clear();
+            UpdateRoomCanvas();
+        }
+
+        private void ButtonCreateFirCoefficients(object sender, RoutedEventArgs e) {
+            mCrossFeed.Clear();
+            mCrossFeed.Start(mRoom);
+            for (int i = 0; i < 500000; ++i) {
+                mCrossFeed.Trace(mRoom, 0);
+                mCrossFeed.Trace(mRoom, 1);
+            }
+            mCrossFeed.OutputFirCoeffs(44100);
+
             mCrossFeed.Clear();
             UpdateRoomCanvas();
         }

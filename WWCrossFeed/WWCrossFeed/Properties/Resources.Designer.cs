@@ -89,5 +89,23 @@ namespace WWCrossFeed.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .obj.
+        /// </summary>
+        internal static string WavefrontObjFileExt {
+            get {
+                return ResourceManager.GetString("WavefrontObjFileExt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wavefront Obj (.obj)|*.obj.
+        /// </summary>
+        internal static string WavefrontObjFilter {
+            get {
+                return ResourceManager.GetString("WavefrontObjFilter", resourceCulture);
+            }
+        }
     }
 }

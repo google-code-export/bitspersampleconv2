@@ -19,6 +19,8 @@ namespace WWCrossFeed {
         List<WWFirCoefficient> mRightSpeakerToLeftEar  = new List<WWFirCoefficient>();
         List<WWFirCoefficient> mRightSpeakerToRightEar = new List<WWFirCoefficient>();
 
+        int[] mRouteCount = new int[2];
+
         Random mRand = new Random();
 
         public WWCrossFeedFir() {
@@ -32,6 +34,9 @@ namespace WWCrossFeed {
             mLeftSpeakerToRightEar.Clear();
             mRightSpeakerToLeftEar.Clear();
             mRightSpeakerToRightEar.Clear();
+            for (int i = 0; i < mRouteCount.Length; ++i) {
+                mRouteCount[i] = 0;
+            }
         }
 
         public int Count() {
@@ -55,25 +60,37 @@ namespace WWCrossFeed {
 
             // 左スピーカーから左の耳に音が届く
             var ll = leftEarPos - leftSpeakerPos;
+            var llN = ll;
+            llN.Normalize();
 
             // エネルギーは、距離の2乗に反比例する
             // 振幅は、距離の1乗に反比例
             // ということにする。
 
-            mLeftSpeakerToLeftEar.Add(new WWFirCoefficient(ll.Length / SoundSpeed, 1.0 / ll.Length, true));
+            mLeftSpeakerToLeftEar.Add(new WWFirCoefficient(ll.Length / SoundSpeed, llN, 1.0 / ll.Length, true));
 
             // 右スピーカーから右の耳に音が届く
             var rr = rightEarPos - rightSpeakerPos;
-            mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, 1.0 / rr.Length, true));
+            var rrN = rr;
+            rrN.Normalize();
+            mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, rrN, 1.0 / rr.Length, true));
 
             // 左スピーカーから右の耳に音が届く。
             // 振幅がだいたい半分くらいになる。
 
             var lr = rightEarPos - leftSpeakerPos;
-            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, 0.5 / lr.Length, true));
+            var lrN = lr;
+            lrN.Normalize();
+            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, lrN, 0.5 / lr.Length, true));
 
             var rl = leftEarPos - rightSpeakerPos;
-            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, 0.5 / rl.Length, true));
+            var rlN = rl;
+            rlN.Normalize();
+            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, rlN, 0.5 / rl.Length, true));
+
+            // 1本のレイがそれぞれのスピーカーリスナー組に入る。
+            mRouteCount[0] = 1;
+            mRouteCount[1] = 1;
         }
 
         private double CalcRouteDistance(WWRoom room, int speakerCh, WWRoute route, WWLineSegment lastSegment, Point3D hitPos) {
@@ -125,6 +142,9 @@ namespace WWCrossFeed {
             Vector3D rayDir = RayGen(earDir);
             //耳からrayが発射して、部屋の壁に当たる
 
+            // 音が耳に向かう方向。
+            Vector3D soundDir = -rayDir;
+
             for (int i=0; i<100; ++i) {
                 Point3D hitPos;
                 Vector3D hitSurfaceNormal;
@@ -139,7 +159,7 @@ namespace WWCrossFeed {
 
                 int speakerCh = earCh;
                 var distanceSame = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, 1.0f / distanceSame * Math.Pow(ReflectionRatio, i+1), false);
+                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, soundDir, 1.0f / distanceSame * Math.Pow(ReflectionRatio, i+1), false);
                 lineSegment.Intensity = coeffS.Gain;
 
                 if (coeffS.Gain < SMALL_GAIN_THRESHOLD) {
@@ -150,7 +170,7 @@ namespace WWCrossFeed {
                 
                 speakerCh = (earCh==0)?1:0;
                 var distanceDifferent = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, 1.0f / distanceDifferent * Math.Pow(ReflectionRatio, i + 1), false);
+                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, soundDir, 1.0f / distanceDifferent * Math.Pow(ReflectionRatio, i + 1), false);
 
                 if (SMALL_GAIN_THRESHOLD <= coeffD.Gain) {
                     StoreCoeff(earCh, speakerCh, coeffD);
@@ -166,6 +186,7 @@ namespace WWCrossFeed {
             }
 
             mRouteList.Add(route);
+            ++mRouteCount[earCh];
         }
 
         private Vector3D RayGen(Vector3D dir) {
@@ -184,25 +205,77 @@ namespace WWCrossFeed {
             }
         }
 
-        public void Debug() {
-            using (StreamWriter sw = new StreamWriter("outputLL.csv")) {
-                foreach (var coeff in mLeftSpeakerToLeftEar) {
-                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+        public void OutputFirCoeffs(int sampleRate) {
+            var ll = CreateFirCoeff(sampleRate, mLeftSpeakerToLeftEar);
+            var lr = CreateFirCoeff(sampleRate, mLeftSpeakerToRightEar);
+            var rl = CreateFirCoeff(sampleRate, mRightSpeakerToLeftEar);
+            var rr = CreateFirCoeff(sampleRate, mRightSpeakerToRightEar);
+
+            int smallestTime = ll.First().Key;
+            if (lr.First().Key < smallestTime) {
+                smallestTime = lr.First().Key;
+            }
+            if (rl.First().Key < smallestTime) {
+                smallestTime = rl.First().Key;
+            }
+            if (rr.First().Key < smallestTime) {
+                smallestTime = rr.First().Key;
+            }
+
+            OutputFile(ll, smallestTime, "FirCoeffLspeakerToLear.csv");
+            OutputFile(lr, smallestTime, "FirCoeffLspeakerToRear.csv");
+            OutputFile(rl, smallestTime, "FirCoeffRspeakerToLear.csv");
+            OutputFile(rr, smallestTime, "FirCoeffRspeakerToRear.csv");
+        }
+
+        private const double FIR_COEFF_RATIO = 0.0002;
+
+        private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
+            var table = new Dictionary<int, Vector3D>();
+            double ratio = FIR_COEFF_RATIO * sampleRate / mRouteCount[0];
+
+            foreach (var coeff in coeffList) {
+                int delaySample = (int)(coeff.DelaySecond * sampleRate);
+                Vector3D v = coeff.SoundDirection * coeff.Gain;
+
+                if (table.ContainsKey(delaySample)) {
+
+                    table[delaySample] += v;
+                } else {
+                    table[delaySample] = v;
                 }
             }
-            using (StreamWriter sw = new StreamWriter("outputLR.csv")) {
-                foreach (var coeff in mLeftSpeakerToRightEar) {
-                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+
+            var items = from pair in table
+                    orderby pair.Key
+                    select pair;
+
+            bool bFirst = true;
+
+            var result = new Dictionary<int,double>();
+
+            foreach (var entry in items) {
+                double gain = entry.Value.Length;
+                if (bFirst) {
+                    bFirst = false;
+                } else {
+                    gain *= ratio;
                 }
+                result.Add(entry.Key, gain);
             }
-            using (StreamWriter sw = new StreamWriter("outputRL.csv")) {
-                foreach (var coeff in mRightSpeakerToLeftEar) {
-                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
-                }
-            }
-            using (StreamWriter sw = new StreamWriter("outputRR.csv")) {
-                foreach (var coeff in mRightSpeakerToRightEar) {
-                    sw.WriteLine("{0},{1}", coeff.DelaySecond, coeff.Gain);
+
+            return result;
+        }
+
+        private void OutputFile(Dictionary<int, double> coeffs, int offset, string path) {
+            using (StreamWriter sw = new StreamWriter(path)) {
+                int lastTime = coeffs.Last().Key - offset;
+                for (int i = 0; i <= lastTime; ++i) {
+                    double coeff = 0.0;
+                    if (coeffs.ContainsKey(i + offset)) {
+                        coeff = coeffs[i + offset];
+                    }
+                    sw.WriteLine("{0}", coeff);
                 }
             }
         }

@@ -21,9 +21,11 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
                         <Button Content="Ray Test" Click="mButtonRayTest_Click" Height="24" Width="200" />
                         <Button Grid.Row="1" Content="Clear Ray" Click="ButtonClearRay_Click" Height="24" Width="200" />
+                        <Button Grid.Row="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Camera settings" >
