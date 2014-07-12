@@ -61,7 +61,7 @@ namespace WWCrossFeed.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .txt.
+        ///   Looks up a localized string similar to .cfeed.
         /// </summary>
         internal static string FirFilterFileExt {
             get {
@@ -70,7 +70,7 @@ namespace WWCrossFeed.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to FIR Filter file (.txt)|*.txt.
+        ///   Looks up a localized string similar to FIR Filter file |*.cfeed.
         /// </summary>
         internal static string FirFilterFileFilter {
             get {

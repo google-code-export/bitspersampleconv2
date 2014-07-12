@@ -13,6 +13,7 @@ namespace WWCrossFeed {
         public double SoundSpeed { get; set; }
 
         private const double SMALL_GAIN_THRESHOLD = 0.01;
+        private const int FILE_VERSION = 1;
 
         List<WWFirCoefficient> mLeftSpeakerToLeftEar   = new List<WWFirCoefficient>();
         List<WWFirCoefficient> mLeftSpeakerToRightEar  = new List<WWFirCoefficient>();
@@ -267,6 +268,9 @@ namespace WWCrossFeed {
             }
 
             using (StreamWriter sw = new StreamWriter(path)) {
+                sw.WriteLine("CFD{0}", FILE_VERSION);
+                sw.WriteLine("{0}", largestTime - smallestTime+1);
+
                 for (int t = 0; t <= largestTime - smallestTime; ++t) {
                     var v = new double[coeffs.Length];
 

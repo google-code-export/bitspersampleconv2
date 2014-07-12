@@ -317,7 +317,7 @@ namespace WWCrossFeed {
             var dlg = new SaveFileDialog();
             dlg.DefaultExt = Properties.Resources.FirFilterFileExt;
             dlg.Filter = Properties.Resources.FirFilterFileFilter;
-            dlg.FileName = "CrossfeedFilterCoeffs.txt";
+            dlg.FileName = "CrossfeedFilterCoeffs" + Properties.Resources.FirFilterFileExt;
             dlg.CheckPathExists = true;
             var result = dlg.ShowDialog();
             if (result != true) {
