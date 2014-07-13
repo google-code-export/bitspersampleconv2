@@ -324,13 +324,16 @@ namespace WWCrossFeed {
                 return;
             }
 
+            int sampleRate = 44100;
+            Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
+
             mCrossFeed.Clear();
             mCrossFeed.Start(mRoom);
             for (int i = 0; i < 500000; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
                 mCrossFeed.Trace(mRoom, 1);
             }
-            mCrossFeed.OutputFirCoeffs(44100, dlg.FileName);
+            mCrossFeed.OutputFirCoeffs(sampleRate, dlg.FileName);
 
             mCrossFeed.Clear();
             UpdateRoomCanvas();

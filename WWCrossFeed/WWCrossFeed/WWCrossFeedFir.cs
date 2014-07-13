@@ -212,7 +212,7 @@ namespace WWCrossFeed {
             var rl = CreateFirCoeff(sampleRate, mRightSpeakerToLeftEar);
             var rr = CreateFirCoeff(sampleRate, mRightSpeakerToRightEar);
 
-            OutputFile(new Dictionary<int, double>[] {ll, lr, rl, rr}, path);
+            OutputFile(sampleRate, new Dictionary<int, double>[] {ll, lr, rl, rr}, path);
         }
 
         private const double FIR_COEFF_RATIO = 0.0002;
@@ -254,7 +254,7 @@ namespace WWCrossFeed {
             return result;
         }
 
-        private void OutputFile(Dictionary<int, double>[] coeffs, string path) {
+        private void OutputFile(int sampleRate, Dictionary<int, double>[] coeffs, string path) {
             int smallestTime = int.MaxValue;
             int largestTime = 0;
 
@@ -269,6 +269,7 @@ namespace WWCrossFeed {
 
             using (StreamWriter sw = new StreamWriter(path)) {
                 sw.WriteLine("CFD{0}", FILE_VERSION);
+                sw.WriteLine("{0}", sampleRate);
                 sw.WriteLine("{0}", largestTime - smallestTime+1);
 
                 for (int t = 0; t <= largestTime - smallestTime; ++t) {

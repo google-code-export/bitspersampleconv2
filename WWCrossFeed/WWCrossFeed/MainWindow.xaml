@@ -18,14 +18,22 @@
                 <Button Content="Update View" Click="mButtonUpdateView_Click" Margin="6" Height="24" Width="200" />
                 <GroupBox Header="Crossfeed Settings" >
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
-                        <Button Content="Ray Test" Click="mButtonRayTest_Click" Height="24" Width="200" />
-                        <Button Grid.Row="1" Content="Clear Ray" Click="ButtonClearRay_Click" Height="24" Width="200" />
-                        <Button Grid.Row="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" />
+
+                        <Button Content="Ray Test" Click="mButtonRayTest_Click" Height="24" Width="200" Grid.ColumnSpan="2" />
+                        <Button Grid.Row="1" Content="Clear Ray" Click="ButtonClearRay_Click" Height="24" Width="200" Grid.ColumnSpan="2" />
+                        <Label Grid.Row="2" Content="Sample Rate:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxSampleRate" Grid.Row="2" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
+                        <Button Grid.Row="3" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" Grid.ColumnSpan="2" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Camera settings" >
