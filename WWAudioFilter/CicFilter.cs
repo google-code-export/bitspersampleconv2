@@ -63,10 +63,6 @@ namespace WWAudioFilter {
         public override void FilterEnd() {
             base.FilterEnd();
         }
-        
-        public override PcmFormat Setup(PcmFormat inputFormat) {
-            return inputFormat;
-        }
 
         private Queue<double> mCombQueue = new Queue<double>();
         private double mIntegratorZ = 0.0;

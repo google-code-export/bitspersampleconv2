@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Globalization;
+using Microsoft.Win32;
 
 namespace WWAudioFilter {
     /// <summary>
@@ -164,6 +165,10 @@ namespace WWAudioFilter {
             case FilterType.HalfbandFilter:
                 var hbf = filter as HalfbandFilter;
                 textBoxHalfBandFilterTap.Text = string.Format(CultureInfo.CurrentCulture, "{0}", hbf.FilterLength);
+                break;
+            case FilterType.Crossfeed:
+                var cf = filter as CrossfeedFilter;
+                textBoxCrossfeedCoefficientFile.Text = cf.FilterFilePath;
                 break;
             }
         }
@@ -538,6 +543,30 @@ namespace WWAudioFilter {
             }
 
             mFilter = new HalfbandFilter(taps);
+            DialogResult = true;
+            Close();
+        }
+
+        private void buttonCrossfeedBrowse_Click(object sender, RoutedEventArgs e) {
+            var dlg = new OpenFileDialog();
+            dlg.DefaultExt = Properties.Resources.CrossfeedDefaultExt;
+            dlg.Filter = Properties.Resources.CrossfeedFileFilter;
+            dlg.CheckFileExists = true;
+            var result = dlg.ShowDialog();
+            if (result != true) {
+                return;
+            }
+
+            textBoxCrossfeedCoefficientFile.Text = dlg.FileName;
+        }
+
+        private void buttonUseCrossfeedFilter_Click(object sender, RoutedEventArgs e) {
+            if (textBoxCrossfeedCoefficientFile.Text.Length == 0) {
+                MessageBox.Show(Properties.Resources.ErrorCrossfeedFile);
+                return;
+            }
+
+            mFilter = new CrossfeedFilter(textBoxCrossfeedCoefficientFile.Text);
             DialogResult = true;
             Close();
         }

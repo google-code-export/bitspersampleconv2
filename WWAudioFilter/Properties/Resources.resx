@@ -395,4 +395,16 @@
   <data name="LabelHalfBandFilterTaps" xml:space="preserve">
     <value>Filter taps:</value>
   </data>
+  <data name="CrossfeedDefaultExt" xml:space="preserve">
+    <value>.txt</value>
+  </data>
+  <data name="CrossfeedFileFilter" xml:space="preserve">
+    <value>Crossfeed Filter|*.cfeed</value>
+  </data>
+  <data name="ErrorCrossfeedFile" xml:space="preserve">
+    <value>Please specify crossfeed Filter file</value>
+  </data>
+  <data name="FilterCrossfeedDesc" xml:space="preserve">
+    <value>Crossfeed: ConfigFile={0}</value>
+  </data>
 </root>

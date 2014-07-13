@@ -241,6 +241,24 @@ namespace WWAudioFilter.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .txt.
+        /// </summary>
+        internal static string CrossfeedDefaultExt {
+            get {
+                return ResourceManager.GetString("CrossfeedDefaultExt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Crossfeed Filter|*.cfeed.
+        /// </summary>
+        internal static string CrossfeedFileFilter {
+            get {
+                return ResourceManager.GetString("CrossfeedFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dropped data is not file.
         /// </summary>
         internal static string DroppedDataIsNotFile {
@@ -264,6 +282,15 @@ namespace WWAudioFilter.Properties {
         internal static string ErrorCicDelay {
             get {
                 return ResourceManager.GetString("ErrorCicDelay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please specify crossfeed Filter file.
+        /// </summary>
+        internal static string ErrorCrossfeedFile {
+            get {
+                return ResourceManager.GetString("ErrorCrossfeedFile", resourceCulture);
             }
         }
         
@@ -400,6 +427,15 @@ namespace WWAudioFilter.Properties {
         internal static string FilterCicFilterDesc {
             get {
                 return ResourceManager.GetString("FilterCicFilterDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Crossfeed: ConfigFile={0}.
+        /// </summary>
+        internal static string FilterCrossfeedDesc {
+            get {
+                return ResourceManager.GetString("FilterCrossfeedDesc", resourceCulture);
             }
         }
         

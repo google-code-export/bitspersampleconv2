@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -95,12 +96,12 @@ namespace WWAudioFilter {
             to = new AudioData();
             to.fileFormat = toFileFormat;
 
-            var fmt = FilterSetup(from, filters);
+            var fmt = FilterSetup(from, 0, filters);
 
             to.meta = new WWFlacRWCS.Metadata(from.meta);
             to.meta.sampleRate = fmt.SampleRate;
             to.meta.totalSamples = fmt.NumSamples;
-            to.meta.channels = fmt.Channels;
+            to.meta.channels = fmt.NumChannels;
 
             switch (toFileFormat) {
             case FileFormatType.FLAC:
@@ -155,8 +156,8 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        private static PcmFormat FilterSetup(AudioData from, List<FilterBase> filters) {
-            var fmt = new PcmFormat(from.meta.channels, from.meta.sampleRate, from.meta.totalSamples);
+        private static PcmFormat FilterSetup(AudioData from, int ch, List<FilterBase> filters) {
+            var fmt = new PcmFormat(from.meta.channels, ch, from.meta.sampleRate, from.meta.totalSamples);
             foreach (var f in filters) {
                 fmt = f.Setup(fmt);
             }
@@ -301,12 +302,11 @@ namespace WWAudioFilter {
             }
         }
 
-        private double[] FilterNth(List<FilterBase> filters, int nth, ref AudioDataPerChannel from) {
+        private double[] FilterNth(List<FilterBase> filters, int nth, int channelId, ref AudioDataPerChannel from) {
             if (nth == -1) {
                 return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
             } else {
                 // サンプル数が貯まるまでn-1番目のフィルターを実行する。
-                // n番目のフィルターを実行する
 
                 List<double[]> inPcmList = new List<double[]>();
                 {
@@ -318,11 +318,27 @@ namespace WWAudioFilter {
                 }
 
                 while (CountTotalSamples(inPcmList) < filters[nth].NumOfSamplesNeeded()) {
-                    inPcmList.Add(FilterNth(filters, nth - 1, ref from));
+                    inPcmList.Add(FilterNth(filters, nth - 1, channelId, ref from));
                 }
+
+
                 double[] inPcm;
                 double[] remainings;
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
+
+                if (filters[nth].WaitUntilAllChannelDataAvailable()) {
+                    mChannelTaskArray[channelId].Ready(inPcm);
+                    WaitUntilAllChannelsReady();
+
+                    // 全てのチャンネルのPCMが利用可能になったのでfilterにセットする。
+                    for (int ch = 0; ch < mChannelTaskArray.Length; ++ch) {
+                        filters[nth].SetChannelPcm(ch, mChannelTaskArray[ch].GetPcm());
+                    }
+                }
+
+                // n番目のフィルター実行準備が整った。
+                // n番目のフィルターを実行する。
+
                 double[] outPcm = filters[nth].FilterDo(inPcm);
 
                 // length-1番目のフィルター後に余った入力データremainingsをn番目のフィルターにセットする
@@ -343,7 +359,7 @@ namespace WWAudioFilter {
         }
         public delegate void ProgressReportCallback(int percentage, ProgressArgs args);
 
-        private int ProcessAudioFile(List<FilterBase> filters, int nChannels, ref AudioDataPerChannel from, ref AudioDataPerChannel to, ProgressReportCallback Callback) {
+        private int ProcessAudioFile(List<FilterBase> filters, int nChannels, int channelId, ref AudioDataPerChannel from, ref AudioDataPerChannel to, ProgressReportCallback Callback) {
             foreach (var f in filters) {
                 f.FilterStart();
             }
@@ -351,7 +367,7 @@ namespace WWAudioFilter {
             to.ResetStatistics();
             long pos = 0;
             while (pos < to.totalSamples) {
-                var pcm = FilterNth(filters, filters.Count - 1, ref from);
+                var pcm = FilterNth(filters, filters.Count - 1, channelId, ref from);
 
                 to.SetPcmInDouble(pcm, pos);
 
@@ -369,6 +385,44 @@ namespace WWAudioFilter {
             return 0;
         }
 
+        class ChannelTask {
+            ManualResetEvent mEvent;
+            double[] mPcm;
+            public ChannelTask() {
+                mEvent = new ManualResetEvent(false);
+                mPcm = null;
+            }
+
+            public void Ready(double[] pcm) {
+                mPcm = pcm;
+                mEvent.Set();
+            }
+
+            public void Reset() {
+                mPcm = null;
+                mEvent.Reset();
+            }
+
+            public WaitHandle GetWaitHandle() {
+                return mEvent;
+            }
+
+            public double[] GetPcm() {
+                return mPcm;
+            }
+        }
+
+        private ChannelTask[] mChannelTaskArray;
+
+        private void WaitUntilAllChannelsReady() {
+            WaitHandle[] waitHandles = new WaitHandle[mChannelTaskArray.Length];
+            for (int i = 0; i < waitHandles.Length; ++i) {
+                waitHandles[i] = mChannelTaskArray[i].GetWaitHandle();
+            }
+
+            WaitHandle.WaitAll(waitHandles);
+        }
+
         public int Run(string fromPath, List<FilterBase> aFilters, string toPath, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
@@ -376,6 +430,11 @@ namespace WWAudioFilter {
             int rv = ReadFlacFile(fromPath, out audioDataFrom);
             if (rv < 0) {
                 return rv;
+            }
+
+            mChannelTaskArray = new ChannelTask[audioDataFrom.meta.channels];
+            for (int ch = 0; ch < mChannelTaskArray.Length; ++ch) {
+                mChannelTaskArray[ch] = new ChannelTask();
             }
 
             Callback(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
@@ -409,11 +468,12 @@ namespace WWAudioFilter {
                 foreach (var f in aFilters) {
                     filters.Add(f.CreateCopy());
                 }
-                FilterSetup(audioDataFrom, filters);
+
+                FilterSetup(audioDataFrom, ch, filters);
 
                 var from = audioDataFrom.pcm[ch];
                 var to = audioDataTo.pcm[ch];
-                rv = ProcessAudioFile(filters, audioDataFrom.meta.channels, ref from, ref to, Callback);
+                rv = ProcessAudioFile(filters, audioDataFrom.meta.channels, ch, ref from, ref to, Callback);
                 if (rv < 0) {
                     return;
                 }

@@ -23,6 +23,7 @@ namespace WWAudioFilter {
 
         InsertZeroesUpsampler,
         HalfbandFilter,
+        Crossfeed,
     }
 
     public struct TagData {
@@ -39,6 +40,21 @@ namespace WWAudioFilter {
         private static int msFilterId = 0;
 
         public int FilterId { get; set; }
+
+        /// <summary>
+        /// 必要に応じて派生クラスでoverrideする。
+        /// </summary>
+        /// <returns>true: すべてのチャンネルの入力PCMが揃うまでFilterDo()を呼び出さない。</returns>
+        public virtual bool WaitUntilAllChannelDataAvailable() {
+            return false;
+        }
+
+        /// <summary>
+        /// WaitUntilAllChannelDataAvailable()==trueの時呼び出される。
+        /// 全てのチャンネルについてSetChannelPcm()が呼び出されたあとFilterDo()が呼び出される。
+        /// </summary>
+        public virtual void SetChannelPcm(int ch, double[] inPcm) {
+        }
 
         // 物置
         private double [] mPreviousProcessRemains;
@@ -109,19 +125,22 @@ namespace WWAudioFilter {
     }
 
     public class PcmFormat {
-        public int Channels { get; set; }
+        public int NumChannels { get; set; }
+        public int ChannelId { get; set; }
         public int SampleRate { get; set; }
         public long NumSamples { get; set; }
 
-        public PcmFormat(int channel, int sampleRate, long numSamples) {
-            Channels = channel;
-            SampleRate = sampleRate;
-            NumSamples = numSamples;
+        public PcmFormat(int numChannels, int channelId, int sampleRate, long numSamples) {
+            NumChannels = numChannels;
+            ChannelId   = channelId;
+            SampleRate  = sampleRate;
+            NumSamples  = numSamples;
         }
         public PcmFormat(PcmFormat rhs) {
-            Channels = rhs.Channels;
-            SampleRate = rhs.SampleRate;
-            NumSamples = rhs.NumSamples;
+            NumChannels = rhs.NumChannels;
+            ChannelId   = rhs.ChannelId;
+            SampleRate  = rhs.SampleRate;
+            NumSamples  = rhs.NumSamples;
         }
     };
 }
