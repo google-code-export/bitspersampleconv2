@@ -125,7 +125,7 @@ namespace WWAudioFilter {
                 return InsertZeroesUpsampler.Restore(tokens);
             case "HalfbandFilter":
                 return HalfbandFilter.Restore(tokens);
-            case "CrossfeedFilter":
+            case "Crossfeed":
                 return CrossfeedFilter.Restore(tokens);
             default:
                 return null;

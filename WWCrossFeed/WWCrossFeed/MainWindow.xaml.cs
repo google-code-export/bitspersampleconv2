@@ -324,7 +324,7 @@ namespace WWCrossFeed {
                 return;
             }
 
-            int sampleRate = 44100;
+            int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
             mCrossFeed.Clear();

@@ -31,24 +31,8 @@ namespace WWAudioFilter {
                     Properties.Resources.FilterTagEdit, TagType, Text);
         }
 
-        private string EscapeString(string s) {
-            StringBuilder sb = new StringBuilder();
-            for (int i=0; i < s.Length; ++i) {
-                if (s[i] == '\\') {
-                    sb.Append('\\');
-                    sb.Append('\\');
-                } else if (s[i] == '\"') {
-                    sb.Append('\\');
-                    sb.Append('\"');
-                } else {
-                    sb.Append(s[i]);
-                }
-            }
-            return "\"" + sb.ToString() + "\"";
-        }
-
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", TagType, EscapeString(Text));
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", TagType, WWUtil.EscapeString(Text));
         }
 
         public static FilterBase Restore(string[] tokens) {

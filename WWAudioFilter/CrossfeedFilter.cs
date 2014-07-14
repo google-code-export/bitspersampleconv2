@@ -62,7 +62,7 @@ namespace WWAudioFilter {
         }
 
         public override string ToSaveText() {
-            return string.Format(CultureInfo.InvariantCulture, "{0}", FilterFilePath);
+            return string.Format(CultureInfo.InvariantCulture, "{0}", WWUtil.EscapeString(FilterFilePath));
         }
 
         public static FilterBase Restore(string[] tokens) {
@@ -167,19 +167,19 @@ namespace WWAudioFilter {
         }
 
         public override double[] FilterDo(double[] inPcm) {
-            // この計算で求めるのは、mChannelId==0のとき左耳, mChannelId==1のとき右耳の音。
+            // この計算で求めるのは、mChannelId==0のとき左耳, mChannelId==1のとき右耳の音。mChannelIdは耳のチャンネル番号。
             // 入力データとしてmPcmAllChannelsが使用できる。mPcmAllChannels[0]==左スピーカーの音、mPcmAllChannels[1]==右スピーカーの音。
 
             int fftLength = ((int)mNumSamples < mCoeffs[0].Length) ? mCoeffs[0].Length : (int)mNumSamples;
             fftLength = NextPowerOf2(fftLength);
 
             // 左スピーカーの音=mPcmAllChannels[0]
-            // 左スピーカーとchの相互作用のCoeff==mCoeffs[ch * 2]
-            var leftSpeaker = FFTFir(mPcmAllChannels[0], mCoeffs[mChannelId*2], fftLength);
+            // 左スピーカーと耳chの相互作用のCoeff==mCoeffs[ch]
+            var leftSpeaker = FFTFir(mPcmAllChannels[0], mCoeffs[mChannelId+0], fftLength);
 
             // 右スピーカーの音=mPcmAllChannels[1]
-            // 右スピーカーとchの相互作用のCoeff==mCoeffs[ch*2+1]
-            var rightSpeaker = FFTFir(mPcmAllChannels[1], mCoeffs[mChannelId*2+1], fftLength);
+            // 右スピーカーと耳chの相互作用のCoeff==mCoeffs[ch+2]
+            var rightSpeaker = FFTFir(mPcmAllChannels[1], mCoeffs[mChannelId+2], fftLength);
 
             var mixed = Add(leftSpeaker, rightSpeaker);
             return mixed;

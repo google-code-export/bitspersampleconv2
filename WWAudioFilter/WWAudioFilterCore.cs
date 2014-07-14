@@ -64,9 +64,9 @@ namespace WWAudioFilter {
 
                 return filters;
             } catch (IOException ex) {
-                MessageBox.Show("{0}", ex.Message);
+                MessageBox.Show(ex.Message);
             } catch (UnauthorizedAccessException ex) {
-                MessageBox.Show("{0}", ex.Message);
+                MessageBox.Show(ex.Message);
             }
 
             return null;
@@ -83,9 +83,9 @@ namespace WWAudioFilter {
 
                 return true;
             } catch (IOException ex) {
-                MessageBox.Show("{0}", ex.Message);
+                MessageBox.Show(ex.Message);
             } catch (UnauthorizedAccessException ex) {
-                MessageBox.Show("{0}", ex.Message);
+                MessageBox.Show(ex.Message);
             }
             return false;
         }
@@ -302,6 +302,11 @@ namespace WWAudioFilter {
             }
         }
 
+        private Barrier mBarrierReady;
+        private Barrier mBarrierSet;
+
+        private double[][] mInPcmArray;
+
         private double[] FilterNth(List<FilterBase> filters, int nth, int channelId, ref AudioDataPerChannel from) {
             if (nth == -1) {
                 return from.GetPcmInDouble(filters[0].NumOfSamplesNeeded());
@@ -327,12 +332,23 @@ namespace WWAudioFilter {
                 AssembleSample(inPcmList, filters[nth].NumOfSamplesNeeded(), out inPcm, out remainings);
 
                 if (filters[nth].WaitUntilAllChannelDataAvailable()) {
-                    mChannelTaskArray[channelId].Ready(inPcm);
-                    WaitUntilAllChannelsReady();
+                    mInPcmArray[channelId] = inPcm;
 
-                    // 全てのチャンネルのPCMが利用可能になったのでfilterにセットする。
-                    for (int ch = 0; ch < mChannelTaskArray.Length; ++ch) {
-                        filters[nth].SetChannelPcm(ch, mChannelTaskArray[ch].GetPcm());
+                    // mInPcmArrayに全てのチャンネルのPCMが集まるまで待つ。
+                    mBarrierReady.SignalAndWait();
+
+                    for (int ch = 0; ch < mInPcmArray.Length; ++ch) {
+                        filters[nth].SetChannelPcm(ch, mInPcmArray[ch]);
+                    }
+
+                    // 全てのスレッドのfiltersのSetChannelPcm()が終わるまで待つ。
+                    mBarrierSet.SignalAndWait();
+
+                    if (channelId == 0) {
+                        // 0番のスレッドが代表して実行。mInPcmArray配列をクリア。
+                        for (int ch = 0; ch < mInPcmArray.Length; ++ch) {
+                            mInPcmArray[ch] = null;
+                        }
                     }
                 }
 
@@ -385,44 +401,6 @@ namespace WWAudioFilter {
             return 0;
         }
 
-        class ChannelTask {
-            ManualResetEvent mEvent;
-            double[] mPcm;
-            public ChannelTask() {
-                mEvent = new ManualResetEvent(false);
-                mPcm = null;
-            }
-
-            public void Ready(double[] pcm) {
-                mPcm = pcm;
-                mEvent.Set();
-            }
-
-            public void Reset() {
-                mPcm = null;
-                mEvent.Reset();
-            }
-
-            public WaitHandle GetWaitHandle() {
-                return mEvent;
-            }
-
-            public double[] GetPcm() {
-                return mPcm;
-            }
-        }
-
-        private ChannelTask[] mChannelTaskArray;
-
-        private void WaitUntilAllChannelsReady() {
-            WaitHandle[] waitHandles = new WaitHandle[mChannelTaskArray.Length];
-            for (int i = 0; i < waitHandles.Length; ++i) {
-                waitHandles[i] = mChannelTaskArray[i].GetWaitHandle();
-            }
-
-            WaitHandle.WaitAll(waitHandles);
-        }
-
         public int Run(string fromPath, List<FilterBase> aFilters, string toPath, ProgressReportCallback Callback) {
             AudioData audioDataFrom;
             AudioData audioDataTo;
@@ -432,10 +410,9 @@ namespace WWAudioFilter {
                 return rv;
             }
 
-            mChannelTaskArray = new ChannelTask[audioDataFrom.meta.channels];
-            for (int ch = 0; ch < mChannelTaskArray.Length; ++ch) {
-                mChannelTaskArray[ch] = new ChannelTask();
-            }
+            mBarrierReady = new Barrier(audioDataFrom.meta.channels);
+            mBarrierSet = new Barrier(audioDataFrom.meta.channels);
+            mInPcmArray = new double[audioDataFrom.meta.channels][];
 
             Callback(FILE_READ_COMPLETE_PERCENTAGE, new ProgressArgs(Properties.Resources.LogFileReadCompleted, 0));
 
