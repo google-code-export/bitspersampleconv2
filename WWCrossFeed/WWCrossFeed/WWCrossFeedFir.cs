@@ -9,8 +9,16 @@ using System.Windows.Media.Media3D;
 namespace WWCrossFeed {
     class WWCrossFeedFir {
         List<WWRoute> mRouteList = new List<WWRoute>();
+        /// <summary>
+        /// 壁の反射率
+        /// </summary>
         public double ReflectionRatio { get; set; }
         public double SoundSpeed { get; set; }
+
+        /// <summary>
+        /// 反射成分のゲイン 0.0001程度
+        /// </summary>
+        public double ReflectionGain { get; set; }
 
         private const double SMALL_GAIN_THRESHOLD = 0.01;
         private const int FILE_VERSION = 1;
@@ -215,11 +223,9 @@ namespace WWCrossFeed {
             OutputFile(sampleRate, new Dictionary<int, double>[] {ll, lr, rl, rr}, path);
         }
 
-        private const double FIR_COEFF_RATIO = 0.0002;
-
         private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
             var table = new Dictionary<int, Vector3D>();
-            double ratio = FIR_COEFF_RATIO * sampleRate / mRouteCount[0];
+            double ratio = ReflectionGain * sampleRate / mRouteCount[0];
 
             foreach (var coeff in coeffList) {
                 int delaySample = (int)(coeff.DelaySecond * sampleRate);

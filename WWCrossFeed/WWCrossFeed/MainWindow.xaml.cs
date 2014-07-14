@@ -327,7 +327,11 @@ namespace WWCrossFeed {
             int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
+            double reflectionGain;
+            Double.TryParse(mTextBoxRefrectionGain.Text, out reflectionGain);
+
             mCrossFeed.Clear();
+            mCrossFeed.ReflectionGain = reflectionGain;
             mCrossFeed.Start(mRoom);
             for (int i = 0; i < 500000; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
