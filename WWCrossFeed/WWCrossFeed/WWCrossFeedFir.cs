@@ -16,7 +16,7 @@ namespace WWCrossFeed {
         public double SoundSpeed { get; set; }
 
         /// <summary>
-        /// 反射成分のゲイン 0.0001程度
+        /// 反射成分のゲイン 4程度
         /// </summary>
         public double ReflectionGain { get; set; }
 
@@ -225,7 +225,7 @@ namespace WWCrossFeed {
 
         private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
             var table = new Dictionary<int, Vector3D>();
-            double ratio = ReflectionGain * sampleRate / mRouteCount[0];
+            double ratio = ReflectionGain / mRouteCount[0];
 
             foreach (var coeff in coeffList) {
                 int delaySample = (int)(coeff.DelaySecond * sampleRate);
