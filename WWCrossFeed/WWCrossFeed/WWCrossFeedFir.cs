@@ -12,7 +12,11 @@ namespace WWCrossFeed {
         /// <summary>
         /// 壁の反射率
         /// </summary>
-        public double ReflectionRatio { get; set; }
+        public double WallReflectionRatio { get; set; }
+
+        /// <summary>
+        /// 速さ m/s
+        /// </summary>
         public double SoundSpeed { get; set; }
 
         /// <summary>
@@ -33,7 +37,7 @@ namespace WWCrossFeed {
         Random mRand = new Random();
 
         public WWCrossFeedFir() {
-            ReflectionRatio = 0.8f;
+            WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
         }
 
@@ -163,12 +167,18 @@ namespace WWCrossFeed {
                     break;
                 }
 
+                // 1.0 - 反射率の確率で、計算を打ち切る。
+                // たとえば反射率0.8の壁にRayが10本入射すると、8本のRayが強度を100%保ったまま反射する。
+                if (WallReflectionRatio < mRand.NextDouble()) {
+                    break;
+                }
+
                 // スピーカーからの道のりを計算する。
                 var lineSegment = new WWLineSegment(rayPos, rayDir, rayLength, 1.0f /* 仮 Intensity */ );
 
                 int speakerCh = earCh;
                 var distanceSame = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, soundDir, 1.0f / distanceSame * Math.Pow(ReflectionRatio, i+1), false);
+                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, soundDir, 1.0f / distanceSame, false);
                 lineSegment.Intensity = coeffS.Gain;
 
                 if (coeffS.Gain < SMALL_GAIN_THRESHOLD) {
@@ -179,7 +189,7 @@ namespace WWCrossFeed {
                 
                 speakerCh = (earCh==0)?1:0;
                 var distanceDifferent = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, soundDir, 1.0f / distanceDifferent * Math.Pow(ReflectionRatio, i + 1), false);
+                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, soundDir, 1.0f / distanceDifferent, false);
 
                 if (SMALL_GAIN_THRESHOLD <= coeffD.Gain) {
                     StoreCoeff(earCh, speakerCh, coeffD);

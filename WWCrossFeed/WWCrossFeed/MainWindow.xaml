@@ -21,20 +21,20 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
 
-                        <Button Content="Ray Test" Click="mButtonRayTest_Click" Height="24" Width="200" Grid.ColumnSpan="2" />
-                        <Label Grid.Row="1" Content="Reflection Gain:" HorizontalContentAlignment="Right" />
-                        <TextBox x:Name="mTextBoxRefrectionGain" Grid.Row="1" Grid.Column="1" Text="4.0" HorizontalContentAlignment="Right" />
-                        <Label Grid.Row="2" Content="Sample Rate:" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="0" Content="Reflection Gain:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxRefrectionGain" Grid.Row="0" Grid.Column="1" Text="1.0" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="1" Content="Sample Rate:" HorizontalContentAlignment="Right" />
                         <TextBox x:Name="mTextBoxSampleRate" Grid.Row="2" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
-                        <Button Grid.Row="3" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" Grid.ColumnSpan="2" />
+                        <Button Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Content="Ray Test" Click="mButtonRayTest_Click" Height="24" Width="200" />
+                        <Button Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Camera settings" >
@@ -54,8 +54,12 @@
                         <Label Grid.Row="1" Content="degree" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Room Model" >
+                <GroupBox Header="Room Settings" >
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*" />
                             <RowDefinition Height="1*" />
@@ -64,7 +68,7 @@
                         </Grid.RowDefinitions>
                         <RadioButton x:Name="mRadioButtonCreateRoomFromDimension" Content="Generate Room from Dimension" IsChecked="True" Checked="mRadioButtonCreateRoomFromDimension_Checked" />
                         <RadioButton x:Name="mRadioButtonCreateRoomFromFile" Grid.Row="1" Content="Generate Room from Model File" Checked="mRadioButtonCreateRoomFromFile_Checked" />
-                        <GroupBox x:Name="mGroupBoxRoomDimension" Grid.Row="2" Header="Room Dimension" >
+                        <GroupBox x:Name="mGroupBoxRoomDimension" Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Header="Room Dimension" >
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
@@ -87,7 +91,7 @@
                                 <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
                             </Grid>
                         </GroupBox>
-                        <GroupBox x:Name="mGroupBoxRoomFile" Grid.Row="3" Header="Room Model File (Unit length is 1 meter)" IsEnabled="False" >
+                        <GroupBox x:Name="mGroupBoxRoomFile" Grid.Row="2" Header="Room Model File (Unit length is 1 meter)" IsEnabled="False" >
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
@@ -101,6 +105,16 @@
                                 <Label Grid.Column="0" Grid.Row="0" Content="File path:" />
                                 <TextBox x:Name="mRoomModelPath" Grid.Column="1" Grid.Row="0" Text="C:/work/model/room.obj" />
                                 <Button Grid.Column="2" Grid.Row="0" Content="Browse..." />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Grid.Row="3" Header="Room properties" >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Wall reflection ratio:" HorizontalContentAlignment="Right" />
+                                <TextBox x:Name="mWallReflectionRatio" Grid.Column="1" Text="0.8" HorizontalContentAlignment="Right" />
                             </Grid>
                         </GroupBox>
                     </Grid>

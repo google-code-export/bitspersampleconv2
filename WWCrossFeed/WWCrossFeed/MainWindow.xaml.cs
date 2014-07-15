@@ -330,8 +330,15 @@ namespace WWCrossFeed {
             double reflectionGain;
             Double.TryParse(mTextBoxRefrectionGain.Text, out reflectionGain);
 
+            double wallReflectionRatio;
+            Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
+
             mCrossFeed.Clear();
             mCrossFeed.ReflectionGain = reflectionGain;
+            
+            // エネルギー比 to 振幅比の変換。
+            mCrossFeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio); 
+
             mCrossFeed.Start(mRoom);
             for (int i = 0; i < 500000; ++i) {
                 mCrossFeed.Trace(mRoom, 0);
