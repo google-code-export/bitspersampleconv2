@@ -538,5 +538,11 @@ END:
 
     crossfeedParam.Term();
 
+    if (result != 0) {
+        printf("Failed!\n");
+    } else {
+        printf("Succeeded to write %S\n", argv[3]);
+    }
+
     return result;
 }
