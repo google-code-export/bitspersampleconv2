@@ -68,21 +68,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>WWFlacRW</TargetName>
+    <LibraryPath>$(ProjectDir)libFLAC\lib\$(PlatformToolset)\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)libFLAC\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)libFLAC\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)libFLAC\lib\$(Platform)\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)libFLAC\lib\$(PlatformToolset)\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
+    <TargetName>WWFlacRW</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>WWFlacRW</TargetName>
+    <LibraryPath>$(ProjectDir)libFLAC\lib\$(PlatformToolset)\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)libFLAC\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProjectDir)libFLAC\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)libFLAC\lib\$(Platform)\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)libFLAC\lib\$(PlatformToolset)\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\x64\$(Configuration)\</OutDir>
+    <TargetName>WWFlacRW</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
