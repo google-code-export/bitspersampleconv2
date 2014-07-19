@@ -136,7 +136,7 @@ namespace WWAudioFilter {
 
             var coefTime = new WWComplex[fftLength];
             for (int i = 0; i < mCoeffs[mChannelId * 2].Length; ++i) {
-                coefTime[i].real = mCoeffs[mChannelId * 2][i];
+                coefTime[i].real = coef[i];
             }
 
             var coefFreq = new WWComplex[fftLength];
