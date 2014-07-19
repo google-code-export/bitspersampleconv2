@@ -89,17 +89,19 @@ namespace WWCrossFeed {
             mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, rrN, 1.0 / rr.Length, true));
 
             // 左スピーカーから右の耳に音が届く。
-            // 振幅がだいたい半分くらいになる。
+            // 振幅が-4.5dBくらいになる。
+            double attenuationDecibel = -4.5;
+            double attenuationMagnitude = Math.Pow(10.0, attenuationDecibel / 20.0);
 
             var lr = rightEarPos - leftSpeakerPos;
             var lrN = lr;
             lrN.Normalize();
-            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, lrN, 0.5 / lr.Length, true));
+            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, lrN, attenuationMagnitude / lr.Length, true));
 
             var rl = leftEarPos - rightSpeakerPos;
             var rlN = rl;
             rlN.Normalize();
-            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, rlN, 0.5 / rl.Length, true));
+            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, rlN, attenuationMagnitude / rl.Length, true));
 
             // 1本のレイがそれぞれのスピーカーリスナー組に入る。
             mRouteCount[0] = 1;

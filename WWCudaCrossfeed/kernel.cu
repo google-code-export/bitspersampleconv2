@@ -507,8 +507,14 @@ int wmain(int argc, wchar_t *argv[])
 
     pcmSamples[0].outputSamples = CrossfeedMix(pcmSamples[0].spectrum, pcmSamples[1].spectrum,
         crossfeedParam.spectra[0], crossfeedParam.spectra[1], nFFT, pcmSamples[0].totalSamples);
+    if (pcmSamples[0].outputSamples == NULL) {
+        goto END;
+    }
     pcmSamples[1].outputSamples = CrossfeedMix(pcmSamples[0].spectrum, pcmSamples[1].spectrum,
         crossfeedParam.spectra[2], crossfeedParam.spectra[3], nFFT, pcmSamples[0].totalSamples);
+    if (pcmSamples[1].outputSamples == NULL) {
+        goto END;
+    }
 
     NormalizeOutputPcm(pcmSamples);
 
