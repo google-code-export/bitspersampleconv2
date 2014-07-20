@@ -10,6 +10,8 @@
 #include <float.h>
 
 #define CROSSFEED_COEF_NUM (4)
+#define NUM_THREADS_PER_BLOCK (32)
+#define BLOCK_X (32768)
 
 struct CrossfeedParam {
     int numChannels;
@@ -179,19 +181,43 @@ NextPowerOf2(size_t v)
     }
     return result;
 }
+static const char *
+CudaFftGetErrorString(cufftResult error)
+{
+    switch (error) {
+        case CUFFT_SUCCESS:       return "CUFFT_SUCCESS";
+        case CUFFT_INVALID_PLAN:  return "CUFFT_INVALID_PLAN";
+        case CUFFT_ALLOC_FAILED:  return "CUFFT_ALLOC_FAILED";
+        case CUFFT_INVALID_TYPE:  return "CUFFT_INVALID_TYPE";
+        case CUFFT_INVALID_VALUE: return "CUFFT_INVALID_VALUE";
 
-#define CHK_CUDAERROR(x)                    \
-    ercd = x;                               \
-    if (cudaSuccess != ercd) {              \
-        printf("%s failed %d\n", #x, ercd); \
-        return NULL;                        \
+        case CUFFT_INTERNAL_ERROR: return "CUFFT_INTERNAL_ERROR";
+        case CUFFT_EXEC_FAILED:    return "CUFFT_EXEC_FAILED";
+        case CUFFT_SETUP_FAILED:   return "CUFFT_SETUP_FAILED";
+        case CUFFT_INVALID_SIZE:   return "CUFFT_INVALID_SIZE";
+        case CUFFT_UNALIGNED_DATA: return "CUFFT_UNALIGNED_DATA";
+
+        case CUFFT_INCOMPLETE_PARAMETER_LIST: return "CUFFT_INCOMPLETE_PARAMETER_LIST";
+        case CUFFT_INVALID_DEVICE:            return "CUFFT_INVALID_DEVICE";
+        case CUFFT_PARSE_ERROR:               return "CUFFT_PARSE_ERROR";
+        case CUFFT_NO_WORKSPACE:              return "CUFFT_NO_WORKSPACE";
+        default: return "unknown";
+    }
+}
+
+
+#define CHK_CUDAERROR(x)                                                              \
+    ercd = x;                                                                         \
+    if (cudaSuccess != ercd) {                                                        \
+        printf("%s failed. errorcode=%d (%s)\n", #x, ercd, cudaGetErrorString(ercd)); \
+        return NULL;                                                                  \
     }
 
-#define CHK_CUFFT(x)                             \
-    fftResult = x;                               \
-    if (cudaSuccess != fftResult) {              \
-        printf("%s failed %d\n", #x, fftResult); \
-        return NULL;                             \
+#define CHK_CUFFT(x)                                                                               \
+    fftResult = x;                                                                                 \
+    if (cudaSuccess != fftResult) {                                                                \
+        printf("%s failed. errorcode=%d (%s)\n", #x, fftResult, CudaFftGetErrorString(fftResult)); \
+        return NULL;                                                                               \
     }
 
 static cufftComplex *
@@ -224,13 +250,10 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
     return spectrum;
 }
 
-#define NUM_THREADS_PER_BLOCK (32)
-#define BLOCK_X (32768)
-
 __global__ void
 ElementWiseMulCuda(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 {
-    int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
+    int offs = threadIdx.x + (blockDim.x * blockDim.y) * (blockIdx.x + gridDim.x * blockIdx.y);
     C[offs].x = A[offs].x * B[offs].x - A[offs].y * B[offs].y;
     C[offs].y = A[offs].x * B[offs].y + A[offs].y * B[offs].x;
 }
@@ -243,19 +266,15 @@ ElementWiseAddCuda(cufftReal *C, cufftReal *A, cufftReal *B)
 }
 
 static float *
-CrossfeedMix(cufftComplex *leftSpeaker, cufftComplex *rightSpeaker,
-        cufftComplex *leftSpeakerToEar, cufftComplex *rightSpeakerToEar,
-        int nFFT, int pcmSamples)
+CrossfeedMix(cufftComplex *inPcm[2], cufftComplex *coeff[2], int nFFT, int pcmSamples)
 {
     dim3 threads(1);
     dim3 blocks(1);
     cudaError_t ercd;
     cufftResult fftResult;
     cufftHandle plan = 0;
-    cufftComplex *cuFreqL = NULL;
-    cufftComplex *cuFreqR = NULL;
-    cufftReal *cuTimeL = NULL;
-    cufftReal *cuTimeR = NULL;
+    cufftComplex *cuFreq = NULL;
+    cufftReal *cuTime[2] = {NULL, NULL};
     cufftReal *cuTimeMixed = NULL;
 
     if ((nFFT / NUM_THREADS_PER_BLOCK) <= 1) {
@@ -277,51 +296,43 @@ CrossfeedMix(cufftComplex *leftSpeaker, cufftComplex *rightSpeaker,
         }
     }
 
-    CHK_CUDAERROR(cudaMalloc((void**)&cuFreqL,     sizeof(cufftComplex)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuFreqR,     sizeof(cufftComplex)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTimeL,     sizeof(cufftReal)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTimeR,     sizeof(cufftReal)*nFFT));
+    CHK_CUDAERROR(cudaMalloc((void**)&cuFreq,      sizeof(cufftComplex)*nFFT));
+    CHK_CUDAERROR(cudaMalloc((void**)&cuTime[0],   sizeof(cufftReal)*nFFT));
+    CHK_CUDAERROR(cudaMalloc((void**)&cuTime[1],   sizeof(cufftReal)*nFFT));
+
+    cudaDeviceSynchronize();
+
+    for (int ch=0; ch<2; ++ch) {
+        ElementWiseMulCuda<<<blocks, threads>>>(cuFreq, inPcm[ch], coeff[ch]);
+    
+        cudaDeviceSynchronize();
+
+        CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
+        CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch]));
+
+        cudaDeviceSynchronize();
+
+        cufftDestroy(plan);
+        plan = 0;
+    }
+
+    cudaFree(cuFreq);
+    cuFreq = NULL;
+
     CHK_CUDAERROR(cudaMalloc((void**)&cuTimeMixed, sizeof(cufftReal)*nFFT));
 
     cudaDeviceSynchronize();
 
-    ElementWiseMulCuda<<<blocks, threads>>>(cuFreqL, leftSpeaker, leftSpeakerToEar);
-    ElementWiseMulCuda<<<blocks, threads>>>(cuFreqR, rightSpeaker, rightSpeakerToEar);
-    
-    cudaDeviceSynchronize();
-
-    CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
-    CHK_CUFFT(cufftExecC2R(plan, cuFreqL, cuTimeL));
+    ElementWiseAddCuda<<<blocks, threads>>>(cuTimeMixed, cuTime[0], cuTime[1]);
 
     cudaDeviceSynchronize();
 
-    cufftDestroy(plan);
-    plan = 0;
-    cudaFree(cuFreqL);
-    cuFreqL = NULL;
+    for (int ch=0; ch<2; ++ch) {
+        cudaFree(cuTime[ch]);
+        cuTime[ch] = NULL;
+    }
 
     cudaDeviceSynchronize();
-
-    CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
-    CHK_CUFFT(cufftExecC2R(plan, cuFreqR, cuTimeR));
-
-    cudaDeviceSynchronize();
-
-    cufftDestroy(plan);
-    plan = 0;
-    cudaFree(cuFreqR);
-    cuFreqR = NULL;
-
-    cudaDeviceSynchronize();
-
-    ElementWiseAddCuda<<<blocks, threads>>>(cuTimeMixed, cuTimeL, cuTimeR);
-
-    cudaDeviceSynchronize();
-
-    cudaFree(cuTimeL);
-    cuTimeL = NULL;
-    cudaFree(cuTimeR);
-    cuTimeR = NULL;
 
     float *result = new float[pcmSamples];
     CHK_CUDAERROR(cudaMemcpy(result, cuTimeMixed, pcmSamples * sizeof(float), cudaMemcpyDeviceToHost));
@@ -330,6 +341,8 @@ CrossfeedMix(cufftComplex *leftSpeaker, cufftComplex *rightSpeaker,
 
     cudaFree(cuTimeMixed);
     cuTimeMixed = NULL;
+
+    cudaDeviceSynchronize();
 
     return result;
 }
@@ -422,6 +435,8 @@ int wmain(int argc, wchar_t *argv[])
     CrossfeedParam crossfeedParam;
     WWFlacMetadata meta;
     uint8_t * picture = NULL;
+    cufftComplex * inPcmSpectra[2];
+    int64_t usedGpuMemoryBytes = 0;
 
     std::vector<PcmSamplesPerChannel> pcmSamples;
 
@@ -497,22 +512,26 @@ int wmain(int argc, wchar_t *argv[])
         if (crossfeedParam.spectra[i] == NULL) {
             goto END;
         }
+        usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
     }
     for (int ch=0; ch<meta.channels; ++ch) {
         pcmSamples[ch].spectrum = CreateSpectrum(pcmSamples[ch].inputSamples, pcmSamples[ch].totalSamples, nFFT);
         if (pcmSamples[ch].spectrum == NULL) {
             goto END;
         }
+        usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
     }
 
-    pcmSamples[0].outputSamples = CrossfeedMix(pcmSamples[0].spectrum, pcmSamples[1].spectrum,
-        crossfeedParam.spectra[0], crossfeedParam.spectra[1], nFFT, pcmSamples[0].totalSamples);
+    inPcmSpectra[0] = pcmSamples[0].spectrum;
+    inPcmSpectra[1] = pcmSamples[1].spectrum;
+    pcmSamples[0].outputSamples = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[0], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[0].outputSamples == NULL) {
+        usedGpuMemoryBytes += nFFT * sizeof(cufftReal);
         goto END;
     }
-    pcmSamples[1].outputSamples = CrossfeedMix(pcmSamples[0].spectrum, pcmSamples[1].spectrum,
-        crossfeedParam.spectra[2], crossfeedParam.spectra[3], nFFT, pcmSamples[0].totalSamples);
+    pcmSamples[1].outputSamples = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[2], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[1].outputSamples == NULL) {
+        usedGpuMemoryBytes += nFFT * sizeof(cufftReal);
         goto END;
     }
 
@@ -541,7 +560,8 @@ END:
     if (result != 0) {
         printf("Failed!\n");
     } else {
-        printf("Succeeded to write %S\n", argv[3]);
+        printf("Used GPU memory: %lld Mbytes.\n", usedGpuMemoryBytes/1024/1024);
+        printf("Succeeded to write %S.\n", argv[3]);
     }
 
     return result;
