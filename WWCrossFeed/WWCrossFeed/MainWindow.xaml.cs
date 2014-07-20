@@ -18,7 +18,7 @@ using System.Windows.Shapes;
 
 namespace WWCrossFeed {
     public partial class MainWindow : Window {
-        private const double CAMERA_DISTANCE_DEFAULT = 10.0;
+        private const double CAMERA_DISTANCE_DEFAULT = 12.0;
         private const double SMALLEST_ROOM_LENGTH = 2.0;
         private WWRoom mRoom = new WWRoom();
         private WWRoomVisualizer mRoomVisualizer;
