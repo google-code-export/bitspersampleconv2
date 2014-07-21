@@ -1,3 +1,5 @@
+// æ—¥æœ¬èª
+
 #include <stdio.h>
 #include <string.h> //< memset()
 #include <math.h>
@@ -21,7 +23,7 @@ enum PcmChannelType {
     PCT_NUM
 };
 
-// 44.1kHz—p 1kHzˆÈ‰º‚ğæ‚èo‚·LPFBƒfƒBƒŒƒC‚ğHPF‚Æ‡‚í‚¹‚éB
+// 44.1kHzç”¨ 1kHzä»¥ä¸‹ã‚’å–ã‚Šå‡ºã™LPFã€‚ãƒ‡ã‚£ãƒ¬ã‚¤ã‚’HPFã¨åˆã‚ã›ã‚‹ã€‚
 static float gLpf[] = {
     0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0,
@@ -39,7 +41,7 @@ static float gLpf[] = {
     0.006468574, 0.005265026, 0.004192373, 0.003249754,
     0.005228327 };
 
-// 44.1kHz—p 1kHzˆÈã‚ğæ‚èo‚·HPFBLPF‚ÆƒRƒ“ƒvƒŠƒƒ“ƒ^ƒŠ[‚É‚È‚Á‚Ä‚¢‚éB
+// 44.1kHzç”¨ 1kHzä»¥ä¸Šã‚’å–ã‚Šå‡ºã™HPFã€‚LPFã¨ã‚³ãƒ³ãƒ—ãƒªãƒ¡ãƒ³ã‚¿ãƒªãƒ¼ã«ãªã£ã¦ã„ã‚‹ã€‚
 static float gHpf[] = {
             0.18284994666072, 0.135236586884136, 0.122587729966973, 0.0194160387180315,
             -0.018554433938607, -0.147953150443285, -0.151175453402614, -0.349031089410704,
@@ -167,7 +169,7 @@ ReadCrossfeeedParamsFromFile(const wchar_t *path, CrossfeedParam *param_return)
 
     CHECKED(0 < param_return->coeffSize);
 
-    // ƒRƒƒ“ƒgsBƒXƒLƒbƒv‚·‚éB
+    // ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã€‚ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹ã€‚
     CHECKED(ReadOneLine(fp, buff, sizeof buff));
 
     for (int ch=0; ch<CROSSFEED_COEF_NUM; ++ch) {
@@ -696,7 +698,7 @@ int wmain(int argc, wchar_t *argv[])
         buff = NULL;
 
         {
-            // ’á‰¹ˆæ
+            // ä½éŸ³åŸŸ
             PcmSamplesPerChannel lowFreq;
             lowFreq.Init();
             lowFreq.totalSamples = ppc.totalSamples;
@@ -708,7 +710,7 @@ int wmain(int argc, wchar_t *argv[])
         }
 
         {
-            // ‚‰¹ˆæ
+            // é«˜éŸ³åŸŸ
             PcmSamplesPerChannel highFreq;
             highFreq.Init();
             highFreq.totalSamples = ppc.totalSamples;
@@ -756,7 +758,7 @@ int wmain(int argc, wchar_t *argv[])
 
     NormalizeOutputPcm(pcmSamples);
 
-    // o—Íbit depth == 24bit
+    // å‡ºåŠ›bit depth == 24bit
     meta.bitsPerSample = 24;
     if (!WriteFlacFile(meta, picture, pcmSamples, argv[3])) {
         printf("Error: WriteFlac(%S) failed\n", argv[3]);
