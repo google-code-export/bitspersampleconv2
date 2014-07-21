@@ -64,6 +64,27 @@ static float gHpf[] = {
             -0.0185544339386063, 0.0194160387180304, 0.122587729966972, 0.135236586884135,
             0.18284994666072, };
 
+static int64_t gCudaAllocatedBytes = 0;
+static int64_t gCudaMaxBytes = 0;
+
+#define CHK_CUDAMALLOC(pp, sz)                                                             \
+    ercd = cudaMalloc(pp, sz);                                                             \
+    if (cudaSuccess != ercd) {                                                             \
+        printf("cudaMalloc(%dMBytes) failed. errorcode=%d (%s). allocated CUDA memory=%lld Mbytes\n", (int)(sz/1024/1024), ercd, cudaGetErrorString(ercd), gCudaAllocatedBytes/1024/1024); \
+        return NULL;                                                                       \
+    }                                                                                      \
+    gCudaAllocatedBytes += sz;                                                             \
+    if (gCudaMaxBytes < gCudaAllocatedBytes) {                                             \
+        gCudaMaxBytes = gCudaAllocatedBytes;                                               \
+    }
+
+#define CHK_CUDAFREE(p, sz)        \
+    cudaFree(p);                   \
+    if (p != NULL) {               \
+        p = NULL;                  \
+        gCudaAllocatedBytes -= sz; \
+    }
+
 struct CrossfeedParam {
     int numChannels;
     float *coeffs[CROSSFEED_COEF_NUM];
@@ -71,6 +92,7 @@ struct CrossfeedParam {
 
     int sampleRate;
     int coeffSize;
+    int fftSize;
 
     CrossfeedParam(void) {
         numChannels = 0;
@@ -88,8 +110,7 @@ struct CrossfeedParam {
             delete [] coeffs[i];
             coeffs[i] = NULL;
 
-            cudaFree(spectra[i]);
-            spectra[i] = NULL;
+            CHK_CUDAFREE(spectra[i], fftSize * sizeof(cufftComplex));
         }
     }
 };
@@ -99,6 +120,7 @@ struct PcmSamplesPerChannel {
     float *inputPcm;
     float *outputPcm;
     cufftComplex *spectrum;
+    int fftSize;
 
     void Init(void) {
         inputPcm = NULL;
@@ -113,8 +135,7 @@ struct PcmSamplesPerChannel {
         delete [] outputPcm;
         outputPcm = NULL;
 
-        cudaFree(spectrum);
-        spectrum = NULL;
+        CHK_CUDAFREE(spectrum, fftSize * sizeof(cufftComplex));
     }
 };
 
@@ -357,10 +378,10 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
     cufftComplex *spectrum;
     cufftHandle plan = 0;
 
-    CHK_CUDAERROR(cudaMalloc((void**)&cuFromT, sizeof(cufftReal)*fftSize));
+    CHK_CUDAMALLOC((void**)&cuFromT, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)cuFromT, 0, sizeof(cufftReal)*fftSize));
     CHK_CUDAERROR(cudaMemcpy(cuFromT, timeDomainData, numSamples * sizeof(float), cudaMemcpyHostToDevice));
-    CHK_CUDAERROR(cudaMalloc((void**)&spectrum, sizeof(cufftComplex)*fftSize));
+    CHK_CUDAMALLOC((void**)&spectrum, sizeof(cufftComplex)*fftSize);
 
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, cuFromT, spectrum));
@@ -370,8 +391,7 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
     cufftDestroy(plan);
     plan = 0;
 
-    cudaFree(cuFromT);
-    cuFromT = NULL;
+    CHK_CUDAFREE(cuFromT, sizeof(cufftReal)*fftSize);
 
     return spectrum;
 }
@@ -395,10 +415,10 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     cufftComplex *resultFreq = NULL;
     cufftHandle plan = 0;
 
-    CHK_CUDAERROR(cudaMalloc((void**)&coefTime, sizeof(cufftReal)*fftSize));
+    CHK_CUDAMALLOC((void**)&coefTime, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)coefTime, 0, sizeof(cufftReal)*fftSize));
     CHK_CUDAERROR(cudaMemcpy(coefTime, firCoeff, firCoeffNum * sizeof(float), cudaMemcpyHostToDevice));
-    CHK_CUDAERROR(cudaMalloc((void**)&coefFreq, sizeof(cufftComplex)*fftSize));
+    CHK_CUDAMALLOC((void**)&coefFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, coefTime, coefFreq));
@@ -408,13 +428,12 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     cufftDestroy(plan);
     plan = 0;
 
-    cudaFree(coefTime);
-    coefTime = NULL;
+    CHK_CUDAFREE(coefTime, sizeof(cufftReal)*fftSize);
 
-    CHK_CUDAERROR(cudaMalloc((void**)&pcmTime, sizeof(cufftReal)*fftSize));
+    CHK_CUDAMALLOC((void**)&pcmTime, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)pcmTime, 0, sizeof(cufftReal)*fftSize));
     CHK_CUDAERROR(cudaMemcpy(pcmTime, input.inputPcm, input.totalSamples * sizeof(float), cudaMemcpyHostToDevice));
-    CHK_CUDAERROR(cudaMalloc((void**)&pcmFreq, sizeof(cufftComplex)*fftSize));
+    CHK_CUDAMALLOC((void**)&pcmFreq, sizeof(cufftComplex)*fftSize);
 
     cudaDeviceSynchronize();
 
@@ -426,20 +445,17 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     cufftDestroy(plan);
     plan = 0;
 
-    cudaFree(pcmTime);
-    pcmTime = NULL;
+    CHK_CUDAFREE(pcmTime, sizeof(cufftReal)*fftSize);
 
-    CHK_CUDAERROR(cudaMalloc((void**)&resultFreq, sizeof(cufftComplex)*fftSize));
+    CHK_CUDAMALLOC((void**)&resultFreq, sizeof(cufftComplex)*fftSize);
     CudaElementWiseMul(fftSize, resultFreq, coefFreq, pcmFreq);
 
     cudaDeviceSynchronize();
 
-    cudaFree(coefFreq);
-    coefFreq = NULL;
-    cudaFree(pcmFreq);
-    pcmFreq = NULL;
+    CHK_CUDAFREE(coefFreq, sizeof(cufftComplex)*fftSize);
+    CHK_CUDAFREE(pcmFreq, sizeof(cufftComplex)*fftSize);
 
-    CHK_CUDAERROR(cudaMalloc((void**)&resultTime, sizeof(cufftReal)*fftSize));
+    CHK_CUDAMALLOC((void**)&resultTime, sizeof(cufftReal)*fftSize);
 
     cudaDeviceSynchronize();
 
@@ -451,15 +467,13 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     cufftDestroy(plan);
     plan = 0;
 
-    cudaFree(resultFreq);
-    resultFreq = NULL;
+    CHK_CUDAFREE(resultFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUDAERROR(cudaMemcpy(pOutput->inputPcm, resultTime, input.totalSamples * sizeof(float), cudaMemcpyDeviceToHost));
     
     cudaDeviceSynchronize();
 
-    cudaFree(resultTime);
-    resultTime = NULL;
+    CHK_CUDAFREE(resultTime, sizeof(cufftReal)*fftSize);
 
     return pOutput->inputPcm;
 }
@@ -476,7 +490,7 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     cufftReal *cuTimeMixedHi = NULL;
     cufftReal *cuTimeMixed = NULL;
 
-    CHK_CUDAERROR(cudaMalloc((void**)&cuFreq,      sizeof(cufftComplex)*nFFT));
+    CHK_CUDAMALLOC((void**)&cuFreq, sizeof(cufftComplex)*nFFT);
 
     cudaDeviceSynchronize();
 
@@ -487,7 +501,7 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     
         cudaDeviceSynchronize();
 
-        CHK_CUDAERROR(cudaMalloc((void**)&cuTime[ch*2], sizeof(cufftReal)*nFFT));
+        CHK_CUDAMALLOC((void**)&cuTime[ch*2], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2]));
 
         cudaDeviceSynchronize();
@@ -496,7 +510,7 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     
         cudaDeviceSynchronize();
 
-        CHK_CUDAERROR(cudaMalloc((void**)&cuTime[ch*2+1], sizeof(cufftReal)*nFFT));
+        CHK_CUDAMALLOC((void**)&cuTime[ch*2+1], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2+1]));
 
         cudaDeviceSynchronize();
@@ -505,12 +519,11 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     cufftDestroy(plan);
     plan = 0;
 
-    cudaFree(cuFreq);
-    cuFreq = NULL;
+    CHK_CUDAFREE(cuFreq, sizeof(cufftComplex)*nFFT);
 
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTimeMixedLo, sizeof(cufftReal)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTimeMixedHi, sizeof(cufftReal)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTimeMixed, sizeof(cufftReal)*nFFT));
+    CHK_CUDAMALLOC((void**)&cuTimeMixedLo, sizeof(cufftReal)*nFFT);
+    CHK_CUDAMALLOC((void**)&cuTimeMixedHi, sizeof(cufftReal)*nFFT);
+    CHK_CUDAMALLOC((void**)&cuTimeMixed, sizeof(cufftReal)*nFFT);
 
     cudaDeviceSynchronize();
 
@@ -519,13 +532,10 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     CudaElementWiseAdd(nFFT, cuTimeMixed, cuTimeMixedLo, cuTimeMixedHi);
 
     for (int i=0; i<PCT_NUM; ++i) {
-        cudaFree(cuTime[i]);
-        cuTime[i] = NULL;
+        CHK_CUDAFREE(cuTime[i], sizeof(cufftReal)*nFFT);
     }
-    cudaFree(cuTimeMixedLo);
-    cuTimeMixedLo = NULL;
-    cudaFree(cuTimeMixedHi);
-    cuTimeMixedHi = NULL;
+    CHK_CUDAFREE(cuTimeMixedLo, sizeof(cufftReal)*nFFT);
+    CHK_CUDAFREE(cuTimeMixedHi, sizeof(cufftReal)*nFFT);
 
     cudaDeviceSynchronize();
 
@@ -534,8 +544,7 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
 
     cudaDeviceSynchronize();
 
-    cudaFree(cuTimeMixed);
-    cuTimeMixed = NULL;
+    CHK_CUDAFREE(cuTimeMixed, sizeof(cufftReal)*nFFT);
 
     cudaDeviceSynchronize();
 
@@ -638,7 +647,6 @@ int wmain(int argc, wchar_t *argv[])
     WWFlacMetadata meta;
     uint8_t * picture = NULL;
     cufftComplex * inPcmSpectra[PCT_NUM];
-    int64_t usedGpuMemoryBytes = 0;
 
     std::vector<PcmSamplesPerChannel> pcmSamples;
 
@@ -734,25 +742,23 @@ int wmain(int argc, wchar_t *argv[])
         if (crossfeedParam.spectra[i] == NULL) {
             goto END;
         }
-        usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
+        crossfeedParam.fftSize = nFFT;
     }
     for (int i=0; i<pcmSamples.size(); ++i) {
         pcmSamples[i].spectrum = CreateSpectrum(pcmSamples[i].inputPcm, pcmSamples[i].totalSamples, nFFT);
         if (pcmSamples[i].spectrum == NULL) {
             goto END;
         }
-        usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
+        pcmSamples[i].fftSize = nFFT;
         inPcmSpectra[i] = pcmSamples[i].spectrum;
     }
 
     pcmSamples[0].outputPcm = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[0], &crossfeedParam.spectra[4], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[0].outputPcm == NULL) {
-        usedGpuMemoryBytes += nFFT * sizeof(cufftReal);
         goto END;
     }
     pcmSamples[1].outputPcm = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[2], &crossfeedParam.spectra[6], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[1].outputPcm == NULL) {
-        usedGpuMemoryBytes += nFFT * sizeof(cufftReal);
         goto END;
     }
 
@@ -781,7 +787,7 @@ END:
     if (result != 0) {
         printf("Failed!\n");
     } else {
-        printf("Used GPU memory: %lld Mbytes.\n", usedGpuMemoryBytes/1024/1024);
+        printf("    maximum used CUDA memory: %lld Mbytes\n", gCudaMaxBytes / 1024/ 1024);
         printf("Succeeded to write %S.\n", argv[3]);
     }
 
