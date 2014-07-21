@@ -25,7 +25,7 @@ namespace WWCrossFeed {
         public double ReflectionGain { get; set; }
 
         private const double SMALL_GAIN_THRESHOLD = 0.01;
-        private const int FILE_VERSION = 1;
+        private const int FILE_VERSION = 2;
 
         List<WWFirCoefficient> mLeftSpeakerToLeftEar   = new List<WWFirCoefficient>();
         List<WWFirCoefficient> mLeftSpeakerToRightEar  = new List<WWFirCoefficient>();
@@ -36,7 +36,13 @@ namespace WWCrossFeed {
 
         Random mRand = new Random();
 
+        public enum ReflectionType {
+            Diffuse,
+            Specular
+        };
+
         public WWCrossFeedFir() {
+            WallReflectionType = ReflectionType.Diffuse;
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
         }
@@ -59,6 +65,8 @@ namespace WWCrossFeed {
         public WWRoute GetNth(int idx) {
             return mRouteList[idx];
         }
+
+        public ReflectionType WallReflectionType { get; set; }
 
         /// <summary>
         /// 初期設定する
@@ -88,6 +96,12 @@ namespace WWCrossFeed {
             rrN.Normalize();
             mRightSpeakerToRightEar.Add(new WWFirCoefficient(rr.Length / SoundSpeed, rrN, 1.0 / rr.Length, true));
 
+            double gain = 1.0;
+            if (WallReflectionType == ReflectionType.Specular) {
+                // なんとなく、高音は逆の耳に届きにくい感じ。
+                gain = 1.0/4.0;
+            }
+
             // 左スピーカーから右の耳に音が届く。
             // 振幅が-4.5dBくらいになる。
             double attenuationDecibel = -4.5;
@@ -96,12 +110,12 @@ namespace WWCrossFeed {
             var lr = rightEarPos - leftSpeakerPos;
             var lrN = lr;
             lrN.Normalize();
-            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, lrN, attenuationMagnitude / lr.Length, true));
+            mLeftSpeakerToRightEar.Add(new WWFirCoefficient(lr.Length / SoundSpeed, lrN, gain * attenuationMagnitude / lr.Length, true));
 
             var rl = leftEarPos - rightSpeakerPos;
             var rlN = rl;
             rlN.Normalize();
-            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, rlN, attenuationMagnitude / rl.Length, true));
+            mRightSpeakerToLeftEar.Add(new WWFirCoefficient(rl.Length / SoundSpeed, rlN, gain * attenuationMagnitude / rl.Length, true));
 
             // 1本のレイがそれぞれのスピーカーリスナー組に入る。
             mRouteCount[0] = 1;
@@ -142,12 +156,37 @@ namespace WWCrossFeed {
             return;
         }
 
+        public void TraceAll(WWRoom room) {
+            for (int i = 0; i < 500000; ++i) {
+                Trace(room, WallReflectionType, 0);
+                Trace(room, WallReflectionType, 1);
+            }
+        }
+
+        private static Vector3D SpecularReflection(Vector3D inDir, Vector3D surfaceNormal) {
+            double dot = Vector3D.DotProduct(-inDir, surfaceNormal);
+            return 2 * dot * surfaceNormal + inDir;
+        }
+
+        private double CalcReflectionGain(ReflectionType type, WWRoom room, int speakerCh, Point3D hitPos, Vector3D rayDir, Vector3D hitSurfaceNormal) {
+            if (type == ReflectionType.Diffuse) {
+                return 1.0;
+            }
+
+            // specular
+            var reflectionDir = SpecularReflection(rayDir, hitSurfaceNormal);
+            var speakerDir = room.SpeakerPos(speakerCh) - hitPos;
+            speakerDir.Normalize();
+            var dot = Vector3D.DotProduct(reflectionDir, speakerDir);
+            return (dot + 1.0) / 2.0;
+        }
+
         /// <summary>
         ///  スピーカーから耳に届く音がたどる経路を調べる。
         /// </summary>
         /// <param name="room"></param>
         /// <param name="earCh">耳 0:左耳, 1:右耳</param>
-        public void Trace(WWRoom room, int earCh) {
+        public void Trace(WWRoom room, ReflectionType reflectionType, int earCh) {
             var route = new WWRoute(earCh);
 
             // 耳の位置
@@ -159,8 +198,9 @@ namespace WWCrossFeed {
 
             // 音が耳に向かう方向。
             Vector3D soundDir = -rayDir;
+            var accumReflectionGain = new double[] {1.0, 1.0};
 
-            for (int i=0; i<100; ++i) {
+            for (int i = 0; i < 100; ++i) {
                 Point3D hitPos;
                 Vector3D hitSurfaceNormal;
                 double rayLength;
@@ -178,28 +218,50 @@ namespace WWCrossFeed {
                 // スピーカーからの道のりを計算する。
                 var lineSegment = new WWLineSegment(rayPos, rayDir, rayLength, 1.0f /* 仮 Intensity */ );
 
-                int speakerCh = earCh;
-                var distanceSame = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffS = new WWFirCoefficient(distanceSame / SoundSpeed, soundDir, 1.0f / distanceSame, false);
-                lineSegment.Intensity = coeffS.Gain;
+                {
+                    int speakerCh = earCh;
+                    var distance = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
+                    double gain = CalcReflectionGain(reflectionType, room, speakerCh, hitPos, rayDir, hitSurfaceNormal);
+                    accumReflectionGain[0] *= gain;
+                    var coeffS = new WWFirCoefficient(distance / SoundSpeed, soundDir, accumReflectionGain[0] / distance, false);
+                    lineSegment.Intensity = coeffS.Gain;
 
-                if (coeffS.Gain < SMALL_GAIN_THRESHOLD) {
-                    break;
+                    if (1.0 / distance < SMALL_GAIN_THRESHOLD) {
+                        break;
+                    }
+
+                    if (SMALL_GAIN_THRESHOLD <= coeffS.Gain) {
+                        StoreCoeff(earCh, earCh, coeffS);
+                    }
                 }
 
-                StoreCoeff(earCh, earCh, coeffS);
-                
-                speakerCh = (earCh==0)?1:0;
-                var distanceDifferent = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
-                var coeffD = new WWFirCoefficient(distanceDifferent / SoundSpeed, soundDir, 1.0f / distanceDifferent, false);
+                {
+                    int speakerCh = (earCh == 0) ? 1 : 0;
+                    var distance = CalcRouteDistance(room, speakerCh, route, lineSegment, hitPos);
+                    double gain = CalcReflectionGain(reflectionType, room, speakerCh, hitPos, rayDir, hitSurfaceNormal);
+                    accumReflectionGain[1] *= gain;
+                    var coeffD = new WWFirCoefficient(distance / SoundSpeed, soundDir, accumReflectionGain[1] / distance, false);
 
-                if (SMALL_GAIN_THRESHOLD <= coeffD.Gain) {
-                    StoreCoeff(earCh, speakerCh, coeffD);
+                    if (SMALL_GAIN_THRESHOLD <= coeffD.Gain) {
+                        StoreCoeff(earCh, speakerCh, coeffD);
+                    }
                 }
 
                 route.Add(lineSegment);
                 rayPos = hitPos;
-                rayDir = RayGen(hitSurfaceNormal);
+
+                // 反射後の出射方向rayDir
+                switch (reflectionType) {
+                case ReflectionType.Diffuse:
+                    rayDir = RayGen(hitSurfaceNormal);
+                    break;
+                case ReflectionType.Specular:
+                    rayDir = SpecularReflection(rayDir, hitSurfaceNormal);
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
             }
 
             if (route.Count() <= 0) {
@@ -226,13 +288,13 @@ namespace WWCrossFeed {
             }
         }
 
-        public void OutputFirCoeffs(int sampleRate, string path) {
+        public Dictionary<int, double>[] OutputFirCoeffs(int sampleRate) {
             var ll = CreateFirCoeff(sampleRate, mLeftSpeakerToLeftEar);
             var lr = CreateFirCoeff(sampleRate, mLeftSpeakerToRightEar);
             var rl = CreateFirCoeff(sampleRate, mRightSpeakerToLeftEar);
             var rr = CreateFirCoeff(sampleRate, mRightSpeakerToRightEar);
 
-            OutputFile(sampleRate, new Dictionary<int, double>[] {ll, lr, rl, rr}, path);
+            return new Dictionary<int, double>[] { ll, lr, rl, rr };
         }
 
         private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
@@ -272,7 +334,7 @@ namespace WWCrossFeed {
             return result;
         }
 
-        private void OutputFile(int sampleRate, Dictionary<int, double>[] coeffs, string path) {
+        public static void OutputFile(int sampleRate, Dictionary<int, double>[] coeffs, string path) {
             int smallestTime = int.MaxValue;
             int largestTime = 0;
 
@@ -289,6 +351,7 @@ namespace WWCrossFeed {
                 sw.WriteLine("CFD{0}", FILE_VERSION);
                 sw.WriteLine("{0}", sampleRate);
                 sw.WriteLine("{0}", largestTime - smallestTime+1);
+                sw.WriteLine("# LeftSpeakerToLeftEar LowFreq, LeftSpeakerToRightEar LowFreq, RightSpeakerToLeftEar LowFreq, RightSpeakerToRightEar LowFreq, LeftSpeakerToLeftEar HighFreq, LeftSpeakerToRightEar HighFreq, RightSpeakerToLeftEar HighFreq, RightSpeakerToRightEar HighFreq");
 
                 for (int t = 0; t <= largestTime - smallestTime; ++t) {
                     var v = new double[coeffs.Length];

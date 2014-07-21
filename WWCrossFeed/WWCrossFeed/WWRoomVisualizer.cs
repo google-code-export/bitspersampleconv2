@@ -198,6 +198,8 @@ namespace WWCrossFeed {
                 new SolidColorBrush(Colors.Magenta)
             };
 
+            Console.WriteLine("DrawRoute()");
+
             for (int i = 0; i < route.Count(); ++i) {
                 var lineSegment = route.GetNth(i);
                 Point3D p0 = Point3D.Multiply(lineSegment.StartPos, mWorldProjectionMatrix);
@@ -211,6 +213,8 @@ namespace WWCrossFeed {
                 Point3D pSR = Point3D.Multiply(mRoom.SpeakerPos(1), mWorldProjectionMatrix);
                 AddNewLine(pSL, p1, b);
                 AddNewLine(pSR, p1, b);
+
+                Console.WriteLine("    {0}: intensity={1}", i, lineSegment.Intensity);
             }
         }
 

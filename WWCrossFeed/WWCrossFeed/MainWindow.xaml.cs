@@ -301,11 +301,14 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
+            var reflectionType = (WWCrossFeedFir.ReflectionType)mComboBoxReflectionType.SelectedIndex;
+
             mCrossFeed.Clear();
+            mCrossFeed.WallReflectionType = reflectionType;
             mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 20; ++i) {
-                mCrossFeed.Trace(mRoom, 0);
-                mCrossFeed.Trace(mRoom, 1);
+            for (int i = 0; i < 1; ++i) {
+                mCrossFeed.Trace(mRoom, reflectionType, 0);
+                mCrossFeed.Trace(mRoom, reflectionType, 1);
             }
 
             UpdateRoomCanvas();
@@ -331,6 +334,8 @@ namespace WWCrossFeed {
                 return;
             }
 
+            var coeff = new List<Dictionary<int, double>>();
+
             int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
@@ -340,20 +345,27 @@ namespace WWCrossFeed {
             double wallReflectionRatio;
             Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
 
-            mCrossFeed.Clear();
-            mCrossFeed.ReflectionGain = reflectionGain;
-            
-            // エネルギー比 to 振幅比の変換。
-            mCrossFeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio); 
+            {
+                WWCrossFeedFir crossfeed = new WWCrossFeedFir();
+                crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
+                crossfeed.ReflectionGain = reflectionGain;
+                // エネルギー比 to 振幅比の変換。
+                crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
+                crossfeed.Start(mRoom);
+                crossfeed.TraceAll(mRoom);
+                coeff.AddRange(crossfeed.OutputFirCoeffs(sampleRate));
 
-            mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 500000; ++i) {
-                mCrossFeed.Trace(mRoom, 0);
-                mCrossFeed.Trace(mRoom, 1);
+                crossfeed.Clear();
+                crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Specular;
+                crossfeed.Start(mRoom);
+                crossfeed.TraceAll(mRoom);
+                coeff.AddRange(crossfeed.OutputFirCoeffs(sampleRate));
+
+                crossfeed.Clear();
             }
-            mCrossFeed.OutputFirCoeffs(sampleRate, dlg.FileName);
 
-            mCrossFeed.Clear();
+            WWCrossFeedFir.OutputFile(sampleRate, coeff.ToArray(), dlg.FileName);
+
             UpdateRoomCanvas();
         }
 
