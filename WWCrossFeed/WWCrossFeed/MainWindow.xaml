@@ -147,7 +147,7 @@
                         </GroupBox>
                     </Grid>
                 </GroupBox>
-                <GroupBox Header="Listener's Head Position" >
+                <GroupBox Header="Listener Settings" >
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
@@ -158,22 +158,28 @@
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
-                        x (0==center of the room, minus=left, plus=right)
+                        Head position x (0==center of the room, minus=left, plus=right)
                         </TextBlock>
                         <TextBox x:Name="mTextBoxListenerPositionX" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
                         <Label Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="0" Grid.Row="1" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
-                        y (0==floor height, plus=goes up)
+                        Head position y (0==floor height, plus=goes up)
                         </TextBlock>
                         <TextBox x:Name="mTextBoxListenerPositionY" Grid.Row="1" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
                         <Label Grid.Row="1" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="0" Grid.Row="2" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
-                        z (0==center of the room, minus=go forward, plus=go backward)
+                        Head position z (0==center of the room, minus=go forward, plus=go backward)
                         </TextBlock>
                         <TextBox x:Name="mTextBoxListenerPositionZ" Grid.Row="2" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="1.0" VerticalAlignment="Center"/>
                         <Label Grid.Row="2" Content="m" Grid.Column="2" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Grid.Row="3" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                        Head size
+                        </TextBlock>
+                        <TextBox x:Name="mTextBoxListenerHeadSize" Grid.Row="3" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.22" VerticalAlignment="Center"/>
+                        <Label Grid.Row="3" Content="m" Grid.Column="3" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Speaker model" >

@@ -2,7 +2,8 @@
 
 namespace WWCrossFeed {
     class WWRoom {
-        public const double LISTENER_HEAD_RADIUS = 0.125;
+        // やや大きめにすると良いらしい。
+        public const double LISTENER_HEAD_RADIUS_DEFAULT = 0.16;
 
         public const int NUM_OF_SPEAKERS = 2;
         public WW3DModel ListenerModel { get; set; }
@@ -10,11 +11,13 @@ namespace WWCrossFeed {
         public WW3DModel RoomModel { get; set; }
         private WWPosture[] mSpeakerPos = new WWPosture[NUM_OF_SPEAKERS];
         public Point3D ListenerPos { get; set; }
+        public double ListenerHeadRadius { get; set; }
 
         public WWRoom() {
             for (int i=0; i<NUM_OF_SPEAKERS; ++i) {
                 mSpeakerPos[i] = new WWPosture();
             }
+            ListenerHeadRadius = LISTENER_HEAD_RADIUS_DEFAULT;
         }
 
         public Point3D SpeakerPos(int idx) {
@@ -35,9 +38,9 @@ namespace WWCrossFeed {
         public Point3D ListenerEarPos(int ch) {
             switch (ch) {
             case 0:
-                return ListenerPos + new Vector3D(-LISTENER_HEAD_RADIUS, 0.0, 0.0);
+                return ListenerPos + new Vector3D(-ListenerHeadRadius, 0.0, 0.0);
             case 1:
-                return ListenerPos + new Vector3D(LISTENER_HEAD_RADIUS, 0.0, 0.0);
+                return ListenerPos + new Vector3D(ListenerHeadRadius, 0.0, 0.0);
             default:
                 System.Diagnostics.Debug.Assert(false);
                 return ListenerPos;

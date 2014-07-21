@@ -99,14 +99,17 @@ namespace WWCrossFeed {
 
         private bool SetupListenerPosition() {
             double x, y, z;
+            double headSize;
 
             if (!Double.TryParse(mTextBoxListenerPositionX.Text, out x) ||
                     !Double.TryParse(mTextBoxListenerPositionY.Text, out y) ||
-                    !Double.TryParse(mTextBoxListenerPositionZ.Text, out z)) {
-                MessageBox.Show("Error: Listener position parse error");
+                    !Double.TryParse(mTextBoxListenerPositionZ.Text, out z) ||
+                    !Double.TryParse(mTextBoxListenerHeadSize.Text, out headSize)) {
+                MessageBox.Show("Error: Listener settings parse error");
                 return false;
             }
             mRoom.ListenerPos = new Point3D(x, y, z);
+            mRoom.ListenerHeadRadius = headSize / 2.0;
             return true;
         }
 
@@ -314,6 +317,10 @@ namespace WWCrossFeed {
         }
 
         private void ButtonCreateFirCoefficients(object sender, RoutedEventArgs e) {
+            if (!UpdateParameters()) {
+                return;
+            }
+
             var dlg = new SaveFileDialog();
             dlg.DefaultExt = Properties.Resources.FirFilterFileExt;
             dlg.Filter = Properties.Resources.FirFilterFileFilter;
