@@ -425,9 +425,6 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 
     cudaDeviceSynchronize();
 
-    cufftDestroy(plan);
-    plan = 0;
-
     CHK_CUDAFREE(coefTime, sizeof(cufftReal)*fftSize);
 
     CHK_CUDAMALLOC((void**)&pcmTime, sizeof(cufftReal)*fftSize);
@@ -437,7 +434,6 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 
     cudaDeviceSynchronize();
 
-    CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, pcmTime, pcmFreq));
 
     cudaDeviceSynchronize();
@@ -789,6 +785,7 @@ END:
     } else {
         printf("    maximum used CUDA memory: %lld Mbytes\n", gCudaMaxBytes / 1024/ 1024);
         printf("Succeeded to write %S.\n", argv[3]);
+        assert(gCudaAllocatedBytes == 0);
     }
 
     return result;
