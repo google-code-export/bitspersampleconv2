@@ -276,7 +276,7 @@ CudaFftGetErrorString(cufftResult error)
 __global__ void
 ElementWiseMulCuda(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 {
-    int offs = threadIdx.x + (blockDim.x * blockDim.y) * (blockIdx.x + gridDim.x * blockIdx.y);
+    int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
     C[offs].x = A[offs].x * B[offs].x - A[offs].y * B[offs].y;
     C[offs].y = A[offs].x * B[offs].y + A[offs].y * B[offs].x;
 }
@@ -365,10 +365,8 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
 
     cudaDeviceSynchronize();
 
-    if (plan != 0) {
-        cufftDestroy(plan);
-        plan = 0;
-    }
+    cufftDestroy(plan);
+    plan = 0;
 
     cudaFree(cuFromT);
     cuFromT = NULL;
@@ -405,6 +403,9 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 
     cudaDeviceSynchronize();
 
+    cufftDestroy(plan);
+    plan = 0;
+
     cudaFree(coefTime);
     coefTime = NULL;
 
@@ -413,9 +414,15 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUDAERROR(cudaMemcpy(pcmTime, input.inputPcm, input.totalSamples * sizeof(float), cudaMemcpyHostToDevice));
     CHK_CUDAERROR(cudaMalloc((void**)&pcmFreq, sizeof(cufftComplex)*fftSize));
 
+    cudaDeviceSynchronize();
+
+    CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, pcmTime, pcmFreq));
 
     cudaDeviceSynchronize();
+
+    cufftDestroy(plan);
+    plan = 0;
 
     cudaFree(pcmTime);
     pcmTime = NULL;
@@ -432,19 +439,18 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 
     CHK_CUDAERROR(cudaMalloc((void**)&resultTime, sizeof(cufftReal)*fftSize));
 
-    cufftDestroy(plan);
+    cudaDeviceSynchronize();
+
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_C2R, 1));
     CHK_CUFFT(cufftExecC2R(plan, resultFreq, resultTime));
 
     cudaDeviceSynchronize();
 
+    cufftDestroy(plan);
+    plan = 0;
+
     cudaFree(resultFreq);
     resultFreq = NULL;
-
-    if (plan != 0) {
-        cufftDestroy(plan);
-        plan = 0;
-    }
 
     CHK_CUDAERROR(cudaMemcpy(pOutput->inputPcm, resultTime, input.totalSamples * sizeof(float), cudaMemcpyDeviceToHost));
     
@@ -457,7 +463,7 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 }
 
 static float *
-CrossfeedMix(cufftComplex *inPcm[PCT_NUM], cufftComplex *coeffLo[2], cufftComplex *coeffHi[2], int nFFT, int pcmSamples)
+CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cufftComplex *coeffHi[2], int nFFT, int pcmSamples)
 {
     cudaError_t ercd;
     cufftResult fftResult;
@@ -469,36 +475,33 @@ CrossfeedMix(cufftComplex *inPcm[PCT_NUM], cufftComplex *coeffLo[2], cufftComple
     cufftReal *cuTimeMixed = NULL;
 
     CHK_CUDAERROR(cudaMalloc((void**)&cuFreq,      sizeof(cufftComplex)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTime[0],   sizeof(cufftReal)*nFFT));
-    CHK_CUDAERROR(cudaMalloc((void**)&cuTime[1],   sizeof(cufftReal)*nFFT));
 
     cudaDeviceSynchronize();
 
+    CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
+
     for (int ch=0; ch<2; ++ch) {
-        CudaElementWiseMul(nFFT, cuFreq, inPcm[ch], coeffLo[ch]);
+        CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2], coeffLo[ch]);
     
         cudaDeviceSynchronize();
 
-        CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
-        CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch]));
+        CHK_CUDAERROR(cudaMalloc((void**)&cuTime[ch*2], sizeof(cufftReal)*nFFT));
+        CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2]));
 
         cudaDeviceSynchronize();
 
-        cufftDestroy(plan);
-        plan = 0;
-
-        CudaElementWiseMul(nFFT, cuFreq, inPcm[ch+2], coeffHi[ch]);
+        CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2+1], coeffHi[ch]);
     
         cudaDeviceSynchronize();
 
-        CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
-        CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch+2]));
+        CHK_CUDAERROR(cudaMalloc((void**)&cuTime[ch*2+1], sizeof(cufftReal)*nFFT));
+        CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2+1]));
 
         cudaDeviceSynchronize();
-
-        cufftDestroy(plan);
-        plan = 0;
     }
+
+    cufftDestroy(plan);
+    plan = 0;
 
     cudaFree(cuFreq);
     cuFreq = NULL;
@@ -509,13 +512,13 @@ CrossfeedMix(cufftComplex *inPcm[PCT_NUM], cufftComplex *coeffLo[2], cufftComple
 
     cudaDeviceSynchronize();
 
-    CudaElementWiseAdd(nFFT, cuTimeMixedLo, cuTime[0], cuTime[1]);
-    CudaElementWiseAdd(nFFT, cuTimeMixedHi, cuTime[2], cuTime[3]);
+    CudaElementWiseAdd(nFFT, cuTimeMixedLo, cuTime[0], cuTime[2]);
+    CudaElementWiseAdd(nFFT, cuTimeMixedHi, cuTime[1], cuTime[3]);
     CudaElementWiseAdd(nFFT, cuTimeMixed, cuTimeMixedLo, cuTimeMixedHi);
 
-    for (int ch=0; ch<PCT_NUM; ++ch) {
-        cudaFree(cuTime[ch]);
-        cuTime[ch] = NULL;
+    for (int i=0; i<PCT_NUM; ++i) {
+        cudaFree(cuTime[i]);
+        cuTime[i] = NULL;
     }
     cudaFree(cuTimeMixedLo);
     cuTimeMixedLo = NULL;
@@ -544,6 +547,10 @@ NormalizeOutputPcm(std::vector<PcmSamplesPerChannel> & pcmSamples)
     float maxV = FLT_MIN;
 
     for (size_t ch=0; ch<pcmSamples.size(); ++ch) {
+        if (pcmSamples[ch].outputPcm == NULL) {
+            continue;
+        }
+
         for (size_t i=0; i<pcmSamples[ch].totalSamples; ++i) {
             if (maxV < pcmSamples[ch].outputPcm[i]) {
                 maxV = pcmSamples[ch].outputPcm[i];
@@ -561,6 +568,9 @@ NormalizeOutputPcm(std::vector<PcmSamplesPerChannel> & pcmSamples)
     }
 
     for (size_t ch=0; ch<pcmSamples.size(); ++ch) {
+        if (pcmSamples[ch].outputPcm == NULL) {
+            continue;
+        }
         for (size_t i=0; i<pcmSamples[ch].totalSamples; ++i) {
             pcmSamples[ch].outputPcm[i] *= scale;
         }
@@ -724,13 +734,13 @@ int wmain(int argc, wchar_t *argv[])
         }
         usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
     }
-    for (int ch=0; ch<pcmSamples.size(); ++ch) {
-        pcmSamples[ch].spectrum = CreateSpectrum(pcmSamples[ch].inputPcm, pcmSamples[ch].totalSamples, nFFT);
-        if (pcmSamples[ch].spectrum == NULL) {
+    for (int i=0; i<pcmSamples.size(); ++i) {
+        pcmSamples[i].spectrum = CreateSpectrum(pcmSamples[i].inputPcm, pcmSamples[i].totalSamples, nFFT);
+        if (pcmSamples[i].spectrum == NULL) {
             goto END;
         }
         usedGpuMemoryBytes += nFFT * sizeof(cufftComplex);
-        inPcmSpectra[ch] = pcmSamples[ch].spectrum;
+        inPcmSpectra[i] = pcmSamples[i].spectrum;
     }
 
     pcmSamples[0].outputPcm = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[0], &crossfeedParam.spectra[4], nFFT, pcmSamples[0].totalSamples);
