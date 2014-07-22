@@ -47,7 +47,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Label Grid.Row="0" Content="Reflection Gain:" HorizontalContentAlignment="Right" />
-                        <TextBox x:Name="mTextBoxRefrectionGain" Grid.Row="0" Grid.Column="1" Text="10.0" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxRefrectionGain" Grid.Row="0" Grid.Column="1" Text="20.0" HorizontalContentAlignment="Right" />
                         <Label Grid.Row="1" Content="Sample Rate:" HorizontalContentAlignment="Right" />
                         <TextBox x:Name="mTextBoxSampleRate" Grid.Row="1" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
                         <Label Grid.Row="2" Content="Max reflection count:" HorizontalContentAlignment="Right" />
