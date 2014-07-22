@@ -24,6 +24,8 @@ namespace WWCrossFeed {
         /// </summary>
         public double ReflectionGain { get; set; }
 
+        public int MaxReflectionCount { get; set; }
+
         private const double SMALL_GAIN_THRESHOLD = 0.01;
         private const int FILE_VERSION = 2;
 
@@ -45,6 +47,7 @@ namespace WWCrossFeed {
             WallReflectionType = ReflectionType.Diffuse;
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
+            MaxReflectionCount = 100;
         }
 
         public void Clear() {
@@ -200,7 +203,7 @@ namespace WWCrossFeed {
             Vector3D soundDir = -rayDir;
             var accumReflectionGain = new double[] {1.0, 1.0};
 
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < MaxReflectionCount; ++i) {
                 Point3D hitPos;
                 Vector3D hitSurfaceNormal;
                 double rayLength;

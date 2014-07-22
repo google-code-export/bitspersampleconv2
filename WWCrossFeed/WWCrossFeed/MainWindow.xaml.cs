@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ namespace WWCrossFeed {
         private WWRoomVisualizer mRoomVisualizer;
         private bool mInitialized = false;
         private WWCrossFeedFir mCrossFeed = new WWCrossFeedFir();
+        private BackgroundWorker mBw = new BackgroundWorker();
 
         public MainWindow() {
             InitializeComponent();
@@ -41,6 +43,9 @@ namespace WWCrossFeed {
             }
 
             UpdateRoomCanvas();
+
+            mBw.DoWork += BackgroundWorkerDoWork;
+            mBw.RunWorkerCompleted += BackgroundWorkerRunWorkerCompleted;
         }
 
         private bool UpdateParameters() {
@@ -319,6 +324,13 @@ namespace WWCrossFeed {
             UpdateRoomCanvas();
         }
 
+
+        class TraceArgs {
+            public int SampleRate {get;set;}
+            public WWCrossFeedFir CrossfeedFir {get;set;}
+            public string FileName { get; set; }
+        }
+
         private void ButtonCreateFirCoefficients(object sender, RoutedEventArgs e) {
             if (!UpdateParameters()) {
                 return;
@@ -334,8 +346,6 @@ namespace WWCrossFeed {
                 return;
             }
 
-            var coeff = new List<Dictionary<int, double>>();
-
             int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
@@ -345,29 +355,47 @@ namespace WWCrossFeed {
             double wallReflectionRatio;
             Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
 
-            {
-                WWCrossFeedFir crossfeed = new WWCrossFeedFir();
-                crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
-                crossfeed.ReflectionGain = reflectionGain;
-                // エネルギー比 to 振幅比の変換。
-                crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
-                crossfeed.Start(mRoom);
-                crossfeed.TraceAll(mRoom);
-                coeff.AddRange(crossfeed.OutputFirCoeffs(sampleRate));
+            int maxReflectionCount;
+            Int32.TryParse(mTextBoxMaxReflectionCount.Text, out maxReflectionCount);
 
-                crossfeed.Clear();
-                crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Specular;
-                crossfeed.Start(mRoom);
-                crossfeed.TraceAll(mRoom);
-                coeff.AddRange(crossfeed.OutputFirCoeffs(sampleRate));
+            WWCrossFeedFir crossfeed = new WWCrossFeedFir();
+            crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
+            crossfeed.ReflectionGain = reflectionGain;
+            // エネルギー比 to 振幅比の変換。
+            crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
+            crossfeed.MaxReflectionCount = maxReflectionCount;
 
-                crossfeed.Clear();
-            }
-
-            WWCrossFeedFir.OutputFile(sampleRate, coeff.ToArray(), dlg.FileName);
-
-            UpdateRoomCanvas();
+            var args = new TraceArgs();
+            args.SampleRate = sampleRate;
+            args.CrossfeedFir = crossfeed;
+            args.FileName = dlg.FileName;
+            mBw.RunWorkerAsync(args);
+            mWrapPanel.IsEnabled = false;
         }
 
+        void BackgroundWorkerDoWork(object sender, DoWorkEventArgs e) {
+            var args = e.Argument as TraceArgs;
+
+            var coeff = new List<Dictionary<int, double>>();
+
+            WWCrossFeedFir crossfeed = args.CrossfeedFir;
+            crossfeed.Start(mRoom);
+            crossfeed.TraceAll(mRoom);
+            coeff.AddRange(crossfeed.OutputFirCoeffs(args.SampleRate));
+
+            crossfeed.Clear();
+            crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Specular;
+            crossfeed.Start(mRoom);
+            crossfeed.TraceAll(mRoom);
+            coeff.AddRange(crossfeed.OutputFirCoeffs(args.SampleRate));
+
+            crossfeed.Clear();
+
+            WWCrossFeedFir.OutputFile(args.SampleRate, coeff.ToArray(), args.FileName);
+        }
+
+        void BackgroundWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            mWrapPanel.IsEnabled = true;
+        }
     }
 }

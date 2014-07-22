@@ -14,7 +14,7 @@
         </Grid.ColumnDefinitions>
         <Canvas x:Name="mCanvas" HorizontalAlignment="Left" Height="512" VerticalAlignment="Top" Width="512" Grid.RowSpan="2" Background="Black"/>
         <ScrollViewer Grid.Column="1" Grid.RowSpan="2" >
-            <WrapPanel >
+            <WrapPanel x:Name="mWrapPanel" >
                 <GroupBox Header="Ray test" >
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -39,6 +39,7 @@
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
@@ -49,7 +50,9 @@
                         <TextBox x:Name="mTextBoxRefrectionGain" Grid.Row="0" Grid.Column="1" Text="10.0" HorizontalContentAlignment="Right" />
                         <Label Grid.Row="1" Content="Sample Rate:" HorizontalContentAlignment="Right" />
                         <TextBox x:Name="mTextBoxSampleRate" Grid.Row="1" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
-                        <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" Width="200" />
+                        <Label Grid.Row="2" Content="Max reflection count:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxMaxReflectionCount" Grid.Row="2" Grid.Column="1" Text="100" HorizontalContentAlignment="Right" />
+                        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Camera settings" >
