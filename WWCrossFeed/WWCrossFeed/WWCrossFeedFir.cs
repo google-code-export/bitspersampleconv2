@@ -173,7 +173,8 @@ namespace WWCrossFeed {
 
         private double CalcReflectionGain(ReflectionType type, WWRoom room, int speakerCh, Point3D hitPos, Vector3D rayDir, Vector3D hitSurfaceNormal) {
             if (type == ReflectionType.Diffuse) {
-                return 1.0;
+                // Lambert's cosine law
+                return Vector3D.DotProduct(-rayDir, hitSurfaceNormal);
             }
 
             // specular
