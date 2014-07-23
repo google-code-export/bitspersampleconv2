@@ -20,9 +20,22 @@ namespace WWCrossFeed {
         public double SoundSpeed { get; set; }
 
         /// <summary>
-        /// 反射成分のゲイン 4程度
+        /// 反射成分のゲイン
         /// </summary>
-        public double ReflectionGain { get; set; }
+        public double SpecularReflectionGain { get; set; }
+        public double DiffuseReflectionGain { get; set; }
+
+        private double GetReflectionGain() {
+            switch (WallReflectionType) {
+            case ReflectionType.Specular:
+                return SpecularReflectionGain;
+            case ReflectionType.Diffuse:
+                return DiffuseReflectionGain;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                return DiffuseReflectionGain;
+            }
+        }
 
         public int MaxReflectionCount { get; set; }
 
@@ -48,6 +61,8 @@ namespace WWCrossFeed {
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
             MaxReflectionCount = 100;
+            SpecularReflectionGain = 37.6;
+            DiffuseReflectionGain = 20.0;
         }
 
         public void Clear() {
@@ -303,7 +318,7 @@ namespace WWCrossFeed {
 
         private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
             var table = new Dictionary<int, Vector3D>();
-            double ratio = ReflectionGain / mRouteCount[0];
+            double ratio = GetReflectionGain() / mRouteCount[0];
 
             foreach (var coeff in coeffList) {
                 int delaySample = (int)(coeff.DelaySecond * sampleRate);

@@ -241,23 +241,6 @@ namespace WWCrossFeed {
             return dlg.FileName;
         }
 
-        private void ButtonBrowseListenerModel_Click(object sender, RoutedEventArgs e) {
-            string path = OpenFileDialogHelper(Properties.Resources.WavefrontObjFileExt, Properties.Resources.WavefrontObjFilter);
-            if (path == null) {
-                return;
-            }
-
-            var model = WWWaveFrontObjReader.ReadFromFile(path);
-            if (model == null) {
-                return;
-            }
-
-            mListenerModelPath.Text = path;
-
-            mRoom.ListenerModel = model;
-            UpdateRoomCanvas();
-        }
-
         private void mButtonUpdateView_Click(object sender, RoutedEventArgs e) {
             if (!UpdateParameters()) {
                 mCanvas.Children.Clear();
@@ -288,20 +271,41 @@ namespace WWCrossFeed {
             mGroupBoxSpeakerModelFile.IsEnabled = true;
         }
 
-        private void ButtonBrowseSpeakerModel_Click(object sender, RoutedEventArgs e) {
-            string path = OpenFileDialogHelper(Properties.Resources.WavefrontObjFileExt, Properties.Resources.WavefrontObjFilter);
-            if (path == null) {
-                return;
+        private WW3DModel BrowseReadModel(out string selectedPath) {
+            selectedPath = OpenFileDialogHelper(Properties.Resources.WavefrontObjFileExt, Properties.Resources.WavefrontObjFilter);
+            if (selectedPath == null) {
+                return null;
             }
 
-            var model = WWWaveFrontObjReader.ReadFromFile(path);
+            var model = WWWaveFrontObjReader.ReadFromFile(selectedPath);
             if (model == null) {
-                return;
+                return null;
             }
 
-            mSpeakerModelPath.Text = path;
+            return model;
+        } 
 
+        private void ButtonBrowseRoomModel_Click(object sender, RoutedEventArgs e) {
+            string path;
+            var model = BrowseReadModel(out path);
+            mRoomModelPath.Text = path;
+            mRoom.RoomModel = model;
+            UpdateRoomCanvas();
+        }
+
+        private void ButtonBrowseSpeakerModel_Click(object sender, RoutedEventArgs e) {
+            string path;
+            var model = BrowseReadModel(out path);
+            mSpeakerModelPath.Text = path;
             mRoom.SpeakerModel = model;
+            UpdateRoomCanvas();
+        }
+
+        private void ButtonBrowseListenerModel_Click(object sender, RoutedEventArgs e) {
+            string path;
+            var model = BrowseReadModel(out path);
+            mListenerModelPath.Text = path;
+            mRoom.ListenerModel = model;
             UpdateRoomCanvas();
         }
 
@@ -311,7 +315,7 @@ namespace WWCrossFeed {
             mCrossFeed.Clear();
             mCrossFeed.WallReflectionType = reflectionType;
             mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 1; ++i) {
+            for (int i = 0; i < 10; ++i) {
                 mCrossFeed.Trace(mRoom, reflectionType, 0);
                 mCrossFeed.Trace(mRoom, reflectionType, 1);
             }
@@ -349,9 +353,6 @@ namespace WWCrossFeed {
             int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
-            double reflectionGain;
-            Double.TryParse(mTextBoxRefrectionGain.Text, out reflectionGain);
-
             double wallReflectionRatio;
             Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
 
@@ -360,7 +361,6 @@ namespace WWCrossFeed {
 
             WWCrossFeedFir crossfeed = new WWCrossFeedFir();
             crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
-            crossfeed.ReflectionGain = reflectionGain;
             // エネルギー比 to 振幅比の変換。
             crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
             crossfeed.MaxReflectionCount = maxReflectionCount;
@@ -397,5 +397,6 @@ namespace WWCrossFeed {
         void BackgroundWorkerRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             mWrapPanel.IsEnabled = true;
         }
+
     }
 }
