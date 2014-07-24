@@ -25,6 +25,11 @@ namespace WWCrossFeed {
         public double SpecularReflectionGain { get; set; }
         public double DiffuseReflectionGain { get; set; }
 
+        /// <summary>
+        /// 鏡面反射の鋭さ。
+        /// </summary>
+        private const double SPECULAR_HARDNESS = 2.0;
+
         private double GetReflectionGain() {
             switch (WallReflectionType) {
             case ReflectionType.Specular:
@@ -61,7 +66,7 @@ namespace WWCrossFeed {
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
             MaxReflectionCount = 100;
-            SpecularReflectionGain = 37.6;
+            SpecularReflectionGain = 66.7;
             DiffuseReflectionGain = 20.0;
         }
 
@@ -186,6 +191,15 @@ namespace WWCrossFeed {
             return 2 * dot * surfaceNormal + inDir;
         }
 
+        private static double Saturate0to1(double v) {
+            if (v < 0.0) {
+                return 0.0;
+            }
+            if (1.0 < v) {
+                return 1.0;
+            }
+            return v;
+        }
         private double CalcReflectionGain(ReflectionType type, WWRoom room, int speakerCh, Point3D hitPos, Vector3D rayDir, Vector3D hitSurfaceNormal) {
             if (type == ReflectionType.Diffuse) {
                 // Lambert's cosine law
@@ -197,7 +211,7 @@ namespace WWCrossFeed {
             var speakerDir = room.SpeakerPos(speakerCh) - hitPos;
             speakerDir.Normalize();
             var dot = Vector3D.DotProduct(reflectionDir, speakerDir);
-            return (dot + 1.0) / 2.0;
+            return Math.Pow(Saturate0to1(dot), SPECULAR_HARDNESS);
         }
 
         /// <summary>
