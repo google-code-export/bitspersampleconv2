@@ -288,6 +288,9 @@ namespace WWCrossFeed {
         private void ButtonBrowseRoomModel_Click(object sender, RoutedEventArgs e) {
             string path;
             var model = BrowseReadModel(out path);
+            if (model == null) {
+                return;
+            }
             mRoomModelPath.Text = path;
             mRoom.RoomModel = model;
             UpdateRoomCanvas();
@@ -296,6 +299,9 @@ namespace WWCrossFeed {
         private void ButtonBrowseSpeakerModel_Click(object sender, RoutedEventArgs e) {
             string path;
             var model = BrowseReadModel(out path);
+            if (model == null) {
+                return;
+            }
             mSpeakerModelPath.Text = path;
             mRoom.SpeakerModel = model;
             UpdateRoomCanvas();
@@ -304,6 +310,9 @@ namespace WWCrossFeed {
         private void ButtonBrowseListenerModel_Click(object sender, RoutedEventArgs e) {
             string path;
             var model = BrowseReadModel(out path);
+            if (model == null) {
+                return;
+            }
             mListenerModelPath.Text = path;
             mRoom.ListenerModel = model;
             UpdateRoomCanvas();

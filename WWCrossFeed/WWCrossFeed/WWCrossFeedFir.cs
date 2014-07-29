@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 
@@ -66,8 +67,8 @@ namespace WWCrossFeed {
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
             MaxReflectionCount = 100;
-            SpecularReflectionGain = 66.7;
-            DiffuseReflectionGain = 20.0;
+            SpecularReflectionGain = 0.564;
+            DiffuseReflectionGain = 0.564;
         }
 
         public void Clear() {
@@ -156,34 +157,37 @@ namespace WWCrossFeed {
             return distance;
         }
 
+        private static readonly object mLock = new object();
+
         private void StoreCoeff(int earCh, int speakerCh, WWFirCoefficient coeff) {
             int n = earCh + speakerCh * 2;
 
-            switch (n) {
-            case 0:
-                mLeftSpeakerToLeftEar.Add(coeff);
-                break;
-            case 1:
-                mLeftSpeakerToRightEar.Add(coeff);
-                break;
-            case 2:
-                mRightSpeakerToLeftEar.Add(coeff);
-                break;
-            case 3:
-                mRightSpeakerToRightEar.Add(coeff);
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
+            lock (mLock) {
+                switch (n) {
+                case 0:
+                    mLeftSpeakerToLeftEar.Add(coeff);
+                    break;
+                case 1:
+                    mLeftSpeakerToRightEar.Add(coeff);
+                    break;
+                case 2:
+                    mRightSpeakerToLeftEar.Add(coeff);
+                    break;
+                case 3:
+                    mRightSpeakerToRightEar.Add(coeff);
+                    break;
+                default:
+                    System.Diagnostics.Debug.Assert(false);
+                    break;
+                }
             }
-            return;
         }
 
         public void TraceAll(WWRoom room) {
-            for (int i = 0; i < 500000; ++i) {
+            Parallel.For(0, 500 * 1000, i => {
                 Trace(room, WallReflectionType, 0);
                 Trace(room, WallReflectionType, 1);
-            }
+            });
         }
 
         private static Vector3D SpecularReflection(Vector3D inDir, Vector3D surfaceNormal) {
@@ -297,10 +301,7 @@ namespace WWCrossFeed {
                 }
             }
 
-            if (route.Count() <= 0) {
-                return;
-            }
-
+            // routeの中に、1つもlineSegmentが入っていないことがある。
             mRouteList.Add(route);
             ++mRouteCount[earCh];
         }
@@ -332,7 +333,7 @@ namespace WWCrossFeed {
 
         private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
             var table = new Dictionary<int, Vector3D>();
-            double ratio = GetReflectionGain() / mRouteCount[0];
+            double ratio = GetReflectionGain() * Math.Sqrt(sampleRate) / mRouteCount[0];
 
             foreach (var coeff in coeffList) {
                 int delaySample = (int)(coeff.DelaySecond * sampleRate);
