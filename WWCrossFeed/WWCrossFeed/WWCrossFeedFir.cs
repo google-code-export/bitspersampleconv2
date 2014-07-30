@@ -131,7 +131,7 @@ namespace WWCrossFeed {
 
             // 左スピーカーから右の耳に音が届く。
             // 振幅が-4.5dBくらいになる。
-            double attenuationDecibel = -4.5;
+            double attenuationDecibel = -1.0;
             double attenuationMagnitude = Math.Pow(10.0, attenuationDecibel / 20.0);
 
             var lr = rightEarPos - leftSpeakerPos;
