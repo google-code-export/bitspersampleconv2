@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,6 @@ using System.Windows.Media.Media3D;
 
 namespace WWCrossFeed {
     class WWCrossFeedFir {
-        List<WWRoute> mRouteList = new List<WWRoute>();
         /// <summary>
         /// 壁の反射率
         /// </summary>
@@ -48,13 +48,16 @@ namespace WWCrossFeed {
         private const double SMALL_GAIN_THRESHOLD = 0.01;
         private const int FILE_VERSION = 2;
 
-        List<WWFirCoefficient> mLeftSpeakerToLeftEar   = new List<WWFirCoefficient>();
-        List<WWFirCoefficient> mLeftSpeakerToRightEar  = new List<WWFirCoefficient>();
-        List<WWFirCoefficient> mRightSpeakerToLeftEar  = new List<WWFirCoefficient>();
-        List<WWFirCoefficient> mRightSpeakerToRightEar = new List<WWFirCoefficient>();
+        SynchronizedCollection<WWRoute> mRouteList = new SynchronizedCollection<WWRoute>();
+        SynchronizedCollection<WWFirCoefficient> mLeftSpeakerToLeftEar = new SynchronizedCollection<WWFirCoefficient>();
+        SynchronizedCollection<WWFirCoefficient> mLeftSpeakerToRightEar = new SynchronizedCollection<WWFirCoefficient>();
+        SynchronizedCollection<WWFirCoefficient> mRightSpeakerToLeftEar = new SynchronizedCollection<WWFirCoefficient>();
+        SynchronizedCollection<WWFirCoefficient> mRightSpeakerToRightEar = new SynchronizedCollection<WWFirCoefficient>();
 
+        // 1個しか無いのでロックしてから呼ぶ。
         int[] mRouteCount = new int[2];
 
+        // 1個しか無いのでロックしてから呼ぶ。
         Random mRand = new Random();
 
         public enum ReflectionType {
@@ -157,37 +160,41 @@ namespace WWCrossFeed {
             return distance;
         }
 
-        private static readonly object mLock = new object();
-
         private void StoreCoeff(int earCh, int speakerCh, WWFirCoefficient coeff) {
             int n = earCh + speakerCh * 2;
 
-            lock (mLock) {
-                switch (n) {
-                case 0:
-                    mLeftSpeakerToLeftEar.Add(coeff);
-                    break;
-                case 1:
-                    mLeftSpeakerToRightEar.Add(coeff);
-                    break;
-                case 2:
-                    mRightSpeakerToLeftEar.Add(coeff);
-                    break;
-                case 3:
-                    mRightSpeakerToRightEar.Add(coeff);
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false);
-                    break;
-                }
+            switch (n) {
+            case 0:
+                mLeftSpeakerToLeftEar.Add(coeff);
+                break;
+            case 1:
+                mLeftSpeakerToRightEar.Add(coeff);
+                break;
+            case 2:
+                mRightSpeakerToLeftEar.Add(coeff);
+                break;
+            case 3:
+                mRightSpeakerToRightEar.Add(coeff);
+                break;
+            default:
+                System.Diagnostics.Debug.Assert(false);
+                break;
             }
         }
 
         public void TraceAll(WWRoom room) {
-            Parallel.For(0, 500 * 1000, i => {
-                Trace(room, WallReflectionType, 0);
-                Trace(room, WallReflectionType, 1);
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Parallel.For(0, 100 , i => {
+                for (int j = 0; j < 5000; ++j) {
+                    Trace(room, WallReflectionType, 0);
+                    Trace(room, WallReflectionType, 1);
+                }
             });
+
+            sw.Stop();
+            Console.WriteLine("elapsed time={0}", sw.Elapsed);
         }
 
         private static Vector3D SpecularReflection(Vector3D inDir, Vector3D surfaceNormal) {
@@ -248,7 +255,7 @@ namespace WWCrossFeed {
 
                 // 1.0 - 反射率の確率で、計算を打ち切る。
                 // たとえば反射率0.8の壁にRayが10本入射すると、8本のRayが強度を100%保ったまま反射する。
-                if (WallReflectionRatio < mRand.NextDouble()) {
+                if (WallReflectionRatio < NextDouble()) {
                     break;
                 }
 
@@ -303,22 +310,32 @@ namespace WWCrossFeed {
 
             // routeの中に、1つもlineSegmentが入っていないことがある。
             mRouteList.Add(route);
-            ++mRouteCount[earCh];
+            Interlocked.Increment(ref mRouteCount[earCh]);
+        }
+
+        private object mLock = new object();
+
+        private double NextDouble() {
+            lock (mLock) {
+                return mRand.NextDouble();
+            }
         }
 
         private Vector3D RayGen(Vector3D dir) {
-            while (true) {
-                Vector3D d = new Vector3D(mRand.NextDouble() * 2.0 - 1.0, mRand.NextDouble() * 2.0 - 1.0, mRand.NextDouble() * 2.0 - 1.0);
-                if (d.LengthSquared < float.Epsilon) {
-                    continue;
-                }
+            lock (mLock) {
+                while (true) {
+                    Vector3D d = new Vector3D(NextDouble() * 2.0 - 1.0, NextDouble() * 2.0 - 1.0, NextDouble() * 2.0 - 1.0);
+                    if (d.LengthSquared < float.Epsilon) {
+                        continue;
+                    }
 
-                d.Normalize();
-                if (Vector3D.DotProduct(dir, d) < float.Epsilon) {
-                    continue;
-                }
+                    d.Normalize();
+                    if (Vector3D.DotProduct(dir, d) < float.Epsilon) {
+                        continue;
+                    }
 
-                return d;
+                    return d;
+                }
             }
         }
 
@@ -331,7 +348,7 @@ namespace WWCrossFeed {
             return new Dictionary<int, double>[] { ll, lr, rl, rr };
         }
 
-        private Dictionary<int, double> CreateFirCoeff(int sampleRate, List<WWFirCoefficient> coeffList) {
+        private Dictionary<int, double> CreateFirCoeff(int sampleRate, SynchronizedCollection<WWFirCoefficient> coeffList) {
             var table = new Dictionary<int, Vector3D>();
             double ratio = GetReflectionGain() * Math.Sqrt(sampleRate) / mRouteCount[0];
 

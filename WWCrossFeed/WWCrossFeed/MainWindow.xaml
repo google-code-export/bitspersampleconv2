@@ -194,7 +194,7 @@
                         <TextBlock Grid.Column="0" Grid.Row="3" TextWrapping="WrapWithOverflow" HorizontalAlignment="Right" VerticalAlignment="Center" >
                         Head size
                         </TextBlock>
-                        <TextBox x:Name="mTextBoxListenerHeadSize" Grid.Row="3" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.25" VerticalAlignment="Center"/>
+                        <TextBox x:Name="mTextBoxListenerHeadSize" Grid.Row="3" Grid.Column="1" Margin="6" HorizontalContentAlignment="Right" Text="0.24" VerticalAlignment="Center"/>
                         <Label Grid.Row="3" Content="m" Grid.Column="3" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center"/>
                     </Grid>
                 </GroupBox>
