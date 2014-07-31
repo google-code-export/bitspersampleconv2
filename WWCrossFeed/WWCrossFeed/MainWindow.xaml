@@ -53,7 +53,7 @@
                         <Label Grid.Row="1" Content="Max reflection count:" HorizontalContentAlignment="Right" />
                         <TextBox x:Name="mTextBoxMaxReflectionCount" Grid.Row="1" Grid.Column="1" Text="100" HorizontalContentAlignment="Right" />
                         <Label Grid.Row="2" Content="Diffuse Reflection Gain:" HorizontalContentAlignment="Right" />
-                        <TextBox x:Name="mTextBoxDiffuseReflectionGain" Grid.Row="2" Grid.Column="1" Text="-12" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxDiffuseReflectionGain" Grid.Row="2" Grid.Column="1" Text="-6" HorizontalContentAlignment="Right" />
                         <Label Grid.Row="2" Grid.Column="2" Content="dB" />
                         <Button Grid.Row="3" Grid.ColumnSpan="3" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" />
                     </Grid>
