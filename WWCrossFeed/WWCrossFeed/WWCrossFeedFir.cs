@@ -34,12 +34,12 @@ namespace WWCrossFeed {
         private double GetReflectionGain() {
             switch (WallReflectionType) {
             case ReflectionType.Specular:
-                return SpecularReflectionGain;
+                return SpecularReflectionGain * REFLECTION_GAIN_CONSTANT;
             case ReflectionType.Diffuse:
-                return DiffuseReflectionGain;
+                return DiffuseReflectionGain * REFLECTION_GAIN_CONSTANT;
             default:
                 System.Diagnostics.Debug.Assert(false);
-                return DiffuseReflectionGain;
+                return 0.0;
             }
         }
 
@@ -47,6 +47,7 @@ namespace WWCrossFeed {
 
         private const double SMALL_GAIN_THRESHOLD = 0.01;
         private const int FILE_VERSION = 2;
+        private const double REFLECTION_GAIN_CONSTANT = 0.564;
 
         SynchronizedCollection<WWRoute> mRouteList = new SynchronizedCollection<WWRoute>();
         SynchronizedCollection<WWFirCoefficient> mLeftSpeakerToLeftEar = new SynchronizedCollection<WWFirCoefficient>();
@@ -70,8 +71,8 @@ namespace WWCrossFeed {
             WallReflectionRatio = 0.9f;
             SoundSpeed = 330;
             MaxReflectionCount = 100;
-            SpecularReflectionGain = 0.564;
-            DiffuseReflectionGain = 0.564;
+            SpecularReflectionGain = 1.0;
+            DiffuseReflectionGain = 1.0;
         }
 
         public void Clear() {
@@ -126,12 +127,12 @@ namespace WWCrossFeed {
             double gain = 1.0;
             if (WallReflectionType == ReflectionType.Specular) {
                 // なんとなく、高音は逆の耳に届きにくい感じ。
-                gain = 1.0/4.0;
+                gain = 1.0/1.414;
             }
 
             // 左スピーカーから右の耳に音が届く。
-            // 振幅が-4.5dBくらいになる。
-            double attenuationDecibel = -1.0;
+            // 振幅が-3dBくらいになる。
+            double attenuationDecibel = -3.0;
             double attenuationMagnitude = Math.Pow(10.0, attenuationDecibel / 20.0);
 
             var lr = rightEarPos - leftSpeakerPos;

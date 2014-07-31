@@ -44,13 +44,18 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Row="1" Content="Sample Rate:" HorizontalContentAlignment="Right" />
-                        <TextBox x:Name="mTextBoxSampleRate" Grid.Row="1" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
-                        <Label Grid.Row="2" Content="Max reflection count:" HorizontalContentAlignment="Right" />
-                        <TextBox x:Name="mTextBoxMaxReflectionCount" Grid.Row="2" Grid.Column="1" Text="100" HorizontalContentAlignment="Right" />
-                        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" />
+                        <Label Grid.Row="0" Content="Sample Rate:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxSampleRate" Grid.Row="0" Grid.Column="1" Text="44100" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="0" Grid.Column="2" Content="Hz" />
+                        <Label Grid.Row="1" Content="Max reflection count:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxMaxReflectionCount" Grid.Row="1" Grid.Column="1" Text="100" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="2" Content="Diffuse Reflection Gain:" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxDiffuseReflectionGain" Grid.Row="2" Grid.Column="1" Text="-12" HorizontalContentAlignment="Right" />
+                        <Label Grid.Row="2" Grid.Column="2" Content="dB" />
+                        <Button Grid.Row="3" Grid.ColumnSpan="3" Content="Create FIR coefficients" Click="ButtonCreateFirCoefficients" Height="24" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Camera settings" >

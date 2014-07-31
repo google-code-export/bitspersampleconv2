@@ -368,11 +368,15 @@ namespace WWCrossFeed {
             int maxReflectionCount;
             Int32.TryParse(mTextBoxMaxReflectionCount.Text, out maxReflectionCount);
 
+            double diffuseReflectionGain;
+            Double.TryParse(mTextBoxDiffuseReflectionGain.Text, out diffuseReflectionGain);
+
             WWCrossFeedFir crossfeed = new WWCrossFeedFir();
             crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
             // エネルギー比 to 振幅比の変換。
             crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
             crossfeed.MaxReflectionCount = maxReflectionCount;
+            crossfeed.DiffuseReflectionGain = Math.Pow(10.0, diffuseReflectionGain / 10.0);
 
             var args = new TraceArgs();
             args.SampleRate = sampleRate;
