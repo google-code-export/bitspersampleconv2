@@ -193,6 +193,8 @@ namespace WWCrossFeed {
         }
 
         private void UpdateRoomCanvas() {
+            mRoomVisualizer.SetRoom(mRoom);
+            mRoomVisualizer.SetCrossFeed(mCrossFeed);
             mRoomVisualizer.Redraw();
         }
 
@@ -319,12 +321,19 @@ namespace WWCrossFeed {
         }
 
         private void mButtonRayTest_Click(object sender, RoutedEventArgs e) {
+            if (!UpdateParameters()) {
+                return;
+            }
+
             var reflectionType = (WWCrossFeedFir.ReflectionType)mComboBoxReflectionType.SelectedIndex;
 
-            mCrossFeed.Clear();
+            int rayCount;
+            Int32.TryParse(mTextBoxRayCount.Text, out rayCount);
+
+            mCrossFeed = CreateCrossFeedFirFromUseInput();
             mCrossFeed.WallReflectionType = reflectionType;
             mCrossFeed.Start(mRoom);
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < rayCount; ++i) {
                 mCrossFeed.Trace(mRoom, reflectionType, 0);
                 mCrossFeed.Trace(mRoom, reflectionType, 1);
             }
@@ -342,6 +351,26 @@ namespace WWCrossFeed {
             public int SampleRate {get;set;}
             public WWCrossFeedFir CrossfeedFir {get;set;}
             public string FileName { get; set; }
+        }
+
+        private WWCrossFeedFir CreateCrossFeedFirFromUseInput() {
+            double wallReflectionRatio;
+            Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
+
+            int maxReflectionCount;
+            Int32.TryParse(mTextBoxMaxReflectionCount.Text, out maxReflectionCount);
+
+            double diffuseReflectionGain;
+            Double.TryParse(mTextBoxDiffuseReflectionGain.Text, out diffuseReflectionGain);
+
+            WWCrossFeedFir crossfeed = new WWCrossFeedFir();
+            crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
+            // エネルギー比 to 振幅比の変換。
+            crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
+            crossfeed.MaxReflectionCount = maxReflectionCount;
+            crossfeed.DiffuseReflectionGain = Math.Pow(10.0, diffuseReflectionGain / 10.0);
+
+            return crossfeed;
         }
 
         private void ButtonCreateFirCoefficients(object sender, RoutedEventArgs e) {
@@ -362,21 +391,7 @@ namespace WWCrossFeed {
             int sampleRate;
             Int32.TryParse(mTextBoxSampleRate.Text, out sampleRate);
 
-            double wallReflectionRatio;
-            Double.TryParse(mWallReflectionRatio.Text, out wallReflectionRatio);
-
-            int maxReflectionCount;
-            Int32.TryParse(mTextBoxMaxReflectionCount.Text, out maxReflectionCount);
-
-            double diffuseReflectionGain;
-            Double.TryParse(mTextBoxDiffuseReflectionGain.Text, out diffuseReflectionGain);
-
-            WWCrossFeedFir crossfeed = new WWCrossFeedFir();
-            crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
-            // エネルギー比 to 振幅比の変換。
-            crossfeed.WallReflectionRatio = Math.Sqrt(wallReflectionRatio);
-            crossfeed.MaxReflectionCount = maxReflectionCount;
-            crossfeed.DiffuseReflectionGain = Math.Pow(10.0, diffuseReflectionGain / 10.0);
+            var crossfeed = CreateCrossFeedFirFromUseInput();
 
             var args = new TraceArgs();
             args.SampleRate = sampleRate;
@@ -392,6 +407,7 @@ namespace WWCrossFeed {
             var coeff = new List<Dictionary<int, double>>();
 
             WWCrossFeedFir crossfeed = args.CrossfeedFir;
+            crossfeed.WallReflectionType = WWCrossFeedFir.ReflectionType.Diffuse;
             crossfeed.Start(mRoom);
             crossfeed.TraceAll(mRoom);
             coeff.AddRange(crossfeed.OutputFirCoeffs(args.SampleRate));

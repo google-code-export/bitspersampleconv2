@@ -97,7 +97,7 @@ namespace WWCrossFeed {
             mRoom = room;
         }
 
-        private void Draw(WWCrossFeedFir crossFeed) {
+        private void RedrawCrossfeed(WWCrossFeedFir crossFeed) {
             for (int i = 0; i < crossFeed.Count(); ++i) {
                 DrawRoute(crossFeed.GetNth(i));
             }
@@ -109,7 +109,7 @@ namespace WWCrossFeed {
             UpdateCameraMatrix();
 
             RedrawRoom();
-            Draw(mCrossFeed);
+            RedrawCrossfeed(mCrossFeed);
         }
 
         private void RedrawRoom() {
@@ -178,7 +178,17 @@ namespace WWCrossFeed {
             return new Vector(mCanvas.Width/2 * (v.X+1.0), mCanvas.Height/2 * (v.Y+1.0));
         }
 
+        private static bool InRange(Point3D v) {
+            if (v.X < -1.0 || 1.0 < v.X || v.Y < -1.0 || 1.0 < v.Y) {
+                return false;
+            }
+            return true;
+        }
+
         private void AddNewLine(Point3D p0, Point3D p1, Brush brush) {
+            if (!InRange(p0) || !InRange(p1)) {
+                return;
+            }
             var from = ScaleToCanvas(p0);
             var to = ScaleToCanvas(p1);
 

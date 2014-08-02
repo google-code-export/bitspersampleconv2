@@ -260,7 +260,7 @@ namespace WWCrossFeed {
                     break;
                 }
 
-                // スピーカーからの道のりを計算する。
+                // スピーカーから耳への道のりを計算する。
                 var lineSegment = new WWLineSegment(rayPos, rayDir, rayLength, 1.0f /* 仮 Intensity */ );
 
                 {

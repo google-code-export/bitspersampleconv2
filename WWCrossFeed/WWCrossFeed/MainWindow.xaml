@@ -24,13 +24,16 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
                         <Label Content="Reflection type" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="mComboBoxReflectionType" VerticalContentAlignment="Center">
+                        <ComboBox x:Name="mComboBoxReflectionType" Grid.Column="1" VerticalContentAlignment="Center">
                             <ComboBoxItem Content="Diffuse reflection" IsSelected="True"/>
                             <ComboBoxItem Content="Specular reflection"/>
                         </ComboBox>
-                        <Button Content="Ray Test" Grid.Row="1" Grid.ColumnSpan="2" Click="mButtonRayTest_Click" />
+                        <Label Grid.Row="1" Content="Ray Count:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
+                        <TextBox x:Name="mTextBoxRayCount" Grid.Row="1" Grid.Column="1" Text="10" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" />
+                        <Button Content="Ray Test" Grid.Row="2" Grid.ColumnSpan="2" Click="mButtonRayTest_Click" />
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Crossfeed Settings" >
