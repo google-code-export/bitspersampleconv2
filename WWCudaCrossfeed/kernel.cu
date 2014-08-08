@@ -12,7 +12,7 @@
 #include <float.h>
 
 #define CROSSFEED_COEF_NUM (8)
-#define NUM_THREADS_PER_BLOCK (32)
+#define NUM_THREADS_PER_BLOCK (256)
 #define BLOCK_X (32768)
 
 enum PcmChannelType {
@@ -303,30 +303,36 @@ ElementWiseAddCuda(cufftReal *C, cufftReal *A, cufftReal *B)
 }
 
 static void
+GetBestBlockThreadSize(int count, dim3 &threads_return, dim3 &blocks_return)
+{
+    if ((count / NUM_THREADS_PER_BLOCK) <= 1) {
+        threads_return.x = count;
+    } else {
+        threads_return.x = NUM_THREADS_PER_BLOCK;
+        threads_return.y = 1;
+        threads_return.z = 1;
+        int countRemain = count / NUM_THREADS_PER_BLOCK;
+        if ((countRemain / BLOCK_X) <= 1) {
+            blocks_return.x = countRemain;
+            blocks_return.y = 1;
+            blocks_return.z = 1;
+        } else {
+            blocks_return.x = BLOCK_X;
+            countRemain /= BLOCK_X;
+            blocks_return.y = countRemain;
+            blocks_return.z = 1;
+        }
+    }
+}
+
+static void
 CudaElementWiseMul(int count, cufftComplex *dest, cufftComplex *from0, cufftComplex *from1)
 {
     dim3 threads(1);
     dim3 blocks(1);
 
-    if ((count / NUM_THREADS_PER_BLOCK) <= 1) {
-        threads.x = count;
-    } else {
-        threads.x = NUM_THREADS_PER_BLOCK;
-        threads.y = 1;
-        threads.z = 1;
-        int countRemain = count / NUM_THREADS_PER_BLOCK;
-        if ((countRemain / BLOCK_X) <= 1) {
-            blocks.x = countRemain;
-            blocks.y = 1;
-            blocks.z = 1;
-        } else {
-            blocks.x = BLOCK_X;
-            countRemain /= BLOCK_X;
-            blocks.y = countRemain;
-            blocks.z = 1;
-        }
-    }
-
+    GetBestBlockThreadSize(count, threads, blocks);
+    cudaDeviceSynchronize();
     ElementWiseMulCuda<<<blocks, threads>>>(dest, from0, from1);
     cudaDeviceSynchronize();
 }
@@ -337,25 +343,8 @@ CudaElementWiseAdd(int count, cufftReal *dest, cufftReal *from0, cufftReal *from
     dim3 threads(1);
     dim3 blocks(1);
 
-    if ((count / NUM_THREADS_PER_BLOCK) <= 1) {
-        threads.x = count;
-    } else {
-        threads.x = NUM_THREADS_PER_BLOCK;
-        threads.y = 1;
-        threads.z = 1;
-        int countRemain = count / NUM_THREADS_PER_BLOCK;
-        if ((countRemain / BLOCK_X) <= 1) {
-            blocks.x = countRemain;
-            blocks.y = 1;
-            blocks.z = 1;
-        } else {
-            blocks.x = BLOCK_X;
-            countRemain /= BLOCK_X;
-            blocks.y = countRemain;
-            blocks.z = 1;
-        }
-    }
-
+    GetBestBlockThreadSize(count, threads, blocks);
+    cudaDeviceSynchronize();
     ElementWiseAddCuda<<<blocks, threads>>>(dest, from0, from1);
     cudaDeviceSynchronize();
 }
@@ -377,13 +366,10 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, cuFromT, spectrum));
 
-    cudaDeviceSynchronize();
-
     cufftDestroy(plan);
     plan = 0;
 
     CHK_CUDAFREE(cuFromT, sizeof(cufftReal)*fftSize);
-
     return spectrum;
 }
 
@@ -414,8 +400,6 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
     CHK_CUFFT(cufftExecR2C(plan, coefTime, coefFreq));
 
-    cudaDeviceSynchronize();
-
     CHK_CUDAFREE(coefTime, sizeof(cufftReal)*fftSize);
 
     CHK_CUDAMALLOC((void**)&pcmTime, sizeof(cufftReal)*fftSize);
@@ -423,11 +407,7 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUDAERROR(cudaMemcpy(pcmTime, input.inputPcm, input.totalSamples * sizeof(float), cudaMemcpyHostToDevice));
     CHK_CUDAMALLOC((void**)&pcmFreq, sizeof(cufftComplex)*fftSize);
 
-    cudaDeviceSynchronize();
-
     CHK_CUFFT(cufftExecR2C(plan, pcmTime, pcmFreq));
-
-    cudaDeviceSynchronize();
 
     cufftDestroy(plan);
     plan = 0;
@@ -437,19 +417,13 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUDAMALLOC((void**)&resultFreq, sizeof(cufftComplex)*fftSize);
     CudaElementWiseMul(fftSize, resultFreq, coefFreq, pcmFreq);
 
-    cudaDeviceSynchronize();
-
     CHK_CUDAFREE(coefFreq, sizeof(cufftComplex)*fftSize);
     CHK_CUDAFREE(pcmFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUDAMALLOC((void**)&resultTime, sizeof(cufftReal)*fftSize);
 
-    cudaDeviceSynchronize();
-
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_C2R, 1));
     CHK_CUFFT(cufftExecC2R(plan, resultFreq, resultTime));
-
-    cudaDeviceSynchronize();
 
     cufftDestroy(plan);
     plan = 0;
@@ -457,9 +431,6 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUDAFREE(resultFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUDAERROR(cudaMemcpy(pOutput->inputPcm, resultTime, input.totalSamples * sizeof(float), cudaMemcpyDeviceToHost));
-    
-    cudaDeviceSynchronize();
-
     CHK_CUDAFREE(resultTime, sizeof(cufftReal)*fftSize);
 
     return pOutput->inputPcm;
@@ -478,29 +449,18 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     cufftReal *cuTimeMixed = NULL;
 
     CHK_CUDAMALLOC((void**)&cuFreq, sizeof(cufftComplex)*nFFT);
-
-    cudaDeviceSynchronize();
-
     CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
 
     for (int ch=0; ch<2; ++ch) {
         CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2], coeffLo[ch]);
-    
-        cudaDeviceSynchronize();
 
         CHK_CUDAMALLOC((void**)&cuTime[ch*2], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2]));
 
-        cudaDeviceSynchronize();
-
         CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2+1], coeffHi[ch]);
-    
-        cudaDeviceSynchronize();
 
         CHK_CUDAMALLOC((void**)&cuTime[ch*2+1], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2+1]));
-
-        cudaDeviceSynchronize();
     }
 
     cufftDestroy(plan);
@@ -512,8 +472,6 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     CHK_CUDAMALLOC((void**)&cuTimeMixedHi, sizeof(cufftReal)*nFFT);
     CHK_CUDAMALLOC((void**)&cuTimeMixed, sizeof(cufftReal)*nFFT);
 
-    cudaDeviceSynchronize();
-
     CudaElementWiseAdd(nFFT, cuTimeMixedLo, cuTime[0], cuTime[2]);
     CudaElementWiseAdd(nFFT, cuTimeMixedHi, cuTime[1], cuTime[3]);
     CudaElementWiseAdd(nFFT, cuTimeMixed, cuTimeMixedLo, cuTimeMixedHi);
@@ -524,16 +482,10 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     CHK_CUDAFREE(cuTimeMixedLo, sizeof(cufftReal)*nFFT);
     CHK_CUDAFREE(cuTimeMixedHi, sizeof(cufftReal)*nFFT);
 
-    cudaDeviceSynchronize();
-
     float *result = new float[pcmSamples];
     CHK_CUDAERROR(cudaMemcpy(result, cuTimeMixed, pcmSamples * sizeof(float), cudaMemcpyDeviceToHost));
 
-    cudaDeviceSynchronize();
-
     CHK_CUDAFREE(cuTimeMixed, sizeof(cufftReal)*nFFT);
-
-    cudaDeviceSynchronize();
 
     return result;
 }
