@@ -1,3 +1,4 @@
+// 日本語
 #include "CrossfeedF.h"
 #include "Util.h"
 
@@ -5,8 +6,95 @@
 #include "WWFlacRW.h"
 #include <vector>
 
+#define WW_CROSSOVER_COEFF_LENGTH (49)
+
+// 44.1kHz用 1kHz以下を取り出すLPF。
+static float gLpfF[WW_CROSSOVER_COEFF_LENGTH] = {
+        0.005228327, 0.003249754, 0.004192373, 0.005265026,
+        0.006468574, 0.007797099, 0.009237486, 0.010779043,
+        0.012417001, 0.014132141, 0.01589555, 0.017701121,
+        0.019508703, 0.021304869, 0.023059883,0.024747905,
+        0.02634363, 0.027823228, 0.029158971, 0.030331066,
+        0.031319484, 0.032104039, 0.032676435, 0.033022636,
+        0.033138738, 0.033022636, 0.032676435, 0.032104039,
+        0.031319484, 0.030331066, 0.029158971, 0.027823228,
+        0.02634363, 0.024747905, 0.023059883, 0.021304869,
+        0.019508703, 0.017701121, 0.01589555, 0.014132141,
+        0.012417001, 0.010779043, 0.009237486, 0.007797099,
+        0.006468574, 0.005265026, 0.004192373, 0.003249754,
+        0.005228327 };
+
+// 44.1kHz用 1kHz以上を取り出すHPF。LPFとコンプリメンタリーになっている。
+static float gHpfF[WW_CROSSOVER_COEFF_LENGTH] = {
+        -0.005228327,-0.003249754,-0.004192373,-0.005265026,
+        -0.006468574,-0.007797099,-0.009237486,-0.010779043,
+        -0.012417001,-0.014132141,-0.01589555,-0.017701121,
+        -0.019508703,-0.021304869,-0.023059883,-0.024747905,
+        -0.02634363,-0.027823228,-0.029158971,-0.030331066,
+        -0.031319484,-0.032104039,-0.032676435,-0.033022636,
+        0.966861262,-0.033022636,-0.032676435,-0.032104039,
+        -0.031319484,-0.030331066,-0.029158971,-0.027823228,
+        -0.02634363,-0.024747905,-0.023059883,-0.021304869,
+        -0.019508703,-0.017701121,-0.01589555,-0.014132141,
+        -0.012417001,-0.010779043,-0.009237486,-0.007797099,
+        -0.006468574,-0.005265026,-0.004192373,-0.003249754,
+        -0.005228327};
+
+struct CrossfeedParamF {
+    int numChannels;
+    float *coeffs[CROSSFEED_COEF_NUM];
+    cufftComplex *spectra[CROSSFEED_COEF_NUM];
+
+    int sampleRate;
+    int coeffSize;
+    int fftSize;
+
+    CrossfeedParamF(void) {
+        numChannels = 0;
+        sampleRate = 0;
+        coeffSize = 0;
+
+        for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
+            coeffs[i]  = NULL;
+            spectra[i] = NULL;
+        }
+    }
+    void Term(void) {
+        for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
+            delete [] coeffs[i];
+            coeffs[i] = NULL;
+
+            CHK_CUDAFREE(spectra[i], fftSize * sizeof(cufftComplex));
+        }
+    }
+};
+
+struct PcmSamplesPerChannelF {
+    size_t totalSamples;
+    float *inputPcm;
+    float *outputPcm;
+    cufftComplex *spectrum;
+    int fftSize;
+
+    void Init(void) {
+        inputPcm = NULL;
+        outputPcm = NULL;
+        spectrum = NULL;
+    }
+
+    void Term(void) {
+        delete [] inputPcm;
+        inputPcm = NULL;
+
+        delete [] outputPcm;
+        outputPcm = NULL;
+
+        CHK_CUDAFREE(spectrum, fftSize * sizeof(cufftComplex));
+    }
+};
+
 static bool
-ReadCrossfeeedParamsFromFileF(const wchar_t *path, CrossfeedParam *param_return)
+ReadCrossfeeedParamsFromFileF(const wchar_t *path, CrossfeedParamF *param_return)
 {
     assert(param_return);
 
@@ -62,7 +150,7 @@ END:
 }
 
 static void
-SetInputPcmSamplesF(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannel *ppc_return)
+SetInputPcmSamplesF(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannelF *ppc_return)
 {
     assert(ppc_return);
 
@@ -135,7 +223,7 @@ CreateSpectrumF(float *timeDomainData, int numSamples, int fftSize)
 
     CHK_CUDAMALLOC((void**)&cuFromT, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)cuFromT, 0, sizeof(cufftReal)*fftSize));
-    CHK_CUDAERROR(cudaMemcpy(cuFromT, timeDomainData, numSamples * sizeof(float), cudaMemcpyHostToDevice));
+    CHK_CUDAERROR(cudaMemcpy(cuFromT, timeDomainData, numSamples * sizeof(cufftReal), cudaMemcpyHostToDevice));
     CHK_CUDAMALLOC((void**)&spectrum, sizeof(cufftComplex)*fftSize);
 
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
@@ -149,7 +237,7 @@ CreateSpectrumF(float *timeDomainData, int numSamples, int fftSize)
 }
 
 static float *
-FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmSamplesPerChannel *pOutput)
+FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannelF &input, PcmSamplesPerChannelF *pOutput)
 {
     size_t fftSize = (firCoeffNum < input.totalSamples) ? input.totalSamples: firCoeffNum;
     fftSize = NextPowerOf2(fftSize);
@@ -169,7 +257,7 @@ FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, Pcm
 
     CHK_CUDAMALLOC((void**)&coefTime, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)coefTime, 0, sizeof(cufftReal)*fftSize));
-    CHK_CUDAERROR(cudaMemcpy(coefTime, firCoeff, firCoeffNum * sizeof(float), cudaMemcpyHostToDevice));
+    CHK_CUDAERROR(cudaMemcpy(coefTime, firCoeff, firCoeffNum * sizeof(cufftReal), cudaMemcpyHostToDevice));
     CHK_CUDAMALLOC((void**)&coefFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUFFT(cufftPlan1d(&plan, fftSize, CUFFT_R2C, 1));
@@ -179,7 +267,7 @@ FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, Pcm
 
     CHK_CUDAMALLOC((void**)&pcmTime, sizeof(cufftReal)*fftSize);
     CHK_CUDAERROR(cudaMemset((void*)pcmTime, 0, sizeof(cufftReal)*fftSize));
-    CHK_CUDAERROR(cudaMemcpy(pcmTime, input.inputPcm, input.totalSamples * sizeof(float), cudaMemcpyHostToDevice));
+    CHK_CUDAERROR(cudaMemcpy(pcmTime, input.inputPcm, input.totalSamples * sizeof(cufftReal), cudaMemcpyHostToDevice));
     CHK_CUDAMALLOC((void**)&pcmFreq, sizeof(cufftComplex)*fftSize);
 
     CHK_CUFFT(cufftExecR2C(plan, pcmTime, pcmFreq));
@@ -205,7 +293,7 @@ FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, Pcm
 
     CHK_CUDAFREE(resultFreq, sizeof(cufftComplex)*fftSize);
 
-    CHK_CUDAERROR(cudaMemcpy(pOutput->inputPcm, resultTime, input.totalSamples * sizeof(float), cudaMemcpyDeviceToHost));
+    CHK_CUDAERROR(cudaMemcpy(pOutput->inputPcm, resultTime, input.totalSamples * sizeof(cufftReal), cudaMemcpyDeviceToHost));
     CHK_CUDAFREE(resultTime, sizeof(cufftReal)*fftSize);
 
     return pOutput->inputPcm;
@@ -259,7 +347,7 @@ CrossfeedMixF(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2],
     CHK_CUDAFREE(cuTimeMixedHi, sizeof(cufftReal)*nFFT);
 
     float *result = new float[pcmSamples];
-    CHK_CUDAERROR(cudaMemcpy(result, cuTimeMixed, pcmSamples * sizeof(float), cudaMemcpyDeviceToHost));
+    CHK_CUDAERROR(cudaMemcpy(result, cuTimeMixed, pcmSamples * sizeof(cufftReal), cudaMemcpyDeviceToHost));
 
     CHK_CUDAFREE(cuTimeMixed, sizeof(cufftReal)*nFFT);
 
@@ -267,7 +355,7 @@ CrossfeedMixF(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2],
 }
 
 static void
-NormalizeOutputPcmF(std::vector<PcmSamplesPerChannel> & pcmSamples)
+NormalizeOutputPcmF(std::vector<PcmSamplesPerChannelF> & pcmSamples)
 {
     float minV = FLT_MAX;
     float maxV = FLT_MIN;
@@ -305,7 +393,7 @@ NormalizeOutputPcmF(std::vector<PcmSamplesPerChannel> & pcmSamples)
 
 static bool
 WriteFlacFileF(const WWFlacMetadata &meta, const uint8_t *picture,
-        std::vector<PcmSamplesPerChannel> &pcmSamples, const wchar_t *path)
+        std::vector<PcmSamplesPerChannelF> &pcmSamples, const wchar_t *path)
 {
     bool result = false;
     int rv;
@@ -359,12 +447,12 @@ WWRunCrossfeedF(const wchar_t *coeffPath, const wchar_t *fromPath, const wchar_t
     int ercd;
     int id = -1;
     size_t nFFT;
-    CrossfeedParam crossfeedParam;
+    CrossfeedParamF crossfeedParam;
     WWFlacMetadata meta;
     uint8_t * picture = NULL;
     cufftComplex * inPcmSpectra[PCT_NUM];
 
-    std::vector<PcmSamplesPerChannel> pcmSamples;
+    std::vector<PcmSamplesPerChannelF> pcmSamples;
 
     if (!ReadCrossfeeedParamsFromFileF(coeffPath, &crossfeedParam)) {
         printf("Error: could not read crossfeed param file %S\n", coeffPath);
@@ -407,7 +495,7 @@ WWRunCrossfeedF(const wchar_t *coeffPath, const wchar_t *fromPath, const wchar_t
         uint8_t *buff = new uint8_t[bytes];
         WWFlacRW_GetDecodedPcmBytes(id, ch, 0, buff, bytes);
 
-        PcmSamplesPerChannel ppc;
+        PcmSamplesPerChannelF ppc;
         ppc.Init();
         ppc.totalSamples = (size_t)meta.totalSamples;
         ppc.inputPcm = new float[(size_t)(meta.totalSamples * sizeof(float))];
@@ -418,11 +506,11 @@ WWRunCrossfeedF(const wchar_t *coeffPath, const wchar_t *fromPath, const wchar_t
 
         {
             // 低音域
-            PcmSamplesPerChannel lowFreq;
+            PcmSamplesPerChannelF lowFreq;
             lowFreq.Init();
             lowFreq.totalSamples = ppc.totalSamples;
             lowFreq.inputPcm = new float[ppc.totalSamples];
-            if (NULL == FirFilterF(gLpf, sizeof gLpf/sizeof gLpf[0], ppc, &lowFreq)) {
+            if (NULL == FirFilterF(gLpfF, sizeof gLpfF/sizeof gLpfF[0], ppc, &lowFreq)) {
                 goto END;
             }
             pcmSamples.push_back(lowFreq);
@@ -430,11 +518,11 @@ WWRunCrossfeedF(const wchar_t *coeffPath, const wchar_t *fromPath, const wchar_t
 
         {
             // 高音域
-            PcmSamplesPerChannel highFreq;
+            PcmSamplesPerChannelF highFreq;
             highFreq.Init();
             highFreq.totalSamples = ppc.totalSamples;
             highFreq.inputPcm = new float[ppc.totalSamples];
-            if (NULL == FirFilterF(gHpf, sizeof gHpf/sizeof gHpf[0], ppc, &highFreq)) {
+            if (NULL == FirFilterF(gHpfF, sizeof gHpfF/sizeof gHpfF[0], ppc, &highFreq)) {
                 goto END;
             }
             pcmSamples.push_back(highFreq);

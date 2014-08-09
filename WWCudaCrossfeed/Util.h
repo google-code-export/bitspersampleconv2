@@ -11,11 +11,6 @@
 #define CHECKED(x) if (!(x)) { goto END; }
 #define CROSSFEED_COEF_NUM (8)
 
-#define WW_CROSSOVER_COEFF_LENGTH (49)
-
-extern float gLpf[WW_CROSSOVER_COEFF_LENGTH];
-extern float gHpf[WW_CROSSOVER_COEFF_LENGTH];
-
 enum PcmChannelType {
     PCT_LeftLow,
     PCT_LeftHigh,
@@ -32,44 +27,6 @@ ReadOneLine(FILE *fp, char *line_return, size_t lineBytes);
 
 void
 GetBestBlockThreadSize(int count, dim3 &threads_return, dim3 &blocks_return);
-
-struct CrossfeedParam {
-    int numChannels;
-    float *coeffs[CROSSFEED_COEF_NUM];
-    cufftComplex *spectra[CROSSFEED_COEF_NUM];
-
-    int sampleRate;
-    int coeffSize;
-    int fftSize;
-
-    CrossfeedParam(void) {
-        numChannels = 0;
-        sampleRate = 0;
-        coeffSize = 0;
-
-        for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
-            coeffs[i]  = NULL;
-            spectra[i] = NULL;
-        }
-    }
-    void Term(void);
-};
-
-struct PcmSamplesPerChannel {
-    size_t totalSamples;
-    float *inputPcm;
-    float *outputPcm;
-    cufftComplex *spectrum;
-    int fftSize;
-
-    void Init(void) {
-        inputPcm = NULL;
-        outputPcm = NULL;
-        spectrum = NULL;
-    }
-
-    void Term(void);
-};
 
 const char *
 CudaFftGetErrorString(cufftResult error);
