@@ -156,7 +156,7 @@ ReadOneLine(FILE *fp, char *line_return, size_t lineBytes)
 #define CHECKED(x) if (!(x)) { goto END; }
 
 static bool
-ReadCrossfeeedParamsFromFile(const wchar_t *path, CrossfeedParam *param_return)
+ReadCrossfeeedParamsFromFileF(const wchar_t *path, CrossfeedParam *param_return)
 {
     assert(param_return);
 
@@ -195,7 +195,8 @@ ReadCrossfeeedParamsFromFile(const wchar_t *path, CrossfeedParam *param_return)
         double v[CROSSFEED_COEF_NUM];
 
         CHECKED(ReadOneLine(fp, buff, sizeof buff));
-        CHECKED(8 == sscanf(buff, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf", &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &v[7]));
+        CHECKED(8 == sscanf(buff, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &v[7]));
 
         for (int ch=0; ch<CROSSFEED_COEF_NUM; ++ch) {
             param_return->coeffs[ch][i] = (float)v[ch];
@@ -211,7 +212,7 @@ END:
 }
 
 static void
-SetInputPcmSamples(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannel *ppc_return)
+SetInputPcmSamplesF(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannel *ppc_return)
 {
     assert(ppc_return);
 
@@ -288,7 +289,7 @@ CudaFftGetErrorString(cufftResult error)
     }
 
 __global__ void
-ElementWiseMulCuda(cufftComplex *C, cufftComplex *A, cufftComplex *B)
+ElementWiseMulCudaF(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 {
     int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
     C[offs].x = A[offs].x * B[offs].x - A[offs].y * B[offs].y;
@@ -296,7 +297,7 @@ ElementWiseMulCuda(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 }
 
 __global__ void
-ElementWiseAddCuda(cufftReal *C, cufftReal *A, cufftReal *B)
+ElementWiseAddCudaF(cufftReal *C, cufftReal *A, cufftReal *B)
 {
     int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
     C[offs] = A[offs] + B[offs];
@@ -326,31 +327,31 @@ GetBestBlockThreadSize(int count, dim3 &threads_return, dim3 &blocks_return)
 }
 
 static void
-CudaElementWiseMul(int count, cufftComplex *dest, cufftComplex *from0, cufftComplex *from1)
+CudaElementWiseMulF(int count, cufftComplex *dest, cufftComplex *from0, cufftComplex *from1)
 {
     dim3 threads(1);
     dim3 blocks(1);
 
     GetBestBlockThreadSize(count, threads, blocks);
     cudaDeviceSynchronize();
-    ElementWiseMulCuda<<<blocks, threads>>>(dest, from0, from1);
+    ElementWiseMulCudaF<<<blocks, threads>>>(dest, from0, from1);
     cudaDeviceSynchronize();
 }
 
 static void
-CudaElementWiseAdd(int count, cufftReal *dest, cufftReal *from0, cufftReal *from1)
+CudaElementWiseAddF(int count, cufftReal *dest, cufftReal *from0, cufftReal *from1)
 {
     dim3 threads(1);
     dim3 blocks(1);
 
     GetBestBlockThreadSize(count, threads, blocks);
     cudaDeviceSynchronize();
-    ElementWiseAddCuda<<<blocks, threads>>>(dest, from0, from1);
+    ElementWiseAddCudaF<<<blocks, threads>>>(dest, from0, from1);
     cudaDeviceSynchronize();
 }
 
 static cufftComplex *
-CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
+CreateSpectrumF(float *timeDomainData, int numSamples, int fftSize)
 {
     cufftReal *cuFromT = NULL;
     cudaError_t ercd;
@@ -374,7 +375,7 @@ CreateSpectrum(float *timeDomainData, int numSamples, int fftSize)
 }
 
 static float *
-FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmSamplesPerChannel *pOutput)
+FirFilterF(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmSamplesPerChannel *pOutput)
 {
     size_t fftSize = (firCoeffNum < input.totalSamples) ? input.totalSamples: firCoeffNum;
     fftSize = NextPowerOf2(fftSize);
@@ -415,7 +416,7 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
     CHK_CUDAFREE(pcmTime, sizeof(cufftReal)*fftSize);
 
     CHK_CUDAMALLOC((void**)&resultFreq, sizeof(cufftComplex)*fftSize);
-    CudaElementWiseMul(fftSize, resultFreq, coefFreq, pcmFreq);
+    CudaElementWiseMulF(fftSize, resultFreq, coefFreq, pcmFreq);
 
     CHK_CUDAFREE(coefFreq, sizeof(cufftComplex)*fftSize);
     CHK_CUDAFREE(pcmFreq, sizeof(cufftComplex)*fftSize);
@@ -437,7 +438,8 @@ FirFilter(float *firCoeff, size_t firCoeffNum, PcmSamplesPerChannel &input, PcmS
 }
 
 static float *
-CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cufftComplex *coeffHi[2], int nFFT, int pcmSamples)
+CrossfeedMixF(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2],
+        cufftComplex *coeffHi[2], int nFFT, int pcmSamples)
 {
     cudaError_t ercd;
     cufftResult fftResult;
@@ -452,12 +454,12 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     CHK_CUFFT(cufftPlan1d(&plan, nFFT, CUFFT_C2R, 1));
 
     for (int ch=0; ch<2; ++ch) {
-        CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2], coeffLo[ch]);
+        CudaElementWiseMulF(nFFT, cuFreq, inPcmSpectra[ch*2], coeffLo[ch]);
 
         CHK_CUDAMALLOC((void**)&cuTime[ch*2], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2]));
 
-        CudaElementWiseMul(nFFT, cuFreq, inPcmSpectra[ch*2+1], coeffHi[ch]);
+        CudaElementWiseMulF(nFFT, cuFreq, inPcmSpectra[ch*2+1], coeffHi[ch]);
 
         CHK_CUDAMALLOC((void**)&cuTime[ch*2+1], sizeof(cufftReal)*nFFT);
         CHK_CUFFT(cufftExecC2R(plan, cuFreq, cuTime[ch*2+1]));
@@ -472,9 +474,9 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
     CHK_CUDAMALLOC((void**)&cuTimeMixedHi, sizeof(cufftReal)*nFFT);
     CHK_CUDAMALLOC((void**)&cuTimeMixed, sizeof(cufftReal)*nFFT);
 
-    CudaElementWiseAdd(nFFT, cuTimeMixedLo, cuTime[0], cuTime[2]);
-    CudaElementWiseAdd(nFFT, cuTimeMixedHi, cuTime[1], cuTime[3]);
-    CudaElementWiseAdd(nFFT, cuTimeMixed, cuTimeMixedLo, cuTimeMixedHi);
+    CudaElementWiseAddF(nFFT, cuTimeMixedLo, cuTime[0], cuTime[2]);
+    CudaElementWiseAddF(nFFT, cuTimeMixedHi, cuTime[1], cuTime[3]);
+    CudaElementWiseAddF(nFFT, cuTimeMixed, cuTimeMixedLo, cuTimeMixedHi);
 
     for (int i=0; i<PCT_NUM; ++i) {
         CHK_CUDAFREE(cuTime[i], sizeof(cufftReal)*nFFT);
@@ -491,7 +493,7 @@ CrossfeedMix(cufftComplex *inPcmSpectra[PCT_NUM], cufftComplex *coeffLo[2], cuff
 }
 
 static void
-NormalizeOutputPcm(std::vector<PcmSamplesPerChannel> & pcmSamples)
+NormalizeOutputPcmF(std::vector<PcmSamplesPerChannel> & pcmSamples)
 {
     float minV = FLT_MAX;
     float maxV = FLT_MIN;
@@ -528,7 +530,8 @@ NormalizeOutputPcm(std::vector<PcmSamplesPerChannel> & pcmSamples)
 }
 
 static bool
-WriteFlacFile(const WWFlacMetadata &meta, const uint8_t *picture, std::vector<PcmSamplesPerChannel> &pcmSamples, const wchar_t *path)
+WriteFlacFileF(const WWFlacMetadata &meta, const uint8_t *picture,
+        std::vector<PcmSamplesPerChannel> &pcmSamples, const wchar_t *path)
 {
     bool result = false;
     int rv;
@@ -572,7 +575,6 @@ WriteFlacFile(const WWFlacMetadata &meta, const uint8_t *picture, std::vector<Pc
 END:
 
     WWFlacRW_EncodeEnd(id);
-
     return result;
 }
 
@@ -594,7 +596,7 @@ int wmain(int argc, wchar_t *argv[])
         goto END;
     }
 
-    if (!ReadCrossfeeedParamsFromFile(argv[1], &crossfeedParam)) {
+    if (!ReadCrossfeeedParamsFromFileF(argv[1], &crossfeedParam)) {
         printf("Error: could not read crossfeed param file %S\n", argv[1]);
         goto END;
     }
@@ -639,7 +641,7 @@ int wmain(int argc, wchar_t *argv[])
         ppc.Init();
         ppc.totalSamples = (size_t)meta.totalSamples;
         ppc.inputPcm = new float[(size_t)(meta.totalSamples * sizeof(float))];
-        SetInputPcmSamples(buff, meta.bitsPerSample, &ppc);
+        SetInputPcmSamplesF(buff, meta.bitsPerSample, &ppc);
 
         delete [] buff;
         buff = NULL;
@@ -650,7 +652,7 @@ int wmain(int argc, wchar_t *argv[])
             lowFreq.Init();
             lowFreq.totalSamples = ppc.totalSamples;
             lowFreq.inputPcm = new float[ppc.totalSamples];
-            if (NULL == FirFilter(gLpf, sizeof gLpf/sizeof gLpf[0], ppc, &lowFreq)) {
+            if (NULL == FirFilterF(gLpf, sizeof gLpf/sizeof gLpf[0], ppc, &lowFreq)) {
                 goto END;
             }
             pcmSamples.push_back(lowFreq);
@@ -662,7 +664,7 @@ int wmain(int argc, wchar_t *argv[])
             highFreq.Init();
             highFreq.totalSamples = ppc.totalSamples;
             highFreq.inputPcm = new float[ppc.totalSamples];
-            if (NULL == FirFilter(gHpf, sizeof gHpf/sizeof gHpf[0], ppc, &highFreq)) {
+            if (NULL == FirFilterF(gHpf, sizeof gHpf/sizeof gHpf[0], ppc, &highFreq)) {
                 goto END;
             }
             pcmSamples.push_back(highFreq);
@@ -677,14 +679,14 @@ int wmain(int argc, wchar_t *argv[])
     nFFT = NextPowerOf2(nFFT);
 
     for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
-        crossfeedParam.spectra[i] = CreateSpectrum(crossfeedParam.coeffs[i], crossfeedParam.coeffSize, nFFT);
+        crossfeedParam.spectra[i] = CreateSpectrumF(crossfeedParam.coeffs[i], crossfeedParam.coeffSize, nFFT);
         if (crossfeedParam.spectra[i] == NULL) {
             goto END;
         }
         crossfeedParam.fftSize = nFFT;
     }
     for (int i=0; i<pcmSamples.size(); ++i) {
-        pcmSamples[i].spectrum = CreateSpectrum(pcmSamples[i].inputPcm, pcmSamples[i].totalSamples, nFFT);
+        pcmSamples[i].spectrum = CreateSpectrumF(pcmSamples[i].inputPcm, pcmSamples[i].totalSamples, nFFT);
         if (pcmSamples[i].spectrum == NULL) {
             goto END;
         }
@@ -692,20 +694,22 @@ int wmain(int argc, wchar_t *argv[])
         inPcmSpectra[i] = pcmSamples[i].spectrum;
     }
 
-    pcmSamples[0].outputPcm = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[0], &crossfeedParam.spectra[4], nFFT, pcmSamples[0].totalSamples);
+    pcmSamples[0].outputPcm = CrossfeedMixF(inPcmSpectra,
+            &crossfeedParam.spectra[0], &crossfeedParam.spectra[4], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[0].outputPcm == NULL) {
         goto END;
     }
-    pcmSamples[1].outputPcm = CrossfeedMix(inPcmSpectra, &crossfeedParam.spectra[2], &crossfeedParam.spectra[6], nFFT, pcmSamples[0].totalSamples);
+    pcmSamples[1].outputPcm = CrossfeedMixF(inPcmSpectra,
+            &crossfeedParam.spectra[2], &crossfeedParam.spectra[6], nFFT, pcmSamples[0].totalSamples);
     if (pcmSamples[1].outputPcm == NULL) {
         goto END;
     }
 
-    NormalizeOutputPcm(pcmSamples);
+    NormalizeOutputPcmF(pcmSamples);
 
     // 出力bit depth == 24bit
     meta.bitsPerSample = 24;
-    if (!WriteFlacFile(meta, picture, pcmSamples, argv[3])) {
+    if (!WriteFlacFileF(meta, picture, pcmSamples, argv[3])) {
         printf("Error: WriteFlac(%S) failed\n", argv[3]);
         goto END;
     }
