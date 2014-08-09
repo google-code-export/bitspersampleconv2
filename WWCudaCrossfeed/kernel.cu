@@ -10,18 +10,9 @@
 #include "WWFlacRW.h"
 #include <vector>
 #include <float.h>
+#include "Util.h"
 
-#define CROSSFEED_COEF_NUM (8)
-#define NUM_THREADS_PER_BLOCK (256)
-#define BLOCK_X (32768)
 
-enum PcmChannelType {
-    PCT_LeftLow,
-    PCT_LeftHigh,
-    PCT_RightLow,
-    PCT_RightHigh,
-    PCT_NUM
-};
 
 // 44.1kHz用 1kHz以下を取り出すLPF。
 static float gLpf[] = {
@@ -55,105 +46,8 @@ static float gHpf[] = {
         -0.006468574,-0.005265026,-0.004192373,-0.003249754,
         -0.005228327};
 
-static int64_t gCudaAllocatedBytes = 0;
-static int64_t gCudaMaxBytes = 0;
 
-#define CHK_CUDAMALLOC(pp, sz)                                                             \
-    ercd = cudaMalloc(pp, sz);                                                             \
-    if (cudaSuccess != ercd) {                                                             \
-        printf("cudaMalloc(%dMBytes) failed. errorcode=%d (%s). allocated CUDA memory=%lld Mbytes\n", (int)(sz/1024/1024), ercd, cudaGetErrorString(ercd), gCudaAllocatedBytes/1024/1024); \
-        return NULL;                                                                       \
-    }                                                                                      \
-    gCudaAllocatedBytes += sz;                                                             \
-    if (gCudaMaxBytes < gCudaAllocatedBytes) {                                             \
-        gCudaMaxBytes = gCudaAllocatedBytes;                                               \
-    }
 
-#define CHK_CUDAFREE(p, sz)        \
-    cudaFree(p);                   \
-    if (p != NULL) {               \
-        p = NULL;                  \
-        gCudaAllocatedBytes -= sz; \
-    }
-
-struct CrossfeedParam {
-    int numChannels;
-    float *coeffs[CROSSFEED_COEF_NUM];
-    cufftComplex *spectra[CROSSFEED_COEF_NUM];
-
-    int sampleRate;
-    int coeffSize;
-    int fftSize;
-
-    CrossfeedParam(void) {
-        numChannels = 0;
-        sampleRate = 0;
-        coeffSize = 0;
-
-        for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
-            coeffs[i]  = NULL;
-            spectra[i] = NULL;
-        }
-    }
-
-    void Term(void) {
-        for (int i=0; i<CROSSFEED_COEF_NUM; ++i) {
-            delete [] coeffs[i];
-            coeffs[i] = NULL;
-
-            CHK_CUDAFREE(spectra[i], fftSize * sizeof(cufftComplex));
-        }
-    }
-};
-
-struct PcmSamplesPerChannel {
-    size_t totalSamples;
-    float *inputPcm;
-    float *outputPcm;
-    cufftComplex *spectrum;
-    int fftSize;
-
-    void Init(void) {
-        inputPcm = NULL;
-        outputPcm = NULL;
-        spectrum = NULL;
-    }
-
-    void Term(void) {
-        delete [] inputPcm;
-        inputPcm = NULL;
-
-        delete [] outputPcm;
-        outputPcm = NULL;
-
-        CHK_CUDAFREE(spectrum, fftSize * sizeof(cufftComplex));
-    }
-};
-
-static bool
-ReadOneLine(FILE *fp, char *line_return, size_t lineBytes)
-{
-    line_return[0] = 0;
-    int c;
-    int pos = 0;
-
-    do {
-        c = fgetc(fp);
-        if (c == EOF || c == '\n') {
-            break;
-        }
-
-        if (c != '\r') {
-            line_return[pos] = (char)c;
-            line_return[pos+1] = 0;
-            ++pos;
-        }
-    } while (c != EOF && pos < (int)lineBytes -1);
-
-    return c != EOF;
-}
-
-#define CHECKED(x) if (!(x)) { goto END; }
 
 static bool
 ReadCrossfeeedParamsFromFileF(const wchar_t *path, CrossfeedParam *param_return)
@@ -211,7 +105,7 @@ END:
     return result;
 }
 
-static void
+void
 SetInputPcmSamplesF(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannel *ppc_return)
 {
     assert(ppc_return);
@@ -233,20 +127,6 @@ SetInputPcmSamplesF(uint8_t *buff, int bitsPerSample, PcmSamplesPerChannel *ppc_
         assert(!"not supported");
         break;
     }
-}
-
-static size_t
-NextPowerOf2(size_t v)
-{
-    size_t result = 1;
-    if (INT_MAX+1U < v) {
-        printf("Error: NextPowerOf2(%d) too large!\n", v);
-        return 0;
-    }
-    while (result < v) {
-        result *= 2;
-    }
-    return result;
 }
 
 static const char *
@@ -291,7 +171,7 @@ CudaFftGetErrorString(cufftResult error)
 __global__ void
 ElementWiseMulCudaF(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 {
-    int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
+    int offs = threadIdx.x + WW_NUM_THREADS_PER_BLOCK * (blockIdx.x + WW_BLOCK_X * blockIdx.y);
     C[offs].x = A[offs].x * B[offs].x - A[offs].y * B[offs].y;
     C[offs].y = A[offs].x * B[offs].y + A[offs].y * B[offs].x;
 }
@@ -299,31 +179,8 @@ ElementWiseMulCudaF(cufftComplex *C, cufftComplex *A, cufftComplex *B)
 __global__ void
 ElementWiseAddCudaF(cufftReal *C, cufftReal *A, cufftReal *B)
 {
-    int offs = threadIdx.x + NUM_THREADS_PER_BLOCK * (blockIdx.x + BLOCK_X * blockIdx.y);
+    int offs = threadIdx.x + WW_NUM_THREADS_PER_BLOCK * (blockIdx.x + WW_BLOCK_X * blockIdx.y);
     C[offs] = A[offs] + B[offs];
-}
-
-static void
-GetBestBlockThreadSize(int count, dim3 &threads_return, dim3 &blocks_return)
-{
-    if ((count / NUM_THREADS_PER_BLOCK) <= 1) {
-        threads_return.x = count;
-    } else {
-        threads_return.x = NUM_THREADS_PER_BLOCK;
-        threads_return.y = 1;
-        threads_return.z = 1;
-        int countRemain = count / NUM_THREADS_PER_BLOCK;
-        if ((countRemain / BLOCK_X) <= 1) {
-            blocks_return.x = countRemain;
-            blocks_return.y = 1;
-            blocks_return.z = 1;
-        } else {
-            blocks_return.x = BLOCK_X;
-            countRemain /= BLOCK_X;
-            blocks_return.y = countRemain;
-            blocks_return.z = 1;
-        }
-    }
 }
 
 static void

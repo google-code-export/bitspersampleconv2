@@ -173,9 +173,17 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="CrossfeedD.cu" />
+    <CudaCompile Include="CrossfeedF.cu" />
     <CudaCompile Include="kernel.cu">
       <FastMath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</FastMath>
     </CudaCompile>
+    <CudaCompile Include="Util.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CrossfeedD.h" />
+    <ClInclude Include="CrossfeedF.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
