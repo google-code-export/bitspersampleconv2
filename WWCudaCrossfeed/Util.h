@@ -11,6 +11,11 @@
 #define CHECKED(x) if (!(x)) { goto END; }
 #define CROSSFEED_COEF_NUM (8)
 
+#define WW_CROSSOVER_COEFF_LENGTH (49)
+
+extern float gLpf[WW_CROSSOVER_COEFF_LENGTH];
+extern float gHpf[WW_CROSSOVER_COEFF_LENGTH];
+
 enum PcmChannelType {
     PCT_LeftLow,
     PCT_LeftHigh,
@@ -66,6 +71,9 @@ struct PcmSamplesPerChannel {
     void Term(void);
 };
 
+const char *
+CudaFftGetErrorString(cufftResult error);
+
 extern int64_t gCudaAllocatedBytes;
 extern int64_t gCudaMaxBytes;
 
@@ -85,6 +93,20 @@ extern int64_t gCudaMaxBytes;
     if (p != NULL) {               \
         p = NULL;                  \
         gCudaAllocatedBytes -= sz; \
+    }
+
+#define CHK_CUDAERROR(x)                                                              \
+    ercd = x;                                                                         \
+    if (cudaSuccess != ercd) {                                                        \
+        printf("%s failed. errorcode=%d (%s)\n", #x, ercd, cudaGetErrorString(ercd)); \
+        return NULL;                                                                  \
+    }
+
+#define CHK_CUFFT(x)                                                                               \
+    fftResult = x;                                                                                 \
+    if (cudaSuccess != fftResult) {                                                                \
+        printf("%s failed. errorcode=%d (%s)\n", #x, fftResult, CudaFftGetErrorString(fftResult)); \
+        return NULL;                                                                               \
     }
 
 #endif /* H_Util */
