@@ -585,10 +585,10 @@ END:
 
     crossfeedParam.Term();
 
+    printf("    maximum allocated CUDA memory: %lld Mbytes\n", gCudaMaxBytes / 1024/ 1024);
     if (result != 0) {
         printf("Failed!\n");
     } else {
-        printf("    maximum used CUDA memory: %lld Mbytes\n", gCudaMaxBytes / 1024/ 1024);
         printf("Succeeded to write %S.\n", toPath);
         assert(gCudaAllocatedBytes == 0);
     }

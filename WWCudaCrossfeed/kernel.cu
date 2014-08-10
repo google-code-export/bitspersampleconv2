@@ -22,7 +22,7 @@ wmain(int argc, wchar_t *argv[])
     }
 
     PrecisionType prec = PREC_SINGLEPREC;
-    if (0 == wcsncmp(L"-D", argv[2], 2)) {
+    if (0 == wcsncmp(L"-D", argv[1], 2)) {
         prec = PREC_DOUBLEPREC;
     }
 
