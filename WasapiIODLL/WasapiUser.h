@@ -8,6 +8,7 @@
 #include <AudioPolicy.h>
 #include <vector>
 #include "WWPcmData.h"
+#include "WWPcmStream.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 #define WW_DEVICE_IDSTR_COUNT (256)
@@ -65,13 +66,6 @@ enum WWBitFormatType {
     WWBitFormatNUM
 };
 
-enum WWPcmDataUsageType {
-    WWPDUNowPlaying,
-    WWPDUPauseResumeToPlay,
-    WWPDUSpliceNext,
-    WWPDUCapture,
-};
-
 class WasapiUser {
 public:
     WasapiUser(void);
@@ -103,11 +97,10 @@ public:
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
-    void SetZeroFlushMillisec(int zeroFlushMillisec);
     void SetTimePeriodHundredNanosec(int hnanosec);
     int  GetTimePeriodHundredNanosec(void) const { return m_setTimePeriodHundredNanosec; }
     void SetStreamType(WWStreamType t);
-    WWStreamType GetStreamType(void) const { return m_streamType; }
+    WWStreamType StreamType(void) const;
 
     /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
@@ -141,18 +134,11 @@ public:
     /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 
-    /// -1: specified buffer is not used
-    int GetPcmDataId(WWPcmDataUsageType t);
-
     // recording buffer setup
     void RegisterCaptureCallback(WWCaptureCallback cb) {
         m_captureCallback = cb;
     }
     int64_t GetCaptureGlitchCount(void);
-
-    /// 再生リピートの更新。
-    void UpdatePlayRepeat(
-        bool repeat, WWPcmData *startPcmData, WWPcmData *endPcmData);
 
     HRESULT Start(void);
 
@@ -167,12 +153,6 @@ public:
 
     /// ポーズ解除。
     HRESULT Unpause(void);
-
-    /// negative number returns when playing pregap
-    int64_t GetPosFrame(WWPcmDataUsageType t);
-
-    /// return total frames without pregap frame num
-    int64_t GetTotalFrameNum(WWPcmDataUsageType t);
 
     /// v must be 0 or greater number
     bool SetPosFrame(int64_t v);
@@ -190,6 +170,8 @@ public:
     void MutexWait(void);
 
     void MutexRelease(void);
+
+    WWPcmStream &PcmStream(void) { return m_pcmStream; }
 
 private:
     std::vector<WWDeviceInfo> m_deviceInfo;
@@ -221,7 +203,6 @@ private:
     WWSchedulerTaskType m_schedulerTaskType;
     AUDCLNT_SHAREMODE m_shareMode;
     DWORD        m_latencyMillisec;
-    WWStreamType m_streamType;
 
     IAudioRenderClient  *m_renderClient;
     IAudioCaptureClient *m_captureClient;
@@ -238,13 +219,7 @@ private:
     wchar_t      m_useDeviceName[WW_DEVICE_NAME_COUNT];
     wchar_t      m_useDeviceIdStr[WW_DEVICE_IDSTR_COUNT];
 
-    WWPcmData    *m_nowPlayingPcmData;
-    WWPcmData    *m_pauseResumePcmData;
-    WWPcmData    m_spliceBuffer;
-    WWPcmData    m_startSilenceBuffer0;
-    WWPcmData    m_startSilenceBuffer1;
-    WWPcmData    m_endSilenceBuffer;
-    WWPcmData    m_pauseBuffer;
+    WWPcmStream m_pcmStream;
 
     WWCaptureCallback *m_captureCallback;
     WWStateChanged * m_stateChangedCallback;
@@ -253,7 +228,6 @@ private:
     ULONG        m_beforeTimePeriodHundredNanosec;
     ULONG        m_desiredTimePeriodHundredNanosec;
     ULONG        m_setTimePeriodHundredNanosec;
-    int          m_zeroFlushMillisec;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);
@@ -263,8 +237,6 @@ private:
 
     bool AudioSamplesSendProc(void);
     bool AudioSamplesRecvProc(void);
-
-    void ClearPlayPcmData(void);
 
     DWORD SetTimerResolution(void);
     void UnsetTimerResolution(void);
@@ -276,15 +248,9 @@ private:
     void SetupPlayPcmDataLinklist(
         bool repeat, WWPcmData *startPcmData, WWPcmData *endPcmData);
 
-    /// 再生スレッド停止中に再生するpcmDataをセットする。
-    /// 1フレームの無音の後にpcmDataを再生する。
-    void UpdatePlayPcmDataWhenNotPlaying(WWPcmData &playPcmData);
-
     /// 再生中(か一時停止中)に再生するPcmDataをセットする。
     /// サンプル値をなめらかに補間する。
     void UpdatePlayPcmDataWhenPlaying(WWPcmData &playPcmData);
-
-    WWPcmData * GetPcmDataByUsageType(WWPcmDataUsageType t);
 
     void PrepareBuffers(void);
 };

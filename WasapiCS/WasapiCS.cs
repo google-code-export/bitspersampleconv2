@@ -518,6 +518,7 @@ namespace Wasapi {
             PauseResumeToPlay,
             SpliceNext,
             Capture,
+            Splice,
         };
 
         public int GetPcmDataId(PcmDataUsageType t) {

@@ -20,6 +20,9 @@
     <ClCompile Include="WWMFResampler.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWPcmStream.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -38,6 +41,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWMFResampler.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPcmStream.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

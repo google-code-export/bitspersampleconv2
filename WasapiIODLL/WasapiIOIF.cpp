@@ -63,7 +63,7 @@ WasapiIO::UpdatePlayRepeat(bool repeat)
 
     if (NULL != first && NULL != last) {
         playPcmGroup.SetPlayRepeat(repeat);
-        wasapi.UpdatePlayRepeat(repeat, first, last);
+        wasapi.PcmStream().UpdatePlayRepeat(repeat, first, last);
     }
 }
 
@@ -324,7 +324,7 @@ WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
     self->wasapi.SetSchedulerTaskType((WWSchedulerTaskType)args.schedulerTask);
     self->wasapi.SetDataFeedMode((WWDataFeedMode)args.dataFeedMode);
     self->wasapi.SetLatencyMillisec((DWORD)args.latencyMillisec);
-    self->wasapi.SetZeroFlushMillisec(args.zeroFlushMillisec);
+    self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
     return self->wasapi.Setup(
@@ -449,7 +449,7 @@ WasapiIO_GetPcmDataId(int instanceId, int usageType)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.GetPcmDataId((WWPcmDataUsageType)usageType);
+    return self->wasapi.PcmStream().GetPcmDataId((WWPcmDataUsageType)usageType);
 }
 
 __declspec(dllexport)
@@ -540,8 +540,8 @@ WasapiIO_GetPlayCursorPosition(int instanceId, int usageType, WasapiIoCursorLoca
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    pos_return.posFrame      = self->wasapi.GetPosFrame(     (WWPcmDataUsageType)usageType);
-    pos_return.totalFrameNum = self->wasapi.GetTotalFrameNum((WWPcmDataUsageType)usageType);
+    pos_return.posFrame      = self->wasapi.PcmStream().PosFrame(     (WWPcmDataUsageType)usageType);
+    pos_return.totalFrameNum = self->wasapi.PcmStream().TotalFrameNum((WWPcmDataUsageType)usageType);
     return true;
 }
 
@@ -561,7 +561,7 @@ WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return)
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    stat_return.streamType          = self->wasapi.GetStreamType();
+    stat_return.streamType          = self->wasapi.StreamType();
     stat_return.pcmDataSampleRate   = self->wasapi.GetPcmDataSampleRate();
     stat_return.deviceSampleRate    = self->wasapi.GetDeviceSampleRate();
     stat_return.deviceSampleFormat  = self->wasapi.GetDeviceSampleFormat();

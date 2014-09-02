@@ -148,6 +148,10 @@ struct WWPcmData {
 
     void CheckDopMarker(void);
 
+    /// advances specified frames. follows link list
+    /// @return current pcmData after nFrame
+    static WWPcmData *AdvanceFrames(WWPcmData *pcmData, int64_t nFrames);
+
 private:
     /** get sample value on posFrame.
      * 24 bit signed int value is returned when Sint32V24

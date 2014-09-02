@@ -945,52 +945,6 @@ WWPcmData::UpdateSpliceDataWithStraightLineDop(
     return sampleCount;
 }
 
-// この関数にはバグが残っている。
-/*
-
-/// DSD変換助走フレーム数。
-#define APPROACH_RUN_FRAMES (4)
-
-// @return クロスフェードデータのためにtoDopのtoPosFrameから消費したフレーム数。
-int
-WWPcmData::CreateCrossfadeDataDop(
-        const WWPcmData &fromDop, int64_t fromPosFrame,
-        const WWPcmData &toDop,   int64_t toPosFrame)
-{
-    WWPcmData fromPcm;
-    WWPcmData toPcm;
-
-    int64_t fromPosFrameApproach = fromPosFrame - APPROACH_RUN_FRAMES;
-    if (fromPosFrameApproach < 0) {
-        fromPosFrameApproach = 0;
-    }
-    fromPosFrameApproach &= ~1LL;
-
-    assert(0 == (toPosFrame&1));
-
-    fromPcm.Init(-1, sampleFormat, nChannels, nFrames, bytesPerFrame, contentType);
-    fromPcm.FillDopSilentData();
-    CopyStream(fromDop, fromPosFrameApproach, nFrames, fromPcm);
-    fromPcm.DopToPcm();
-
-    toPcm.Init(  -1, sampleFormat, nChannels, nFrames, bytesPerFrame, contentType);
-    toPcm.FillDopSilentData();
-    CopyStream(toDop,   toPosFrame,   nFrames, toPcm);
-    toPcm.DopToPcm();
-
-    int sampleCount = CreateCrossfadeDataPcm(fromPcm, 0, toPcm, 0);
-
-    PcmToDop();
-
-    toPcm.Term();
-    fromPcm.Term();
-
-    posFrame = fromPosFrame-fromPosFrameApproach;
-
-    return sampleCount;
-}
-*/
-
 int
 WWPcmData::UpdateSpliceDataWithStraightLine(
         const WWPcmData &fromPcm, int64_t fromPosFrame,
@@ -1026,3 +980,25 @@ WWPcmData::CreateCrossfadeData(
     }
 }
 
+WWPcmData *
+WWPcmData::AdvanceFrames(WWPcmData *pcmData, int64_t skipFrames)
+{
+    while (0 < skipFrames) {
+        int64_t advance = skipFrames;
+        if (pcmData->AvailableFrames() <= advance) {
+            advance = pcmData->AvailableFrames();
+
+            // 頭出ししておく。
+            pcmData->posFrame = 0;
+
+            pcmData = pcmData->next;
+
+            pcmData->posFrame = 0;
+        } else {
+            pcmData->posFrame += advance;
+        }
+
+        skipFrames -= advance;
+    }
+    return pcmData;
+}
