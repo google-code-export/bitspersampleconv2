@@ -59,123 +59,6 @@ WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
 }
 
 ///////////////////////////////////////////////////////////////////////
-// event handler
-
-struct CMMNotificationClient : public IMMNotificationClient
-{
-public:
-    CMMNotificationClient(WasapiUser *pWU):
-            m_cRef(1) {
-        m_pWasapiUser = pWU;
-    }
-
-    ULONG STDMETHODCALLTYPE
-    AddRef(void) {
-        return InterlockedIncrement(&m_cRef);
-    }
-
-    ULONG STDMETHODCALLTYPE
-    Release(void) {
-        ULONG ulRef = InterlockedDecrement(&m_cRef);
-        if (0 == ulRef) {
-            // この構造体はデストラクタを作っても親の構造体にvirtualデストラクタがないので
-            // 呼び出し側のポインタの持ち方によっては呼ばれない。ここでnewしたメンバをdeleteする。
-            // 現時点でdeleteするものは特にない。
-            m_pWasapiUser = NULL;
-
-            delete this;
-        }
-        return ulRef;
-    }
-
-    HRESULT STDMETHODCALLTYPE
-    QueryInterface(REFIID riid, VOID **ppvInterface) {
-        if (IID_IUnknown == riid) {
-            AddRef();
-            *ppvInterface = (IUnknown*)this;
-        }
-        else if (__uuidof(IMMNotificationClient) == riid) {
-            AddRef();
-            *ppvInterface = (IMMNotificationClient*)this;
-        } else {
-            *ppvInterface = NULL;
-            return E_NOINTERFACE;
-        }
-        return S_OK;
-    }
-
-    HRESULT STDMETHODCALLTYPE
-    OnDefaultDeviceChanged(
-            EDataFlow flow,
-            ERole role,
-            LPCWSTR pwstrDeviceId) {
-        dprintf("%s %d %d %S\n", __FUNCTION__, flow, role, pwstrDeviceId);
-
-        (void)flow;
-        (void)role;
-        (void)pwstrDeviceId;
-
-        return S_OK;
-    }
-
-    HRESULT STDMETHODCALLTYPE
-    OnDeviceAdded(LPCWSTR pwstrDeviceId) {
-        dprintf("%s %S\n", __FUNCTION__, pwstrDeviceId);
-
-        (void)pwstrDeviceId;
-
-        return S_OK;
-    };
-
-    HRESULT STDMETHODCALLTYPE
-    OnDeviceRemoved(LPCWSTR pwstrDeviceId) {
-        dprintf("%s %S\n", __FUNCTION__, pwstrDeviceId);
-
-        (void)pwstrDeviceId;
-
-        return S_OK;
-    }
-
-    HRESULT STDMETHODCALLTYPE
-    OnDeviceStateChanged(
-            LPCWSTR pwstrDeviceId,
-            DWORD dwNewState) {
-        dprintf("%s %S %08x\n", __FUNCTION__, pwstrDeviceId, dwNewState);
-
-        // 再生中で、再生しているデバイスの状態が変わったときは
-        // DeviceStateChanged()は再生を停止しなければならない
-        assert(m_pWasapiUser);
-        m_pWasapiUser->DeviceStateChanged(pwstrDeviceId);
-
-        (void)pwstrDeviceId;
-        (void)dwNewState;
-
-        return S_OK;
-    }
-
-    HRESULT STDMETHODCALLTYPE
-    OnPropertyValueChanged(
-            LPCWSTR pwstrDeviceId,
-            const PROPERTYKEY key) {
-        /*
-        dprintf("%s %S %08x:%08x:%08x:%08x = %08x\n", __FUNCTION__,
-            pwstrDeviceId, key.fmtid.Data1, key.fmtid.Data2, key.fmtid.Data3, key.fmtid.Data4, key.pid);
-        */
-
-        (void)pwstrDeviceId;
-        (void)key;
-
-        return S_OK;
-    }
-
-private:
-    LONG m_cRef;
-    WasapiUser *m_pWasapiUser;
-};
-
-
-
-///////////////////////////////////////////////////////////////////////
 // WasapiUser class
 
 WasapiUser::WasapiUser(void)
@@ -260,7 +143,7 @@ WasapiUser::Init(void)
     assert(!m_mutex);
     m_mutex = CreateMutex(NULL, FALSE, NULL);
 
-    m_pNotificationClient = new CMMNotificationClient(this);
+    m_pNotificationClient = new WWMMNotificationClient(this);
 
     return hr;
 }
@@ -861,17 +744,16 @@ WasapiUser::IsResampleNeeded(void) const
     }
 
     if (m_deviceSampleRate != m_sampleRate ||
-        m_deviceNumChannels != m_numChannels ||
-        m_deviceDwChannelMask != m_dwChannelMask ||
-        WWPcmDataSampleFormatSfloat != m_sampleFormat) {
-            return true;
+            m_deviceNumChannels != m_numChannels ||
+            m_deviceDwChannelMask != m_dwChannelMask ||
+            WWPcmDataSampleFormatSfloat != m_sampleFormat) {
+        return true;
     }
     return false;
 }
 
 void
-WasapiUser::UpdatePcmDataFormat(int sampleRate, WWPcmDataSampleFormatType sampleFormat,
-            int numChannels, DWORD dwChannelMask)
+WasapiUser::UpdatePcmDataFormat(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask)
 {
     assert(WWSMShared == m_shareMode);
 
@@ -885,8 +767,8 @@ void
 WasapiUser::Unsetup(void)
 {
     dprintf("D: %s() ASRE=%p CC=%p RC=%p AC=%p\n", __FUNCTION__,
-        m_audioSamplesReadyEvent, m_captureClient,
-        m_renderClient, m_audioClient);
+            m_audioSamplesReadyEvent, m_captureClient,
+            m_renderClient, m_audioClient);
 
     if (m_audioSamplesReadyEvent) {
         CloseHandle(m_audioSamplesReadyEvent);
@@ -1078,14 +960,6 @@ WasapiUser::Run(int millisec)
     }
 
     return true;
-}
-
-void
-WasapiUser::SetupPlayPcmDataLinklist(
-        bool repeat, WWPcmData *startPcmData, WWPcmData *endPcmData)
-{
-    m_pcmStream.UpdateStartPcm(startPcmData);
-    m_pcmStream.UpdatePlayRepeat(repeat, startPcmData, endPcmData);
 }
 
 void
@@ -1557,15 +1431,17 @@ end:
     return result;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// 設定取得
-
-void
-WasapiUser::DeviceStateChanged(LPCWSTR deviceIdStr)
+HRESULT
+WasapiUser::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
 {
+    (void)dwNewState;
+    // 再生中で、再生しているデバイスの状態が変わったときは
+    // DeviceStateChanged()は再生を停止しなければならない
     if (m_stateChangedCallback) {
-        m_stateChangedCallback(deviceIdStr);
+        m_stateChangedCallback(pwstrDeviceId);
     }
+
+    return S_OK;
 }
 
 void

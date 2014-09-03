@@ -158,6 +158,7 @@
     <ClInclude Include="WasapiIOIF.h" />
     <ClInclude Include="WasapiUser.h" />
     <ClInclude Include="WWMFResampler.h" />
+    <ClInclude Include="WWMMNotificationClient.h" />
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPcmStream.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
@@ -168,6 +169,7 @@
     <ClCompile Include="WasapiIOIF.cpp" />
     <ClCompile Include="WasapiUser.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
+    <ClCompile Include="WWMMNotificationClient.cpp" />
     <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWPcmStream.cpp" />
     <ClCompile Include="WWPlayPcmGroup.cpp" />

@@ -1,0 +1,31 @@
+#pragma once
+
+#include <Windows.h>
+#include <MMDeviceAPI.h>
+
+class IWWDeviceStateCallback {
+public:
+    virtual HRESULT
+    OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState) = 0;
+};
+
+struct WWMMNotificationClient : public IMMNotificationClient
+{
+public:
+    WWMMNotificationClient(IWWDeviceStateCallback *pCallback);
+    ULONG STDMETHODCALLTYPE AddRef(void);
+    ULONG STDMETHODCALLTYPE Release(void);
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, VOID **ppvInterface);
+    HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDeviceId);
+    HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId);
+    HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+    HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
+    HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key);
+
+private:
+    LONG m_cRef;
+    IWWDeviceStateCallback *m_pCallback;
+};
+
+
+

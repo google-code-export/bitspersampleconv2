@@ -3,12 +3,12 @@
 // 日本語 UTF-8
 
 #include <Windows.h>
-#include <MMDeviceAPI.h>
 #include <AudioClient.h>
 #include <AudioPolicy.h>
 #include <vector>
 #include "WWPcmData.h"
 #include "WWPcmStream.h"
+#include "WWMMNotificationClient.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 #define WW_DEVICE_IDSTR_COUNT (256)
@@ -66,7 +66,7 @@ enum WWBitFormatType {
     WWBitFormatNUM
 };
 
-class WasapiUser {
+class WasapiUser : public IWWDeviceStateCallback {
 public:
     WasapiUser(void);
     ~WasapiUser(void);
@@ -165,13 +165,15 @@ public:
         m_stateChangedCallback = callback;
     }
 
-    void DeviceStateChanged(LPCWSTR deviceIdStr);
-
     void MutexWait(void);
 
     void MutexRelease(void);
 
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
+
+    // implements IWWDeviceStateCallback
+    virtual HRESULT
+    OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
 
 private:
     std::vector<WWDeviceInfo> m_deviceInfo;
@@ -224,7 +226,7 @@ private:
     WWCaptureCallback *m_captureCallback;
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
-    IMMNotificationClient *m_pNotificationClient;
+    WWMMNotificationClient *m_pNotificationClient;
     ULONG        m_beforeTimePeriodHundredNanosec;
     ULONG        m_desiredTimePeriodHundredNanosec;
     ULONG        m_setTimePeriodHundredNanosec;
@@ -243,10 +245,6 @@ private:
 
     /// WASAPIレンダーバッファに詰めるデータを作る。
     int CreateWritableFrames(BYTE *pData_return, int wantFrames);
-
-    /// 再生リンクリストをつなげる。
-    void SetupPlayPcmDataLinklist(
-        bool repeat, WWPcmData *startPcmData, WWPcmData *endPcmData);
 
     /// 再生中(か一時停止中)に再生するPcmDataをセットする。
     /// サンプル値をなめらかに補間する。
