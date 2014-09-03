@@ -9,6 +9,7 @@
 #include "WWPcmData.h"
 #include "WWPcmStream.h"
 #include "WWMMNotificationClient.h"
+#include "WWTimerResolution.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 #define WW_DEVICE_IDSTR_COUNT (256)
@@ -97,8 +98,6 @@ public:
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
-    void SetTimePeriodHundredNanosec(int hnanosec);
-    int  GetTimePeriodHundredNanosec(void) const { return m_setTimePeriodHundredNanosec; }
     void SetStreamType(WWStreamType t);
     WWStreamType StreamType(void) const;
 
@@ -170,6 +169,7 @@ public:
     void MutexRelease(void);
 
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
+    WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
 
     // implements IWWDeviceStateCallback
     virtual HRESULT
@@ -222,14 +222,12 @@ private:
     wchar_t      m_useDeviceIdStr[WW_DEVICE_IDSTR_COUNT];
 
     WWPcmStream m_pcmStream;
+    WWTimerResolution m_timerResolution;
 
     WWCaptureCallback *m_captureCallback;
     WWStateChanged * m_stateChangedCallback;
     IMMDeviceEnumerator *m_deviceEnumerator;
     WWMMNotificationClient *m_pNotificationClient;
-    ULONG        m_beforeTimePeriodHundredNanosec;
-    ULONG        m_desiredTimePeriodHundredNanosec;
-    ULONG        m_setTimePeriodHundredNanosec;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);
@@ -239,9 +237,6 @@ private:
 
     bool AudioSamplesSendProc(void);
     bool AudioSamplesRecvProc(void);
-
-    DWORD SetTimerResolution(void);
-    void UnsetTimerResolution(void);
 
     /// WASAPIレンダーバッファに詰めるデータを作る。
     int CreateWritableFrames(BYTE *pData_return, int wantFrames);

@@ -162,6 +162,7 @@
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPcmStream.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
+    <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +174,7 @@
     <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWPcmStream.cpp" />
     <ClCompile Include="WWPlayPcmGroup.cpp" />
+    <ClCompile Include="WWTimerResolution.cpp" />
     <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -26,6 +26,9 @@
     <ClCompile Include="WWMMNotificationClient.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWTimerResolution.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -50,6 +53,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWMMNotificationClient.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWTimerResolution.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,26 +18,8 @@
 // undef : 一旦スタック上にて再生データを作ってからレンダーバッファにコピーする
 #define CREATE_PLAYPCM_ON_RENDER_BUFFER
 
-// 100 nanosec * ONE_MILLISEC == one millisec
-#define ONE_MILLISEC (10000)
-
 // DoPマーカーが正しく付いているかチェックする。
 //#define CHECK_DOP_MARKER
-
-// ntdll.lib
-extern "C" {
-NTSYSAPI NTSTATUS NTAPI
-NtSetTimerResolution(
-        IN  ULONG   desiredResolution,
-        IN  BOOLEAN setResolution,
-        OUT PULONG  currentResolution);
-
-NTSYSAPI NTSTATUS NTAPI
-NtQueryTimerResolution(
-        OUT PULONG minimumResolution,
-        OUT PULONG maximumResolution,
-        OUT PULONG currentResolution);
-}; /* extern "C" */
 
 WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
 {
@@ -104,9 +86,6 @@ WasapiUser::WasapiUser(void)
     m_stateChangedCallback = NULL;
     m_deviceEnumerator     = NULL;
     m_pNotificationClient  = NULL;
-    m_beforeTimePeriodHundredNanosec = 0;
-    m_desiredTimePeriodHundredNanosec = 0;
-    m_setTimePeriodHundredNanosec = 0;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -224,13 +203,6 @@ WasapiUser::SetLatencyMillisec(DWORD millisec)
     dprintf("D: %s() latencyMillisec=%u\n", __FUNCTION__, millisec);
 
     m_latencyMillisec = millisec;
-}
-
-void
-WasapiUser::SetTimePeriodHundredNanosec(int hnanosec)
-{
-    assert(0 <= hnanosec);
-    m_desiredTimePeriodHundredNanosec = (ULONG)hnanosec;
 }
 
 void
@@ -1195,45 +1167,7 @@ end:
     return result;
 }
 
-DWORD
-WasapiUser::SetTimerResolution(void)
-{
-    HRESULT hr = 0;
 
-    if (0 < m_desiredTimePeriodHundredNanosec && m_desiredTimePeriodHundredNanosec < ONE_MILLISEC) {
-        ULONG minResolution = 0;
-        ULONG maxResolution = 0;
-        ULONG desiredResolution = m_desiredTimePeriodHundredNanosec;
-        m_setTimePeriodHundredNanosec = 0;
-
-        HRG(NtQueryTimerResolution(&minResolution, &maxResolution, &m_beforeTimePeriodHundredNanosec));
-        if (desiredResolution < maxResolution) {
-            desiredResolution = maxResolution;
-        }
-
-        HRG(NtSetTimerResolution(desiredResolution, TRUE, &m_setTimePeriodHundredNanosec));
-    } else if (ONE_MILLISEC <= m_desiredTimePeriodHundredNanosec) {
-        timeBeginPeriod(m_desiredTimePeriodHundredNanosec/ONE_MILLISEC);
-        m_setTimePeriodHundredNanosec = (m_desiredTimePeriodHundredNanosec/ONE_MILLISEC)*ONE_MILLISEC;
-    } else {
-        // タイマー解像度を設定しない。
-    }
-
-end:
-    return hr;
-}
-
-void
-WasapiUser::UnsetTimerResolution(void)
-{
-    if (0 < m_desiredTimePeriodHundredNanosec && m_desiredTimePeriodHundredNanosec < ONE_MILLISEC) {
-        NtSetTimerResolution(m_beforeTimePeriodHundredNanosec, TRUE, &m_setTimePeriodHundredNanosec);
-    } else if (ONE_MILLISEC <= m_desiredTimePeriodHundredNanosec) {
-        timeEndPeriod(m_desiredTimePeriodHundredNanosec/ONE_MILLISEC);
-    } else {
-        // タイマー解像度を設定しない。
-    }
-}
 
 /// 再生スレッド メイン。
 /// イベントやタイマーによって起き、PCMデータを送って、寝る。
@@ -1252,7 +1186,7 @@ WasapiUser::RenderMain(void)
     
     HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-    HRG(SetTimerResolution());
+    HRG(m_timerResolution.Setup());
 
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
     if (WWSTTNone != m_schedulerTaskType) {
@@ -1308,7 +1242,7 @@ end:
         mmcssHandle = NULL;
     }
 
-    UnsetTimerResolution();
+    m_timerResolution.Unsetup();
 
     CoUninitialize();
     return hr;

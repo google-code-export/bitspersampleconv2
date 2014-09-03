@@ -2,12 +2,14 @@
 #include "WasapiUser.h"
 #include "WWPlayPcmGroup.h"
 #include "WWUtil.h"
+#include "WWTimerResolution.h"
 #include <assert.h>
 #include <map>
 
 struct WasapiIO {
     WasapiUser     wasapi;
     WWPlayPcmGroup playPcmGroup;
+    WWTimerResolution timerResolution;
     int            instanceId;
     static int     sNextInstanceId;
 
@@ -325,7 +327,7 @@ WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
     self->wasapi.SetDataFeedMode((WWDataFeedMode)args.dataFeedMode);
     self->wasapi.SetLatencyMillisec((DWORD)args.latencyMillisec);
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
-    self->wasapi.SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
+    self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
     return self->wasapi.Setup(
         args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels);
@@ -568,7 +570,7 @@ WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return)
     stat_return.deviceBytesPerFrame = self->wasapi.GetDeviceBytesPerFrame();
 
     stat_return.deviceNumChannels        = self->wasapi.GetDeviceNumChannels();
-    stat_return.timePeriodHandledNanosec = self->wasapi.GetTimePeriodHundredNanosec();
+    stat_return.timePeriodHandledNanosec = self->wasapi.TimerResolution().GetTimePeriodHundredNanosec();
     stat_return.bufferFrameNum           = self->wasapi.GetEndpointBufferFrameNum();
 
     return true;
