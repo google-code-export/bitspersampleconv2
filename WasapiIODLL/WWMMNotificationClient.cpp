@@ -1,3 +1,5 @@
+// 日本語 UTF-8
+
 #include "WWMMNotificationClient.h"
 #include "WWUtil.h"
 #include <assert.h>
@@ -18,9 +20,9 @@ WWMMNotificationClient::Release(void)
 {
     ULONG ulRef = InterlockedDecrement(&m_cRef);
     if (0 == ulRef) {
-        // ���̍\���̂̓f�X�g���N�^������Ă��e�̍\���̂�virtual�f�X�g���N�^���Ȃ��̂�
-        // �Ăяo�����̃|�C���^�̎������ɂ���Ă͌Ă΂�Ȃ��B������new���������o��delete����B
-        // �����_��delete������͓̂��ɂȂ��B
+        // この構造体はデストラクタを作っても親の構造体にvirtualデストラクタがないので
+        // 呼び出し側のポインタの持ち方によっては呼ばれない。ここでnewしたメンバをdeleteする。
+        // 現時点でdeleteするものは特にない。
             
         m_pCallback = NULL;
 

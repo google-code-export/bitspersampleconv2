@@ -1,3 +1,5 @@
+// 日本語 UTF-8
+
 #include "WWUtil.h"
 
 void
