@@ -323,7 +323,7 @@ WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
     assert(self);
     self->wasapi.SetStreamType((WWStreamType)args.streamType);
     self->wasapi.SetShareMode((WWShareMode)args.shareMode);
-    self->wasapi.SetSchedulerTaskType((WWSchedulerTaskType)args.schedulerTask);
+    self->wasapi.ThreadCharacteristics().Set((WWSchedulerTaskType)args.schedulerTask);
     self->wasapi.SetDataFeedMode((WWDataFeedMode)args.dataFeedMode);
     self->wasapi.SetLatencyMillisec((DWORD)args.latencyMillisec);
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);

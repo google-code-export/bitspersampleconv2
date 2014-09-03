@@ -10,6 +10,7 @@
 #include "WWPcmStream.h"
 #include "WWMMNotificationClient.h"
 #include "WWTimerResolution.h"
+#include "WWThreadCharacteristics.h"
 
 #define WW_DEVICE_NAME_COUNT (256)
 #define WW_DEVICE_IDSTR_COUNT (256)
@@ -46,13 +47,6 @@ enum WWDeviceType {
     WWDTRec,
 
     WWDTNum
-};
-
-enum WWSchedulerTaskType {
-    WWSTTNone,
-    WWSTTAudio,
-    WWSTTProAudio,
-    WWSTTPlayback,
 };
 
 enum WWShareMode {
@@ -94,7 +88,6 @@ public:
 
     // wasapi configuration parameters
     // call before Setup()
-    void SetSchedulerTaskType(WWSchedulerTaskType t);
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
@@ -170,10 +163,10 @@ public:
 
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
     WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
+    WWThreadCharacteristics &ThreadCharacteristics(void) { return m_threadCharacteristics; }
 
     // implements IWWDeviceStateCallback
-    virtual HRESULT
-    OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
+    virtual HRESULT OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
 
 private:
     std::vector<WWDeviceInfo> m_deviceInfo;
@@ -202,7 +195,6 @@ private:
     int          m_deviceBytesPerFrame;
 
     WWDataFeedMode m_dataFeedMode;
-    WWSchedulerTaskType m_schedulerTaskType;
     AUDCLNT_SHAREMODE m_shareMode;
     DWORD        m_latencyMillisec;
 
@@ -223,6 +215,7 @@ private:
 
     WWPcmStream m_pcmStream;
     WWTimerResolution m_timerResolution;
+    WWThreadCharacteristics m_threadCharacteristics;
 
     WWCaptureCallback *m_captureCallback;
     WWStateChanged * m_stateChangedCallback;

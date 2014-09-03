@@ -3,7 +3,6 @@
 
 #include "WasapiUser.h"
 #include "WWUtil.h"
-#include <avrt.h>
 #include <assert.h>
 #include <functiondiscoverykeys.h>
 #include <strsafe.h>
@@ -26,18 +25,6 @@ WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
     this->id = id;
     wcsncpy_s(this->name, name, WW_DEVICE_NAME_COUNT-1);
     wcsncpy_s(this->idStr, idStr, WW_DEVICE_IDSTR_COUNT-1);
-}
-
-static wchar_t*
-WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
-{
-    switch (t) {
-    case WWSTTNone: return L"None";
-    case WWSTTAudio: return L"Audio";
-    case WWSTTProAudio: return L"Pro Audio";
-    case WWSTTPlayback: return L"Playback";
-    default: assert(0); return L"";
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -65,7 +52,6 @@ WasapiUser::WasapiUser(void)
     m_deviceBytesPerFrame = 0;
 
     m_dataFeedMode      = WWDFMEventDriven;
-    m_schedulerTaskType = WWSTTAudio;
     m_shareMode         = AUDCLNT_SHAREMODE_EXCLUSIVE;
     m_latencyMillisec   = 0;
 
@@ -155,16 +141,6 @@ WasapiUser::Term(void)
     if (m_coInitializeSuccess) {
         CoUninitialize();
     }
-}
-
-void
-WasapiUser::SetSchedulerTaskType(WWSchedulerTaskType t)
-{
-    assert(0 <= t&& t <= WWSTTPlayback);
-
-    dprintf("D: %s() t=%d\n", __FUNCTION__, (int)t);
-
-    m_schedulerTaskType = t;
 }
 
 void
@@ -505,10 +481,7 @@ GetChannelMask(int numChannels)
 }
 
 HRESULT
-WasapiUser::Setup(
-        int sampleRate,
-        WWPcmDataSampleFormatType sampleFormat,
-        int numChannels)
+WasapiUser::Setup(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = NULL;
@@ -1084,8 +1057,7 @@ WasapiUser::AudioSamplesSendProc(void)
 
         writableFrames = m_bufferFrameNum - padding;
 
-        // dprintf("m_bufferFrameNum=%d padding=%d writableFrames=%d\n",
-        //     m_bufferFrameNum, padding, writableFrames);
+        // dprintf("m_bufferFrameNum=%d padding=%d writableFrames=%d\n", m_bufferFrameNum, padding, writableFrames);
         if (writableFrames <= 0) {
             goto end;
         }
@@ -1098,12 +1070,8 @@ WasapiUser::AudioSamplesSendProc(void)
     copyFrames = CreateWritableFrames(to, writableFrames);
 
     if (0 < writableFrames - copyFrames) {
-        memset(&to[copyFrames*m_deviceBytesPerFrame], 0,
-            (writableFrames - copyFrames)*m_deviceBytesPerFrame);
-        /* dprintf("fc=%d bs=%d cb=%d memset %d bytes\n",
-            m_footerCount, m_bufferFrameNum, copyFrames,
-            (m_bufferFrameNum - copyFrames)*m_deviceBytesPerFrame);
-        */
+        memset(&to[copyFrames*m_deviceBytesPerFrame], 0, (writableFrames - copyFrames)*m_deviceBytesPerFrame);
+        // dprintf("fc=%d bs=%d cb=%d memset %d bytes\n", m_footerCount, m_bufferFrameNum, copyFrames, (m_bufferFrameNum - copyFrames)*m_deviceBytesPerFrame);
     }
 
     HRGR(m_renderClient->ReleaseBuffer(writableFrames, 0));
@@ -1127,8 +1095,6 @@ end:
     return result;
 }
 
-
-
 /// 再生スレッド メイン。
 /// イベントやタイマーによって起き、PCMデータを送って、寝る。
 /// というのを繰り返す。
@@ -1139,24 +1105,13 @@ WasapiUser::RenderMain(void)
     HANDLE  waitArray[2]   = {m_shutdownEvent, m_audioSamplesReadyEvent};
     int     waitArrayCount;
     DWORD   timeoutMillisec;
-    HANDLE  mmcssHandle    = NULL;
-    DWORD   mmcssTaskIndex = 0;
     DWORD   waitResult;
     HRESULT hr             = 0;
     
     HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
     HRG(m_timerResolution.Setup());
-
-    // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
-    if (WWSTTNone != m_schedulerTaskType) {
-        dprintf("D: %s() AvSetMmThreadCharacteristics(%S)\n", __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
-
-        mmcssHandle = AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &mmcssTaskIndex);
-        if (NULL == mmcssHandle) {
-            dprintf("Unable to enable MMCSS on render thread: 0x%08x\n", GetLastError());
-        }
-    }
+    m_threadCharacteristics.Setup();
 
     if (m_dataFeedMode == WWDFMTimerDriven) {
         waitArrayCount        = 1;
@@ -1168,8 +1123,7 @@ WasapiUser::RenderMain(void)
         timeoutMillisec       = INFINITE;
     }
 
-    // dprintf("D: %s() waitArrayCount=%d m_shutdownEvent=%p m_audioSamplesReadyEvent=%p\n",
-    //    __FUNCTION__, waitArrayCount, m_shutdownEvent, m_audioSamplesReadyEvent);
+    // dprintf("D: %s() waitArrayCount=%d m_shutdownEvent=%p m_audioSamplesReadyEvent=%p\n", __FUNCTION__, waitArrayCount, m_shutdownEvent, m_audioSamplesReadyEvent);
 
     while (stillPlaying) {
         waitResult = WaitForMultipleObjects(
@@ -1194,11 +1148,7 @@ WasapiUser::RenderMain(void)
     }
 
 end:
-    if (NULL != mmcssHandle) {
-        AvRevertMmThreadCharacteristics(mmcssHandle);
-        mmcssHandle = NULL;
-    }
-
+    m_threadCharacteristics.Unsetup();
     m_timerResolution.Unsetup();
 
     CoUninitialize();
@@ -1222,21 +1172,13 @@ WasapiUser::CaptureMain(void)
     HANDLE  waitArray[2]   = {m_shutdownEvent, m_audioSamplesReadyEvent};
     int     waitArrayCount;
     DWORD   timeoutMillisec;
-    HANDLE  mmcssHandle    = NULL;
-    DWORD   mmcssTaskIndex = 0;
     DWORD   waitResult;
     HRESULT hr             = 0;
     
     HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-    timeBeginPeriod(1);
-
-    dprintf("D: %s AvSetMmThreadCharacteristics(%S)\n", __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
-
-    mmcssHandle = AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &mmcssTaskIndex);
-    if (NULL == mmcssHandle) {
-        dprintf("Unable to enable MMCSS on render thread: 0x%08x\n", GetLastError());
-    }
+    HRG(m_timerResolution.Setup());
+    m_threadCharacteristics.Setup();
 
     if (m_dataFeedMode == WWDFMTimerDriven) {
         waitArrayCount  = 1;
@@ -1266,12 +1208,8 @@ WasapiUser::CaptureMain(void)
     }
 
 end:
-    if (NULL != mmcssHandle) {
-        AvRevertMmThreadCharacteristics(mmcssHandle);
-        mmcssHandle = NULL;
-    }
-
-    timeEndPeriod(1);
+    m_threadCharacteristics.Unsetup();
+    m_timerResolution.Unsetup();
 
     CoUninitialize();
     return hr;

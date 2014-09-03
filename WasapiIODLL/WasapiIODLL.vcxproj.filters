@@ -29,6 +29,9 @@
     <ClCompile Include="WWTimerResolution.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWThreadCharacteristics.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -56,6 +59,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWTimerResolution.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWThreadCharacteristics.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

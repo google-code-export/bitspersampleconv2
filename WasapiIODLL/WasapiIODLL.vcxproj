@@ -162,6 +162,7 @@
     <ClInclude Include="WWPcmData.h" />
     <ClInclude Include="WWPcmStream.h" />
     <ClInclude Include="WWPlayPcmGroup.h" />
+    <ClInclude Include="WWThreadCharacteristics.h" />
     <ClInclude Include="WWTimerResolution.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
@@ -174,6 +175,7 @@
     <ClCompile Include="WWPcmData.cpp" />
     <ClCompile Include="WWPcmStream.cpp" />
     <ClCompile Include="WWPlayPcmGroup.cpp" />
+    <ClCompile Include="WWThreadCharacteristics.cpp" />
     <ClCompile Include="WWTimerResolution.cpp" />
     <ClCompile Include="WWUtil.cpp" />
   </ItemGroup>
