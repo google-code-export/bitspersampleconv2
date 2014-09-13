@@ -105,14 +105,11 @@ WasapiIO::ConnectPcmDataNext(int fromIdx, int toIdx)
 bool
 WasapiIO::AddPcmDataStart(void)
 {
-    WWPcmDataSampleFormatType sampleFormat = wasapi.GetPcmDataSampleFormat();
-    int sampleRate      = wasapi.GetPcmDataSampleRate();
-    int numChannels     = wasapi.GetPcmDataNumChannels();
-    DWORD dwChannelMask = wasapi.GetPcmDataDwChannelMask();
-    int bytesPerFrame   = numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat) / 8;
+    WWPcmFormat pcmFormat;
+    wasapi.GetPcmFormat(pcmFormat);
 
-    return playPcmGroup.AddPlayPcmDataStart(
-        sampleRate, sampleFormat, numChannels, dwChannelMask, bytesPerFrame);
+    return playPcmGroup.AddPlayPcmDataStart(pcmFormat);
+//        sampleRate, sampleFormat, numChannels, dwChannelMask, bytesPerFrame);
 }
 
 HRESULT
@@ -124,17 +121,16 @@ WasapiIO::ResampleIfNeeded(int conversionQuality)
         return S_OK;
     }
 
-    hr = playPcmGroup.DoResample(
-        wasapi.GetDeviceSampleRate(),
-        WWPcmDataSampleFormatSfloat,
-        wasapi.GetDeviceNumChannels(),
-        wasapi.GetDeviceDwChannelMask(),
-        conversionQuality);
+    WWPcmFormat deviceFormat;
+    wasapi.GetDevicePcmFormat(deviceFormat);
+    assert(deviceFormat.sampleFormat == WWPcmDataSampleFormatSfloat);
+
+    hr = playPcmGroup.DoResample(deviceFormat, conversionQuality);
     if (FAILED(hr)) {
         return hr;
     }
 
-    wasapi.UpdatePcmDataFormat(wasapi.GetDeviceSampleRate(), WWPcmDataSampleFormatSfloat, wasapi.GetDeviceNumChannels(), wasapi.GetDeviceDwChannelMask());
+    wasapi.UpdatePcmDataFormat(deviceFormat);
 
     return hr;
 }
@@ -320,6 +316,39 @@ WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPer
     return self->wasapi.InspectDevice(device, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
 }
 
+/// numChannels to channelMask
+static DWORD
+GetChannelMask(int numChannels)
+{
+    // maskbit32 is reserved therefore allowable numChannels is smaller than 32
+    assert(numChannels < 32);
+    DWORD result = 0;
+
+    switch (numChannels) {
+    case 1:
+        result = 0; // mono (unspecified)
+        break;
+    case 2:
+        result = 3; // 2ch stereo (FL FR)
+        break;
+    case 4:
+        result = 0x33; // 4ch matrix (FL FR BL BR)
+        break;
+    case 6:
+        result = 0x3f; // 5.1 surround (FL FR FC LFE BL BR)
+        break;
+    case 8:
+        result = 0x63f; // 7.1 surround (FL FR FC LFE BL BR SL SR)
+        break;
+    default:
+        // ? unknown sampleFormat
+        result = (DWORD)((1LL << numChannels)-1);
+        break;
+    }
+
+    return result;
+}
+
 __declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
@@ -331,16 +360,17 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
     assert(device);
 
-    self->wasapi.SetStreamType((WWStreamType)args.streamType);
+    WWPcmFormat pcmFormat;
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), (WWStreamType)args.streamType);
+
     self->wasapi.SetShareMode((WWShareMode)args.shareMode);
-    self->wasapi.ThreadCharacteristics().Set((WWSchedulerTaskType)args.schedulerTask);
+    self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall, (WWSchedulerTaskType)args.schedulerTask);
     self->wasapi.SetDataFeedMode((WWDataFeedMode)args.dataFeedMode);
     self->wasapi.SetLatencyMillisec((DWORD)args.latencyMillisec);
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
-    return self->wasapi.Setup(device,
-        args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels);
+    return self->wasapi.Setup(device, pcmFormat);
 }
 
 __declspec(dllexport)
@@ -574,13 +604,18 @@ WasapiIO_GetSessionStatus(int instanceId, WasapiIoSessionStatus &stat_return)
     WasapiIO *self = Instance(instanceId);
     assert(self);
 
-    stat_return.streamType          = self->wasapi.StreamType();
-    stat_return.pcmDataSampleRate   = self->wasapi.GetPcmDataSampleRate();
-    stat_return.deviceSampleRate    = self->wasapi.GetDeviceSampleRate();
-    stat_return.deviceSampleFormat  = self->wasapi.GetDeviceSampleFormat();
-    stat_return.deviceBytesPerFrame = self->wasapi.GetDeviceBytesPerFrame();
+    WWPcmFormat pcmFmt;
+    self->wasapi.GetPcmFormat(pcmFmt);
 
-    stat_return.deviceNumChannels        = self->wasapi.GetDeviceNumChannels();
+    WWPcmFormat deviceFmt;
+    self->wasapi.GetDevicePcmFormat(deviceFmt);
+
+    stat_return.streamType          = self->wasapi.StreamType();
+    stat_return.pcmDataSampleRate   = pcmFmt.sampleRate;
+    stat_return.deviceSampleRate    = deviceFmt.sampleRate;
+    stat_return.deviceSampleFormat  = deviceFmt.sampleFormat;
+    stat_return.deviceNumChannels   = deviceFmt.numChannels;
+    stat_return.deviceBytesPerFrame = deviceFmt.BytesPerFrame();
     stat_return.timePeriodHandledNanosec = self->wasapi.TimerResolution().GetTimePeriodHundredNanosec();
     stat_return.bufferFrameNum           = self->wasapi.GetEndpointBufferFrameNum();
 

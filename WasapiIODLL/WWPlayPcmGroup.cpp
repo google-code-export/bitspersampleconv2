@@ -18,13 +18,20 @@ WWPlayPcmGroup::Term(void)
     Clear();
 }
 
+void
+WWPlayPcmGroup::Clear(void)
+{
+    for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
+        m_playPcmDataList[i].Term();
+    }
+    m_playPcmDataList.clear();
+
+    m_pcmFormat.Clear();
+}
+
 bool
 WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
 {
-    assert(1 <= m_numChannels);
-    assert(1 <= m_sampleRate);
-    assert(1 <= m_bytesPerFrame);
-
 #ifdef _X86_
     if (0x7fffffffL < bytes) {
         // cannot alloc 2GB buffer on 32bit build
@@ -39,39 +46,28 @@ WWPlayPcmGroup::AddPlayPcmData(int id, BYTE *data, int64_t bytes)
     }
 
     WWPcmData pcmData;
-    if (!pcmData.Init(id, m_sampleFormat, m_numChannels,
-            bytes/m_bytesPerFrame,
-            m_bytesPerFrame, WWPcmDataContentMusicData)) {
+    if (!pcmData.Init(id, m_pcmFormat.sampleFormat, m_pcmFormat.numChannels,
+            bytes/m_pcmFormat.BytesPerFrame(),
+            m_pcmFormat.BytesPerFrame(), WWPcmDataContentMusicData)) {
         dprintf("E: %s(%d, %p, %lld) malloc failed\n", __FUNCTION__, id, data, bytes);
         return false;
     }
 
     if (NULL != data) {
-        CopyMemory(pcmData.stream, data, (bytes/m_bytesPerFrame) * m_bytesPerFrame);
+        CopyMemory(pcmData.stream, data, (bytes/m_pcmFormat.BytesPerFrame()) * m_pcmFormat.BytesPerFrame());
     }
     m_playPcmDataList.push_back(pcmData);
     return true;
 }
 
 bool
-WWPlayPcmGroup::AddPlayPcmDataStart(
-        int sampleRate,
-        WWPcmDataSampleFormatType sampleFormat,
-        int numChannels,
-        DWORD dwChannelMask,
-        int bytesPerFrame)
+WWPlayPcmGroup::AddPlayPcmDataStart(WWPcmFormat &pf)
 {
     assert(m_playPcmDataList.size() == 0);
-    assert(1 <= numChannels);
-    assert(1 <= sampleRate);
-    assert(1 <= bytesPerFrame);
+    assert(1 <= pf.numChannels);
+    assert(1 <= pf.sampleRate);
 
-    m_sampleRate    = sampleRate;
-    m_sampleFormat  = sampleFormat;
-    m_numChannels   = numChannels;
-    m_bytesPerFrame = bytesPerFrame;
-
-    m_dwChannelMask = dwChannelMask;
+    m_pcmFormat = pf;
 
     return true;
 }
@@ -186,14 +182,13 @@ WWPlayPcmGroup::PlayPcmDataListDebug(void)
 }
 
 HRESULT
-WWPlayPcmGroup::DoResample(
-        int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask, int conversionQuality)
+WWPlayPcmGroup::DoResample(WWPcmFormat &targetFmt, int conversionQuality)
 {
     HRESULT hr = S_OK;
     WWMFResampler resampler;
     size_t n = m_playPcmDataList.size();
     const int PROCESS_FRAMES = 128 * 1024;
-    BYTE *buff = new BYTE[PROCESS_FRAMES * m_bytesPerFrame];
+    BYTE *buff = new BYTE[PROCESS_FRAMES * m_pcmFormat.BytesPerFrame()];
     std::list<size_t> toPcmDataIdxList;
     size_t numConvertedPcmData = 0;
     assert(1 <= conversionQuality && conversionQuality <= 60);
@@ -206,17 +201,17 @@ WWPlayPcmGroup::DoResample(
     // 共有モードのサンプルレート変更。
     HRG(resampler.Initialize(
         WWMFPcmFormat(
-            (WWMFBitFormatType)WWPcmDataSampleFormatTypeIsFloat(m_sampleFormat),
-            (WORD)m_numChannels,
-            (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(m_sampleFormat),
-            m_sampleRate,
+            (WWMFBitFormatType)WWPcmDataSampleFormatTypeIsFloat(m_pcmFormat.sampleFormat),
+            (WORD)m_pcmFormat.numChannels,
+            (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(m_pcmFormat.sampleFormat),
+            m_pcmFormat.sampleRate,
             0, //< TODO: target dwChannelMask
-            (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(m_sampleFormat)),
+            (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(m_pcmFormat.sampleFormat)),
         WWMFPcmFormat(
             WWMFBitFormatFloat,
-            (WORD)numChannels,
+            (WORD)targetFmt.numChannels,
             32,
-            sampleRate,
+            targetFmt.sampleRate,
             0, //< TODO: target dwChannelMask
             32),
         conversionQuality));
@@ -225,9 +220,9 @@ WWPlayPcmGroup::DoResample(
         WWPcmData *pFrom = &m_playPcmDataList[i];
         WWPcmData pcmDataTo;
 
-        if (!pcmDataTo.Init(pFrom->id, sampleFormat, numChannels,
-                (int64_t)(((double)sampleRate / m_sampleRate) * pFrom->nFrames),
-                numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat)/8, WWPcmDataContentMusicData)) {
+        if (!pcmDataTo.Init(pFrom->id, targetFmt.sampleFormat, targetFmt.numChannels,
+                (int64_t)(((double)targetFmt.sampleRate / m_pcmFormat.sampleRate) * pFrom->nFrames),
+                targetFmt.numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(targetFmt.sampleFormat)/8, WWPcmDataContentMusicData)) {
             dprintf("E: %s malloc failed. pcm id=%d\n", __FUNCTION__, pFrom->id);
             hr = E_OUTOFMEMORY;
             goto end;
@@ -243,9 +238,9 @@ WWPlayPcmGroup::DoResample(
             WWMFSampleData mfSampleData;
             DWORD consumedBytes = 0;
 
-            int buffBytes = pFrom->GetBufferData(posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buff);
+            int buffBytes = pFrom->GetBufferData(posFrames * m_pcmFormat.BytesPerFrame(), PROCESS_FRAMES * m_pcmFormat.BytesPerFrame(), buff);
             dprintf("D: pFrom->GetBufferData posBytes=%Iu bytes=%d rv=%d\n",
-                    posFrames * m_bytesPerFrame, PROCESS_FRAMES * m_bytesPerFrame, buffBytes);
+                    posFrames * m_pcmFormat.BytesPerFrame(), PROCESS_FRAMES * m_pcmFormat.BytesPerFrame(), buffBytes);
             if (0 == buffBytes) {
                 break;
             }
@@ -277,7 +272,7 @@ WWPlayPcmGroup::DoResample(
         WWMFSampleData mfSampleData;
         DWORD consumedBytes = 0;
 
-        HRG(resampler.Drain(PROCESS_FRAMES * m_bytesPerFrame, &mfSampleData));
+        HRG(resampler.Drain(PROCESS_FRAMES * m_pcmFormat.BytesPerFrame(), &mfSampleData));
         consumedBytes = 0;
         while (0 < toPcmDataIdxList.size() && consumedBytes < mfSampleData.bytes) {
             size_t toIdx = toPcmDataIdxList.front();
@@ -318,11 +313,10 @@ WWPlayPcmGroup::DoResample(
     m_playPcmDataList.resize(numConvertedPcmData);
 
     // update pcm format info
-    m_sampleFormat  = sampleFormat;
-    m_sampleRate    = sampleRate;
-    m_numChannels   = numChannels;
-    m_dwChannelMask = dwChannelMask;
-    m_bytesPerFrame = numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat)/8;
+    m_pcmFormat.sampleFormat  = targetFmt.sampleFormat;
+    m_pcmFormat.sampleRate    = targetFmt.sampleRate;
+    m_pcmFormat.numChannels   = targetFmt.numChannels;
+    m_pcmFormat.dwChannelMask = targetFmt.dwChannelMask;
 
     // reduce volume level when out of range sample value is found
     {

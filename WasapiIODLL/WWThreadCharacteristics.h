@@ -9,17 +9,28 @@ enum WWSchedulerTaskType {
     WWSTTAudio,
     WWSTTProAudio,
     WWSTTPlayback,
+
+    WWSTTNUM
+};
+
+enum WWMMCSSCallType {
+    WWMMCSSEnable,
+    WWMMCSSDisable,
+    WWMMCSSDoNotCall,
+
+    WWMMCSSNUM
 };
 
 class WWThreadCharacteristics {
 public:
-    WWThreadCharacteristics(void) : m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(NULL), m_mmcssTaskIndex(0) { }
+    WWThreadCharacteristics(void) : m_mmcssCallType(WWMMCSSEnable), m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(NULL), m_mmcssTaskIndex(0) { }
 
-    void Set(WWSchedulerTaskType t);
+    void Set(WWMMCSSCallType ct, WWSchedulerTaskType stt);
     bool Setup(void);
     void Unsetup(void);
 
 private:
+    WWMMCSSCallType m_mmcssCallType;
     WWSchedulerTaskType m_schedulerTaskType;
     HANDLE  m_mmcssHandle;
     DWORD   m_mmcssTaskIndex;

@@ -44,6 +44,7 @@ namespace Wasapi {
             public int sampleFormat;
             public int numChannels;
             public int shareMode;
+            public int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
             public int schedulerTask;
             public int dataFeedMode;
             public int latencyMillisec;
@@ -182,6 +183,12 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private static extern void WasapiIO_RegisterCaptureCallback(int instanceId, NativeCaptureCallback callback);
+
+        public enum MMCSSCallType {
+            Disable,
+            Enable,
+            DoNotCall
+        };
 
         public enum SchedulerTaskType {
             None,
@@ -412,13 +419,14 @@ namespace Wasapi {
         }
 
         public int Setup(int deviceId, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
-                SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
+                MMCSSCallType mmcssCall, SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
                 int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
             var args = new SetupArgs();
             args.streamType = (int)streamType;
             args.sampleRate = sampleRate;
             args.sampleFormat = (int)format;
             args.numChannels = numChannels;
+            args.mmcssCall = (int)mmcssCall;
             args.schedulerTask = (int)schedulerTask;
             args.shareMode = (int)shareMode;
             args.dataFeedMode = (int)dataFeedMode;

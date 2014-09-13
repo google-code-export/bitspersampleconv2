@@ -30,18 +30,7 @@ public:
         assert(m_playPcmDataList.size() == 0);
     }
 
-    void Clear(void) {
-        for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
-            m_playPcmDataList[i].Term();
-        }
-        m_playPcmDataList.clear();
-
-        m_sampleFormat  = WWPcmDataSampleFormatUnknown;
-        m_sampleRate    = 0;
-        m_numChannels   = 0;
-        m_dwChannelMask = 0;
-        m_bytesPerFrame = 0;
-    }
+    void Clear(void);
 
     void Init(void);
     void Term(void);
@@ -49,12 +38,7 @@ public:
     /// @param sampleFormat データフォーマット。
     /// @param bytesPerFrame 1フレームのバイト数。
     ///     ＝(1サンプル1チャンネルのバイト数×チャンネル数)
-    bool AddPlayPcmDataStart(
-            int sampleRate,
-            WWPcmDataSampleFormatType sampleFormat,
-            int numChannels,
-            DWORD dwChannelMask,
-            int bytesPerFrame);
+    bool AddPlayPcmDataStart(WWPcmFormat &pcmFormat);
 
     /// @param id WAVファイルID。
     /// @param data WAVファイルのPCMデータ。LRLRLR…で、リトルエンディアン。
@@ -80,16 +64,12 @@ public:
     bool GetRepatFlag(void) { return m_repeat; }
 
     /// @return S_OK: success
-    HRESULT DoResample(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask, int conversionQuality);
+    HRESULT DoResample(WWPcmFormat &targetFormat, int conversionQuality);
 
 private:
     std::vector<WWPcmData> m_playPcmDataList;
 
-    WWPcmDataSampleFormatType m_sampleFormat;
-    int                 m_sampleRate;
-    int                 m_numChannels;
-    DWORD               m_dwChannelMask;
-    int                 m_bytesPerFrame;
+    WWPcmFormat        m_pcmFormat;
 
     bool                m_repeat;
 

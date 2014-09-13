@@ -4,6 +4,7 @@
 #include "WWUtil.h"
 #include <avrt.h>
 #include <assert.h>
+#include <Dwmapi.h>
 
 static wchar_t*
 WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
@@ -18,16 +19,23 @@ WWSchedulerTaskTypeToStr(WWSchedulerTaskType t)
 }
 
 void
-WWThreadCharacteristics::Set(WWSchedulerTaskType t)
+WWThreadCharacteristics::Set(WWMMCSSCallType ct, WWSchedulerTaskType stt)
 {
-    assert(0 <= t&& t <= WWSTTPlayback);
-    dprintf("D: %s() t=%d\n", __FUNCTION__, (int)t);
-    m_schedulerTaskType = t;
+    assert(0 <= ct && ct <= WWMMCSSNUM);
+    assert(0 <= stt&& stt < WWSTTNUM);
+    dprintf("D: %s() ct=%d stt=%d\n", __FUNCTION__, (int)ct, (int)stt);
+    m_mmcssCallType = ct;
+    m_schedulerTaskType = stt;
 }
 
 bool
 WWThreadCharacteristics::Setup(void)
 {
+    if (WWMMCSSDoNotCall != m_mmcssCallType) {
+        HRESULT hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
+        dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, (int)(m_mmcssCallType==WWMMCSSEnable), hr);
+    }
+
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
     if (WWSTTNone != m_schedulerTaskType) {
         dprintf("D: %s() AvSetMmThreadCharacteristics(%S)\n", __FUNCTION__, WWSchedulerTaskTypeToStr(m_schedulerTaskType));
@@ -48,5 +56,10 @@ WWThreadCharacteristics::Unsetup(void)
         AvRevertMmThreadCharacteristics(m_mmcssHandle);
         m_mmcssHandle = NULL;
         m_mmcssTaskIndex = 0;
+    }
+
+    if (WWMMCSSEnable == m_mmcssCallType) {
+        HRESULT hr = DwmEnableMMCSS(false);
+        dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, false, hr);
     }
 }

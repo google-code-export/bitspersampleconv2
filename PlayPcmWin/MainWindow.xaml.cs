@@ -27,11 +27,6 @@ using System.Runtime.InteropServices;
 
 namespace PlayPcmWin
 {
-    internal static class NativeMethods {
-        [DllImport("dwmapi.dll")]
-        internal static extern int DwmEnableMMCSS([MarshalAs(UnmanagedType.Bool)] bool fEnable);
-    }
-
     public sealed partial class MainWindow : Window
     {
         /// <summary>
@@ -1596,7 +1591,7 @@ namespace PlayPcmWin
                 int hr = wasapi.Setup(
                         useDeviceId,
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate, m_deviceSetupParams.SampleFormat,
-                        m_deviceSetupParams.NumChannels, PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
+                        m_deviceSetupParams.NumChannels, GetMMCSSCallType(), PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
                         m_deviceSetupParams.LatencyMillisec, m_deviceSetupParams.ZeroFlushMillisec, m_preference.TimePeriodHundredNanosec);
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Setup({0} {1}kHz {2} {3}ch {4} {5} {6} latency={7}ms zeroFlush={8}ms timePeriod={9}ms) {10:X8}{11}",
@@ -1657,6 +1652,13 @@ namespace PlayPcmWin
         private void LoadErrorMessageAdd(string s) {
             s = "*" + s.TrimEnd('\r', '\n') + ". ";
             m_loadErrorMessages.Append(s);
+        }
+
+        private WasapiCS.MMCSSCallType GetMMCSSCallType() {
+            if (!m_preference.DwmEnableMmcssCall) {
+                return WasapiCS.MMCSSCallType.DoNotCall;
+            }
+            return m_preference.DwmEnableMmcss ? WasapiCS.MMCSSCallType.Enable : WasapiCS.MMCSSCallType.Disable;
         }
 
         private void ClearPlayList(PlayListClearMode mode) {
@@ -3618,11 +3620,6 @@ namespace PlayPcmWin
         /// SettingsWindowによって変更された表示情報をUIに反映し、設定を反映する。
         /// </summary>
         void PreferenceUpdated() {
-            if (m_preference.DwmEnableMmcssCall) {
-                int hr = NativeMethods.DwmEnableMMCSS(m_preference.DwmEnableMmcss);
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}{2}", m_preference.DwmEnableMmcss, hr, Environment.NewLine));
-            }
-
             RenderOptions.ProcessRenderMode =
                     m_preference.GpuRendering ? RenderMode.Default : RenderMode.SoftwareOnly;
 

@@ -51,45 +51,29 @@ public:
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
-    void SetStreamType(WWStreamType t);
     WWStreamType StreamType(void) const;
 
-    /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
+    /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
-    HRESULT Setup(IMMDevice *device, int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels);
+    HRESULT Setup(IMMDevice *device, WWPcmFormat &pcmFormat);
 
     void Unsetup(void);
-
-    // Setup後に呼ぶ(Setup()で代入するので)
-    int GetPcmDataSampleRate(void) const      { return m_sampleRate; }
-    int GetPcmDataNumChannels(void) const     { return m_numChannels; }
-    DWORD GetPcmDataDwChannelMask(void) const { return m_dwChannelMask; }
-    WWPcmDataSampleFormatType GetPcmDataSampleFormat(void) const { return m_sampleFormat; }
 
     bool IsResampleNeeded(void) const;
 
     /// if you changed sample format after Setup() call this function...
-    void UpdatePcmDataFormat(int sampleRate, WWPcmDataSampleFormatType sampleFormat,
-            int numChannels, DWORD dwChannelMask);
-
-    /// デバイス(ミックスフォーマット)サンプルレート
-    /// WASAPI共有の場合、Setup後にGetPcmDataSampleRateとは異なる値になることがある。
-    int GetDeviceSampleRate(void) const      { return m_deviceSampleRate; }
-    int GetDeviceNumChannels(void) const     { return m_deviceNumChannels; }
-    DWORD GetDeviceDwChannelMask(void) const { return m_deviceDwChannelMask; }
-    int GetDeviceBytesPerFrame(void) const   { return m_deviceBytesPerFrame; }
-    WWPcmDataSampleFormatType GetDeviceSampleFormat(void) const { return m_deviceSampleFormat; }
-
-    int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
+    void UpdatePcmDataFormat(WWPcmFormat &fmt);
 
     /// 再生データをpcmDataに切り替える。再生中でも停止中でも再生一時停止中でも可。
     void UpdatePlayPcmData(WWPcmData &pcmData);
 
-    // recording buffer setup
+    /// 再生位置を移動する。
+    bool SetPosFrame(int64_t v);
+
+    /// called when recording buffer filled
     void RegisterCaptureCallback(WWCaptureCallback cb) {
         m_captureCallback = cb;
     }
-    int64_t GetCaptureGlitchCount(void);
 
     HRESULT Start(void);
 
@@ -105,16 +89,19 @@ public:
     /// ポーズ解除。
     HRESULT Unpause(void);
 
-    /// v must be 0 or greater number
-    bool SetPosFrame(int64_t v);
-
-    EDataFlow GetDataFlow(void) const {
-        return m_dataFlow;
-    }
-
+    /// 再生PCMデータのミューテックス。
     void MutexWait(void);
-
     void MutexRelease(void);
+
+    // Setup後に呼ぶ(Setup()で代入するので)
+    void GetPcmFormat(WWPcmFormat &pcmFormat) const { pcmFormat = m_pcmFormat; }
+
+    /// デバイス(ミックスフォーマット)サンプルレート
+    /// WASAPI共有の場合、Setup後にGetPcmDataSampleRateとは異なる値になることがある。
+    void GetDevicePcmFormat(WWPcmFormat &deviceFormat) const { deviceFormat = m_deviceFormat; }
+    EDataFlow GetDataFlow(void) const { return m_dataFlow; }
+    int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
+    int64_t GetCaptureGlitchCount(void) const { return m_glitchCount; }
 
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
     WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
@@ -131,17 +118,10 @@ private:
     UINT32       m_bufferFrameNum;
 
     /// source data format
-    WWPcmDataSampleFormatType m_sampleFormat;
-    int          m_sampleRate;
-    int          m_numChannels;
-    DWORD        m_dwChannelMask;
+    WWPcmFormat m_pcmFormat;
 
-    /// may have different value from m_sampleRate on wasapi shared mode
-    WWPcmDataSampleFormatType m_deviceSampleFormat;
-    int          m_deviceSampleRate;
-    int          m_deviceNumChannels;
-    DWORD        m_deviceDwChannelMask;
-    int          m_deviceBytesPerFrame;
+    /// may have different value from m_pcmFormat on wasapi shared mode
+    WWPcmFormat m_deviceFormat;
 
     WWDataFeedMode m_dataFeedMode;
     AUDCLNT_SHAREMODE m_shareMode;

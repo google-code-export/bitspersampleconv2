@@ -39,10 +39,39 @@ WWPcmDataSampleFormatTypeGenerate(int bitsPerSample, int validBitsPerSample, GUI
 
 /// PCMデータか、DoPデータか。
 enum WWStreamType {
-    WWStreamPcm,
+    WWStreamUnknown = -1,
+    WWStreamPcm = 0,
     WWStreamDop,
 
     WWStreamNUM
+};
+
+struct WWPcmFormat {
+    int                       sampleRate;
+    WWPcmDataSampleFormatType sampleFormat;
+    int                       numChannels;
+    DWORD                     dwChannelMask;
+    WWStreamType              streamType;
+
+    void Set(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels, DWORD dwChannelMask, WWStreamType streamType) {
+        this->sampleRate    = sampleRate;
+        this->sampleFormat  = sampleFormat;
+        this->numChannels   = numChannels;
+        this->dwChannelMask = dwChannelMask;
+        this->streamType    = streamType;
+    }
+
+    void Clear(void) {
+        sampleFormat = WWPcmDataSampleFormatUnknown;
+        sampleRate = 0;
+        numChannels = 0;
+        dwChannelMask = 0;
+        streamType = WWStreamUnknown;
+    }
+
+    int BytesPerFrame(void) const {
+        return numChannels * WWPcmDataSampleFormatTypeToBitsPerSample(sampleFormat) / 8;
+    }
 };
 
 /*
