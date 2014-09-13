@@ -6,6 +6,8 @@
 
 extern "C" {
 
+typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
+
 /// @param instanceId_return [out] instance id
 /// @return 0: success. -1 or less: failed. returns error code HRESULT
 __declspec(dllexport)
@@ -43,18 +45,6 @@ __declspec(dllexport)
 int __stdcall
 WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
-__declspec(dllexport)
-HRESULT __stdcall
-WasapiIO_ChooseDevice(int instanceId, int deviceId);
-
-__declspec(dllexport)
-void __stdcall
-WasapiIO_UnchooseDevice(int instanceId);
-
-__declspec(dllexport)
-bool __stdcall
-WasapiIO_GetUseDeviceAttributes(int instanceId, WasapiIoDeviceAttributes &attr_return);
-
 #pragma pack(push, 4)
 struct WasapiIoSetupArgs {
     int streamType;
@@ -72,7 +62,7 @@ struct WasapiIoSetupArgs {
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args);
+WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args);
 
 __declspec(dllexport)
 void __stdcall

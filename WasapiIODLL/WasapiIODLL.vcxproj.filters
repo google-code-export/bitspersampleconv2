@@ -32,6 +32,9 @@
     <ClCompile Include="WWThreadCharacteristics.cpp">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="WWAudioDeviceEnumerator.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WasapiIOIF.h">
@@ -62,6 +65,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWThreadCharacteristics.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioDeviceEnumerator.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,48 +5,21 @@
 #include <Windows.h>
 #include <AudioClient.h>
 #include <AudioPolicy.h>
-#include <vector>
+#include <MMDeviceAPI.h>
 #include "WWPcmData.h"
 #include "WWPcmStream.h"
-#include "WWMMNotificationClient.h"
 #include "WWTimerResolution.h"
 #include "WWThreadCharacteristics.h"
-
-#define WW_DEVICE_NAME_COUNT (256)
-#define WW_DEVICE_IDSTR_COUNT (256)
-
-typedef void (__stdcall WWStateChanged)(LPCWSTR deviceIdStr);
 
 /// @param data captured data
 /// @param dataBytes captured data size in bytes
 typedef void (__stdcall WWCaptureCallback)(unsigned char *data, int dataBytes);
-
-struct WWDeviceInfo {
-    int id;
-    wchar_t name[WW_DEVICE_NAME_COUNT];
-    wchar_t idStr[WW_DEVICE_IDSTR_COUNT];
-
-    WWDeviceInfo(void) {
-        id = -1;
-        name[0] = 0;
-        idStr[0] = 0;
-    }
-
-    WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr);
-};
 
 enum WWDataFeedMode {
     WWDFMEventDriven,
     WWDFMTimerDriven,
 
     WWDFMNum
-};
-
-enum WWDeviceType {
-    WWDTPlay,
-    WWDTRec,
-
-    WWDTNum
 };
 
 enum WWShareMode {
@@ -61,7 +34,7 @@ enum WWBitFormatType {
     WWBitFormatNUM
 };
 
-class WasapiUser : public IWWDeviceStateCallback {
+class WasapiUser {
 public:
     WasapiUser(void);
     ~WasapiUser(void);
@@ -69,22 +42,9 @@ public:
     HRESULT Init(void);
     void Term(void);
 
-    // device enumeration
-    HRESULT DoDeviceEnumeration(WWDeviceType t);
-    int GetDeviceCount(void);
-    bool GetDeviceName(int id, LPWSTR name, size_t nameBytes);
-    bool GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes);
-
     /// @param bitFormat 0:Int, 1:Float
     /// @return 0 this sampleFormat is supported
-    int InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
-
-    // set use device
-    HRESULT ChooseDevice(int id);
-    void UnchooseDevice(void);
-    int  GetUseDeviceId(void);
-    bool GetUseDeviceName(LPWSTR name, size_t nameBytes);
-    bool GetUseDeviceIdString(LPWSTR idStr, size_t idStrBytes);
+    int InspectDevice(IMMDevice *device, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
     // wasapi configuration parameters
     // call before Setup()
@@ -96,8 +56,7 @@ public:
 
     /// @param sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
-    HRESULT Setup(
-            int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels);
+    HRESULT Setup(IMMDevice *device, int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels);
 
     void Unsetup(void);
 
@@ -153,10 +112,6 @@ public:
         return m_dataFlow;
     }
 
-    void RegisterStateChangedCallback(WWStateChanged callback) {
-        m_stateChangedCallback = callback;
-    }
-
     void MutexWait(void);
 
     void MutexRelease(void);
@@ -165,17 +120,11 @@ public:
     WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
     WWThreadCharacteristics &ThreadCharacteristics(void) { return m_threadCharacteristics; }
 
-    // implements IWWDeviceStateCallback
-    virtual HRESULT OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
-
 private:
-    std::vector<WWDeviceInfo> m_deviceInfo;
-    IMMDeviceCollection       *m_deviceCollection;
-    IMMDevice                 *m_deviceToUse;
-
     HANDLE       m_shutdownEvent;
     HANDLE       m_audioSamplesReadyEvent;
 
+    IMMDevice    *m_deviceToUse;
     IAudioClient *m_audioClient;
 
     /// wasapi audio buffer frame size
@@ -209,18 +158,11 @@ private:
     int64_t      m_glitchCount;
     int          m_footerCount;
 
-    int          m_useDeviceId;
-    wchar_t      m_useDeviceName[WW_DEVICE_NAME_COUNT];
-    wchar_t      m_useDeviceIdStr[WW_DEVICE_IDSTR_COUNT];
-
     WWPcmStream m_pcmStream;
     WWTimerResolution m_timerResolution;
     WWThreadCharacteristics m_threadCharacteristics;
 
     WWCaptureCallback *m_captureCallback;
-    WWStateChanged * m_stateChangedCallback;
-    IMMDeviceEnumerator *m_deviceEnumerator;
-    WWMMNotificationClient *m_pNotificationClient;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);

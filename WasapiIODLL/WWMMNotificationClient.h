@@ -23,6 +23,7 @@ public:
     HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
     HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key);
 
+    IWWDeviceStateCallback *GetCallbackPtr(void) { return m_pCallback; }
 private:
     LONG m_cRef;
     IWWDeviceStateCallback *m_pCallback;

@@ -4,7 +4,6 @@
 #include "WasapiUser.h"
 #include "WWUtil.h"
 #include <assert.h>
-#include <functiondiscoverykeys.h>
 #include <strsafe.h>
 #include <mmsystem.h>
 #include <malloc.h>
@@ -20,19 +19,8 @@
 // DoPマーカーが正しく付いているかチェックする。
 //#define CHECK_DOP_MARKER
 
-WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name, const wchar_t * idStr)
-{
-    this->id = id;
-    wcsncpy_s(this->name, name, WW_DEVICE_NAME_COUNT-1);
-    wcsncpy_s(this->idStr, idStr, WW_DEVICE_IDSTR_COUNT-1);
-}
-
-///////////////////////////////////////////////////////////////////////
-// WasapiUser class
-
 WasapiUser::WasapiUser(void)
 {
-    m_deviceCollection = NULL;
     m_deviceToUse      = NULL;
 
     m_shutdownEvent          = NULL;
@@ -64,25 +52,13 @@ WasapiUser::WasapiUser(void)
     m_dataFlow         = eRender;
     m_glitchCount      = 0;
     m_footerCount      = 0;
-    m_useDeviceId      = -1;
-    memset(m_useDeviceName, 0, sizeof m_useDeviceName);
-    memset(m_useDeviceIdStr, 0, sizeof m_useDeviceIdStr);
 
     m_captureCallback      = NULL;
-    m_stateChangedCallback = NULL;
-    m_deviceEnumerator     = NULL;
-    m_pNotificationClient  = NULL;
 }
 
 WasapiUser::~WasapiUser(void)
 {
-    assert(!m_pNotificationClient);
-    assert(!m_deviceEnumerator);
-    assert(!m_deviceCollection);
     assert(!m_deviceToUse);
-    m_useDeviceId = -1;
-    m_useDeviceName[0] = 0;
-    m_useDeviceIdStr[0] = 0;
 }
 
 HRESULT
@@ -92,9 +68,6 @@ WasapiUser::Init(void)
     
     dprintf("D: %s()\n", __FUNCTION__);
 
-    assert(!m_pNotificationClient);
-    assert(!m_deviceEnumerator);
-    assert(!m_deviceCollection);
     assert(!m_deviceToUse);
 
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
@@ -108,30 +81,17 @@ WasapiUser::Init(void)
     assert(!m_mutex);
     m_mutex = CreateMutex(NULL, FALSE, NULL);
 
-    m_pNotificationClient = new WWMMNotificationClient(this);
-
     return hr;
 }
 
 void
 WasapiUser::Term(void)
 {
-    dprintf("D: %s() m_deviceCollection=%p m_deviceToUse=%p m_mutex=%p\n", __FUNCTION__, m_deviceCollection, m_deviceToUse, m_mutex);
-
-    if (m_deviceEnumerator && m_pNotificationClient) {
-        m_deviceEnumerator->UnregisterEndpointNotificationCallback(m_pNotificationClient);
-    }
+    dprintf("D: %s() m_deviceToUse=%p m_mutex=%p\n", __FUNCTION__, m_deviceToUse, m_mutex);
 
     m_captureCallback      = NULL;
-    m_stateChangedCallback = NULL;
 
-    SafeRelease(&m_deviceCollection);
-    SafeRelease(&m_deviceEnumerator);
-    SAFE_DELETE(m_pNotificationClient);
     SafeRelease(&m_deviceToUse);
-    m_useDeviceId = -1;
-    m_useDeviceName[0] = 0;
-    m_useDeviceIdStr[0] = 0;
 
     if (m_mutex) {
         CloseHandle(m_mutex);
@@ -190,160 +150,13 @@ WWStreamType WasapiUser::StreamType(void) const
     return m_pcmStream.StreamType();
 }
 
-static HRESULT
-DeviceNameGet(IMMDeviceCollection *dc, UINT id, wchar_t *name, size_t nameBytes)
-{
-    HRESULT hr = 0;
-
-    IMMDevice *device  = NULL;
-    IPropertyStore *ps = NULL;
-    PROPVARIANT pv;
-
-    assert(dc);
-    assert(name);
-    assert(0 < nameBytes);
-
-    name[0] = 0;
-
-    PropVariantInit(&pv);
-
-    HRG(dc->Item(id, &device));
-    HRG(device->OpenPropertyStore(STGM_READ, &ps));
-    HRG(ps->GetValue(PKEY_Device_FriendlyName, &pv));
-
-    wcsncpy_s(name, nameBytes/2, pv.pwszVal, nameBytes/2 -1);
-
-end:
-    PropVariantClear(&pv);
-    SafeRelease(&ps);
-    SafeRelease(&device);
-    return hr;
-}
-
-static HRESULT
-DeviceIdStringGet(IMMDeviceCollection *dc, UINT id, wchar_t *deviceIdStr, size_t deviceIdStrBytes)
-{
-    HRESULT hr = 0;
-
-    IMMDevice *device  = NULL;
-    LPWSTR    s        = NULL;
-
-    assert(dc);
-    assert(deviceIdStr);
-    assert(0 < deviceIdStrBytes);
-
-    deviceIdStr[0] = 0;
-
-    HRG(dc->Item(id, &device));
-    HRG(device->GetId(&s));
-
-    wcsncpy_s(deviceIdStr, deviceIdStrBytes/2, s, deviceIdStrBytes/2 -1);
-
-end:
-    CoTaskMemFree(s);
-    s = NULL;
-    SafeRelease(&device);
-    return hr;
-}
-
-HRESULT
-WasapiUser::DoDeviceEnumeration(WWDeviceType t)
-{
-    HRESULT hr = 0;
-
-    dprintf("D: %s() t=%d\n", __FUNCTION__, (int)t);
-
-    assert(m_pNotificationClient);
-
-    switch (t) {
-    case WWDTPlay:
-        if (m_dataFlow != eRender) {
-            m_dataFlow = eRender;
-        }
-        break;
-    case WWDTRec:
-        if (m_dataFlow != eCapture) {
-            m_dataFlow = eCapture;
-        }
-        break;
-    default:
-        assert(0);
-        return E_FAIL;
-    }
-
-    m_deviceInfo.clear();
-    SafeRelease(&m_deviceCollection);
-
-    if (m_deviceEnumerator) {
-        m_deviceEnumerator->UnregisterEndpointNotificationCallback(m_pNotificationClient);
-    }
-    SafeRelease(&m_deviceEnumerator);
-
-    HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
-
-    m_deviceEnumerator->RegisterEndpointNotificationCallback(m_pNotificationClient);
-
-    HRR(m_deviceEnumerator->EnumAudioEndpoints(m_dataFlow, DEVICE_STATE_ACTIVE, &m_deviceCollection));
-
-    UINT nDevices = 0;
-    HRG(m_deviceCollection->GetCount(&nDevices));
-
-    for (UINT i=0; i<nDevices; ++i) {
-        wchar_t name[WW_DEVICE_NAME_COUNT];
-        wchar_t idStr[WW_DEVICE_IDSTR_COUNT];
-        HRG(DeviceNameGet(m_deviceCollection, i, name, sizeof name));
-        HRG(DeviceIdStringGet(m_deviceCollection, i, idStr, sizeof idStr));
-        m_deviceInfo.push_back(WWDeviceInfo(i, name, idStr));
-    }
-
-end:
-    return hr;
-}
-
 int
-WasapiUser::GetDeviceCount(void)
-{
-    assert(m_deviceCollection);
-    return (int)m_deviceInfo.size();
-}
-
-bool
-WasapiUser::GetDeviceName(int id, LPWSTR name, size_t nameBytes)
-{
-    if(id < 0 || (int)m_deviceInfo.size() <= id) {
-        return false;
-    }
-
-    wcsncpy_s(name, nameBytes/2, m_deviceInfo[id].name, nameBytes/2 -1);
-    return true;
-}
-
-bool
-WasapiUser::GetDeviceIdString(int id, LPWSTR idStr, size_t idStrBytes)
-{
-    if(id < 0 || (int)m_deviceInfo.size() <= id) {
-        return false;
-    }
-
-    wcsncpy_s(idStr, idStrBytes/2, m_deviceInfo[id].idStr, idStrBytes/2 -1);
-    return true;
-}
-
-int
-WasapiUser::InspectDevice(int id, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
+WasapiUser::InspectDevice(IMMDevice *device, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
 {
     HRESULT hr;
     WAVEFORMATEX *waveFormat = NULL;
 
-    assert(0 <= id && id < (int)m_deviceInfo.size());
-
-    assert(m_deviceCollection);
-    assert(!m_deviceToUse);
-    assert(0 <= bitFormat && bitFormat <= 1);
-
-    HRG(m_deviceCollection->Item(id, &m_deviceToUse));
-
-    HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+    HRG(device->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
 
     assert(!waveFormat);
     HRG(m_audioClient->GetMixFormat(&waveFormat));
@@ -361,6 +174,7 @@ WasapiUser::InspectDevice(int id, int sampleRate, int bitsPerSample, int validBi
         goto end;
     }
 
+    assert(0 <= bitFormat && bitFormat <= 1);
     if (bitFormat == 0) {
         wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
     } else {
@@ -381,7 +195,7 @@ WasapiUser::InspectDevice(int id, int sampleRate, int bitsPerSample, int validBi
     dprintf("IsFormatSupported=%08x\n", hr);
 
 end:
-    SafeRelease(&m_deviceToUse);
+    SafeRelease(&device);
     SafeRelease(&m_audioClient);
 
     if (waveFormat) {
@@ -390,61 +204,6 @@ end:
     }
 
     return hr;
-}
-
-HRESULT
-WasapiUser::ChooseDevice(int id)
-{
-    HRESULT hr = 0;
-
-    dprintf("D: %s(%d)\n", __FUNCTION__, id);
-
-    if (id < 0) {
-        goto end;
-    }
-
-    assert(m_deviceCollection);
-    assert(!m_deviceToUse);
-
-    HRG(m_deviceCollection->Item(id, &m_deviceToUse));
-    m_useDeviceId = id;
-    wcscpy_s(m_useDeviceName, m_deviceInfo[id].name);
-    wcscpy_s(m_useDeviceIdStr, m_deviceInfo[id].idStr);
-
-end:
-    return hr;
-}
-
-void
-WasapiUser::UnchooseDevice(void)
-{
-    dprintf("D: %s()\n", __FUNCTION__);
-
-    SafeRelease(&m_deviceToUse);
-    m_useDeviceId = -1;
-    m_useDeviceName[0] = 0;
-    m_useDeviceIdStr[0] = 0;
-}
-
-int
-WasapiUser::GetUseDeviceId(void)
-{
-    dprintf("D: %s() %d\n", __FUNCTION__, m_useDeviceId);
-    return m_useDeviceId;
-}
-
-bool
-WasapiUser::GetUseDeviceName(LPWSTR name, size_t nameBytes)
-{
-    wcsncpy_s(name, nameBytes/2, m_useDeviceName, nameBytes/2 -1);
-    return true;
-}
-
-bool
-WasapiUser::GetUseDeviceIdString(LPWSTR idStr, size_t idStrBytes)
-{
-    wcsncpy_s(idStr, idStrBytes/2, m_useDeviceIdStr, idStrBytes/2 -1);
-    return true;
 }
 
 /// numChannels to channelMask
@@ -481,7 +240,7 @@ GetChannelMask(int numChannels)
 }
 
 HRESULT
-WasapiUser::Setup(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels)
+WasapiUser::Setup(IMMDevice *device, int sampleRate, WWPcmDataSampleFormatType sampleFormat, int numChannels)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = NULL;
@@ -496,7 +255,9 @@ WasapiUser::Setup(int sampleRate, WWPcmDataSampleFormatType sampleFormat, int nu
     m_audioSamplesReadyEvent = CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_audioSamplesReadyEvent);
 
-    assert(m_deviceToUse);
+    assert(!m_deviceToUse);
+    m_deviceToUse = device;
+
     assert(!m_audioClient);
     HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
 
@@ -687,6 +448,7 @@ WasapiUser::Unsetup(void)
 
     m_pcmStream.ReleaseBuffers();
 
+    SafeRelease(&m_deviceToUse);
     SafeRelease(&m_captureClient);
     SafeRelease(&m_renderClient);
     SafeRelease(&m_audioClient);
@@ -1253,19 +1015,6 @@ WasapiUser::AudioSamplesRecvProc(void)
 end:
     ReleaseMutex(m_mutex);
     return result;
-}
-
-HRESULT
-WasapiUser::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
-{
-    (void)dwNewState;
-    // 再生中で、再生しているデバイスの状態が変わったときは
-    // DeviceStateChanged()は再生を停止しなければならない
-    if (m_stateChangedCallback) {
-        m_stateChangedCallback(pwstrDeviceId);
-    }
-
-    return S_OK;
 }
 
 void

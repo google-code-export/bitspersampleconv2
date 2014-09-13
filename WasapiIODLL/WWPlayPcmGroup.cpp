@@ -85,7 +85,7 @@ WWPlayPcmGroup::AddPlayPcmDataEnd(void)
 void
 WWPlayPcmGroup::RemoveAt(int id)
 {
-    assert(0 <= id && id < m_playPcmDataList.size());
+    assert(0 <= id && (uint32_t)id < m_playPcmDataList.size());
 
     WWPcmData *pcmData = &m_playPcmDataList[id];
     pcmData->Term();

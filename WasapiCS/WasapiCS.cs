@@ -37,18 +37,6 @@ namespace Wasapi {
         private extern static int
         WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
 
-        [DllImport("WasapiIODLL.dll")]
-        private extern static int
-        WasapiIO_ChooseDevice(int instanceId, int deviceId);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static void
-        WasapiIO_UnchooseDevice(int instanceId);
-
-        [DllImport("WasapiIODLL.dll")]
-        private extern static bool
-        WasapiIO_GetUseDeviceAttributes(int instanceId, out WasapiIoDeviceAttributes attr);
-
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct SetupArgs {
             public int streamType;
@@ -65,7 +53,7 @@ namespace Wasapi {
 
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_Setup(int instanceId, ref SetupArgs args);
+        WasapiIO_Setup(int instanceId, int deviceId, ref SetupArgs args);
 
         [DllImport("WasapiIODLL.dll")]
         private extern static void
@@ -423,23 +411,7 @@ namespace Wasapi {
             return WasapiIO_InspectDevice(mId, deviceId, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
         }
 
-        public int ChooseDevice(int deviceId) {
-            return WasapiIO_ChooseDevice(mId, deviceId);
-        }
-
-        public void UnchooseDevice() {
-            WasapiIO_UnchooseDevice(mId);
-        }
-
-        public DeviceAttributes GetUseDeviceAttributes() {
-            var a = new WasapiIoDeviceAttributes();
-            if (!WasapiIO_GetUseDeviceAttributes(mId, out a)) {
-                return null;
-            }
-            return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
-        }
-
-        public int Setup(StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
+        public int Setup(int deviceId, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
                 SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
                 int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
             var args = new SetupArgs();
@@ -453,7 +425,7 @@ namespace Wasapi {
             args.latencyMillisec = latencyMillisec;
             args.timePeriodHandledNanosec = timePeriodHandredNanosec;
             args.zeroFlushMillisec = zeroFlushMillisec;
-            return WasapiIO_Setup(mId, ref args);
+            return WasapiIO_Setup(mId, deviceId, ref args);
         }
 
         public void Unsetup() {

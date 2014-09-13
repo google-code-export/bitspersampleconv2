@@ -3,13 +3,17 @@
 #include "WWPlayPcmGroup.h"
 #include "WWUtil.h"
 #include "WWTimerResolution.h"
+#include "WWAudioDeviceEnumerator.h"
 #include <assert.h>
 #include <map>
 
-struct WasapiIO {
+class WasapiIO : public IWWDeviceStateCallback {
+public:
     WasapiUser     wasapi;
     WWPlayPcmGroup playPcmGroup;
     WWTimerResolution timerResolution;
+    WWAudioDeviceEnumerator deviceEnumerator;
+    WWStateChanged * stateChangedCallback;
     int            instanceId;
     static int     sNextInstanceId;
 
@@ -30,6 +34,9 @@ struct WasapiIO {
     void ScalePcmAmplitude(double scale);
 
     bool ConnectPcmDataNext(int fromIdx, int toIdx);
+
+    // implements IWWDeviceStateCallback
+    virtual HRESULT OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState);
 };
 
 int WasapiIO::sNextInstanceId = 0;
@@ -39,8 +46,12 @@ WasapiIO::Init(void)
 {
     HRESULT hr;
     
+    stateChangedCallback = NULL;
+    playPcmGroup.Init();
+    deviceEnumerator.Init();
     hr = wasapi.Init();
-    playPcmGroup.Term();
+
+    deviceEnumerator.RegisterDeviceStateCallback(this);
 
     if (SUCCEEDED(hr)) {
         instanceId = sNextInstanceId;
@@ -53,7 +64,12 @@ WasapiIO::Init(void)
 void
 WasapiIO::Term(void)
 {
+    stateChangedCallback = NULL;
+
+    deviceEnumerator.UnregisterDeviceStateCallback(this);
+
     wasapi.Term();
+    deviceEnumerator.Term();
     playPcmGroup.Term();
 }
 
@@ -187,6 +203,19 @@ WasapiIO::StartRecording(void)
     return wasapi.Start();
 }
 
+HRESULT
+WasapiIO::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
+{
+    (void)dwNewState;
+    // 再生中で、再生しているデバイスの状態が変わったときは
+    // DeviceStateChanged()は再生を停止しなければならない
+    if (stateChangedCallback) {
+        stateChangedCallback(pwstrDeviceId);
+    }
+
+    return S_OK;
+}
+
 static std::map<int, WasapiIO *> gSelf;
 
 static WasapiIO *
@@ -251,7 +280,8 @@ WasapiIO_EnumerateDevices(int instanceId, int deviceType)
     WasapiIO *self = Instance(instanceId);
     assert(self);
     WWDeviceType t = (WWDeviceType)deviceType;
-    return self->wasapi.DoDeviceEnumeration(t);
+
+    return self->deviceEnumerator.DoDeviceEnumeration(t);
 }
 
 __declspec(dllexport)
@@ -260,7 +290,7 @@ WasapiIO_GetDeviceCount(int instanceId)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.GetDeviceCount();
+    return self->deviceEnumerator.GetDeviceCount();
 }
 
 __declspec(dllexport)
@@ -270,10 +300,10 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
     WasapiIO *self = Instance(instanceId);
     assert(self);
     attr_return.deviceId = deviceId;
-    if (!self->wasapi.GetDeviceName(deviceId, attr_return.name, sizeof attr_return.name)) {
+    if (!self->deviceEnumerator.GetDeviceName(deviceId, attr_return.name, sizeof attr_return.name)) {
         return false;
     }
-    if (!self->wasapi.GetDeviceIdString(deviceId, attr_return.deviceIdString, sizeof attr_return.deviceIdString)) {
+    if (!self->deviceEnumerator.GetDeviceIdString(deviceId, attr_return.deviceIdString, sizeof attr_return.deviceIdString)) {
         return false;
     }
     return true;
@@ -285,42 +315,22 @@ WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPer
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.InspectDevice(deviceId, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
+
+    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
+    return self->wasapi.InspectDevice(device, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
 }
 
 __declspec(dllexport)
 HRESULT __stdcall
-WasapiIO_ChooseDevice(int instanceId, int deviceId)
+WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    return self->wasapi.ChooseDevice(deviceId);
-}
 
-__declspec(dllexport)
-void __stdcall
-WasapiIO_UnchooseDevice(int instanceId)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
-    self->wasapi.UnchooseDevice();
-}
+    self->deviceEnumerator.SetUseDeviceId(deviceId);
+    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
+    assert(device);
 
-__declspec(dllexport)
-bool __stdcall
-WasapiIO_GetUseDeviceAttributes(int instanceId, WasapiIoDeviceAttributes &attr_return)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
-    return WasapiIO_GetDeviceAttributes(instanceId, self->wasapi.GetUseDeviceId(), attr_return);
-}
-
-__declspec(dllexport)
-HRESULT __stdcall
-WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
     self->wasapi.SetStreamType((WWStreamType)args.streamType);
     self->wasapi.SetShareMode((WWShareMode)args.shareMode);
     self->wasapi.ThreadCharacteristics().Set((WWSchedulerTaskType)args.schedulerTask);
@@ -329,7 +339,7 @@ WasapiIO_Setup(int instanceId, const WasapiIoSetupArgs &args)
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
-    return self->wasapi.Setup(
+    return self->wasapi.Setup(device,
         args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels);
 }
 
@@ -340,6 +350,7 @@ WasapiIO_Unsetup(int instanceId)
     WasapiIO *self = Instance(instanceId);
     assert(self);
     self->wasapi.Unsetup();
+    self->deviceEnumerator.SetUseDeviceId(-1);
 }
 
 __declspec(dllexport)
@@ -582,7 +593,8 @@ WasapiIO_RegisterStateChangedCallback(int instanceId, WWStateChanged callback)
 {
     WasapiIO *self = Instance(instanceId);
     assert(self);
-    self->wasapi.RegisterStateChangedCallback(callback);
+
+    self->stateChangedCallback = callback;
 }
 
 __declspec(dllexport)

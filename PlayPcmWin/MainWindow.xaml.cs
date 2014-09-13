@@ -389,6 +389,8 @@ namespace PlayPcmWin
         /// </summary>
         DeviceSetupParams m_deviceSetupParams = new DeviceSetupParams();
 
+        DeviceInfo m_useDeviceInfo;
+
         // 再生停止完了後に行うタスク。
         enum TaskType {
             /// <summary>
@@ -1447,12 +1449,8 @@ namespace PlayPcmWin
         private void DeviceDeselect() {
             System.Diagnostics.Debug.Assert(!m_playWorker.IsBusy);
 
+            m_useDeviceInfo = null;
             UnsetupDevice();
-
-            if (wasapi != null) {
-                wasapi.UnchooseDevice();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice(){0}", Environment.NewLine));
-            }
 
             m_loadedGroupId = -1;
             m_loadingGroupId = -1;
@@ -1528,6 +1526,7 @@ namespace PlayPcmWin
         /// <param name="loadGroupId">再生するグループ番号。この番号のWAVファイルのフォーマットでSetupする。</param>
         /// <returns>false: デバイスSetup失敗。よく起こる。</returns>
         private bool SetupDevice(int loadGroupId) {
+            int useDeviceId = listBoxDevices.SelectedIndex;
 
             int latencyMillisec = 0;
             if (!Int32.TryParse(textBoxLatency.Text, NumberStyles.Number,
@@ -1595,6 +1594,7 @@ namespace PlayPcmWin
                         startPcmData.SampleDataType == PcmData.DataType.DoP ? WasapiCS.StreamType.DoP : WasapiCS.StreamType.PCM);
 
                 int hr = wasapi.Setup(
+                        useDeviceId,
                         m_deviceSetupParams.StreamType, m_deviceSetupParams.SampleRate, m_deviceSetupParams.SampleFormat,
                         m_deviceSetupParams.NumChannels, PreferenceSchedulerTaskTypeToWasapiCSSchedulerTaskType(m_deviceSetupParams.ThreadTaskType),
                         PreferenceShareModeToWasapiCSShareMode(m_deviceSetupParams.SharedOrExclusive), PreferenceDataFeedModeToWasapiCS(m_deviceSetupParams.DataFeedMode),
@@ -1634,6 +1634,8 @@ namespace PlayPcmWin
                 var stat = wasapi.GetSessionStatus();
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "Endpoint buffer size = {0} frames.{1}",
                         stat.EndpointBufferFrameNum, Environment.NewLine));
+
+                var attr = wasapi.GetDeviceAttributes(useDeviceId);
             }
 
             ChangeState(State.デバイスSetup完了);
@@ -2990,6 +2992,7 @@ namespace PlayPcmWin
         /// </summary>
         private bool UseDevice()
         {
+            /*
             var di = listBoxDevices.SelectedItem as DeviceInfo;
             var attr = wasapi.GetUseDeviceAttributes();
             if (null != attr) {
@@ -3011,8 +3014,12 @@ namespace PlayPcmWin
             if (hr < 0) {
                 return false;
             }
+            */
 
             // 通常使用するデバイスとする。
+            var di = listBoxDevices.SelectedItem as DeviceInfo;
+            m_useDeviceInfo = di;
+            AddLogText(string.Format(CultureInfo.InvariantCulture, "Device name: {0}{1}", di.Name, Environment.NewLine));
             m_preference.PreferredDeviceName     = di.Name;
             m_preference.PreferredDeviceIdString = di.DeviceIdStr;
             return true;
@@ -4011,9 +4018,9 @@ namespace PlayPcmWin
                     case State.再生停止開始:
                         // 再生に使用しているデバイスの状態が変化した場合、再生停止する。
                         // そうではない場合、ここでは何もしない。再生停止時に兎に角デバイス一覧が更新される。
-                        var attr = wasapi.GetUseDeviceAttributes();
-                        if (0 == string.Compare(attr.DeviceIdString, idStr.ToString(), StringComparison.Ordinal)) {
-                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + Environment.NewLine, attr.Name, attr.DeviceIdString));
+                        if (0 == string.Compare(m_useDeviceInfo.DeviceIdStr, idStr.ToString(), StringComparison.Ordinal)) {
+                            AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + Environment.NewLine,
+                                    m_useDeviceInfo.Name, m_useDeviceInfo.DeviceIdStr));
                             StopBlocking();
                             DeviceDeselect();
                             UpdateDeviceList();
