@@ -385,6 +385,7 @@ namespace PlayPcmWin
         DeviceSetupParams m_deviceSetupParams = new DeviceSetupParams();
 
         DeviceInfo m_useDeviceInfo;
+        bool m_deviceListUpdatePending;
 
         // 再生停止完了後に行うタスク。
         enum TaskType {
@@ -1437,9 +1438,7 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// デバイス選択を解除する。再生停止中に呼ぶ必要あり。
-        /// この関数を呼ぶと、デバイスリストが消えるため要注意。
-        /// ふたたびCreateDeviceList()する必要あり。
+        /// デバイス選択を解除する。再生停止中に呼ぶ。
         /// </summary>
         private void DeviceDeselect() {
             System.Diagnostics.Debug.Assert(!m_playWorker.IsBusy);
@@ -1449,6 +1448,13 @@ namespace PlayPcmWin
 
             m_loadedGroupId = -1;
             m_loadingGroupId = -1;
+
+            if (0 < m_playListItems.Count) {
+                ChangeState(State.再生リストあり);
+            } else {
+                ChangeState(State.初期化完了);
+            }
+            UpdateUIStatus();
         }
 
         private void Term() {
@@ -3458,10 +3464,12 @@ namespace PlayPcmWin
             
             ChangeState(State.ファイル読み込み完了);
 
-            // さらに、デバイスを選択解除し、デバイス一覧を更新する。
-            // 停止後に再生リストの追加ができて便利。
             DeviceDeselect();
-            UpdateDeviceList();
+
+            if (m_deviceListUpdatePending) {
+                UpdateDeviceList();
+                m_deviceListUpdatePending = false;
+            }
         }
 
         /// <summary>
@@ -4013,14 +4021,16 @@ namespace PlayPcmWin
                     case State.再生一時停止中:
                     case State.再生中:
                     case State.再生停止開始:
-                        // 再生に使用しているデバイスの状態が変化した場合、再生停止する。
-                        // そうではない場合、ここでは何もしない。再生停止時に兎に角デバイス一覧が更新される。
                         if (0 == string.Compare(m_useDeviceInfo.DeviceIdStr, idStr.ToString(), StringComparison.Ordinal)) {
+                            // 再生に使用しているデバイスの状態が変化した場合、再生停止してデバイス一覧を更新する。
                             AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + Environment.NewLine,
                                     m_useDeviceInfo.Name, m_useDeviceInfo.DeviceIdStr));
                             StopBlocking();
                             DeviceDeselect();
                             UpdateDeviceList();
+                        } else {
+                            // 次の再生停止時にデバイス一覧を更新する。
+                            m_deviceListUpdatePending = true;
                         }
                         break;
                 }
