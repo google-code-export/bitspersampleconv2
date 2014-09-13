@@ -66,7 +66,7 @@ WasapiUser::Init(void)
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
     } else {
-        // Managed applicationでは、0x80010106が起こるが問題ないらしい。
+        // Managed applicationから呼び出すと0x80010106が起こる。
         dprintf("D: WasapiUser::Init() CoInitializeEx() failed %08x\n", hr);
         hr = S_OK;
     }
