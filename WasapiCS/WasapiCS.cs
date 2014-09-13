@@ -44,11 +44,13 @@ namespace Wasapi {
             public int sampleFormat;
             public int numChannels;
             public int shareMode;
+
             public int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
             public int schedulerTask;
             public int dataFeedMode;
             public int latencyMillisec;
             public int timePeriodHandledNanosec;
+
             public int zeroFlushMillisec;
         };
 

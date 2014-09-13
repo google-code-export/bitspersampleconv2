@@ -52,11 +52,13 @@ struct WasapiIoSetupArgs {
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
     int shareMode;
+
     int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
     int schedulerTask;
     int dataFeedMode;
     int latencyMillisec;
     int timePeriodHandledNanosec;
+
     int zeroFlushMillisec;
 };
 #pragma pack(pop)

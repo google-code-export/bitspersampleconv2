@@ -14,8 +14,8 @@ enum WWSchedulerTaskType {
 };
 
 enum WWMMCSSCallType {
-    WWMMCSSEnable,
     WWMMCSSDisable,
+    WWMMCSSEnable,
     WWMMCSSDoNotCall,
 
     WWMMCSSNUM
