@@ -100,7 +100,7 @@ WWAudioDeviceEnumerator::Term(void)
 HRESULT
 WWAudioDeviceEnumerator::RegisterDeviceStateCallback(IWWDeviceStateCallback *cb)
 {
-    WWMMNotificationClient *nc = new WWMMNotificationClient(cb);
+    auto *nc = new WWMMNotificationClient(cb);
 
     m_notificationClientList.push_back(nc);
 
@@ -114,8 +114,7 @@ WWAudioDeviceEnumerator::RegisterDeviceStateCallback(IWWDeviceStateCallback *cb)
 void
 WWAudioDeviceEnumerator::UnregisterDeviceStateCallback(IWWDeviceStateCallback *cb)
 {
-    std::list<WWMMNotificationClient *>::iterator it = 
-            std::remove_if(m_notificationClientList.begin(),
+    auto it = std::remove_if(m_notificationClientList.begin(),
             m_notificationClientList.end(),
             [&](WWMMNotificationClient * p) { return p->GetCallbackPtr() == cb; } );
     
@@ -141,7 +140,7 @@ WWAudioDeviceEnumerator::ReleaseDeviceList(void)
     SafeRelease(&m_deviceCollection);
 
     if (m_deviceEnumerator) {
-        for (std::list<WWMMNotificationClient *>::iterator it = m_notificationClientList.begin();
+        for (auto it = m_notificationClientList.begin();
                 it != m_notificationClientList.end(); ++it) {
             WWMMNotificationClient *p = *it;
             m_deviceEnumerator->UnregisterEndpointNotificationCallback(p);
@@ -171,7 +170,7 @@ WWAudioDeviceEnumerator::BuildDeviceList(WWDeviceType t)
     HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_deviceEnumerator)));
 
     if (m_deviceEnumerator) {
-        for (std::list<WWMMNotificationClient *>::iterator it = m_notificationClientList.begin();
+        for (auto it = m_notificationClientList.begin();
                 it != m_notificationClientList.end(); ++it) {
             m_deviceEnumerator->RegisterEndpointNotificationCallback(*it);
         }
