@@ -26,7 +26,7 @@ public:
     WWThreadCharacteristics(void) : m_mmcssCallType(WWMMCSSEnable), m_schedulerTaskType(WWSTTAudio), m_mmcssHandle(NULL), m_mmcssTaskIndex(0) { }
 
     void Set(WWMMCSSCallType ct, WWSchedulerTaskType stt);
-    bool Setup(void);
+    HRESULT Setup(void);
     void Unsetup(void);
 
 private:

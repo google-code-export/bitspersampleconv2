@@ -1,5 +1,5 @@
 // 日本語 UTF-8
-// WASAPIの機能を使って、音を出したり録音したりするWasapiUserクラス。
+// WASAPIの機能を使って音を出したり録音したりするWasapiUserクラス。
 
 #include "WasapiUser.h"
 #include "WWUtil.h"
@@ -137,8 +137,25 @@ WWStreamType WasapiUser::StreamType(void) const
     return m_pcmStream.StreamType();
 }
 
+static void
+PcmFormatToWfex(WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
+{
+    if (WWPcmDataSampleFormatTypeIsInt(pcmFormat.sampleFormat)) {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
+    } else {
+        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
+    }
+
+    wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(pcmFormat.sampleFormat);
+    wfex->Format.nSamplesPerSec       = pcmFormat.sampleRate;
+    wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
+    wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
+    wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(pcmFormat.sampleFormat);
+    wfex->dwChannelMask               = pcmFormat.dwChannelMask;
+}
+
 int
-WasapiUser::InspectDevice(IMMDevice *device, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
+WasapiUser::InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat)
 {
     HRESULT hr;
     WAVEFORMATEX *waveFormat = NULL;
@@ -161,18 +178,7 @@ WasapiUser::InspectDevice(IMMDevice *device, int sampleRate, int bitsPerSample, 
         goto end;
     }
 
-    assert(0 <= bitFormat && bitFormat <= 1);
-    if (bitFormat == 0) {
-        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-    } else {
-        wfex->SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-    }
-
-    wfex->Format.wBitsPerSample       = (WORD)bitsPerSample;
-    wfex->Format.nSamplesPerSec       = sampleRate;
-    wfex->Format.nBlockAlign          = (WORD)((bitsPerSample / 8) * waveFormat->nChannels);
-    wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec*wfex->Format.nBlockAlign;
-    wfex->Samples.wValidBitsPerSample = (WORD)validBitsPerSample;
+    PcmFormatToWfex(pcmFormat, wfex);
 
     dprintf("preferred Format:\n");
     WWWaveFormatDebug(waveFormat);
@@ -235,15 +241,7 @@ WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat)
     if (WWSMExclusive == m_shareMode) {
         // exclusive mode specific task
 
-        if (WWPcmDataSampleFormatTypeIsInt(m_pcmFormat.sampleFormat)) {
-            wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-        }
-        wfex->Format.wBitsPerSample       = (WORD)WWPcmDataSampleFormatTypeToBitsPerSample(m_pcmFormat.sampleFormat);
-        wfex->Format.nSamplesPerSec       = m_pcmFormat.sampleRate;
-        wfex->Format.nBlockAlign          = (WORD)((wfex->Format.wBitsPerSample / 8) * wfex->Format.nChannels);
-        wfex->Format.nAvgBytesPerSec      = wfex->Format.nSamplesPerSec * wfex->Format.nBlockAlign;
-        wfex->Samples.wValidBitsPerSample = (WORD)WWPcmDataSampleFormatTypeToValidBitsPerSample(m_pcmFormat.sampleFormat);
-        wfex->dwChannelMask               = m_pcmFormat.dwChannelMask;
+        PcmFormatToWfex(m_pcmFormat, wfex);
 
         dprintf("preferred Format:\n");
         WWWaveFormatDebug(waveFormat);

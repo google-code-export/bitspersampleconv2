@@ -28,12 +28,16 @@ WWThreadCharacteristics::Set(WWMMCSSCallType ct, WWSchedulerTaskType stt)
     m_schedulerTaskType = stt;
 }
 
-bool
+HRESULT
 WWThreadCharacteristics::Setup(void)
 {
+    HRESULT hr = S_OK;
+
     if (WWMMCSSDoNotCall != m_mmcssCallType) {
-        HRESULT hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
+        hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
         dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, (int)(m_mmcssCallType==WWMMCSSEnable), hr);
+        // 失敗することがあるが、続行する。
+        hr = S_OK;
     }
 
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
@@ -46,12 +50,14 @@ WWThreadCharacteristics::Setup(void)
             m_mmcssTaskIndex = 0;
         }
     }
-    return true;
+    return hr;
 }
 
 void
 WWThreadCharacteristics::Unsetup(void)
 {
+    HRESULT hr = S_OK;
+
     if (NULL != m_mmcssHandle) {
         AvRevertMmThreadCharacteristics(m_mmcssHandle);
         m_mmcssHandle = NULL;
@@ -59,7 +65,7 @@ WWThreadCharacteristics::Unsetup(void)
     }
 
     if (WWMMCSSEnable == m_mmcssCallType) {
-        HRESULT hr = DwmEnableMMCSS(false);
+        hr = DwmEnableMMCSS(false);
         dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, false, hr);
     }
 }

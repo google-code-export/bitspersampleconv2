@@ -33,9 +33,16 @@ namespace Wasapi {
         private extern static bool
         WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, out WasapiIoDeviceAttributes attr);
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct InspectArgs {
+            public int sampleRate;
+            public int sampleFormat;    ///< WWPcmDataSampleFormatType
+            public int numChannels;
+        };
+
         [DllImport("WasapiIODLL.dll")]
         private extern static int
-        WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
+        WasapiIO_InspectDevice(int instanceId, int deviceId, ref InspectArgs args);
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct SetupArgs {
@@ -416,8 +423,12 @@ namespace Wasapi {
             return new DeviceAttributes(a.deviceId, a.name, a.deviceIdString);
         }
 
-        public int InspectDevice(int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat) {
-            return WasapiIO_InspectDevice(mId, deviceId, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
+        public int InspectDevice(int deviceId, int sampleRate, SampleFormatType format, int numChannels) {
+            var args = new InspectArgs();
+            args.sampleRate = sampleRate;
+            args.numChannels = numChannels;
+            args.sampleFormat = (int)format;
+            return WasapiIO_InspectDevice(mId, deviceId, ref args);
         }
 
         public int Setup(int deviceId, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,

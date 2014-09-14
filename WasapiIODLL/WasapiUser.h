@@ -44,7 +44,7 @@ public:
 
     /// @param bitFormat 0:Int, 1:Float
     /// @return 0 this sampleFormat is supported
-    int InspectDevice(IMMDevice *device, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat);
+    int InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat);
 
     // wasapi configuration parameters
     // call before Setup()

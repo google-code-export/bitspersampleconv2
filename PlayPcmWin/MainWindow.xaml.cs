@@ -3533,8 +3533,8 @@ namespace PlayPcmWin
             public int sampleRate;
             public int bitsPerSample;
             public int validBitsPerSample;
-            public int bitFormat; // 0:Int, 1:Float
-            public InspectFormat(int sr, int bps, int vbps, int bf) {
+            public WasapiCS.BitFormatType bitFormat;
+            public InspectFormat(int sr, int bps, int vbps, WasapiCS.BitFormatType bf) {
                 sampleRate         = sr;
                 bitsPerSample      = bps;
                 validBitsPerSample = vbps;
@@ -3546,50 +3546,50 @@ namespace PlayPcmWin
         const int TEST_BIT_REPRESENTATION_NUM = 5;
 
         static readonly InspectFormat [] gInspectFormats = new InspectFormat [] {
-                new InspectFormat(44100,  16, 16, 0),
-                new InspectFormat(48000,  16, 16, 0),
-                new InspectFormat(88200,  16, 16, 0),
-                new InspectFormat(96000,  16, 16, 0),
-                new InspectFormat(176400, 16, 16, 0),
-                new InspectFormat(192000, 16, 16, 0),
-                new InspectFormat(352800, 16, 16, 0),
-                new InspectFormat(384000, 16, 16, 0),
+                new InspectFormat(44100,  16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(48000,  16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(88200,  16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(96000,  16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(176400, 16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(192000, 16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(352800, 16, 16, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(384000, 16, 16, WasapiCS.BitFormatType.SInt),
 
-                new InspectFormat(44100,  24, 24, 0),
-                new InspectFormat(48000,  24, 24, 0),
-                new InspectFormat(88200,  24, 24, 0),
-                new InspectFormat(96000,  24, 24, 0),
-                new InspectFormat(176400, 24, 24, 0),
-                new InspectFormat(192000, 24, 24, 0),
-                new InspectFormat(352800, 24, 24, 0),
-                new InspectFormat(384000, 24, 24, 0),
+                new InspectFormat(44100,  24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(48000,  24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(88200,  24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(96000,  24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(176400, 24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(192000, 24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(352800, 24, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(384000, 24, 24, WasapiCS.BitFormatType.SInt),
 
-                new InspectFormat(44100,  32, 24, 0),
-                new InspectFormat(48000,  32, 24, 0),
-                new InspectFormat(88200,  32, 24, 0),
-                new InspectFormat(96000,  32, 24, 0),
-                new InspectFormat(176400, 32, 24, 0),
-                new InspectFormat(192000, 32, 24, 0),
-                new InspectFormat(352800, 32, 24, 0),
-                new InspectFormat(384000, 32, 24, 0),
+                new InspectFormat(44100,  32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(48000,  32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(88200,  32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(96000,  32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(176400, 32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(192000, 32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(352800, 32, 24, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(384000, 32, 24, WasapiCS.BitFormatType.SInt),
 
-                new InspectFormat(44100,  32, 32, 0),
-                new InspectFormat(48000,  32, 32, 0),
-                new InspectFormat(88200,  32, 32, 0),
-                new InspectFormat(96000,  32, 32, 0),
-                new InspectFormat(176400, 32, 32, 0),
-                new InspectFormat(192000, 32, 32, 0),
-                new InspectFormat(352800, 32, 32, 0),
-                new InspectFormat(384000, 32, 32, 0),
+                new InspectFormat(44100,  32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(48000,  32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(88200,  32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(96000,  32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(176400, 32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(192000, 32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(352800, 32, 32, WasapiCS.BitFormatType.SInt),
+                new InspectFormat(384000, 32, 32, WasapiCS.BitFormatType.SInt),
 
-                new InspectFormat(44100,  32, 32, 1),
-                new InspectFormat(48000,  32, 32, 1),
-                new InspectFormat(88200,  32, 32, 1),
-                new InspectFormat(96000,  32, 32, 1),
-                new InspectFormat(176400, 32, 32, 1),
-                new InspectFormat(192000, 32, 32, 1),
-                new InspectFormat(352800, 32, 32, 1),
-                new InspectFormat(384000, 32, 32, 1),
+                new InspectFormat(44100,  32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(48000,  32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(88200,  32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(96000,  32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(176400, 32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(192000, 32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(352800, 32, 32, WasapiCS.BitFormatType.SFloat),
+                new InspectFormat(384000, 32, 32, WasapiCS.BitFormatType.SFloat),
             };
 
         private void buttonInspectDevice_Click(object sender, RoutedEventArgs e) {
@@ -3615,7 +3615,7 @@ namespace PlayPcmWin
                     int idx = sr + fmt * TEST_SAMPLE_RATE_NUM;
                     System.Diagnostics.Debug.Assert(idx < gInspectFormats.Length);
                     var ifmt = gInspectFormats[idx];
-                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat);
+                    int hr = wasapi.InspectDevice(listBoxDevices.SelectedIndex, ifmt.sampleRate, WasapiCS.BitAndFormatToSampleFormatType(ifmt.bitsPerSample, ifmt.validBitsPerSample, ifmt.bitFormat), 2);
                     sb.Append(string.Format(CultureInfo.InvariantCulture, "|| {0} {1:X8} ", hr==0 ? "OK" : "NA", hr));
                 }
                 sb.Append(string.Format(CultureInfo.InvariantCulture, "||{0}", Environment.NewLine));

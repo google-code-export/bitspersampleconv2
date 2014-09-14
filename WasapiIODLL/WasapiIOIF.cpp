@@ -305,17 +305,6 @@ WasapiIO_GetDeviceAttributes(int instanceId, int deviceId, WasapiIoDeviceAttribu
     return true;
 }
 
-__declspec(dllexport)
-int __stdcall
-WasapiIO_InspectDevice(int instanceId, int deviceId, int sampleRate, int bitsPerSample, int validBitsPerSample, int bitFormat)
-{
-    WasapiIO *self = Instance(instanceId);
-    assert(self);
-
-    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
-    return self->wasapi.InspectDevice(device, sampleRate, bitsPerSample, validBitsPerSample, bitFormat);
-}
-
 /// numChannels to channelMask
 static DWORD
 GetChannelMask(int numChannels)
@@ -347,6 +336,20 @@ GetChannelMask(int numChannels)
     }
 
     return result;
+}
+
+__declspec(dllexport)
+int __stdcall
+WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &args)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    WWPcmFormat pcmFormat;
+    pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), WWStreamPcm);
+
+    IMMDevice *device = self->deviceEnumerator.GetDevice(deviceId);
+    return self->wasapi.InspectDevice(device, pcmFormat);
 }
 
 __declspec(dllexport)
