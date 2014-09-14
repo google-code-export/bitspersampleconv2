@@ -662,4 +662,17 @@ WasapiIO_RegisterCaptureCallback(int instanceId, WWCaptureCallback callback)
     self->wasapi.RegisterCaptureCallback(callback);
 }
 
+__declspec(dllexport)
+void __stdcall
+WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupResult &result)
+{
+    WasapiIO *self = Instance(instanceId);
+    assert(self);
+
+    WWThreadCharacteristicsSetupResult r;
+    self->wasapi.ThreadCharacteristics().GetThreadCharacteristicsSetupResult(r);
+    result.dwmEnableMMCSSResult               = (int)r.dwmEnableMMCSSResult;
+    result.avSetMmThreadCharacteristicsResult = (int)r.avSetMmThreadCharacteristicsResult;
+}
+
 }; // extern "C"

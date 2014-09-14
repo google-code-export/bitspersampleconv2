@@ -28,7 +28,7 @@ WWThreadCharacteristics::Set(WWMMCSSCallType ct, WWSchedulerTaskType stt)
     m_schedulerTaskType = stt;
 }
 
-HRESULT
+void
 WWThreadCharacteristics::Setup(void)
 {
     HRESULT hr = S_OK;
@@ -37,7 +37,7 @@ WWThreadCharacteristics::Setup(void)
         hr = DwmEnableMMCSS(m_mmcssCallType==WWMMCSSEnable);
         dprintf("D: %s() DwmEnableMMCSS(%d) 0x%08x\n", __FUNCTION__, (int)(m_mmcssCallType==WWMMCSSEnable), hr);
         // 失敗することがあるが、続行する。
-        hr = S_OK;
+        m_result.dwmEnableMMCSSResult = hr;
     }
 
     // マルチメディアクラススケジューラーサービスのスレッド優先度設定。
@@ -46,11 +46,13 @@ WWThreadCharacteristics::Setup(void)
 
         m_mmcssHandle = AvSetMmThreadCharacteristics(WWSchedulerTaskTypeToStr(m_schedulerTaskType), &m_mmcssTaskIndex);
         if (NULL == m_mmcssHandle) {
-            dprintf("Unable to enable MMCSS on render thread: 0x%08x\n", GetLastError());
+            dprintf("Failed to enable MMCSS on render thread: 0x%08x\n", GetLastError());
             m_mmcssTaskIndex = 0;
+            m_result.avSetMmThreadCharacteristicsResult = false;
+        } else {
+            m_result.avSetMmThreadCharacteristicsResult = true;
         }
     }
-    return hr;
 }
 
 void

@@ -193,6 +193,16 @@ namespace Wasapi {
         [DllImport("WasapiIODLL.dll")]
         private static extern void WasapiIO_RegisterCaptureCallback(int instanceId, NativeCaptureCallback callback);
 
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        internal struct WasapiIoWorkerThreadSetupResult {
+            public int dwmEnableMMCSSResult;
+            public int avSetMmThreadCharacteristicsResult;
+        };
+
+        [DllImport("WasapiIODLL.dll")]
+        private extern static void
+        WasapiIO_GetWorkerThreadSetupResult(int instanceId, out WasapiIoWorkerThreadSetupResult result);
+
         public enum MMCSSCallType {
             Disable,
             Enable,
@@ -607,6 +617,21 @@ namespace Wasapi {
                 return null;
             }
             return new CursorLocation(p.posFrame, p.totalFrameNum);
+        }
+
+        public class WorkerThreadSetupResult {
+            public int DwmEnableMMCSSResult { get; set; }
+            public bool AvSetMmThreadCharacteristicsResult { get; set; }
+            public WorkerThreadSetupResult(int dwm, bool av) {
+                DwmEnableMMCSSResult = dwm;
+                AvSetMmThreadCharacteristicsResult = av;
+            }
+        }
+
+        public WorkerThreadSetupResult GetWorkerThreadSetupResult() {
+            var p = new WasapiIoWorkerThreadSetupResult();
+            WasapiIO_GetWorkerThreadSetupResult(mId, out p);
+            return new WorkerThreadSetupResult(p.dwmEnableMMCSSResult, p.avSetMmThreadCharacteristicsResult!=0);
         }
     }
 }

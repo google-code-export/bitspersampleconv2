@@ -192,4 +192,15 @@ __declspec(dllexport)
 void __stdcall
 WasapiIO_RegisterCaptureCallback(int instanceId, WWCaptureCallback callback);
 
+#pragma pack(push, 4)
+struct WasapiIoWorkerThreadSetupResult {
+    int dwmEnableMMCSSResult;
+    int avSetMmThreadCharacteristicsResult;
+};
+#pragma pack(pop)
+
+__declspec(dllexport)
+void __stdcall
+WasapiIO_GetWorkerThreadSetupResult(int instanceId, WasapiIoWorkerThreadSetupResult &result_return);
+
 }; // extern "C"

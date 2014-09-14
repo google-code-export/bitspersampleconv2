@@ -3311,6 +3311,17 @@ namespace PlayPcmWin
             m_sw.Start();
 
             int hr = wasapi.StartPlayback(wavDataId);
+
+            {
+                var stat = wasapi.GetWorkerThreadSetupResult();
+                if (m_preference.DwmEnableMmcssCall) {
+                    AddLogText(string.Format(CultureInfo.InvariantCulture, "DwmEnableMMCSS({0}) result={1:X8}{2}",
+                        m_preference.DwmEnableMmcss, stat.DwmEnableMMCSSResult, Environment.NewLine));
+                }
+                AddLogText(string.Format(CultureInfo.InvariantCulture, "AvSetMMThreadCharacteristics({0}) result={1:X8}{2}",
+                    m_preference.RenderThreadTaskType, stat.AvSetMmThreadCharacteristicsResult, Environment.NewLine));
+            }
+
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.StartPlayback({0}) {1:X8}{2}", wavDataId, hr, Environment.NewLine));
             if (hr < 0) {
                 MessageBox.Show(string.Format(CultureInfo.InvariantCulture, Properties.Resources.PlayStartFailed + "！{0:X8}", hr));
