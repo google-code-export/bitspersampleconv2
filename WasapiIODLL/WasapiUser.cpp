@@ -21,31 +21,30 @@
 
 WasapiUser::WasapiUser(void)
 {
-    m_deviceToUse      = NULL;
-
     m_shutdownEvent          = NULL;
     m_audioSamplesReadyEvent = NULL;
+    m_deviceToUse            = NULL;
     m_audioClient            = NULL;
     m_bufferFrameNum         = 0;
 
     m_pcmFormat.Clear();
     m_deviceFormat.Clear();
 
-    m_dataFeedMode      = WWDFMEventDriven;
-    m_shareMode         = AUDCLNT_SHAREMODE_EXCLUSIVE;
-    m_latencyMillisec   = 0;
+    m_dataFeedMode    = WWDFMEventDriven;
+    m_shareMode       = AUDCLNT_SHAREMODE_EXCLUSIVE;
+    m_latencyMillisec = 0;
+    m_renderClient    = NULL;
+    m_captureClient   = NULL;
 
-    m_renderClient     = NULL;
-    m_captureClient    = NULL;
-    m_thread           = NULL;
-    m_mutex            = NULL;
+    m_thread              = NULL;
+    m_mutex               = NULL;
     m_coInitializeSuccess = false;
     m_footerNeedSendCount = 0;
-    m_dataFlow         = eRender;
-    m_glitchCount      = 0;
-    m_footerCount      = 0;
+    m_dataFlow            = eRender;
 
-    m_captureCallback      = NULL;
+    m_glitchCount     = 0;
+    m_footerCount     = 0;
+    m_captureCallback = NULL;
 }
 
 WasapiUser::~WasapiUser(void)
@@ -130,11 +129,6 @@ WasapiUser::SetLatencyMillisec(DWORD millisec)
     dprintf("D: %s() latencyMillisec=%u\n", __FUNCTION__, millisec);
 
     m_latencyMillisec = millisec;
-}
-
-WWStreamType WasapiUser::StreamType(void) const
-{
-    return m_pcmStream.StreamType();
 }
 
 static void

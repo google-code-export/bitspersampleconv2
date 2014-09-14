@@ -40,7 +40,7 @@ public:
     ~WasapiUser(void);
 
     HRESULT Init(void);
-    void Term(void);
+    void    Term(void);
 
     /// @param bitFormat 0:Int, 1:Float
     /// @return 0 this sampleFormat is supported
@@ -51,7 +51,6 @@ public:
     void SetShareMode(WWShareMode sm);
     void SetDataFeedMode(WWDataFeedMode mode);
     void SetLatencyMillisec(DWORD millisec);
-    WWStreamType StreamType(void) const;
 
     /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
@@ -70,7 +69,7 @@ public:
     /// 再生位置を移動する。
     bool SetPosFrame(int64_t v);
 
-    /// called when recording buffer filled
+    /// cb is called when recording buffer is filled
     void RegisterCaptureCallback(WWCaptureCallback cb) {
         m_captureCallback = cb;
     }
@@ -93,7 +92,7 @@ public:
     void MutexWait(void);
     void MutexRelease(void);
 
-    // Setup後に呼ぶ(Setup()で代入するので)
+    /// Setup後に呼ぶ(Setup()で代入するので)
     void GetPcmFormat(WWPcmFormat &pcmFormat) const { pcmFormat = m_pcmFormat; }
 
     /// デバイス(ミックスフォーマット)サンプルレート
@@ -103,6 +102,7 @@ public:
     int GetEndpointBufferFrameNum(void) const { return m_bufferFrameNum; }
     int64_t GetCaptureGlitchCount(void) const { return m_glitchCount; }
 
+    WWStreamType StreamType(void) const { return m_pcmStream.StreamType(); }
     WWPcmStream &PcmStream(void) { return m_pcmStream; }
     WWTimerResolution &TimerResolution(void) { return m_timerResolution; }
     WWThreadCharacteristics &ThreadCharacteristics(void) { return m_threadCharacteristics; }
@@ -137,12 +137,11 @@ private:
     EDataFlow    m_dataFlow;
     int64_t      m_glitchCount;
     int          m_footerCount;
+    WWCaptureCallback *m_captureCallback;
 
     WWPcmStream m_pcmStream;
     WWTimerResolution m_timerResolution;
     WWThreadCharacteristics m_threadCharacteristics;
-
-    WWCaptureCallback *m_captureCallback;
 
     static DWORD WINAPI RenderEntry(LPVOID lpThreadParameter);
     static DWORD WINAPI CaptureEntry(LPVOID lpThreadParameter);
