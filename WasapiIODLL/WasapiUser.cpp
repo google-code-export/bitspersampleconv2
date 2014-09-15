@@ -31,7 +31,7 @@ WasapiUser::WasapiUser(void)
     m_deviceFormat.Clear();
 
     m_dataFeedMode    = WWDFMEventDriven;
-    m_shareMode       = AUDCLNT_SHAREMODE_EXCLUSIVE;
+    m_shareMode       = WWSMExclusive;
     m_latencyMillisec = 0;
     m_renderClient    = NULL;
     m_captureClient   = NULL;
@@ -95,40 +95,20 @@ WasapiUser::Term(void)
     }
 }
 
-void
-WasapiUser::SetShareMode(WWShareMode sm)
+static AUDCLNT_SHAREMODE
+WWShareModeToAudClientShareMode(WWShareMode sm)
 {
-    dprintf("D: %s() sm=%d\n", __FUNCTION__, (int)sm);
-
     switch (sm) {
     case WWSMShared:
-        m_shareMode = AUDCLNT_SHAREMODE_SHARED;
+        return AUDCLNT_SHAREMODE_SHARED;
         break;
     case WWSMExclusive:
-        m_shareMode = AUDCLNT_SHAREMODE_EXCLUSIVE;
+        return AUDCLNT_SHAREMODE_EXCLUSIVE;
         break;
     default:
         assert(0);
-        break;
+        return AUDCLNT_SHAREMODE_EXCLUSIVE;
     }
-}
-
-void
-WasapiUser::SetDataFeedMode(WWDataFeedMode mode)
-{
-    assert(0 <= mode && mode < WWDFMNum);
-
-    dprintf("D: %s() mode=%d\n", __FUNCTION__, (int)mode);
-
-    m_dataFeedMode = mode;
-}
-
-void
-WasapiUser::SetLatencyMillisec(DWORD millisec)
-{
-    dprintf("D: %s() latencyMillisec=%u\n", __FUNCTION__, millisec);
-
-    m_latencyMillisec = millisec;
 }
 
 static void
@@ -178,7 +158,7 @@ WasapiUser::InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat)
     WWWaveFormatDebug(waveFormat);
     WWWFEXDebug(wfex);
 
-    hr = m_audioClient->IsFormatSupported(m_shareMode,waveFormat,NULL);
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, waveFormat, NULL);
     dprintf("IsFormatSupported=%08x\n", hr);
 
 end:
@@ -194,10 +174,16 @@ end:
 }
 
 HRESULT
-WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat)
+WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = NULL;
+
+    m_shareMode = sm;
+    m_dataFeedMode = dfm;
+    m_latencyMillisec = latencyMillisec;
+
+    auto audClientSm = WWShareModeToAudClientShareMode(sm);
 
     dprintf("D: %s(%d %s %d)\n", __FUNCTION__, pcmFormat.sampleRate, WWPcmDataSampleFormatTypeToStr(pcmFormat.sampleFormat), pcmFormat.numChannels);
     m_pcmFormat = pcmFormat;
@@ -241,7 +227,7 @@ WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat)
         WWWaveFormatDebug(waveFormat);
         WWWFEXDebug(wfex);
     
-        HRG(m_audioClient->IsFormatSupported(m_shareMode,waveFormat,NULL));
+        HRG(m_audioClient->IsFormatSupported(audClientSm, waveFormat,NULL));
     } else {
         // shared mode specific task
         // wBitsPerSample, nSamplesPerSec, wValidBitsPerSample are fixed
@@ -299,7 +285,7 @@ WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat)
         }
     }
 
-    hr = m_audioClient->Initialize(m_shareMode, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
+    hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
     if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
         HRG(m_audioClient->GetBufferSize(&m_bufferFrameNum));
 
@@ -315,7 +301,7 @@ WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat)
 
         HRG(m_deviceToUse->Activate(__uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
 
-        hr = m_audioClient->Initialize(m_shareMode, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
+        hr = m_audioClient->Initialize(audClientSm, streamFlags, bufferDuration, bufferPeriodicity, waveFormat, NULL);
     }
     if (FAILED(hr)) {
         dprintf("E: audioClient->Initialize failed 0x%08x\n", hr);

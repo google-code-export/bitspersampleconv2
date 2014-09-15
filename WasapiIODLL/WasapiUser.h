@@ -46,15 +46,9 @@ public:
     /// @return 0 this sampleFormat is supported
     int InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat);
 
-    // wasapi configuration parameters
-    // call before Setup()
-    void SetShareMode(WWShareMode sm);
-    void SetDataFeedMode(WWDataFeedMode mode);
-    void SetLatencyMillisec(DWORD millisec);
-
     /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
-    HRESULT Setup(IMMDevice *device, WWPcmFormat &pcmFormat);
+    HRESULT Setup(IMMDevice *device, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec);
 
     void Unsetup(void);
 
@@ -124,8 +118,8 @@ private:
     WWPcmFormat m_deviceFormat;
 
     WWDataFeedMode m_dataFeedMode;
-    AUDCLNT_SHAREMODE m_shareMode;
-    DWORD        m_latencyMillisec;
+    WWShareMode    m_shareMode;
+    DWORD          m_latencyMillisec;
 
     IAudioRenderClient  *m_renderClient;
     IAudioCaptureClient *m_captureClient;

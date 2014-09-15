@@ -366,14 +366,11 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     WWPcmFormat pcmFormat;
     pcmFormat.Set(args.sampleRate, (WWPcmDataSampleFormatType)args.sampleFormat, args.numChannels, GetChannelMask(args.numChannels), (WWStreamType)args.streamType);
 
-    self->wasapi.SetShareMode((WWShareMode)args.shareMode);
     self->wasapi.ThreadCharacteristics().Set((WWMMCSSCallType)args.mmcssCall, (WWSchedulerTaskType)args.schedulerTask);
-    self->wasapi.SetDataFeedMode((WWDataFeedMode)args.dataFeedMode);
-    self->wasapi.SetLatencyMillisec((DWORD)args.latencyMillisec);
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
-    return self->wasapi.Setup(device, pcmFormat);
+    return self->wasapi.Setup(device, pcmFormat, (WWShareMode)args.shareMode, (WWDataFeedMode)args.dataFeedMode, (DWORD)args.latencyMillisec);
 }
 
 __declspec(dllexport)
