@@ -1,6 +1,7 @@
 #pragma once
 // 日本語 UTF-8
 
+#include "WWTypes.h"
 #include "WWMMNotificationClient.h"
 #include <Windows.h>
 #include <mmdeviceapi.h>
@@ -10,12 +11,7 @@
 #define WW_DEVICE_NAME_COUNT (256)
 #define WW_DEVICE_IDSTR_COUNT (256)
 
-enum WWDeviceType {
-    WWDTPlay,
-    WWDTRec,
 
-    WWDTNum
-};
 
 struct WWDeviceInfo {
     int id;

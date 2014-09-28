@@ -174,7 +174,7 @@ WWPlayPcmGroup::PlayPcmDataListDebug(void)
     for (size_t i=0; i<m_playPcmDataList.size(); ++i) {
         WWPcmData *p = &m_playPcmDataList[i];
 
-        dprintf("  %p next=%p i=%d id=%d nFrames=%d posFrame=%d contentType=%s stream=%p\n",
+        dprintf("  %p next=%p i=%d id=%d nFrames=%lld posFrame=%lld contentType=%s stream=%p\n",
             p, p->next, i, p->id, p->nFrames, p->posFrame,
             WWPcmDataContentTypeToStr(p->contentType), p->stream);
     }

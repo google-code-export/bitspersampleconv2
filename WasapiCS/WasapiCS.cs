@@ -46,18 +46,19 @@ namespace Wasapi {
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         internal struct SetupArgs {
+            public int deviceType;
             public int streamType;
             public int sampleRate;
             public int sampleFormat;
             public int numChannels;
-            public int shareMode;
 
+            public int shareMode;
             public int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
             public int schedulerTask;
             public int dataFeedMode;
             public int latencyMillisec;
-            public int timePeriodHandledNanosec;
 
+            public int timePeriodHandledNanosec;
             public int zeroFlushMillisec;
         };
 
@@ -441,10 +442,11 @@ namespace Wasapi {
             return WasapiIO_InspectDevice(mId, deviceId, ref args);
         }
 
-        public int Setup(int deviceId, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
+        public int Setup(int deviceId, DeviceType t, StreamType streamType, int sampleRate, SampleFormatType format, int numChannels,
                 MMCSSCallType mmcssCall, SchedulerTaskType schedulerTask, ShareMode shareMode, DataFeedMode dataFeedMode,
                 int latencyMillisec, int zeroFlushMillisec, int timePeriodHandredNanosec) {
             var args = new SetupArgs();
+            args.deviceType = (int)t;
             args.streamType = (int)streamType;
             args.sampleRate = sampleRate;
             args.sampleFormat = (int)format;

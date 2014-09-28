@@ -370,7 +370,7 @@ WasapiIO_Setup(int instanceId, int deviceId, const WasapiIoSetupArgs &args)
     self->wasapi.PcmStream().SetZeroFlushMillisec(args.zeroFlushMillisec);
     self->wasapi.TimerResolution().SetTimePeriodHundredNanosec(args.timePeriodHandledNanosec);
 
-    return self->wasapi.Setup(device, pcmFormat, (WWShareMode)args.shareMode, (WWDataFeedMode)args.dataFeedMode, (DWORD)args.latencyMillisec);
+    return self->wasapi.Setup(device, (WWDeviceType)args.deviceType, pcmFormat, (WWShareMode)args.shareMode, (WWDataFeedMode)args.dataFeedMode, (DWORD)args.latencyMillisec);
 }
 
 __declspec(dllexport)

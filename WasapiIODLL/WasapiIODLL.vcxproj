@@ -165,6 +165,7 @@
     <ClInclude Include="WWPlayPcmGroup.h" />
     <ClInclude Include="WWThreadCharacteristics.h" />
     <ClInclude Include="WWTimerResolution.h" />
+    <ClInclude Include="WWTypes.h" />
     <ClInclude Include="WWUtil.h" />
   </ItemGroup>
   <ItemGroup>

@@ -174,7 +174,7 @@ end:
 }
 
 HRESULT
-WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
+WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = NULL;
@@ -182,6 +182,11 @@ WasapiUser::Setup(IMMDevice *device, WWPcmFormat &pcmFormat, WWShareMode sm, WWD
     m_shareMode = sm;
     m_dataFeedMode = dfm;
     m_latencyMillisec = latencyMillisec;
+    switch (deviceType) {
+    case WWDTPlay: m_dataFlow = eRender; break;
+    case WWDTRec: m_dataFlow = eCapture; break;
+    default: assert(0); break;
+    }
 
     auto audClientSm = WWShareModeToAudClientShareMode(sm);
 

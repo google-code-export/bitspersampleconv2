@@ -19,6 +19,7 @@ __declspec(dllexport)
 void __stdcall
 WasapiIO_Term(int instanceId);
 
+/// @param deviceType == WWDeviceType, 0: Play, 1:Rec
 __declspec(dllexport)
 HRESULT __stdcall
 WasapiIO_EnumerateDevices(int instanceId, int deviceType);
@@ -55,18 +56,19 @@ WasapiIO_InspectDevice(int instanceId, int deviceId, const WasapiIoInspectArgs &
 
 #pragma pack(push, 4)
 struct WasapiIoSetupArgs {
+    int deviceType; ///< WWDeviceType, 0: Play, 1:Rec
     int streamType;
     int sampleRate;
     int sampleFormat;    ///< WWPcmDataSampleFormatType
     int numChannels;
-    int shareMode;
 
+    int shareMode;
     int mmcssCall; ///< 0: disable, 1: enable, 2: do not call DwmEnableMMCSS()
     int schedulerTask;
     int dataFeedMode;
     int latencyMillisec;
-    int timePeriodHandledNanosec;
 
+    int timePeriodHandledNanosec;
     int zeroFlushMillisec;
 };
 #pragma pack(pop)

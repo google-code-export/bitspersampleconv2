@@ -210,14 +210,12 @@ namespace WasapiBitmatchChecker {
 
             if (mWasapiRec != null) {
                 mWasapiRec.Unsetup();
-                mWasapiRec.UnchooseDevice();
                 mWasapiRec.Term();
                 mWasapiRec = null;
             }
 
             if (mWasapiPlay != null) {
                 mWasapiPlay.Unsetup();
-                mWasapiPlay.UnchooseDevice();
                 mWasapiPlay.Term();
                 mWasapiPlay = null;
             }
@@ -414,7 +412,6 @@ namespace WasapiBitmatchChecker {
         /// </summary>
         private void PlayRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
             mWasapiPlay.Unsetup();
-            mWasapiPlay.UnchooseDevice();
             // このあと録音も程なく終わり、RecRunWorkerCompletedでデバイス一覧表示は更新される。
         }
 
@@ -439,7 +436,6 @@ namespace WasapiBitmatchChecker {
         private void RecRunWorkerCompleted(object o, RunWorkerCompletedEventArgs args) {
             lock (mLock) {
                 mWasapiRec.Unsetup();
-                mWasapiRec.UnchooseDevice();
 
                 CompareRecordedData();
 
@@ -474,20 +470,13 @@ namespace WasapiBitmatchChecker {
             lock (mLock) {
                 int hr = 0;
 
-                hr = mWasapiPlay.ChooseDevice(listBoxPlayDevices.SelectedIndex);
-                if (hr < 0) {
-                    MessageBox.Show(Properties.Resources.msgPlayDeviceSelectError);
-                    return;
-                }
-
-                hr = mWasapiPlay.Setup(WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
-                        NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                hr = mWasapiPlay.Setup(listBoxPlayDevices.SelectedIndex, WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM, mSampleRate, mPlaySampleFormat,
+                        NUM_CHANNELS, WasapiCS.MMCSSCallType.Enable, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mPlayDataFeedMode, mPlayBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgPlaySetupError,
                             mSampleRate, mPlaySampleFormat, NUM_CHANNELS, mPlayDataFeedMode, mPlayBufferMillisec));
                     mWasapiPlay.Unsetup();
-                    mWasapiPlay.UnchooseDevice();
                     return;
                 }
 
@@ -521,15 +510,8 @@ namespace WasapiBitmatchChecker {
                 // 録音
                 mCapturedBytes = 0;
 
-                hr = mWasapiRec.ChooseDevice(listBoxRecDevices.SelectedIndex);
-                if (hr < 0) {
-                    MessageBox.Show(Properties.Resources.msgRecDeviceSelectError);
-                    StopUnsetup();
-                    return;
-                }
-
-                hr = mWasapiRec.Setup(WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
-                        NUM_CHANNELS, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
+                hr = mWasapiRec.Setup(listBoxRecDevices.SelectedIndex, WasapiCS.DeviceType.Rec, WasapiCS.StreamType.PCM, mSampleRate, mRecSampleFormat,
+                        NUM_CHANNELS, WasapiCS.MMCSSCallType.Enable, WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         mRecDataFeedMode, mRecBufferMillisec, 1000, 10000);
                 if (hr < 0) {
                     MessageBox.Show(string.Format(Properties.Resources.msgRecSetupError,
@@ -538,8 +520,8 @@ namespace WasapiBitmatchChecker {
                     return;
                 }
 
-                var playAttr = mWasapiPlay.GetUseDeviceAttributes();
-                var recAttr = mWasapiRec.GetUseDeviceAttributes();
+                var playAttr = mWasapiPlay.GetDeviceAttributes(listBoxPlayDevices.SelectedIndex);
+                var recAttr = mWasapiRec.GetDeviceAttributes(listBoxRecDevices.SelectedIndex);
 
                 textBoxLog.Text += string.Format(Properties.Resources.msgTestStarted, mSampleRate, mNumTestFrames / mSampleRate);
                 textBoxLog.Text += string.Format(Properties.Resources.msgPlaySettings,
@@ -575,9 +557,7 @@ namespace WasapiBitmatchChecker {
         private void StopUnsetup() {
             StopBlocking();
             mWasapiPlay.Unsetup();
-            mWasapiPlay.UnchooseDevice();
             mWasapiRec.Unsetup();
-            mWasapiRec.UnchooseDevice();
         }
 
         private void AbortTest() {
@@ -646,7 +626,7 @@ namespace WasapiBitmatchChecker {
                 // SYNC frame arrived
                 mSyncTimeout.Stop();
 
-                //System.Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
+                //Console.WriteLine("Sync Frame arrived. offset={0}", mRecSyncPosInBytes);
 
                 Array.Copy(data, mRecSyncPosInBytes, mCapturedPcmData, 0, data.Length - mRecSyncPosInBytes);
                 mCapturedBytes = data.Length - mRecSyncPosInBytes;
@@ -663,7 +643,7 @@ namespace WasapiBitmatchChecker {
 
                 int capturedFrames = mCapturedBytes / NUM_CHANNELS / (WasapiCS.SampleFormatTypeToUseBitsPerSample(mRecSampleFormat) / 8);
 
-                //System.Console.WriteLine("Captured {0} frames", capturedFrames);
+                //Console.WriteLine("Captured {0} frames", capturedFrames);
             } else {
                 // キャプチャー終了. データの整合性チェックはRecRunWorkerCompletedで行う。
                 mState = State.RecCompleted;
@@ -747,7 +727,7 @@ namespace WasapiBitmatchChecker {
 
         private void CaptureDataArrived(byte[] data) {
             lock (mLock) {
-                // System.Console.WriteLine("CaptureDataArrived {0} bytes", data.Length);
+                // Console.WriteLine("CaptureDataArrived {0} bytes", data.Length);
                 switch (mState) {
                 case State.Syncing:
                     CaptureSync(data);

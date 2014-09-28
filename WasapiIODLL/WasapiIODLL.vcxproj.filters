@@ -70,6 +70,9 @@
     <ClInclude Include="WWAudioDeviceEnumerator.h">
       <Filter>header files</Filter>
     </ClInclude>
+    <ClInclude Include="WWTypes.h">
+      <Filter>header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source files">

@@ -10,6 +10,7 @@
 #include "WWPcmStream.h"
 #include "WWTimerResolution.h"
 #include "WWThreadCharacteristics.h"
+#include "WWTypes.h"
 
 /// @param data captured data
 /// @param dataBytes captured data size in bytes
@@ -48,7 +49,7 @@ public:
 
     /// @param format sampleRate pcm data sample rate. On WASAPI shared mode, device sample rate cannot be changed so
     ///        you need to resample pcm to DeviceSampleRate
-    HRESULT Setup(IMMDevice *device, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec);
+    HRESULT Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec);
 
     void Unsetup(void);
 
