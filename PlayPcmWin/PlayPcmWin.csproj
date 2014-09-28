@@ -114,6 +114,7 @@
     </ApplicationDefinition>
     <Compile Include="AiffReader.cs" />
     <Compile Include="CueSheetRW.cs" />
+    <Compile Include="DeviceSetupParams.cs" />
     <Compile Include="DsdiffReader.cs" />
     <Compile Include="FlacDecodeIF.cs" />
     <Compile Include="M3uRW.cs" />
