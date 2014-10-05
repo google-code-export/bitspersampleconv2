@@ -22,10 +22,10 @@ namespace ColorPlot {
     /// </summary>
     public partial class MainWindow : Window {
 
-        readonly int COLOR_NUM_PER_SEGMENT = 22;
-        readonly int SEGMENT_NUM = 4;
+        const int COLOR_NUM_PER_SEGMENT = 22;
+        const int SEGMENT_NUM = 4;
 
-        byte [] colorTable = {
+        byte[] colorTable = {
             // 1～22
             172, 118, 114, 
             163, 115, 86,  
@@ -150,10 +150,14 @@ namespace ColorPlot {
             public float a;
             public float b;
 
+            public float DistanceSquared(LabStar rhs) {
+                return (L - rhs.L) * (L - rhs.L) +
+                    (a - rhs.a) * (a - rhs.a) +
+                    (b - rhs.b) * (b - rhs.b);
+            }
+
             public float Distance(LabStar rhs) {
-                return (L-rhs.L) * (L-rhs.L) +
-                    (a-rhs.a) * (a-rhs.a) +
-                    (b-rhs.b) * (b-rhs.b);
+                return (float)Math.Sqrt(DistanceSquared(rhs));
             }
         };
 
@@ -173,12 +177,9 @@ namespace ColorPlot {
             var g = (rgb.g / 255.0f);
             var b = (rgb.b / 255.0f);
 
-            if (r > 0.04045f) { r = (float)Math.Pow((r + 0.055f) / 1.055f, 2.4f); }
-            else              { r /= 12.92f; }
-            if (g > 0.04045f) { g = (float)Math.Pow((g + 0.055f) / 1.055f, 2.4f); }
-            else              { g /= 12.92f; }
-            if (b > 0.04045f) { b = (float)Math.Pow((b + 0.055f) / 1.055f, 2.4f); }
-            else              { b /= 12.92f; }
+            if (r > 0.04045f) { r = (float)Math.Pow((r + 0.055f) / 1.055f, 2.4f); } else { r /= 12.92f; }
+            if (g > 0.04045f) { g = (float)Math.Pow((g + 0.055f) / 1.055f, 2.4f); } else { g /= 12.92f; }
+            if (b > 0.04045f) { b = (float)Math.Pow((b + 0.055f) / 1.055f, 2.4f); } else { b /= 12.92f; }
 
             r *= 100.0f;
             g *= 100.0f;
@@ -201,12 +202,9 @@ namespace ColorPlot {
             var y = xyz.y / refY;
             var z = xyz.z / refZ;
 
-            if (x > 0.008856f) { x = (float)Math.Pow(x, 1.0f/3.0f); }
-            else               { x = (7.787f * x) + (16.0f / 116.0f); }
-            if (y > 0.008856f) { y = (float)Math.Pow(y, 1.0f/3.0f); }
-            else               { y = (7.787f * y) + (16.0f / 116.0f); }
-            if (z > 0.008856f) { z = (float)Math.Pow(z, 1.0f/3.0f); }
-            else               { z = (7.787f * z) + (16.0f / 116.0f); }
+            if (x > 0.008856f) { x = (float)Math.Pow(x, 1.0f / 3.0f); } else { x = (7.787f * x) + (16.0f / 116.0f); }
+            if (y > 0.008856f) { y = (float)Math.Pow(y, 1.0f / 3.0f); } else { y = (7.787f * y) + (16.0f / 116.0f); }
+            if (z > 0.008856f) { z = (float)Math.Pow(z, 1.0f / 3.0f); } else { z = (7.787f * z) + (16.0f / 116.0f); }
 
             var lab = new LabStar();
             lab.L = (116.0f * y) - 16.0f;
@@ -218,6 +216,9 @@ namespace ColorPlot {
 
         public MainWindow() {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs eventArgs) {
 
 #if DISP_ASTAR_LSTAR
             // a*L*平面。L軸は0～100なので
@@ -249,11 +250,11 @@ namespace ColorPlot {
             var rgbHash = new HashSet<int>();
 
             var colors = new List<ColorPatch>[SEGMENT_NUM];
-            for (int i=0; i < SEGMENT_NUM; ++i) {
+            for (int i = 0; i < SEGMENT_NUM; ++i) {
                 colors[i] = new List<ColorPatch>();
             }
-            for (int i=0; i < colorTable.Length / 3; ++i) {
-                byte r = colorTable[i*3];
+            for (int i = 0; i < colorTable.Length / 3; ++i) {
+                byte r = colorTable[i * 3];
                 byte g = colorTable[i * 3 + 1];
                 byte b = colorTable[i * 3 + 2];
                 var c = Color.FromRgb(r, g, b);
@@ -263,7 +264,7 @@ namespace ColorPlot {
                 LabStar lab = XYZtoLabStar(RGBtoXYZ(rgb));
 
                 var cp = new ColorPatch();
-                cp.id = i+1;
+                cp.id = i;
                 cp.rgb = rgb;
                 cp.lab = lab;
 
@@ -294,7 +295,7 @@ namespace ColorPlot {
                 rgbHash.Add(hashValue);
 
                 Label l = new Label();
-                l.Content = string.Format("{0}", i+1);
+                l.Content = string.Format("{0}", i + 1);
                 l.FontSize = 8;
                 l.Foreground = new SolidColorBrush(Colors.White);
 
@@ -306,16 +307,16 @@ namespace ColorPlot {
                 canvas1.Children.Add(l);
             }
 
-            for (int segment=0; segment < SEGMENT_NUM; ++segment) {
-                for (int i=0; i < COLOR_NUM_PER_SEGMENT; ++i) {
+            for (int segment = 0; segment < SEGMENT_NUM; ++segment) {
+                for (int i = 0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cpFrom = colors[segment].ElementAt(i);
                     var cpSort = new Dictionary<float, ColorPatch>();
-                    for (int j=0; j < COLOR_NUM_PER_SEGMENT; ++j) {
+                    for (int j = 0; j < COLOR_NUM_PER_SEGMENT; ++j) {
                         if (i == j) {
                             continue;
                         }
                         var cpTo = colors[segment].ElementAt(j);
-                        cpSort.Add(cpFrom.lab.Distance(cpTo.lab), cpTo);
+                        cpSort.Add(cpFrom.lab.DistanceSquared(cpTo.lab), cpTo);
                     }
 
                     var sorted = (from entry in cpSort orderby entry.Key ascending select entry).ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -332,10 +333,11 @@ namespace ColorPlot {
             System.Console.WriteLine("digraph a {");
             System.Console.WriteLine("    graph [bgcolor=\"#484848\"]");
             System.Console.WriteLine("    node [fontsize=32, fontcolor=white]");
+            System.Console.WriteLine("    edge [fontsize=32, fontcolor=white]");
             System.Console.WriteLine("    rankdir=LR;");
 
-            for (int segment=0; segment < SEGMENT_NUM; ++segment) {
-                for (int i=0; i < COLOR_NUM_PER_SEGMENT; ++i) {
+            for (int segment = 0; segment < SEGMENT_NUM; ++segment) {
+                for (int i = 0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cp = colors[segment].ElementAt(i);
 
                     string shape = "color=\"#484848\", shape=ellipse";
@@ -348,18 +350,48 @@ namespace ColorPlot {
                         (int)(cp.rgb.g),
                         (int)(cp.rgb.b),
                         shape,
-                        cp.id);
+                        cp.id + 1); //< ★★★★★ 要注意 1足して表示 ★★★★★
                 }
 
-                for (int i=0; i < COLOR_NUM_PER_SEGMENT; ++i) {
+                for (int i = 0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cp = colors[segment].ElementAt(i);
-                    Console.WriteLine("    {0} -> {1} [style=bold,   color=white];", cp.id, cp.neighbor.id);
-                    Console.WriteLine("    {0} -> {1} [              color=white];", cp.id, cp.neighbor2.id);
-                    Console.WriteLine("    {0} -> {1} [style=dotted, color=white];", cp.id, cp.neighbor3.id);
+                    WriteLink(segment * COLOR_NUM_PER_SEGMENT, colors[segment], cp.id, cp.neighbor.id,  "style=bold,  ");
+                    WriteLink(segment * COLOR_NUM_PER_SEGMENT, colors[segment], cp.id, cp.neighbor2.id, "             ");
+                    WriteLink(segment * COLOR_NUM_PER_SEGMENT, colors[segment], cp.id, cp.neighbor3.id, "style=dotted,");
                 }
             }
 
             Console.WriteLine("}");
         }
+
+        void WriteLink(int offset, List<ColorPatch> colorsInSegment, int id0, int id1, string style) {
+            System.Diagnostics.Debug.Assert(id1 - offset < colorsInSegment.Count());
+
+            var c0 = colorsInSegment.ElementAt(id0 - offset);
+            var c1 = colorsInSegment.ElementAt(id1 - offset);
+
+            if (AlreadyHas(new Tuple<int, int>(id0, id1))) {
+                Console.WriteLine("    {0} -> {1} [{2}   color=white];", id0+1, id1+1, style);
+            } else {
+                Console.WriteLine("    {0} -> {1} [{2}   color=white, label=\"{3:0.0}\"];", id0+1, id1+1, style, c0.lab.Distance(c1.lab));
+            }
+        }
+
+        List<Tuple<int, int>> mLinkStorage = new List<Tuple<int, int>>();
+
+        /// <returns> itemが既に出現していたらtrue。itemが初めて出現したらfalse。</returns>
+        bool AlreadyHas(Tuple<int, int> item) {
+            if (item.Item2 < item.Item1) {
+                // swap
+                item = new Tuple<int, int>(item.Item2, item.Item1);
+            }
+
+            if (0 == mLinkStorage.Where(p => p.Item1 == item.Item1 && p.Item2 == item.Item2).Count()) {
+                mLinkStorage.Add(item);
+                return false;
+            }
+            return true;
+        }
+
     }
 }
