@@ -330,13 +330,16 @@ namespace ColorPlot {
                 }
             }
 
-            System.Console.WriteLine("digraph a {");
-            System.Console.WriteLine("    graph [bgcolor=\"#484848\"]");
-            System.Console.WriteLine("    node [fontsize=32, fontcolor=white]");
-            System.Console.WriteLine("    edge [fontsize=32, fontcolor=white]");
-            System.Console.WriteLine("    rankdir=LR;");
+            Console.WriteLine("graph g {");
+            Console.WriteLine("    graph [bgcolor=\"#484848\"]");
+            Console.WriteLine("    node [style=filled, fontsize=32, fontcolor=white]");
+            Console.WriteLine("    edge [fontsize=32, fontcolor=white]");
+            Console.WriteLine("    rankdir=LR;");
 
             for (int segment = 0; segment < SEGMENT_NUM; ++segment) {
+                Console.WriteLine("    subgraph cluster{0} {{", segment);
+                Console.WriteLine("        style=invis;");
+
                 for (int i = 0; i < COLOR_NUM_PER_SEGMENT; ++i) {
                     var cp = colors[segment].ElementAt(i);
 
@@ -345,7 +348,7 @@ namespace ColorPlot {
                         shape = ", color=white, shape=doublecircle";
                     }
 
-                    Console.WriteLine("    node [style=filled fillcolor=\"#{0:x2}{1:x2}{2:x2}\"{3}]; {4}",
+                    Console.WriteLine("        {4} [fillcolor=\"#{0:x2}{1:x2}{2:x2}\"{3}];",
                         (int)(cp.rgb.r),
                         (int)(cp.rgb.g),
                         (int)(cp.rgb.b),
@@ -359,7 +362,9 @@ namespace ColorPlot {
                     WriteLink(segment * COLOR_NUM_PER_SEGMENT, colors[segment], cp.id, cp.neighbor2.id, "             ");
                     WriteLink(segment * COLOR_NUM_PER_SEGMENT, colors[segment], cp.id, cp.neighbor3.id, "style=dotted,");
                 }
+                Console.WriteLine("    }");
             }
+
 
             Console.WriteLine("}");
         }
@@ -370,14 +375,12 @@ namespace ColorPlot {
             var c0 = colorsInSegment.ElementAt(id0 - offset);
             var c1 = colorsInSegment.ElementAt(id1 - offset);
 
-            if (AlreadyHas(new Tuple<int, int>(id0, id1))) {
-                Console.WriteLine("    {0} -> {1} [{2}   color=white];", id0+1, id1+1, style);
-            } else {
-                Console.WriteLine("    {0} -> {1} [{2}   color=white, label=\"{3:0.0}\"];", id0+1, id1+1, style, c0.lab.Distance(c1.lab));
+            if (!AlreadyHas(new Tuple<int, int>(id0, id1))) {
+                Console.WriteLine("        {0} -- {1} [{2} color=white, label=\"{3:0.0}\"];", id0+1, id1+1, style, c0.lab.Distance(c1.lab));
             }
         }
 
-        List<Tuple<int, int>> mLinkStorage = new List<Tuple<int, int>>();
+        SortedSet<Tuple<int, int>> mLinkStorage = new SortedSet<Tuple<int, int>>();
 
         /// <returns> itemが既に出現していたらtrue。itemが初めて出現したらfalse。</returns>
         bool AlreadyHas(Tuple<int, int> item) {
