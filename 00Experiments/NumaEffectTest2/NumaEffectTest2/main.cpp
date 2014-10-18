@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #define BENCHMARK_REPEAT_COUNT (3)
+#define MALLOC_SLEEP__REPEAT_COUNT (10)
 
 class NumaTester {
 public:
@@ -140,7 +141,7 @@ MeasureMemorySpeed(int64_t allocBytes)
                 MemoryWriteTest(buff, allocBytes);
 
                 QueryPerformanceCounter(&after);
-                printf("%lld\n",
+                printf("%d, %d, %lld\n",
                     i, numaNodeId, (after.QuadPart - before.QuadPart) / (freq.QuadPart / 1000));
             }
         }
@@ -186,11 +187,42 @@ MallocTest(int64_t allocBytes)
 }
 
 static void
+MallocSleepTest(int64_t allocBytes)
+{
+    printf("Allocating memory...\n");
+    char * buff = (char *)malloc(allocBytes);
+    if (nullptr == buff) {
+        printf("Error: malloc failed\n");
+        return;
+    }
+    memset(buff, 255, allocBytes);
+
+    for (int repeat = 0; repeat < MALLOC_SLEEP__REPEAT_COUNT; ++repeat) {
+        LARGE_INTEGER freq;
+        LARGE_INTEGER before, after;
+
+        Sleep(1000);
+
+        QueryPerformanceFrequency(&freq);
+        QueryPerformanceCounter(&before);
+
+        MemoryWriteTest(buff, allocBytes);
+
+        QueryPerformanceCounter(&after);
+        printf("%lld millisec\n",
+            (after.QuadPart - before.QuadPart) / (freq.QuadPart / 1000));
+    }
+
+    free(buff);
+    buff = nullptr;
+}
+
+static void
 PrintUsage(const wchar_t *programName)
 {
     printf("%s printconfig\n"
         "    print numa configuration\n"
-        "%s [benchmark|malloctest] allocationSize\n"
+        "%s [benchmark|malloctest|mallocsleeptest] allocationSize\n"
         "    perform benchmarks. allocationSize is number in MB",
         programName, programName);
 }
@@ -225,6 +257,10 @@ int wmain(int argc, wchar_t *argv[])
 
     if (0 == wcscmp(L"malloctest", argv[1])) {
         MallocTest(allocBytes * 1024 * 1024);
+    }
+
+    if (0 == wcscmp(L"mallocsleeptest", argv[1])) {
+        MallocSleepTest(allocBytes * 1024 * 1024);
     }
 
     return 0;
