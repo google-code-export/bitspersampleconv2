@@ -28,7 +28,7 @@ namespace PlayPcmWin
     public sealed partial class MainWindow : Window
     {
         /// <summary>
-        /// 再生の進捗状況を取りに行き表示を更新する時間間隔
+        /// 再生の進捗状況を取りに行き表示を更新する時間間隔。単位はミリ秒
         /// </summary>
         const int PROGRESS_REPORT_INTERVAL_MS = 500;
 
@@ -104,119 +104,6 @@ namespace PlayPcmWin
         /// PcmDataの再生用リスト。(通常は表示用リストと同じ。シャッフルの時は順番が入れ替わる)
         /// </summary>
         private List<PcmDataLib.PcmData> m_pcmDataListForPlay = new List<PcmDataLib.PcmData>();
-
-        /// <summary>
-        /// 再生リスト1項目の情報。
-        /// dataGridPlayList.Itemsの項目と一対一に対応する。
-        /// </summary>
-        class PlayListItemInfo : INotifyPropertyChanged {
-            private static int mNextRowId = 1;
-            private PcmDataLib.PcmData mPcmData;
-            private bool mReadSeparatorAfter;
-            private int mRowId;
-
-            public static void SetNextRowId(int id) {
-                mNextRowId = id;
-            }
-
-            public int RowId {
-                get { return mRowId; }
-                set { mRowId = value; }
-            }
-
-            public string Id {
-                get { return mPcmData.Id.ToString(CultureInfo.CurrentCulture); }
-            }
-
-            public string Title {
-                get { return mPcmData.DisplayName; }
-                set { mPcmData.DisplayName = value; }
-            }
-
-            public string ArtistName {
-                get { return mPcmData.ArtistName; }
-                set { mPcmData.ArtistName = value; }
-            }
-
-            public string AlbumTitle {
-                get { return mPcmData.AlbumTitle; }
-                set { mPcmData.AlbumTitle = value; }
-            }
-
-            /// <summary>
-            /// 長さ表示用文字列
-            /// </summary>
-            public string Duration {
-                get { return SecondsToHMSString(mPcmData.DurationSeconds); }
-            }
-
-            public int NumChannels {
-                get { return mPcmData.NumChannels; }
-            }
-
-            public int IndexNr {
-                get { return mPcmData.CueSheetIndex; }
-            }
-
-            public string SampleRate {
-                get {
-                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
-                        return string.Format(CultureInfo.CurrentCulture, "{0:F1}MHz", (double)mPcmData.SampleRate * 16/1000/1000);
-                    }
-                    return string.Format(CultureInfo.CurrentCulture, "{0}kHz", mPcmData.SampleRate * 0.001);
-                }
-            }
-
-            public string QuantizationBitRate {
-                get {
-                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
-                        return "1bit";
-                    }
-                    if (mPcmData.SampleValueRepresentationType == PcmDataLib.PcmData.ValueRepresentationType.SFloat) {
-                        return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture)
-                                + "bit (" + Properties.Resources.FloatingPointNumbers + ")";
-                    }
-                    return mPcmData.BitsPerSample.ToString(CultureInfo.CurrentCulture) + "bit";
-                }
-            }
-
-            public string BitRate {
-                get {
-                    if (mPcmData.SampleDataType == PcmDataLib.PcmData.DataType.DoP) {
-                        return (mPcmData.SampleRate * 16 * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
-                    }
-                    return ((long)mPcmData.BitsPerSample * mPcmData.SampleRate * mPcmData.NumChannels / 1000).ToString(CultureInfo.CurrentCulture) + " kbps";
-                }
-            }
-
-            public PcmDataLib.PcmData PcmData() { return mPcmData; }
-
-            public bool ReadSeparaterAfter {
-                get { return mReadSeparatorAfter; }
-                set {
-                    mReadSeparatorAfter = value;
-                    OnPropertyChanged("ReadSeparaterAfter");
-                }
-            }
-
-            public PlayListItemInfo(PcmDataLib.PcmData pcmData) {
-                mPcmData = pcmData;
-                mRowId = mNextRowId++;
-            }
-
-            #region INotifyPropertyChanged members
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            protected void OnPropertyChanged(string propertyName)
-            {
-                if (PropertyChanged != null) {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                }
-            }
-
-            #endregion
-        }
 
         /// <summary>
         /// 再生リスト項目情報。
@@ -3229,13 +3116,6 @@ namespace PlayPcmWin
             //Console.WriteLine("PlayDoWork end");
         }
 
-        private static string SecondsToHMSString(int seconds) {
-            int h = seconds / 3600;
-            int m = seconds / 60 - h * 60;
-            int s = seconds - h * 3600 - m * 60;
-            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}:{2:D2}", h, m, s);
-        }
-
         /// <summary>
         /// 再生の進行状況をUIに反映する。
         /// </summary>
@@ -3289,8 +3169,8 @@ namespace PlayPcmWin
                 }
 
                 labelPlayingTime.Content = string.Format(CultureInfo.InvariantCulture, "{0}/{1}",
-                        SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
-                        SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
+                        Util.SecondsToHMSString((int)(slider1.Value / stat.DeviceSampleRate)),
+                        Util.SecondsToHMSString((int)(playPos.TotalFrameNum / stat.DeviceSampleRate)));
             }
         }
 

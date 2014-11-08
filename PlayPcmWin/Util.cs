@@ -1,10 +1,18 @@
 ﻿using System.Windows.Media;
 using System.IO;
+using System.Globalization;
 
 namespace PlayPcmWin {
     class Util {
 
         private Util() {
+        }
+
+        public static string SecondsToHMSString(int seconds) {
+            int h = seconds / 3600;
+            int m = seconds / 60 - h * 60;
+            int s = seconds - h * 3600 - m * 60;
+            return string.Format(CultureInfo.CurrentCulture, "{0:D2}:{1:D2}:{2:D2}", h, m, s);
         }
 
         public static Color ColorFromArgb(long argb) {

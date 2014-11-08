@@ -119,6 +119,7 @@
     <Compile Include="FlacDecodeIF.cs" />
     <Compile Include="M3uRW.cs" />
     <Compile Include="PcmReader.cs" />
+    <Compile Include="PlayListItemInfo.cs" />
     <Compile Include="PlaylistRW.cs" />
     <Compile Include="PpwPlaylistRW.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
