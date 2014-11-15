@@ -268,7 +268,9 @@ WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFo
     m_deviceFormat.numChannels   = waveFormat->nChannels;
     m_deviceFormat.dwChannelMask = wfex->dwChannelMask;
     m_deviceFormat.sampleFormat  = m_pcmFormat.sampleFormat;
-    assert(m_deviceFormat.BytesPerFrame() == waveFormat->nBlockAlign);
+
+    // shared modeの場合、nBlockAlign=nChannel*4となるので一致しない。
+    // assert(m_deviceFormat.BytesPerFrame() == waveFormat->nBlockAlign);
 
     // TODO: delete!
     m_pcmFormat.dwChannelMask = m_deviceFormat.dwChannelMask;
