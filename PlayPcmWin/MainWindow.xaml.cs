@@ -117,7 +117,9 @@ namespace PlayPcmWin
         private System.Diagnostics.Stopwatch m_sw = new System.Diagnostics.Stopwatch();
         private bool m_playListMouseDown = false;
 
-        // 次にプレイリストにAddしたファイルに振られるGroupId。
+        /// <summary>
+        /// 次にプレイリストにAddしたファイルに振られるGroupId。
+        /// </summary>
         private int m_groupIdNextAdd = 0;
 
         /// <summary>
@@ -211,11 +213,11 @@ namespace PlayPcmWin
         }
 
         /// <summary>
-        /// 再生グループId==groupIdの先頭のファイルのWavDataIdを取得。O(n)
+        /// 再生グループId==groupIdの先頭のファイルのPcmIdを取得。O(n)
         /// </summary>
         /// <param name="groupId">再生グループId</param>
         /// <returns>再生グループId==groupIdの先頭のファイルのWavDataId。見つからないときは-1</returns>
-        private static int GetFirstWavDataIdOnGroup(List<PcmData> pcmDataList, int groupId) {
+        private static int GetFirstPcmDataIdOnGroup(List<PcmData> pcmDataList, int groupId) {
             for (int i = 0; i < pcmDataList.Count(); ++i) {
                 if (pcmDataList[i].GroupId == groupId) {
                     return pcmDataList[i].Id;
@@ -230,7 +232,7 @@ namespace PlayPcmWin
         /// </summary>
         /// <param name="groupId">指定された再生グループId</param>
         /// <returns>WavDataの数。1つもないときは0</returns>
-        private static int CountWaveDataOnPlayGroup(List<PcmData> pcmDataList, int groupId) {
+        private static int CountPcmDataOnPlayGroup(List<PcmData> pcmDataList, int groupId) {
             int count = 0;
             for (int i = 0; i < pcmDataList.Count(); ++i) {
                 if (pcmDataList[i].GroupId == groupId) {
@@ -244,12 +246,12 @@ namespace PlayPcmWin
         /// <summary>
         /// 指定されたWavDataIdの、再生リスト位置番号(再生リスト内のindex)を戻す。
         /// </summary>
-        /// <param name="wavDataId">再生リスト位置番号を知りたいWaveDataのId</param>
+        /// <param name="pcmDataId">再生リスト位置番号を知りたいPcmDataのId</param>
         /// <returns>再生リスト位置番号(再生リスト内のindex)。見つからないときは-1</returns>
-        private int GetPlayListIndexOfWaveDataId(int wavDataId) {
+        private int GetPlayListIndexOfPcmDataId(int pcmDataId) {
             for (int i = 0; i < m_playListItems.Count(); ++i) {
                 if (m_playListItems[i].PcmData() != null
-                        && m_playListItems[i].PcmData().Id == wavDataId) {
+                        && m_playListItems[i].PcmData().Id == pcmDataId) {
                     return i;
                 }
             }
@@ -1289,7 +1291,7 @@ namespace PlayPcmWin
             }
             m_preference.LatencyMillisec = latencyMillisec;
 
-            int startWavDataId = GetFirstWavDataIdOnGroup(m_pcmDataListForPlay, loadGroupId);
+            int startWavDataId = GetFirstPcmDataIdOnGroup(m_pcmDataListForPlay, loadGroupId);
             System.Diagnostics.Debug.Assert(0 <= startWavDataId);
 
             var startPcmData = FindPcmDataById(m_pcmDataListForPlay, startWavDataId);
@@ -1775,7 +1777,7 @@ namespace PlayPcmWin
         /// CUEシートを読み込む。
         /// </summary>
         /// <returns>読めたファイルの数を戻す</returns>
-        private int ReadPlaylist(string path) {
+        private int ReadCueSheet(string path) {
             PlaylistReader plr = null;
             switch (Path.GetExtension(path).ToUpperInvariant()) {
             case ".CUE":
@@ -1841,7 +1843,7 @@ namespace PlayPcmWin
                 case ".M3U8":
                     if (mode != ReadHeaderMode.OnlyConcreteFile) {
                         // CUEシートかM3U8再生リストを読み込み。
-                        result += ReadPlaylist(path);
+                        result += ReadCueSheet(path);
                     }
                     break;
                 case ".FLAC":
@@ -2296,7 +2298,7 @@ namespace PlayPcmWin
                 sw.Start();
 
                 m_readProgressInfo = new ReadProgressInfo(
-                        0, 0, 0, 0, CountWaveDataOnPlayGroup(m_pcmDataListForPlay, readGroupId));
+                        0, 0, 0, 0, CountPcmDataOnPlayGroup(m_pcmDataListForPlay, readGroupId));
 
                 wasapi.ClearPlayList();
 
@@ -2687,7 +2689,7 @@ namespace PlayPcmWin
             ComboBoxPlayModeType playMode = (ComboBoxPlayModeType)comboBoxPlayMode.SelectedIndex;
             if (playMode == ComboBoxPlayModeType.OneTrackRepeat
                     || (playMode == ComboBoxPlayModeType.AllTracksRepeat
-                    && 0 == CountWaveDataOnPlayGroup(m_pcmDataListForPlay, 1))) {
+                    && 0 == CountPcmDataOnPlayGroup(m_pcmDataListForPlay, 1))) {
                 repeat = true;
             }
             wasapi.SetPlayRepeat(repeat);
@@ -3012,7 +3014,7 @@ namespace PlayPcmWin
         /// m_taskにセットする。
         /// </summary>
         private void UpdateNextTask() {
-            if (0 == CountWaveDataOnPlayGroup(m_pcmDataListForPlay, 1)) {
+            if (0 == CountPcmDataOnPlayGroup(m_pcmDataListForPlay, 1)) {
                 // ファイルグループが1個しかない場合、
                 // wasapiUserの中で自発的にループ再生する。
                 // ファイルの再生が終わった=停止。
@@ -3025,13 +3027,13 @@ namespace PlayPcmWin
             //     (m_loadedGroupId+1)の再生グループを再生開始する。
             // ②(m_loadedGroupId+1)の再生グループが存在しない場合
             //     ②-①連続再生(checkBoxContinuous.IsChecked==true)の場合
-            //         GroupId==0、wavDataId=0を再生開始する。
+            //         GroupId==0、pcmDataId=0を再生開始する。
             //     ②-②連続再生ではない場合
             //         停止する。先頭の曲を選択状態にする。
             int nextGroupId = m_loadedGroupId + 1;
 
-            if (0 < CountWaveDataOnPlayGroup(m_pcmDataListForPlay, nextGroupId)) {
-                m_task.Set(TaskType.PlaySpecifiedGroup, nextGroupId, GetFirstWavDataIdOnGroup(m_pcmDataListForPlay, nextGroupId));
+            if (0 < CountPcmDataOnPlayGroup(m_pcmDataListForPlay, nextGroupId)) {
+                m_task.Set(TaskType.PlaySpecifiedGroup, nextGroupId, GetFirstPcmDataIdOnGroup(m_pcmDataListForPlay, nextGroupId));
                 return;
             }
 
@@ -3153,8 +3155,8 @@ namespace PlayPcmWin
             if (pcmDataId < 0) {
                 labelPlayingTime.Content = PLAYING_TIME_UNKNOWN;
             } else {
-                if (dataGridPlayList.SelectedIndex != GetPlayListIndexOfWaveDataId(pcmDataId)) {
-                    dataGridPlayList.SelectedIndex = GetPlayListIndexOfWaveDataId(pcmDataId);
+                if (dataGridPlayList.SelectedIndex != GetPlayListIndexOfPcmDataId(pcmDataId)) {
+                    dataGridPlayList.SelectedIndex = GetPlayListIndexOfPcmDataId(pcmDataId);
                     dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
                 }
 
@@ -3441,7 +3443,7 @@ namespace PlayPcmWin
         /// 
         /// 再生中でない場合は、最初に再生する曲をwavDataIdの曲に変更する。
         /// </summary>
-        /// <param name="wavDataId">再生曲</param>
+        /// <param name="pcmDataId">再生曲</param>
         private void ChangePlayWavDataById(int wavDataId) {
             System.Diagnostics.Debug.Assert(0 <= wavDataId);
 
