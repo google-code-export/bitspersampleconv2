@@ -2359,7 +2359,7 @@ namespace PlayPcmWin
             m_pcmDataListForPlay.Add(pcmData);
         }
 
-        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+        private void ButtonPlayClicked() {
             var di = listBoxDevices.SelectedItem as DeviceAttributes;
             if (!UseDevice()) {
                 return;
@@ -2402,7 +2402,7 @@ namespace PlayPcmWin
             ReadStartPlayByWavDataId(wavDataId);
         }
 
-        private void buttonPause_Click(object sender, RoutedEventArgs e) {
+        private void ButtonPauseClicked() {
             int hr = 0;
 
             switch (m_state) {
@@ -2430,6 +2430,14 @@ namespace PlayPcmWin
                 System.Diagnostics.Debug.Assert(false);
                 break;
             }
+        }
+
+        private void buttonPlay_Click(object sender, RoutedEventArgs e) {
+            ButtonPlayClicked();
+        }
+
+        private void buttonPause_Click(object sender, RoutedEventArgs e) {
+            ButtonPauseClicked();
         }
 
         /// <summary>
@@ -2714,13 +2722,17 @@ namespace PlayPcmWin
             PerformPlayCompletedTask();
         }
 
-        private void buttonStop_Click(object sender, RoutedEventArgs e) {
+        private void ButtonStopClicked() {
             ChangeState(State.再生停止開始);
             UpdateUIStatus();
 
             // 停止ボタンで停止した場合は、停止後何もしない。
             StopAsync(new Task(TaskType.None));
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Stop(){0}", Environment.NewLine));
+        }
+
+        private void buttonStop_Click(object sender, RoutedEventArgs e) {
+            ButtonStopClicked();
         }
 
         private long mLastSliderValue = 0;
@@ -3423,6 +3435,34 @@ namespace PlayPcmWin
 
             // dataGridPlayList.IsReadOnlyを見て、他の関連メニュー項目状態が更新される
             UpdateUIStatus();
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e) {
+            // media keys
+            switch (e.Key) {
+            case Key.MediaPlayPause:
+                if (buttonPlay.IsEnabled) {
+                    ButtonPlayClicked();
+                } else if (buttonPause.IsEnabled) {
+                    ButtonPauseClicked();
+                }
+                break;
+            case Key.MediaStop:
+                if (buttonStop.IsEnabled) {
+                    ButtonStopClicked();
+                }
+                break;
+            case Key.MediaNextTrack:
+                if (buttonNext.IsEnabled) {
+                    buttonNextOrPrevClicked((x) => { return ++x; });
+                }
+                break;
+            case Key.MediaPreviousTrack:
+                if (buttonPrev.IsEnabled) {
+                    buttonNextOrPrevClicked((x) => { return --x; });
+                }
+                break;
+            }
         }
     }
 }
