@@ -36,14 +36,6 @@ namespace PlayPcmWin
         private const string PLAYING_TIME_ALLZERO = "00:00:00/00:00:00";
 
         /// <summary>
-        /// アルバムのカバーアート画像のファイル名
-        /// </summary>
-        private readonly string[] ALBUM_IMAGE_FILENAMES = {
-            "folder.jpg",
-            "cover.jpg",
-        };
-
-        /// <summary>
         /// 共有モードの音量制限。
         /// </summary>
         const double SHARED_MAX_AMPLITUDE = 0.98;
@@ -77,23 +69,6 @@ namespace PlayPcmWin
             new PlayListColumnInfo("IndexNr", DataGridLength.SizeToCells),
             new PlayListColumnInfo("ReadSeparaterAfter", DataGridLength.SizeToCells)
         };
-
-        class DeviceInfo
-        {
-            public int Idx { get; set; }
-            public string Name { get; set; }
-            public string DeviceIdStr { get; set; }
-
-            public DeviceInfo(int idx, string name, string deviceIdStr) {
-                Idx = idx;
-                Name = name;
-                DeviceIdStr = deviceIdStr;
-            }
-
-            public override string ToString() {
-                return string.Format(CultureInfo.InvariantCulture, "{0}: {1}", Idx, Name);
-            }
-        }
 
         /// <summary>
         /// PcmDataの表示用リスト。
@@ -138,7 +113,7 @@ namespace PlayPcmWin
         /// </summary>
         DeviceSetupParams m_deviceSetupParams = new DeviceSetupParams();
 
-        DeviceInfo m_useDeviceInfo;
+        DeviceAttributes m_useDevice;
         bool m_deviceListUpdatePending;
 
         // 再生停止完了後に行うタスク。
@@ -229,7 +204,7 @@ namespace PlayPcmWin
         }
 
         enum ReadPpwPlaylistMode {
-            RestorePlaylistOnLoad,
+            RestorePlaylistOnProgramStart,
             AppendLoad,
         };
 
@@ -281,7 +256,7 @@ namespace PlayPcmWin
             int readAttemptCount = 0;
             int readSuccessCount=0;
             foreach (var p in arg.pl.Items) {
-                int rv = ReadFileHeader(p.PathName, ReadHeaderMode.OnlyConcreteFile, null);
+                int rv = ReadFileHeader(p.PathName, PcmHeaderReader.ReadHeaderMode.OnlyConcreteFile, null);
                 if (1 == rv) {
                     // 読み込み成功。読み込んだPcmDataの曲名、アーティスト名、アルバム名、startTick等を上書きする。
 
@@ -331,7 +306,7 @@ namespace PlayPcmWin
             progressBar1.Visibility = System.Windows.Visibility.Collapsed;
 
             switch (arg.mode) {
-            case ReadPpwPlaylistMode.RestorePlaylistOnLoad:
+            case ReadPpwPlaylistMode.RestorePlaylistOnProgramStart:
                 EnableDataGridPlaylist();
                 break;
             default:
@@ -344,45 +319,6 @@ namespace PlayPcmWin
                 ChangeState(State.初期化完了);
             }
             UpdateUIStatus();
-        }
-
-        /// <summary>
-        /// 保存してあった再生リストを読んでm_pcmDataListとm_playListItemsに足す。
-        /// UpdateUIは行わない。
-        /// </summary>
-        /// <param name="path">string.Emptyのとき: IsolatedStorageに保存された再生リストを読む。</param>
-        /// <returns>読み込まれたファイルの数。</returns>
-        private int ReadPpwPlaylist(string path) {
-            int count = 0;
-
-            PlaylistSave pl;
-            if (path.Length == 0) {
-                pl = PpwPlaylistRW.Load();
-            } else {
-                pl = PpwPlaylistRW.LoadFrom(path);
-            }
-            foreach (var p in pl.Items) {
-                int rv = ReadFileHeader(p.PathName, ReadHeaderMode.OnlyConcreteFile, null);
-                if (1 == rv) {
-                    // 読み込み成功。読み込んだPcmDataの曲名、アーティスト名、アルバム名、startTick等を上書きする。
-
-                    // pcmDataのメンバ。
-                    var pcmData = m_pcmDataListForDisp.Last();
-                    pcmData.DisplayName = p.Title;
-                    pcmData.AlbumTitle = p.AlbumName;
-                    pcmData.ArtistName = p.ArtistName;
-                    pcmData.StartTick = p.StartTick;
-                    pcmData.EndTick = p.EndTick;
-                    pcmData.CueSheetIndex = p.CueSheetIndex;
-
-                    // playList表のメンバ。
-                    var playListItem = m_playListItems[count];
-                    playListItem.ReadSeparaterAfter = p.ReadSeparaterAfter;
-                }
-                count += rv;
-            }
-
-            return count;
         }
 
         private bool SavePpwPlaylist(string path) {
@@ -416,10 +352,8 @@ namespace PlayPcmWin
             InitializeComponent();
             SetLocalizedTextToUI();
 
-            this.AddHandler(Slider.MouseLeftButtonDownEvent,
-                    new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
-            this.AddHandler(Slider.MouseLeftButtonUpEvent,
-                    new MouseButtonEventHandler(slider1_MouseLeftButtonUp), true);
+            this.AddHandler(Slider.MouseLeftButtonDownEvent, new MouseButtonEventHandler(slider1_MouseLeftButtonDown), true);
+            this.AddHandler(Slider.MouseLeftButtonUpEvent, new MouseButtonEventHandler(slider1_MouseLeftButtonUp), true);
 
             // InitializeComponent()によって、チェックボックスのチェックイベントが発生し
             // m_preferenceの内容が変わるので、InitializeComponent()の後にロードする。
@@ -427,7 +361,7 @@ namespace PlayPcmWin
             m_preference = PreferenceStore.Load();
 
             if (m_preference.ManuallySetMainWindowDimension) {
-                // 記録されているウィンドウ形状が、一部分でも画面に入っていたらOKとする
+                // 記録されているウィンドウ形状が、一部分でも画面に入っていたら、そのウィンドウ形状に設定する。
                 var windowRect = new System.Drawing.Rectangle(
                         (int)m_preference.MainWindowLeft,
                         (int)m_preference.MainWindowTop,
@@ -522,7 +456,7 @@ namespace PlayPcmWin
             }
 
             if (m_preference.StorePlaylistContent) {
-                ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnLoad);
+                ReadPpwPlaylistStart(string.Empty, ReadPpwPlaylistMode.RestorePlaylistOnProgramStart);
             } else {
                 // Issue 130
                 EnableDataGridPlaylist();
@@ -1081,7 +1015,7 @@ namespace PlayPcmWin
             int nDevices = wasapi.GetDeviceCount();
             for (int i = 0; i < nDevices; ++i) {
                 var attr = wasapi.GetDeviceAttributes(i);
-                listBoxDevices.Items.Add(new DeviceInfo(i, attr.Name, attr.DeviceIdString));
+                listBoxDevices.Items.Add(new DeviceAttributes(i, attr.Name, attr.DeviceIdString));
 
                 if (0 < m_preference.PreferredDeviceName.Length
                         && 0 == string.CompareOrdinal(m_preference.PreferredDeviceName, attr.Name)) {
@@ -1142,17 +1076,14 @@ namespace PlayPcmWin
             m_readFileWorker.CancelAsync();
 
             // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
-            while (m_playWorker.IsBusy)
-            {
+            while (m_playWorker.IsBusy) {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
                         System.Windows.Threading.DispatcherPriority.Background,
                         new System.Threading.ThreadStart(delegate { }));
-
                 System.Threading.Thread.Sleep(100);
             }
 
-            while (m_readFileWorker.IsBusy)
-            {
+            while (m_readFileWorker.IsBusy) {
                 System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
                         System.Windows.Threading.DispatcherPriority.Background,
                         new System.Threading.ThreadStart(delegate { }));
@@ -1166,7 +1097,7 @@ namespace PlayPcmWin
         private void DeviceDeselect() {
             System.Diagnostics.Debug.Assert(!m_playWorker.IsBusy);
 
-            m_useDeviceInfo = null;
+            m_useDevice = null;
             UnsetupDevice();
 
             m_loadedGroupId = -1;
@@ -1265,7 +1196,7 @@ namespace PlayPcmWin
 
             var startPcmData = m_pcmDataListForPlay.FindById(startWavDataId);
 
-            // 1つのフォーマットに対して複数のSetup()設定選択肢がありうる。
+            // 1つのフォーマットに対して複数(candidateNum個)のSetup()設定選択肢がありうる。
 
             int candidateNum = SampleFormatInfo.GetSetupSampleFormatCandidateNum(
                     m_preference.WasapiSharedOrExclusive,
@@ -1424,470 +1355,54 @@ namespace PlayPcmWin
             }
         }
 
-        /// <summary>
-        /// ファイルを最初から最後まで全部読む。
-        /// </summary>
-        private static byte[] ReadWholeFile(string path) {
-            var result = new byte[0];
+        int ReadFileHeader(string path, PcmHeaderReader.ReadHeaderMode mode, PlaylistTrackInfo plti) {
+            PcmHeaderReader phr = new PcmHeaderReader(Encoding.GetEncoding(m_preference.CueEncodingCodePage),
+                    m_preference.SortDropFolder, (pcmData, readSeparatorAfter, readFromPpwPlaylist) => {
+                        // PcmDataのヘッダが読み込まれた時。再生リストに追加する。
 
-            if (System.IO.File.Exists(path)) {
-                // ファイルが存在する。
-                using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                    if (br.BaseStream.Length <= 0x7fffffff) {
-                        result = br.ReadBytes((int)br.BaseStream.Length);
-                    }
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// カバーアート画像を追加する。
-        /// </summary>
-        /// <returns>true: カバーアート画像が付いている。false: カバーアート画像がついていない。</returns>
-        private bool AddCoverart(string path, PcmDataLib.PcmData pcmData) {
-            if (0 < pcmData.PictureBytes) {
-                // 既に追加されている。
-                return true;
-            }
-
-            try {
-                var dirPath = System.IO.Path.GetDirectoryName(path);
-
-                var pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}.jpg", dirPath,
-                        System.IO.Path.GetFileNameWithoutExtension(path)));
-                if (0 < pictureData.Length) {
-                    // ファイル名.jpgが存在。
-                    pcmData.SetPicture(pictureData.Length, pictureData);
-                    return true;
-                }
-
-                foreach (string albumImageFilename in ALBUM_IMAGE_FILENAMES) {
-                    pictureData = ReadWholeFile(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", dirPath, albumImageFilename));
-                    if (0 < pictureData.Length) {
-                        // アルバムのカバーアート画像(folder.jpg等)が存在。
-                        pcmData.SetPicture(pictureData.Length, pictureData);
-                        return true;
-                    }
-                }
-            } catch (Exception ex) {
-                // エラーが起きたら読まない。
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "W: coverart image read failed: {0}", ex));
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// サブルーチン
-        /// PcmData読み込み成功後に行う処理。
-        /// FLACとWAVとAIFFで共通。
-        /// </summary>
-        private bool CheckAddPcmData(PlaylistTrackInfo plti, string path, PcmDataLib.PcmData pcmData) {
-            if (31 < pcmData.NumChannels) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}ch{3}",
-                        Properties.Resources.TooManyChannels, path, pcmData.NumChannels, Environment.NewLine));
-                return false;
-            }
-
-            if (pcmData.BitsPerSample != 16
-                    && pcmData.BitsPerSample != 24
-                    && pcmData.BitsPerSample != 32) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1} {2}bit{3}",
-                        Properties.Resources.NotSupportedQuantizationBitRate, path, pcmData.BitsPerSample, Environment.NewLine));
-                return false;
-            }
-
-            if (0 < m_pcmDataListForDisp.Count()
-                    && !m_pcmDataListForDisp.Last().IsSameFormat(pcmData)) {
-                // データフォーマットが変わった。
-                // Setupのやり直しになるのでファイルグループ番号を変える。
-                ++m_groupIdNextAdd;
-            }
-
-            pcmData.FullPath = path;
-            pcmData.FileName = System.IO.Path.GetFileName(path);
-            pcmData.Id       = m_pcmDataListForDisp.Count();
-            pcmData.Ordinal  = pcmData.Id;
-            pcmData.GroupId  = m_groupIdNextAdd;
-            // PCMファイルにタイトル名が埋め込まれていない時、ファイル名をタイトル名にする。
-            if (pcmData.DisplayName == null || pcmData.DisplayName.Length == 0) {
-                pcmData.DisplayName = pcmData.FileName;
-            }
-
-            // CUEシートの情報をセットする。
-            if (null == plti) {
-                // startTickとendTickは、既にセットされていることもあるので、ここではセットしない。
-                // pcmData.StartTick     = 0;
-                // pcmData.EndTick       = -1;
-                // pcmData.CueSheetIndex = 1;
-            } else {
-                pcmData.StartTick     = plti.startTick;
-                pcmData.EndTick       = plti.endTick;
-                pcmData.CueSheetIndex = plti.indexId;
-
-                // 再生リストにタイトル名情報がある時は、再生リストのタイトル名をタイトル名にする。
-                if (plti.title != null && 0 < plti.title.Length) {
-                    pcmData.DisplayName = plti.title;
-                }
-
-                if (plti.performer != null && 0 < plti.performer.Length) {
-                    pcmData.ArtistName = plti.performer;
-                }
-                if (plti.albumTitle != null && 0 < plti.albumTitle.Length) {
-                    pcmData.AlbumTitle = plti.albumTitle;
-                }
-            }
-
-            // カバーアート画像を追加する
-            AddCoverart(path, pcmData);
-
-            var pli = new PlayListItemInfo(pcmData);
-            
-            if (plti != null) {
-                pli.ReadSeparaterAfter = plti.readSeparatorAfter;
-            }
-            if (m_preference.BatchReadEndpointToEveryTrack) {
-                AddKokomade();
-            }
-
-            pli.PropertyChanged += new PropertyChangedEventHandler(PlayListItemInfoPropertyChanged);
-            m_pcmDataListForDisp.Add(pcmData);
-            m_playListItems.Add(pli);
-
-            return true;
-        }
-
-        private void HandleFileReadException(string path, Exception ex) {
-            LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{3}{2}{3}",
-                    "WAV", path, ex, Environment.NewLine));
-        }
-
-        /// <summary>
-        /// WAVファイルのヘッダ部分を読み込む。
-        /// </summary>
-        /// <returns>読めたらtrue</returns>
-        private bool ReadWavFileHeader(string path, PlaylistTrackInfo plti)
-        {
-            bool result = false;
-
-            var wavR = new WavReader();
-            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                if (wavR.ReadHeader(br)) {
-                    // WAVヘッダ読み込み成功。PcmDataを作って再生リストに足す。
-
-                    var pd = new PcmDataLib.PcmData();
-                    pd.SetFormat(wavR.NumChannels, wavR.BitsPerSample, wavR.ValidBitsPerSample,
-                            (int)wavR.SampleRate, wavR.SampleValueRepresentationType, wavR.NumFrames);
-                    if ("RIFFINFO_INAM".Equals(wavR.Title) &&
-                            "RIFFINFO_IART".Equals(wavR.ArtistName)) {
-                        // Issue 79 workaround
-                    } else {
-                        if (wavR.Title != null) {
-                            pd.DisplayName = wavR.Title;
+                        if (0 < m_pcmDataListForDisp.Count()
+                            && !m_pcmDataListForDisp.Last().IsSameFormat(pcmData)) {
+                            // 1個前のファイルとデータフォーマットが異なる。
+                            // Setupのやり直しになるのでファイルグループ番号を変える。
+                            ++m_groupIdNextAdd;
                         }
-                        if (wavR.AlbumName != null) {
-                            pd.AlbumTitle = wavR.AlbumName;
+
+                        pcmData.Id = m_pcmDataListForDisp.Count();
+                        pcmData.Ordinal = pcmData.Id;
+                        pcmData.GroupId = m_groupIdNextAdd;
+
+                        if (m_preference.BatchReadEndpointToEveryTrack) {
+                            // 各々のトラックを個別読込する設定。
+                            readSeparatorAfter = true;
                         }
-                        if (wavR.ArtistName != null) {
-                            pd.ArtistName = wavR.ArtistName;
-                        }
-                    }
-                    pd.SetPicture(wavR.PictureBytes, wavR.PictureData);
-                    result = CheckAddPcmData(plti, path, pd);
-                } else {
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1} : {2}{3}",
-                            "WAV", path, wavR.ErrorReason, Environment.NewLine));
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// AIFFファイルのヘッダ部分を読み込む。
-        /// </summary>
-        /// <returns>読めたらtrue</returns>
-        private bool ReadAiffFileHeader(string path, PlaylistTrackInfo plti) {
-            bool result = false;
-
-            var ar = new AiffReader();
-            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                PcmDataLib.PcmData pd;
-                var aiffResult = ar.ReadHeader(br, out pd);
-                if (aiffResult == AiffReader.ResultType.Success) {
-                    if (CheckAddPcmData(plti, path, pd)) {
-                        result = true;
-                    }
-                } else {
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
-                        "AIFF", aiffResult, path, Environment.NewLine));
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// DSFファイルのヘッダ部分を読み込む。
-        /// </summary>
-        /// <returns>読めたらtrue</returns>
-        private bool ReadDsfFileHeader(string path, PlaylistTrackInfo plti) {
-            bool result = false;
-
-            var r = new DsfReader();
-            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                PcmDataLib.PcmData pd;
-                var rv = r.ReadHeader(br, out pd);
-                if (rv == DsfReader.ResultType.Success) {
-                    if (CheckAddPcmData(plti, path, pd)) {
-                        result = true;
-                    }
-                } else {
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
-                            "DSF", rv, path, Environment.NewLine));
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// DSDIFFファイルのヘッダ部分を読み込む。
-        /// </summary>
-        /// <returns>読めたらtrue</returns>
-        private bool ReadDsdiffFileHeader(string path, PlaylistTrackInfo plti) {
-            bool result = false;
-
-            var r = new DsdiffReader();
-            using (BinaryReader br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
-                PcmDataLib.PcmData pd;
-                var rv = r.ReadHeader(br, out pd);
-                if (rv == DsdiffReader.ResultType.Success) {
-                    if (CheckAddPcmData(plti, path, pd)) {
-                        result = true;
-                    }
-                } else {
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {1}: {2}{3}",
-                            "DSDIFF", rv, path, Environment.NewLine));
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// FLACファイルのヘッダ部分を読み込む。
-        /// </summary>
-        /// <returns>読めたらtrue</returns>
-        private bool ReadFlacFileHeader(string path, ReadHeaderMode mode, PlaylistTrackInfo plti) {
-            bool readResult = false;
-            PcmDataLib.PcmData pcmData;
-            List<FlacDecodeIF.FlacCuesheetTrackInfo> ctiList;
-
-            var fdif = new FlacDecodeIF();
-            int flacErcd = 0;
-            flacErcd = fdif.ReadHeader(path, out pcmData, out ctiList);
-            if (flacErcd == 0) {
-                // FLACヘッダ部分読み込み成功。
-
-                if (ctiList.Count == 0 || mode == ReadHeaderMode.OnlyConcreteFile) {
-                    // FLAC埋め込みCUEシート情報を読まない。
-
-                    CheckAddPcmData(plti, path, pcmData);
-                } else {
-                    // FLAC埋め込みCUEシート情報を読む。
-
-                    PcmData pcmTrack = null;
-                    for (int trackId=0; trackId < ctiList.Count; ++trackId) {
-                        var cti = ctiList[trackId];
-
-                        if (cti.indices.Count == 0) {
-                            // インデックスが1つもないトラック。lead-outトラックの場合等。
-                            if (pcmTrack != null) {
-                                pcmTrack.EndTick = (int)((cti.offsetSamples * 75) / pcmTrack.SampleRate);
-                                CheckAddPcmData(null, path, pcmTrack);
-                                pcmTrack = null;
-                            }
-                        } else {
-                            for (int indexId=0; indexId < cti.indices.Count; ++indexId) {
-                                var indexInfo = cti.indices[indexId];
-
-                                if (pcmTrack != null) {
-                                    pcmTrack.EndTick = (int)(((cti.offsetSamples + indexInfo.offsetSamples) * 75) / pcmTrack.SampleRate);
-                                    CheckAddPcmData(null, path, pcmTrack);
-                                    pcmTrack = null;
-                                }
-
-                                pcmTrack = new PcmData();
-                                pcmTrack.CopyFrom(pcmData);
-                                if (pcmTrack.DisplayName.Length == 0) {
-                                    pcmTrack.DisplayName = System.IO.Path.GetFileName(path);
-                                }
-                                pcmTrack.DisplayName = string.Format(CultureInfo.InvariantCulture,
-                                        "{0} (Track {1}, Index {2})", pcmTrack.DisplayName, cti.trackNr, indexInfo.indexNr);
-                                pcmTrack.CueSheetIndex = indexInfo.indexNr;
-                                pcmTrack.StartTick = (int)(((cti.offsetSamples + indexInfo.offsetSamples) * 75) / pcmTrack.SampleRate);
+                        if (plti != null) {
+                            if ((plti.indexId == 0 && m_preference.ReplaceGapWithKokomade) || plti.readSeparatorAfter) {
+                                // プレイリストのINDEX 00 == gap しかも gapのかわりに[ここまで読みこみ]を追加する の場合
+                                readSeparatorAfter = true;
                             }
                         }
-                    }
-                }
-                readResult = true;
-            } else {
-                // FLACヘッダ部分読み込み失敗。
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + " {2}: {1}{3}",
-                        "FLAC", path, FlacDecodeIF.ErrorCodeToStr(flacErcd), Environment.NewLine));
-            }
 
-            return readResult;
-        }
+                        if (!readFromPpwPlaylist) {
+                            if (pcmData.CueSheetIndex == 0 && m_preference.ReplaceGapWithKokomade) {
+                                // PPWプレイリストからの読み出しではない場合で
+                                // INDEX 00 == gap しかも gapのかわりに[ここまで読みこみ]を追加する の場合
+                                readSeparatorAfter = true;
+                            }
+                        }
 
-        /// <summary>
-        /// CUEシートを読み込む。
-        /// </summary>
-        /// <returns>読めたファイルの数を戻す</returns>
-        private int ReadCueSheet(string path) {
-            PlaylistReader plr = null;
-            switch (Path.GetExtension(path).ToUpperInvariant()) {
-            case ".CUE":
-                plr = new CueSheetReader(Encoding.GetEncoding(m_preference.CueEncodingCodePage));
-                break;
-            case ".M3U":
-            case ".M3U8":
-                plr = new M3uReader();
-                break;
-            default:
-                System.Diagnostics.Debug.Assert(false);
-                break;
-            }
+                        var pli = new PlayListItemInfo(pcmData);
 
-            bool result = plr.ReadFromFile(path);
-            if (!result) {
-                LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, Properties.Resources.ReadFileFailed + ": {1}{2}",
-                        Path.GetExtension(path), path, Environment.NewLine));
-                return 0;
-            }
+                        if (readSeparatorAfter) {
+                            pli.ReadSeparaterAfter = true;
+                            ++m_groupIdNextAdd;
+                        }
 
-            int readCount = 0;
-            for (int i = 0; i < plr.GetTrackInfoCount(); ++i) {
-                var plti = plr.GetTrackInfo(i);
-                readCount += ReadFileHeader1(plti.path, ReadHeaderMode.OnlyConcreteFile, plti);
+                        m_pcmDataListForDisp.Add(pcmData);
+                        m_playListItems.Add(pli);
 
-                if ((plti.indexId == 0 &&
-                        m_preference.ReplaceGapWithKokomade) ||
-                        plti.readSeparatorAfter) {
-                    // INDEX 00 == gap しかも gapのかわりに[ここまで読みこみ]を追加するの場合
-                    // または、CUEシートにREM KOKOMADEが書いてある場合。
-                    AddKokomade();
-                }
-            }
-            return readCount;
-        }
-
-        enum ReadHeaderMode {
-            ReadAll,
-            OnlyConcreteFile,
-            OnlyMetaFile,
-        }
-
-        /// <summary>
-        /// N.B. PcmReader.StreamBeginも参照(へぼい)。
-        /// MenuItemFileOpen_Clickも参照。
-        /// </summary>
-        /// <returns>読めたファイルの数を戻す</returns>
-        private int ReadFileHeader1(string path, ReadHeaderMode mode, PlaylistTrackInfo plti) {
-            int result = 0;
-            var ext = System.IO.Path.GetExtension(path).ToUpperInvariant();
-
-            try {
-                switch (ext) {
-                case ".PPWPL":
-                    if (mode != ReadHeaderMode.OnlyConcreteFile) {
-                        // PPWプレイリストを読み込み
-                        result += ReadPpwPlaylist(path);
-                    }
-                    break;
-                case ".CUE":
-                case ".M3U":
-                case ".M3U8":
-                    if (mode != ReadHeaderMode.OnlyConcreteFile) {
-                        // CUEシートかM3U8再生リストを読み込み。
-                        result += ReadCueSheet(path);
-                    }
-                    break;
-                case ".FLAC":
-                    if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadFlacFileHeader(path, mode, plti) ? 1 : 0;
-                    }
-                    break;
-                case ".AIF":
-                case ".AIFF":
-                case ".AIFC":
-                case ".AIFFC":
-                    if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadAiffFileHeader(path, plti) ? 1 : 0;
-                    }
-                    break;
-                case ".WAV":
-                case ".WAVE":
-                    if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadWavFileHeader(path, plti) ? 1 : 0;
-                    }
-                    break;
-                case ".DSF":
-                    if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadDsfFileHeader(path, plti) ? 1 : 0;
-                    }
-                    break;
-                case ".DFF":
-                    if (mode != ReadHeaderMode.OnlyMetaFile) {
-                        result += ReadDsdiffFileHeader(path, plti) ? 1 : 0;
-                    }
-                    break;
-                case ".JPG":
-                case ".JPEG":
-                case ".PNG":
-                case ".BMP":
-                    // 読まないで無視する。
-                    break;
-                default:
-                    LoadErrorMessageAdd(string.Format(CultureInfo.InvariantCulture, "{0}: {1}{2}",
-                            Properties.Resources.NotSupportedFileFormat, path, Environment.NewLine));
-                    break;
-                }
-            } catch (IOException ex) {
-                HandleFileReadException(path, ex);
-            } catch (ArgumentException ex) {
-                HandleFileReadException(path, ex);
-            } catch (UnauthorizedAccessException ex) {
-                HandleFileReadException(path, ex);
-            } catch (Exception ex) {
-                // 未知のエラー。
-                HandleFileReadException(path, ex);
-            }
-
-            return result;
-        }
-
-        private int ReadFileHeader(string path, ReadHeaderMode mode, PlaylistTrackInfo plti) {
-            int result = 0;
-
-            if (System.IO.Directory.Exists(path)) {
-                // pathはディレクトリである。直下のファイル一覧を作って足す。再帰的にはたぐらない。
-                var files = System.IO.Directory.GetFiles(path);
-
-                if (m_preference.SortDropFolder) {
-                    files = (from s in files orderby s select s).ToArray();
-                }
-
-                foreach (var file in files) {
-                    result += ReadFileHeader1(file, mode, plti);
-                }
-            } else {
-                // pathはファイル。
-                result += ReadFileHeader1(path, mode, plti);
-            }
-            return result;
+                        pli.PropertyChanged += new PropertyChangedEventHandler(PlayListItemInfoPropertyChanged);
+                    });
+            return phr.ReadFileHeader(path, mode, plti);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -1929,7 +1444,7 @@ namespace PlayPcmWin
             }
 
             for (int i = 0; i < paths.Length; ++i) {
-                ReadFileHeader(paths[i], ReadHeaderMode.ReadAll, null);
+                ReadFileHeader(paths[i], PcmHeaderReader.ReadHeaderMode.ReadAll, null);
             }
 
             if (0 < m_loadErrorMessages.Length) {
@@ -2043,7 +1558,7 @@ namespace PlayPcmWin
                 m_loadErrorMessages = new StringBuilder();
 
                 for (int i = 0; i < dlg.FileNames.Length; ++i) {
-                    ReadFileHeader(dlg.FileNames[i], ReadHeaderMode.ReadAll, null);
+                    ReadFileHeader(dlg.FileNames[i], PcmHeaderReader.ReadHeaderMode.ReadAll, null);
                 }
 
                 if (0 < m_loadErrorMessages.Length) {
@@ -2724,7 +2239,7 @@ namespace PlayPcmWin
         private bool UseDevice()
         {
             /*
-            var di = listBoxDevices.SelectedItem as DeviceInfo;
+            var di = listBoxDevices.SelectedItem as DeviceAttributes;
             var attr = wasapi.GetUseDeviceAttributes();
             if (null != attr) {
                 if (0 == string.CompareOrdinal(di.DeviceIdStr, attr.DeviceIdString)) {
@@ -2748,8 +2263,8 @@ namespace PlayPcmWin
             */
 
             // 通常使用するデバイスとする。
-            var di = listBoxDevices.SelectedItem as DeviceInfo;
-            m_useDeviceInfo = di;
+            var di = listBoxDevices.SelectedItem as DeviceAttributes;
+            m_useDevice = di;
             AddLogText(string.Format(CultureInfo.InvariantCulture, "Device name: {0}{1}", di.Name, Environment.NewLine));
             m_preference.PreferredDeviceName     = di.Name;
             m_preference.PreferredDeviceIdString = di.DeviceIdStr;
@@ -2845,7 +2360,7 @@ namespace PlayPcmWin
         }
 
         private void buttonPlay_Click(object sender, RoutedEventArgs e) {
-            var di = listBoxDevices.SelectedItem as DeviceInfo;
+            var di = listBoxDevices.SelectedItem as DeviceAttributes;
             if (!UseDevice()) {
                 return;
             }
@@ -3447,23 +2962,6 @@ namespace PlayPcmWin
             }
         }
 
-        /// <summary>
-        /// [ここまで一括読み込み]を追加できたら追加する。
-        /// 
-        /// [ここまで一括読み込み]ボタン押下以外にも、
-        /// ギャップ→ここまで変換からも呼び出される。
-        /// </summary>
-        private void AddKokomade() {
-            if (0 == m_playListItems.Count) {
-                return;
-            }
-
-            m_playListItems.Last().ReadSeparaterAfter = true;
-
-            //m_playListView.RefreshCollection();
-            ++m_groupIdNextAdd;
-        }
-
         #region しょーもない関数群
 
         private static WasapiCS.SchedulerTaskType
@@ -3739,10 +3237,10 @@ namespace PlayPcmWin
                     case State.再生一時停止中:
                     case State.再生中:
                     case State.再生停止開始:
-                        if (0 == string.Compare(m_useDeviceInfo.DeviceIdStr, idStr.ToString(), StringComparison.Ordinal)) {
+                        if (0 == string.Compare(m_useDevice.DeviceIdStr, idStr.ToString(), StringComparison.Ordinal)) {
                             // 再生に使用しているデバイスの状態が変化した場合、再生停止してデバイス一覧を更新する。
                             AddLogText(string.Format(CultureInfo.InvariantCulture, Properties.Resources.UsingDeviceStateChanged + Environment.NewLine,
-                                    m_useDeviceInfo.Name, m_useDeviceInfo.DeviceIdStr));
+                                    m_useDevice.Name, m_useDevice.DeviceIdStr));
                             StopBlocking();
                             DeviceDeselect();
                             UpdateDeviceList();

@@ -9,28 +9,91 @@
 static void
 PrintUsage(const wchar_t *argv0)
 {
-    printf("Usage: %S inputFlacFilePath skipSamples outputBinFilePath\n", argv0);
+    printf("Usage: %S inputFlacFilePath skipSamples outputBinFilePath\n"
+        " or : %S inputFlacFilePath          (display metadata)\n", argv0, argv0);
 }
 
-int
-wmain(int argc, wchar_t* argv[])
+static bool
+DisplayFlacMeta(const wchar_t *inPath)
 {
-    if (argc != 4) {
-        PrintUsage(argv[0]);
-        return 1;
-    }
-
-    int skipSamples = _wtoi(argv[2]);
-    if (skipSamples < 0) {
-        PrintUsage(argv[0]);
-        return 1;
-    }
-
-    printf("D: %s:%d FlacDecodeDLL_DecodeStart from sample#%d %S\n", __FILE__, __LINE__, skipSamples, argv[1]);
-    int id = FlacDecodeDLL_DecodeStart(argv[1], skipSamples);
+    printf("D: %s:%d FlacDecodeDLL_DecodeStart from sample#%d %S\n", __FILE__, __LINE__, inPath);
+    int id = FlacDecodeDLL_DecodeStart(inPath, -1);
     if (id < 0) {
         printf("E: %s:%d FlacDecodeDLL_DecodeStart %d\n", __FILE__, __LINE__, id);
-        return 1;
+        return false;
+    }
+
+    int bitsPerSample = FlacDecodeDLL_GetBitsPerSample(id);
+    int channels      = FlacDecodeDLL_GetNumOfChannels(id);
+    int sampleRate    = FlacDecodeDLL_GetSampleRate(id);
+    int64_t numFrames = FlacDecodeDLL_GetNumFrames(id);
+    int numFramesPerBlock = FlacDecodeDLL_GetNumFramesPerBlock(id);
+
+    wchar_t titleStr[16];
+    wchar_t albumStr[16];
+    wchar_t artistStr[16];
+    FlacDecodeDLL_GetTitleStr(id, titleStr, sizeof titleStr);
+    FlacDecodeDLL_GetAlbumStr(id, albumStr, sizeof albumStr);
+    FlacDecodeDLL_GetArtistStr(id, artistStr, sizeof artistStr);
+
+    {
+        int pictureBytes = FlacDecodeDLL_GetPictureBytes(id);
+        if (0 < pictureBytes) {
+            char *pictureData = (char*)malloc(pictureBytes);
+            assert(pictureData);
+            int rv = FlacDecodeDLL_GetPictureData(id, 0, pictureBytes, pictureData);
+            if (0 < rv) {
+                FILE *fp = NULL;
+                errno_t erno = _wfopen_s(&fp, L"image.bin", L"wb");
+                assert(erno == 0);
+                assert(fp);
+
+                fwrite(pictureData, 1, pictureBytes, fp);
+
+                fclose(fp);
+                fp = NULL;
+
+            }
+
+            free(pictureData);
+            pictureData = NULL;
+        }
+    }
+
+    printf("D: decodeId=%d bitsPerSample=%d sampleRate=%d numFrames=%lld channels=%d numFramesPerBlock=%d\n",
+        id,
+        bitsPerSample,
+        sampleRate,
+        numFrames,
+        channels,
+        numFramesPerBlock);
+
+    printf("D: title=%S\n", titleStr);
+    printf("D: album=%S\n", albumStr);
+    printf("D: artist=%S\n", artistStr);
+
+    {
+        int nCuesheets = FlacDecodeDLL_GetEmbeddedCuesheetNumOfTracks(id);
+        printf("D: cuesheet=%d\n", nCuesheets);
+        for (int i=0; i<nCuesheets; ++i) {
+            int trackNr = FlacDecodeDLL_GetEmbeddedCuesheetTrackNumber(id, i);
+            int64_t offs = FlacDecodeDLL_GetEmbeddedCuesheetTrackOffsetSamples(id, i);
+            printf("  %d trackNr=%d offs=%lld\n", i, trackNr, offs);
+        }
+    }
+
+    FlacDecodeDLL_DecodeEnd(id);
+    return true;
+}
+
+static bool
+DecodeFlacFile(const wchar_t *inPath, int skipSamples, const wchar_t *outPath)
+{
+    printf("D: %s:%d FlacDecodeDLL_DecodeStart from sample#%d %S\n", __FILE__, __LINE__, skipSamples, inPath);
+    int id = FlacDecodeDLL_DecodeStart(inPath, skipSamples);
+    if (id < 0) {
+        printf("E: %s:%d FlacDecodeDLL_DecodeStart %d\n", __FILE__, __LINE__, id);
+        return false;
     }
 
     int bitsPerSample = FlacDecodeDLL_GetBitsPerSample(id);
@@ -94,7 +157,7 @@ wmain(int argc, wchar_t* argv[])
 
     {
         FILE *fp = NULL;
-        errno_t erno = _wfopen_s(&fp, argv[3], L"wb");
+        errno_t erno = _wfopen_s(&fp, outPath, L"wb");
         assert(erno == 0);
         assert(fp);
 
@@ -133,7 +196,32 @@ wmain(int argc, wchar_t* argv[])
     }
 
     FlacDecodeDLL_DecodeEnd(id);
+    return true;
+}
 
-    return 0;
+int
+wmain(int argc, wchar_t* argv[])
+{
+    bool result = false;
+
+    if (argc != 4 && argc != 2) {
+        PrintUsage(argv[0]);
+        return 1;
+    }
+
+    if (argc == 4) {
+        int skipSamples = _wtoi(argv[2]);
+        if (skipSamples < 0) {
+            PrintUsage(argv[0]);
+            return 1;
+        }
+        result = DecodeFlacFile(argv[1], skipSamples, argv[3]);
+    }
+
+    if (argc == 2) {
+        result = DisplayFlacMeta(argv[1]);
+    }
+
+    return result == true ? 0 : 1;
 }
 

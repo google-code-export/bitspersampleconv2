@@ -222,6 +222,9 @@ namespace FlacDecodeCS {
                     return -3;
                 }
             }
+            if (operationType == OperationType.DecodeHeaderOnly) {
+                skipFrames = -1;
+            }
 
             LogWriteLine(string.Format(CultureInfo.InvariantCulture, "FlacDecodeCS DecodeOne operationType={0} path={1} skipF={2} wantF={3}",
                 operationType, path, skipFrames, wantFrames));

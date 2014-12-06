@@ -3,6 +3,10 @@ using System.Linq;
 using System.Collections.ObjectModel;
 
 namespace PlayPcmWin {
+    /// <summary>
+    /// Class name and member name and its type should not be changed.
+    /// These names are used as XML tag name
+    /// </summary>
     public class PlaylistItemSave {
         public string Title { get; set; }
         public string AlbumName { get; set; }

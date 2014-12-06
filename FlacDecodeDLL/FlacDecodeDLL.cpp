@@ -488,7 +488,7 @@ DecodeMain(FlacDecodeInfo *fdi)
     fdi->decoder = FLAC__stream_decoder_new();
     if(fdi->decoder == NULL) {
         fdi->errorCode = FDRT_FlacStreamDecoderNewFailed;
-        dprintf(fdi->logFP, "%s Flac decode error %d. set complete event.\n",
+        dprintf(fdi->logFP, "%s FLAC__stream_decoder_new error %d. set complete event.\n",
             __FUNCTION__, fdi->errorCode);
         goto end;
     }
@@ -528,8 +528,8 @@ DecodeMain(FlacDecodeInfo *fdi)
 #endif
     if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         fdi->errorCode = FDRT_FlacStreamDecoderInitFailed;
-        dprintf(fdi->logFP, "%s Flac decode error %d. set complete event.\n",
-            __FUNCTION__, fdi->errorCode);
+        dprintf(fdi->logFP, "%s FLAC__stream_decoder_init_FILE() error %d. set complete event.\n",
+            __FUNCTION__, init_status);
         goto end;
     }
 
@@ -546,6 +546,7 @@ DecodeMain(FlacDecodeInfo *fdi)
         goto end;
     }
 
+    dprintf(fdi->logFP, "%s skip frames=%lld\n", __FUNCTION__, fdi->skipFrames);
     if (0 < fdi->skipFrames) {
         ok = FLAC__stream_decoder_seek_absolute(fdi->decoder, fdi->skipFrames);
         if (!ok) {
@@ -554,22 +555,23 @@ DecodeMain(FlacDecodeInfo *fdi)
             if (fdi->errorCode == FDRT_Success) {
                 fdi->errorCode = FDRT_DecorderProcessFailed;
             }
-            dprintf(fdi->logFP, "%s Flac decode error %d. set complete event.\n",
+            dprintf(fdi->logFP, "%s FLAC__stream_decoder_seek_absolute() error %d. set complete event.\n",
                 __FUNCTION__, fdi->errorCode);
             goto end;
         }
         // FLAC__stream_decoder_seek_absolute()を呼ぶとMD5チェックフラグが外れる
+    } else if (fdi->skipFrames < 0) {
+        // メタデータのみの読み出し。
+        fdi->errorCode = FDRT_Success;
+        goto end;
     }
 
     ok = FLAC__stream_decoder_process_until_end_of_stream(fdi->decoder);
     if (!ok) {
-        dprintf(fdi->logFP, "%s Flac decode error fdi->errorCode=%d\n",
-            __FUNCTION__, fdi->errorCode);
-
         if (fdi->errorCode == FDRT_Success) {
             fdi->errorCode = FDRT_DecorderProcessFailed;
         }
-        dprintf(fdi->logFP, "%s Flac decode error %d. set complete event.\n",
+        dprintf(fdi->logFP, "%s FLAC__stream_decoder_process_until_end_of_stream() error %d. set complete event.\n",
             __FUNCTION__, fdi->errorCode);
         goto end;
     } else {
