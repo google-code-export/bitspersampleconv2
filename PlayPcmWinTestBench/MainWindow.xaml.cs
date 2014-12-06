@@ -58,7 +58,6 @@ namespace PlayPcmWinTestBench {
                     System.Threading.Thread.Sleep(100);
                 }
 
-                wasapi.UnchooseDevice();
                 wasapi.Term();
                 wasapi = null;
             }

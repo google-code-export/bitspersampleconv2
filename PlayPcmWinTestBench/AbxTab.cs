@@ -295,6 +295,7 @@ namespace PlayPcmWinTestBench {
         private SampleFormatInfo m_sampleFormat;
 
         private int WasapiSetup(
+                int deviceId,
                 bool isExclusive,
                 bool isEventDriven,
                 int sampleRate,
@@ -315,7 +316,8 @@ namespace PlayPcmWinTestBench {
                     pcmDataBitsPerSample,
                     pcmDataValidBitsPerSample, vrt, i);
 
-                hr = wasapi.Setup(WasapiCS.StreamType.PCM, sampleRate, sf.GetSampleFormatType(), 2,
+                hr = wasapi.Setup(deviceId, WasapiCS.DeviceType.Play, WasapiCS.StreamType.PCM, sampleRate,
+                        sf.GetSampleFormatType(), 2, WasapiCS.MMCSSCallType.Enable,
                         WasapiCS.SchedulerTaskType.ProAudio, WasapiCS.ShareMode.Exclusive,
                         isEventDriven ? WasapiCS.DataFeedMode.EventDriven : WasapiCS.DataFeedMode.TimerDriven,
                         latencyMillisec, 500, 10000);
@@ -330,12 +332,14 @@ namespace PlayPcmWinTestBench {
 
 
         private void UnchooseRecreateDeviceList() {
-            wasapi.UnchooseDevice();
+            //wasapi.UnchooseDevice();
             ListDevices();
             UpdateAbxTabUIStatus();
         }
 
         private void buttonPlayA_Click(object sender, RoutedEventArgs e) {
+            int hr;
+
             PcmData pcmData = ReadWavFile(textBoxPathA.Text);
             if (null == pcmData) {
                 MessageBox.Show(
@@ -343,14 +347,17 @@ namespace PlayPcmWinTestBench {
                 return;
             }
 
-            int hr = wasapi.ChooseDevice(comboBoxDeviceA.SelectedIndex);
+            /*
+            hr = wasapi.ChooseDevice(comboBoxDeviceA.SelectedIndex);
             if (hr < 0) {
                 MessageBox.Show(string.Format("Wasapi.ChooseDevice()失敗 {0:X8}", hr));
                 UnchooseRecreateDeviceList();
                 return;
             }
+            */
 
             hr = WasapiSetup(
+                comboBoxDeviceA.SelectedIndex,
                 radioButtonExclusiveA.IsChecked == true,
                 radioButtonEventDrivenA.IsChecked == true,
                 pcmData.SampleRate,
@@ -379,6 +386,8 @@ namespace PlayPcmWinTestBench {
         }
 
         private void buttonPlayB_Click(object sender, RoutedEventArgs e) {
+            int hr;
+
             PcmData pcmData = ReadWavFile(textBoxPathB.Text);
             if (null == pcmData) {
                 MessageBox.Show(
@@ -386,14 +395,8 @@ namespace PlayPcmWinTestBench {
                 return;
             }
 
-            int hr = wasapi.ChooseDevice(comboBoxDeviceB.SelectedIndex);
-            if (hr < 0) {
-                MessageBox.Show(string.Format("Wasapi.ChooseDevice()失敗 {0:X8}", hr));
-                UnchooseRecreateDeviceList();
-                return;
-            }
-
             hr = WasapiSetup(
+                comboBoxDeviceB.SelectedIndex,
                 radioButtonExclusiveB.IsChecked == true,
                 radioButtonEventDrivenB.IsChecked == true,
                 pcmData.SampleRate,
