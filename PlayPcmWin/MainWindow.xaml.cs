@@ -813,8 +813,8 @@ namespace PlayPcmWin
             buttonPause.IsEnabled = false;
             comboBoxPlayMode.IsEnabled = true;
 
-            buttonNext.IsEnabled = false;
-            buttonPrev.IsEnabled = false;
+            buttonNext.IsEnabled = true;
+            buttonPrev.IsEnabled = true;
             groupBoxWasapiSettings.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled = true;
@@ -1786,7 +1786,6 @@ namespace PlayPcmWin
 
                 wasapi.ClearPlayList();
 
-                // ビットフォーマット変換クラス。
                 mPcmUtil = new PcmUtil(m_pcmDataListForPlay.At(0).NumChannels);
 
                 wasapi.AddPlayPcmDataStart();
@@ -1877,7 +1876,7 @@ namespace PlayPcmWin
             }
         }
 
-        private class ReadPcmTaskInfo : IDisposable {
+        private class ReadPcmTask : IDisposable {
             MainWindow mw;
             BackgroundWorker bw;
             PcmDataLib.PcmData pd;
@@ -1899,7 +1898,7 @@ namespace PlayPcmWin
                 GC.SuppressFinalize(this);
             }
 
-            public ReadPcmTaskInfo(MainWindow mw, BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long readFrames, long writeOffsFrame) {
+            public ReadPcmTask(MainWindow mw, BackgroundWorker bw, PcmDataLib.PcmData pd, long readStartFrame, long readFrames, long writeOffsFrame) {
                 this.mw = mw;
                 this.bw = bw;
 
@@ -1949,8 +1948,8 @@ namespace PlayPcmWin
         /// <summary>
         /// 分割読み込みのそれぞれのスレッドの読み込み開始位置と読み込みバイト数を計算する。
         /// </summary>
-        private List<ReadPcmTaskInfo> SetupReadPcmTasks(BackgroundWorker bw, PcmDataLib.PcmData pd, long startFrame, long endFrame, int fragmentCount) {
-            var result = new List<ReadPcmTaskInfo>();
+        private List<ReadPcmTask> SetupReadPcmTasks(BackgroundWorker bw, PcmDataLib.PcmData pd, long startFrame, long endFrame, int fragmentCount) {
+            var result = new List<ReadPcmTask>();
 
             long readFrames = (endFrame - startFrame) / fragmentCount;
             // すくなくとも4Mフレームずつ読む。その結果fragmentCountよりも少ない場合がある。
@@ -1964,7 +1963,7 @@ namespace PlayPcmWin
                 if (endFrame < readStartFrame + readFrames) {
                     readFrames = endFrame - readStartFrame;
                 }
-                var rri = new ReadPcmTaskInfo(this, bw, pd, readStartFrame, readFrames, writeOffsFrame);
+                var rri = new ReadPcmTask(this, bw, pd, readStartFrame, readFrames, writeOffsFrame);
                 result.Add(rri);
                 readStartFrame += readFrames;
                 writeOffsFrame += readFrames;
@@ -2238,30 +2237,6 @@ namespace PlayPcmWin
         /// </summary>
         private bool UseDevice()
         {
-            /*
-            var di = listBoxDevices.SelectedItem as DeviceAttributes;
-            var attr = wasapi.GetUseDeviceAttributes();
-            if (null != attr) {
-                if (0 == string.CompareOrdinal(di.DeviceIdStr, attr.DeviceIdString)) {
-                    // このデバイスが既に指定されている場合は、空振りする。
-                    return true;
-                }
-
-                if (0 <= attr.Id) {
-                    // 別のデバイスが選択されている場合、Unchooseする。
-                    wasapi.UnchooseDevice();
-                    AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UnchooseDevice(){0}", Environment.NewLine));
-                }
-            }
-
-            // このデバイスを選択。
-            int hr = wasapi.ChooseDevice(listBoxDevices.SelectedIndex);
-            AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.ChooseDevice({0}) {1:X8}{2}", di.Name, hr, Environment.NewLine));
-            if (hr < 0) {
-                return false;
-            }
-            */
-
             // 通常使用するデバイスとする。
             var di = listBoxDevices.SelectedItem as DeviceAttributes;
             m_useDevice = di;
@@ -2596,8 +2571,6 @@ namespace PlayPcmWin
             wasapi.Stop();
 
             // 停止完了後タスクの処理は、ここではなく、PlayRunWorkerCompletedで行う。
-
-            //Console.WriteLine("PlayDoWork end");
         }
 
         /// <summary>
@@ -2614,13 +2587,6 @@ namespace PlayPcmWin
                 // ワーカースレッドがキャンセルされているので、何もしない。
                 return;
             }
-
-            /* {
-                long hnano = wasapi.GetTimePeriodHundredNanosec();
-                AddLogText(string.Format(CultureInfo.InvariantCulture, " timer resolution = {0} microsec{1}",
-                    hnano * 0.1, Environment.NewLine));
-            } */
-
 
             // 再生中PCMデータ(または一時停止再開時再生予定PCMデータ等)の再生位置情報を画面に表示する。
             WasapiCS.PcmDataUsageType usageType = WasapiCS.PcmDataUsageType.NowPlaying;
@@ -3084,7 +3050,7 @@ namespace PlayPcmWin
 
         private delegate int UpdateOrdinal(int v);
 
-        private void buttonNextOrPrevClicked(UpdateOrdinal updateOrdinal) {
+        private void buttonNextOrPrevClickedWhenPlaying(UpdateOrdinal updateOrdinal) {
             var wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
             var playingPcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == playingPcmData) {
@@ -3112,12 +3078,36 @@ namespace PlayPcmWin
             }
         }
 
+        private void buttonNextOrPrevClickedWhenStop(UpdateOrdinal updateOrdinal) {
+            var idx = dataGridPlayList.SelectedIndex;
+            idx = updateOrdinal(idx);
+            if (dataGridPlayList.Items.Count <= dataGridPlayList.SelectedIndex) {
+                idx = 0;
+            }
+            dataGridPlayList.SelectedIndex = idx;
+            dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
+        }
+
         private void buttonNext_Click(object sender, RoutedEventArgs e) {
-            buttonNextOrPrevClicked((x) => { return ++x; });
+            switch (m_state) {
+            case State.再生中:
+                buttonNextOrPrevClickedWhenPlaying((x) => { return ++x; });
+                break;
+            case State.再生リストあり:
+                buttonNextOrPrevClickedWhenStop((x) => { return ++x; });
+                break;
+            }
         }
 
         private void buttonPrev_Click(object sender, RoutedEventArgs e) {
-            buttonNextOrPrevClicked((x) => { return --x; });
+            switch (m_state) {
+            case State.再生中:
+                buttonNextOrPrevClickedWhenPlaying((x) => { return --x; });
+                break;
+            case State.再生リストあり:
+                buttonNextOrPrevClickedWhenStop((x) => { return --x; });
+                break;
+            }
         }
 
         private void dataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
@@ -3454,12 +3444,12 @@ namespace PlayPcmWin
                 break;
             case Key.MediaNextTrack:
                 if (buttonNext.IsEnabled) {
-                    buttonNextOrPrevClicked((x) => { return ++x; });
+                    buttonNextOrPrevClickedWhenPlaying((x) => { return ++x; });
                 }
                 break;
             case Key.MediaPreviousTrack:
                 if (buttonPrev.IsEnabled) {
-                    buttonNextOrPrevClicked((x) => { return --x; });
+                    buttonNextOrPrevClickedWhenPlaying((x) => { return --x; });
                 }
                 break;
             }
