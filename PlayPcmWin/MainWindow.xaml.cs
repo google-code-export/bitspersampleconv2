@@ -127,6 +127,11 @@ namespace PlayPcmWin
             /// 指定されたグループをメモリに読み込み、グループの先頭の項目を再生開始する。
             /// </summary>
             PlaySpecifiedGroup,
+
+            /// <summary>
+            /// 指定されたグループをメモリに読み込み、グループの先頭の項目を再生一時停止状態にする。
+            /// </summary>
+            PlayPauseSpecifiedGroup,
         }
 
         class Task {
@@ -745,7 +750,6 @@ namespace PlayPcmWin
             }
 
             // display coverart
-
             imageCoverArt.Visibility = System.Windows.Visibility.Visible;
 
             if (dataGridPlayList.SelectedIndex < 0) {
@@ -960,8 +964,8 @@ namespace PlayPcmWin
             case State.再生一時停止中:
                 UpdateUIToPlayingState();
                 buttonPause.Content = Properties.Resources.MainButtonResume;
-                buttonNext.IsEnabled             = false;
-                buttonPrev.IsEnabled             = false;
+                buttonNext.IsEnabled             = true;
+                buttonPrev.IsEnabled             = true;
                 statusBarText.Content = Properties.Resources.MainStatusPaused;
 
                 progressBar1.Visibility = System.Windows.Visibility.Collapsed;
@@ -2206,7 +2210,9 @@ namespace PlayPcmWin
             // WasapiCSのリピート設定。
             UpdatePlayRepeat();
 
-            if (m_task.Type == TaskType.PlaySpecifiedGroup) {
+            switch (m_task.Type) {
+            case TaskType.PlaySpecifiedGroup:
+            case TaskType.PlayPauseSpecifiedGroup:
                 // ファイル読み込み完了後、再生を開始する。
                 // 再生するファイルは、タスクで指定されたファイル。
                 // このwavDataIdは、再生開始ボタンが押された時点で選択されていたファイル。
@@ -2222,12 +2228,13 @@ namespace PlayPcmWin
                 }
 
                 ReadStartPlayByWavDataId(wavDataId);
-                return;
+                break;
+            default:
+                // ファイル読み込み完了後、何もすることはない。
+                ChangeState(State.ファイル読み込み完了);
+                UpdateUIStatus();
+                break;
             }
-
-            // ファイル読み込み完了後、何もすることはない。
-            ChangeState(State.ファイル読み込み完了);
-            UpdateUIStatus();
         }
 
         /// <summary>
@@ -2422,6 +2429,11 @@ namespace PlayPcmWin
         private bool ReadStartPlayByWavDataId(int wavDataId) {
             System.Diagnostics.Debug.Assert(0 <= wavDataId);
 
+            TaskType nextTask = TaskType.PlaySpecifiedGroup;
+            if (m_task.Type != TaskType.None) {
+                nextTask = m_task.Type;
+            }
+
             var pcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == pcmData) {
                 // 1曲再生モードの時。再生リストを作りなおす。
@@ -2444,7 +2456,7 @@ namespace PlayPcmWin
                     return false;
                 }
 
-                m_task.Set(TaskType.PlaySpecifiedGroup, pcmData.GroupId, pcmData.Id);
+                m_task.Set(nextTask, pcmData.GroupId, pcmData.Id);
                 StartReadPlayGroupOnTask();
                 return true;
             }
@@ -2463,6 +2475,10 @@ namespace PlayPcmWin
                 return false;
             }
             StartPlay(wavDataId);
+
+            if (nextTask == TaskType.PlayPauseSpecifiedGroup) {
+                ButtonPauseClicked();
+            }
             return true;
         }
 
@@ -2522,7 +2538,6 @@ namespace PlayPcmWin
             m_sw.Start();
 
             int hr = wasapi.StartPlayback(wavDataId);
-
             {
                 var stat = wasapi.GetWorkerThreadSetupResult();
                 if (m_preference.DwmEnableMmcssCall) {
@@ -2631,7 +2646,15 @@ namespace PlayPcmWin
         private void StartReadPlayGroupOnTask() {
             m_loadedGroupId = -1;
 
-            System.Diagnostics.Debug.Assert(m_task.Type == TaskType.PlaySpecifiedGroup);
+            switch (m_task.Type) {
+            case TaskType.PlaySpecifiedGroup:
+            case TaskType.PlayPauseSpecifiedGroup:
+                break;
+            default:
+                // 想定されていない状況
+                System.Diagnostics.Debug.Assert(false);
+                break;
+            }
 
             // 再生状態→再生グループ切り替え中状態に遷移。
             ChangeState(State.再生グループ切り替え中);
@@ -2645,7 +2668,9 @@ namespace PlayPcmWin
         /// </summary>
         private void PerformPlayCompletedTask() {
             // 再生終了後に行うタスクがある場合、ここで実行する。
-            if (m_task.Type == TaskType.PlaySpecifiedGroup) {
+            switch (m_task.Type) {
+            case TaskType.PlaySpecifiedGroup:
+            case TaskType.PlayPauseSpecifiedGroup:
                 UnsetupDevice();
 
                 if (IsPlayModeOneTrack()) {
@@ -2660,6 +2685,9 @@ namespace PlayPcmWin
 
                 // デバイスの設定を試みたら、失敗した。
                 // FALL_THROUGHする。
+                break;
+            default:
+                break;
             }
 
             // 再生終了後に行うタスクがない。停止する。
@@ -2896,7 +2924,7 @@ namespace PlayPcmWin
         /// 再生中でない場合は、最初に再生する曲をwavDataIdの曲に変更する。
         /// </summary>
         /// <param name="pcmDataId">再生曲</param>
-        private void ChangePlayWavDataById(int wavDataId) {
+        private void ChangePlayWavDataById(int wavDataId, TaskType nextTask) {
             System.Diagnostics.Debug.Assert(0 <= wavDataId);
 
             var playingId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
@@ -2909,34 +2937,33 @@ namespace PlayPcmWin
                 return;
             }
 
-            if (0 <= pauseResumeId) {
-                // 再生一時停止中の場合。
-                wasapi.UpdatePlayPcmDataById(wavDataId);
-            }
-            if (playingId < 0) {
-                // 再生中でなく、ロード中でもない場合。
+            if (playingId < 0 && pauseResumeId < 0) {
+                // 再生中でなく、再生一時停止中でなく、ロード中でもない場合。
                 wasapi.UpdatePlayPcmDataById(wavDataId);
                 return;
             }
 
-            // 再生中である。
+            // 再生中か再生一時停止中である。
             var pcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == pcmData) {
-                // 1曲再生の時起きる。
-                StopAsync(new Task(TaskType.PlaySpecifiedGroup, 0, wavDataId));
+                // 再生リストの中に次に再生する曲が見つからない。1曲再生の時起きる。
+                StopAsync(new Task(nextTask, 0, wavDataId));
                 return;
             }
 
             var groupId = pcmData.GroupId;
 
             var playPcmData = m_pcmDataListForPlay.FindById(playingId);
+            if (playPcmData == null) {
+                playPcmData = m_pcmDataListForPlay.FindById(pauseResumeId);
+            }
             if (playPcmData.GroupId == groupId) {
                 // 同一ファイルグループのファイルの場合、すぐにこの曲が再生可能。
                 wasapi.UpdatePlayPcmDataById(wavDataId);
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UpdatePlayPcmDataById({0}){1}", wavDataId, Environment.NewLine));
             } else {
                 // ファイルグループが違う場合、再生を停止し、グループを読み直し、再生を再開する。
-                StopAsync(new Task(TaskType.PlaySpecifiedGroup, groupId, wavDataId));
+                StopAsync(new Task(nextTask, groupId, wavDataId));
             }
         }
 
@@ -3051,7 +3078,12 @@ namespace PlayPcmWin
         private delegate int UpdateOrdinal(int v);
 
         private void buttonNextOrPrevClickedWhenPlaying(UpdateOrdinal updateOrdinal) {
+            TaskType nextTask = TaskType.PlaySpecifiedGroup;
             var wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.NowPlaying);
+            if (wavDataId < 0) {
+                wavDataId = wasapi.GetPcmDataId(WasapiCS.PcmDataUsageType.PauseResumeToPlay);
+                nextTask = TaskType.PlayPauseSpecifiedGroup;
+            }
             var playingPcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == playingPcmData) {
                 return;
@@ -3068,46 +3100,46 @@ namespace PlayPcmWin
                 if (m_pcmDataListForDisp.Count() <= ordinal) {
                     ordinal = 0;
                 }
-                ChangePlayWavDataById(m_pcmDataListForDisp.At(ordinal).Id);
+                ChangePlayWavDataById(m_pcmDataListForDisp.At(ordinal).Id, nextTask);
             } else {
                 // 全曲再生またはシャッフル再生モードの時。
                 if (m_pcmDataListForPlay.Count() <= ordinal) {
                     ordinal = 0;
                 }
-                ChangePlayWavDataById(m_pcmDataListForPlay.At(ordinal).Id);
+                ChangePlayWavDataById(m_pcmDataListForPlay.At(ordinal).Id, nextTask);
             }
         }
 
         private void buttonNextOrPrevClickedWhenStop(UpdateOrdinal updateOrdinal) {
             var idx = dataGridPlayList.SelectedIndex;
             idx = updateOrdinal(idx);
-            if (dataGridPlayList.Items.Count <= dataGridPlayList.SelectedIndex) {
+            if (idx < 0) {
+                idx = dataGridPlayList.Items.Count - 1;
+            } else if (dataGridPlayList.Items.Count <= idx) {
                 idx = 0;
             }
             dataGridPlayList.SelectedIndex = idx;
             dataGridPlayList.ScrollIntoView(dataGridPlayList.SelectedItem);
         }
 
-        private void buttonNext_Click(object sender, RoutedEventArgs e) {
+        private void buttonNextOrPrevClicked(UpdateOrdinal updateOrdinal) {
             switch (m_state) {
+            case State.再生一時停止中:
             case State.再生中:
-                buttonNextOrPrevClickedWhenPlaying((x) => { return ++x; });
+                buttonNextOrPrevClickedWhenPlaying(updateOrdinal);
                 break;
             case State.再生リストあり:
-                buttonNextOrPrevClickedWhenStop((x) => { return ++x; });
+                buttonNextOrPrevClickedWhenStop(updateOrdinal);
                 break;
             }
         }
 
+        private void buttonNext_Click(object sender, RoutedEventArgs e) {
+            buttonNextOrPrevClicked((x) => { return ++x; });
+        }
+
         private void buttonPrev_Click(object sender, RoutedEventArgs e) {
-            switch (m_state) {
-            case State.再生中:
-                buttonNextOrPrevClickedWhenPlaying((x) => { return --x; });
-                break;
-            case State.再生リストあり:
-                buttonNextOrPrevClickedWhenStop((x) => { return --x; });
-                break;
-            }
+            buttonNextOrPrevClicked((x) => { return --x; });
         }
 
         private void dataGrid1_LoadingRow(object sender, DataGridRowEventArgs e) {
@@ -3166,7 +3198,7 @@ namespace PlayPcmWin
             }
 
             if (m_state != State.再生中) {
-                ChangePlayWavDataById(pli.PcmData().Id);
+                ChangePlayWavDataById(pli.PcmData().Id, TaskType.PlaySpecifiedGroup);
                 return;
             }
 
@@ -3181,7 +3213,7 @@ namespace PlayPcmWin
             // しかも、この曲を再生していない場合、この曲を再生する。
             if (null != pli.PcmData() &&
                 playingId != pli.PcmData().Id) {
-                ChangePlayWavDataById(pli.PcmData().Id);
+                ChangePlayWavDataById(pli.PcmData().Id, TaskType.PlaySpecifiedGroup);
             }
         }
 
@@ -3444,12 +3476,12 @@ namespace PlayPcmWin
                 break;
             case Key.MediaNextTrack:
                 if (buttonNext.IsEnabled) {
-                    buttonNextOrPrevClickedWhenPlaying((x) => { return ++x; });
+                    buttonNextOrPrevClicked((x) => { return ++x; });
                 }
                 break;
             case Key.MediaPreviousTrack:
                 if (buttonPrev.IsEnabled) {
-                    buttonNextOrPrevClickedWhenPlaying((x) => { return --x; });
+                    buttonNextOrPrevClicked((x) => { return --x; });
                 }
                 break;
             }

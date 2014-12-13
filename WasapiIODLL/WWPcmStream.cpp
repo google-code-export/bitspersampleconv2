@@ -38,17 +38,17 @@ WWPcmStream::PrepareSilenceBuffers(DWORD latencyMillisec, WWPcmDataSampleFormatT
         }
         m_startSilenceBuffer0.Init(-1, deviceSampleFormat, deviceNumChannels,
                 (1 * (int)((int64_t)deviceSampleRate * startZeroFlushMillisec / 1000) + 1) & (~1),
-                deviceBytesPerFrame, WWPcmDataContentSilence);
+                deviceBytesPerFrame, WWPcmDataContentSilenceForTrailing);
     }
 
     m_startSilenceBuffer1.Init(-1, deviceSampleFormat, deviceNumChannels,
             (1 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilence);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForPause);
 
     // endSilenceBufferは最後に再生される無音。
     m_endSilenceBuffer.Init(-1, deviceSampleFormat, deviceNumChannels,
             (4 * (int)((int64_t)deviceSampleRate * latencyMillisec / 1000) + 1) & (~1),
-            deviceBytesPerFrame, WWPcmDataContentSilence);
+            deviceBytesPerFrame, WWPcmDataContentSilenceForEnding);
     m_endSilenceBuffer.next = NULL;
 
     // spliceバッファー。サイズは100分の1秒=10ms 適当に選んだ。
@@ -92,9 +92,9 @@ WWPcmStream::ReleaseBuffers(void)
 }
 
 void
-WWPcmStream::Paused(WWPcmData *nowPlaying)
+WWPcmStream::Paused(WWPcmData *pauseResume)
 {
-    m_pauseResumePcmData = nowPlaying;
+    m_pauseResumePcmData = pauseResume;
 
     m_pauseBuffer.posFrame = 0;
     m_pauseBuffer.next = &m_endSilenceBuffer;

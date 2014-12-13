@@ -513,6 +513,11 @@ WasapiUser::Pause(void)
             pauseDataSetSucceeded = true;
             m_pcmStream.Paused(nowPlaying);
         }
+        if (nowPlaying && nowPlaying->contentType == WWPcmDataContentSilenceForTrailing) {
+            // 再生開始前無音を再生中。ポーズが可能。
+            pauseDataSetSucceeded = true;
+            m_pcmStream.Paused(nowPlaying->next);
+        }
     }
     ReleaseMutex(m_mutex);
 

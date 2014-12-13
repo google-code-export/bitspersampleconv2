@@ -22,7 +22,7 @@ public:
 
     void ReleaseBuffers(void);
 
-    void Paused(WWPcmData *nowPlaying);
+    void Paused(WWPcmData *pauseResume);
 
     void SetStreamType(WWStreamType t);
     WWStreamType StreamType(void) const { return m_streamType; }
