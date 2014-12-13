@@ -546,6 +546,11 @@ WasapiUser::Pause(void)
 HRESULT
 WasapiUser::Unpause(void)
 {
+    if (m_pcmStream.GetPcm(WWPDUPauseResumeToPlay) == NULL) {
+        // ポーズ中ではないのにUnpause()が呼び出された。
+        return E_FAIL;
+    }
+
     WWPcmData *restartBuffer = m_pcmStream.UnpausePrepare();
 
     assert(m_mutex);

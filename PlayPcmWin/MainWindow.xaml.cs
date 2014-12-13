@@ -1062,10 +1062,11 @@ namespace PlayPcmWin
         /// 再生中の場合は、停止完了後にtaskAfterStopを実行する。
         /// </summary>
         /// <param name="taskAfterStop"></param>
-        void StopAsync(Task taskAfterStop) {
+        void StopAsync(Task taskAfterStop, bool stopGently) {
             m_task = taskAfterStop;
 
             if (m_playWorker.IsBusy) {
+                m_bStopGently = stopGently;
                 m_playWorker.CancelAsync();
                 // 再生停止したらPlayRunWorkerCompletedでイベントを開始する。
             } else {
@@ -1076,7 +1077,7 @@ namespace PlayPcmWin
 
         void StopBlocking()
         {
-            StopAsync(new Task(TaskType.None));
+            StopAsync(new Task(TaskType.None), false);
             m_readFileWorker.CancelAsync();
 
             // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせする。
@@ -2563,21 +2564,34 @@ namespace PlayPcmWin
         }
 
         /// <summary>
+        /// true: 再生停止 無音を送出してから停止する
+        /// </summary>
+        private bool m_bStopGently;
+
+        /// <summary>
         /// 再生中。バックグラウンドスレッド。
         /// </summary>
         private void PlayDoWork(object o, DoWorkEventArgs args) {
             //Console.WriteLine("PlayDoWork started");
             var bw = o as BackgroundWorker;
+            bool cancelProcessed = false;
 
             while (!wasapi.Run(PROGRESS_REPORT_INTERVAL_MS)) {
                 if (!m_preference.RefrainRedraw) {
                     m_playWorker.ReportProgress(0);
                 }
                 System.Threading.Thread.Sleep(1);
-                if (bw.CancellationPending) {
-                    Console.WriteLine("PlayDoWork() CANCELED");
-                    wasapi.Stop();
-                    args.Cancel = true;
+                if (bw.CancellationPending && !cancelProcessed) {
+                    Console.WriteLine("PlayDoWork() CANCELED StopGently=" + m_bStopGently);
+                    if (m_bStopGently) {
+                        // 最後に再生する無音の再生にジャンプする。その後再生するものが無くなって停止する
+                        wasapi.UpdatePlayPcmDataById(-1);
+                        wasapi.Unpause();
+                        cancelProcessed = true;
+                    } else {
+                        wasapi.Stop();
+                        args.Cancel = true;
+                    }
                 }
             }
 
@@ -2721,7 +2735,7 @@ namespace PlayPcmWin
             UpdateUIStatus();
 
             // 停止ボタンで停止した場合は、停止後何もしない。
-            StopAsync(new Task(TaskType.None));
+            StopAsync(new Task(TaskType.None), true);
             AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.Stop(){0}", Environment.NewLine));
         }
 
@@ -2947,7 +2961,7 @@ namespace PlayPcmWin
             var pcmData = m_pcmDataListForPlay.FindById(wavDataId);
             if (null == pcmData) {
                 // 再生リストの中に次に再生する曲が見つからない。1曲再生の時起きる。
-                StopAsync(new Task(nextTask, 0, wavDataId));
+                StopAsync(new Task(nextTask, 0, wavDataId), true);
                 return;
             }
 
@@ -2963,7 +2977,7 @@ namespace PlayPcmWin
                 AddLogText(string.Format(CultureInfo.InvariantCulture, "wasapi.UpdatePlayPcmDataById({0}){1}", wavDataId, Environment.NewLine));
             } else {
                 // ファイルグループが違う場合、再生を停止し、グループを読み直し、再生を再開する。
-                StopAsync(new Task(nextTask, groupId, wavDataId));
+                StopAsync(new Task(nextTask, groupId, wavDataId), true);
             }
         }
 
@@ -3114,7 +3128,7 @@ namespace PlayPcmWin
             var idx = dataGridPlayList.SelectedIndex;
             idx = updateOrdinal(idx);
             if (idx < 0) {
-                idx = dataGridPlayList.Items.Count - 1;
+                idx = 0;
             } else if (dataGridPlayList.Items.Count <= idx) {
                 idx = 0;
             }

@@ -51,6 +51,7 @@ public:
     void       UnpauseDone(void);
 
     WWPcmData *GetPcm(WWPcmDataUsageType t);
+    WWPcmData *GetSilenceBuffer(WWPcmDataContentType t);
 
     /// -1: specified buffer is not used
     int GetPcmDataId(WWPcmDataUsageType t);
@@ -65,8 +66,8 @@ private:
     WWPcmData    *m_nowPlayingPcmData;
     WWPcmData    *m_pauseResumePcmData;
     WWPcmData    m_spliceBuffer;
-    WWPcmData    m_startSilenceBuffer0;
-    WWPcmData    m_startSilenceBuffer1;
+    WWPcmData    m_startSilenceBuffer;
+    WWPcmData    m_unpauseSilenceBuffer;
     WWPcmData    m_endSilenceBuffer;
     WWPcmData    m_pauseBuffer;
 
