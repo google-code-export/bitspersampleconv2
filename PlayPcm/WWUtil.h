@@ -39,7 +39,7 @@ void WWErrorDescription(HRESULT hr);
 
 #define CHK(x)                     \
 {   if (!x) {                      \
-    printf("E: %s is NULL\n", #x); \
+    printf("E: %s is nullptr\n", #x); \
         assert(0);                 \
         return E_FAIL;             \
     }                              \
@@ -50,7 +50,7 @@ template <class T> void SafeRelease(T **ppT)
     if (*ppT)
     {
         (*ppT)->Release();
-        *ppT = NULL;
+        *ppT = nullptr;
     }
 }
 

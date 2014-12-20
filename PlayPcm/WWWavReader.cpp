@@ -2,6 +2,7 @@
 #include "WWUtil.h"
 #include <Windows.h>
 #include <stdio.h>
+#include <stdint.h>
 
 struct WaveFormatInfo {
     int bitsPerSample;
@@ -16,7 +17,7 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
 {
     bool result = false;
     unsigned char header[8];
-    UINT32 bytes;
+    size_t bytes;
     
     bytes = fread(header, 1, 8, fp);
     if (bytes != 8) {
@@ -32,7 +33,7 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
     }
 
     unsigned char *buff = new unsigned char[chunkSize];
-    if (NULL == buff) {
+    if (nullptr == buff) {
         printf("E: memory allocation failed\n");
         return false;
     }
@@ -69,7 +70,7 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
 
         wfi.data = buff;
         wfi.nFrames = chunkSize / bytesPerFrame;
-        buff = NULL;
+        buff = nullptr;
     } else {
         fseek(fp, chunkSize, SEEK_CUR);
     }
@@ -78,27 +79,27 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
 
 end:
     delete [] buff;
-    buff = NULL;
+    buff = nullptr;
 
     return result;
 }
 
 WWPcmData *
-WWReadWavFile(const char *path)
+WWReadWavFile(const char *path, WWPcmDataStreamAllocType t)
 {
     unsigned char buff[12];
-    WWPcmData *result = NULL;
+    WWPcmData *result = nullptr;
     WaveFormatInfo wfi;
 
     memset(&wfi, 0, sizeof wfi);
 
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     fopen_s(&fp, path, "rb");
-    if (NULL == fp) {
-        return NULL;
+    if (nullptr == fp) {
+        return nullptr;
     }
 
-    int rv = fread(buff, 1, 12, fp);
+    size_t rv = fread(buff, 1, 12, fp);
     if (rv != 12) {
         printf("E: flie size is too small\n");
         goto end;
@@ -119,11 +120,11 @@ WWReadWavFile(const char *path)
 
     if (wfi.data) {
         result = new WWPcmData();
-        if (NULL == result) {
+        if (nullptr == result) {
             goto end;
         }
 
-        result->Init();
+        result->Init(t);
 
         result->bitsPerSample  = wfi.bitsPerSample;
         result->validBitsPerSample = wfi.bitsPerSample;
@@ -132,7 +133,11 @@ WWReadWavFile(const char *path)
         result->nFrames        = wfi.nFrames;
         result->posFrame = 0;
 
-        result->stream = wfi.data;
+        int64_t bytes = (int64_t)result->nFrames * result->nChannels * result->bitsPerSample / 8;
+        if (!result->StoreStream(wfi.data, bytes)) {
+            printf("memory allocation failed\n");
+            goto end;
+        }
     }
     
 end:

@@ -290,9 +290,9 @@ struct DsdiffUnknownChunk {
 };
 
 WWPcmData *
-WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
+WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType, WWPcmDataStreamAllocType allocType)
 {
-    WWPcmData *pcmData = NULL;
+    WWPcmData *pcmData = nullptr;
     uint32_t fourCC;
     DsdiffFormDsdChunk         formDsdChunk;
     DsdiffFormVersionChunk     formVersionChunk;
@@ -302,22 +302,23 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     DsdiffCompressionTypeChunk cmprChunk;
     DsdiffSoundDataChunk       dataChunk;
     DsdiffUnknownChunk         unkChunk;
-    uint32_t streamBytes;
-    uint32_t writePos;
-    unsigned char *dsdData = NULL;
+    int64_t streamBytes;
+    int64_t writePos;
+    unsigned char *dsdData = nullptr;
+    unsigned char *stream = nullptr;
     int result = -1;
     bool done = false;
 
     if (bitsPerSampleType == WWBpsNone) {
         printf("E: device does not support DoP\n");
-        return NULL;
+        return nullptr;
     }
 
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     fopen_s(&fp, path, "rb");
-    if (NULL == fp) {
+    if (nullptr == fp) {
         printf("file open error %s\n", path);
-        return NULL;
+        return nullptr;
     }
 
     while (!done) {
@@ -383,35 +384,35 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     }
 
     pcmData = new WWPcmData();
-    if (NULL == pcmData) {
+    if (nullptr == pcmData) {
         printf("no memory\n");
         goto end;
     }
-    pcmData->Init();
+    pcmData->Init(allocType);
 
     pcmData->bitsPerSample      = bitsPerSampleType == WWBps32v24 ? 32 : 24;
     pcmData->validBitsPerSample = 24;
     pcmData->nChannels          = channelsChunk.numChannels;
 
     // DSD 16bit == 1 frame
-    pcmData->nFrames        = (int)(dataChunk.ckDataSize/2/channelsChunk.numChannels);
+    pcmData->nFrames        = dataChunk.ckDataSize/2/channelsChunk.numChannels;
     pcmData->nSamplesPerSec = 176400;
     pcmData->posFrame       = 0;
 
-    streamBytes = (pcmData->bitsPerSample/8) * pcmData->nFrames * pcmData->nChannels;
-    pcmData->stream = new unsigned char[streamBytes];
-    if (NULL == pcmData->stream) {
+    streamBytes = pcmData->bitsPerSample/8 * pcmData->nFrames * pcmData->nChannels;
+    stream = new unsigned char[streamBytes];
+    if (nullptr == stream) {
         printf("no memory\n");
         goto end;
     }
-    memset(pcmData->stream, 0, streamBytes);
+    memset(stream, 0, streamBytes);
 
     // data is stored in following order:
     // L channel byte, R channel byte, L channel byte ...
     // Most significant bit is the oldest bit in time.
 
     dsdData = new unsigned char[pcmData->nChannels * 2];
-    if (NULL == dsdData) {
+    if (nullptr == dsdData) {
         printf("no memory\n");
         goto end;
     }
@@ -425,10 +426,10 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
             }
 
             for (int ch=0; ch<pcmData->nChannels; ++ch) {
-                pcmData->stream[writePos+0] = 0;
-                pcmData->stream[writePos+1] = dsdData[ch+pcmData->nChannels];
-                pcmData->stream[writePos+2] = dsdData[ch];
-                pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
+                stream[writePos+0] = 0;
+                stream[writePos+1] = dsdData[ch+pcmData->nChannels];
+                stream[writePos+2] = dsdData[ch];
+                stream[writePos+3] = i & 1 ? 0xfa : 0x05;
                 writePos += 4;
             }
         }
@@ -440,25 +441,30 @@ WWReadDsdiffFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
             }
 
             for (int ch=0; ch<pcmData->nChannels; ++ch) {
-                pcmData->stream[writePos+0] = dsdData[ch+pcmData->nChannels];
-                pcmData->stream[writePos+1] = dsdData[ch];
-                pcmData->stream[writePos+2] = i & 1 ? 0xfa : 0x05;
+                stream[writePos+0] = dsdData[ch+pcmData->nChannels];
+                stream[writePos+1] = dsdData[ch];
+                stream[writePos+2] = i & 1 ? 0xfa : 0x05;
                 writePos += 3;
             }
         }
         break;
     }
 
+    if (!pcmData->StoreStream(stream, streamBytes)) {
+        printf("memory allocation failed\n");
+        goto end;
+    }
+
     result = 0;
 end:
     delete [] dsdData;
-    dsdData = NULL;
+    dsdData = nullptr;
 
     if (result < 0) {
         if (pcmData) {
             pcmData->Term();
             delete pcmData;
-            pcmData = NULL;
+            pcmData = nullptr;
         }
     }
 

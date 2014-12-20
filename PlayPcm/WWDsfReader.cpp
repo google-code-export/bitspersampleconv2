@@ -131,28 +131,29 @@ struct DsfDataChunk {
 };
 
 WWPcmData *
-WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
+WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType, WWPcmDataStreamAllocType allocType)
 {
-    WWPcmData *pcmData = NULL;
+    WWPcmData *pcmData = nullptr;
     char fourCC[4];
     DsfDsdChunk  dsdChunk;
     DsfFmtChunk  fmtChunk;
     DsfDataChunk dataChunk;
-    uint32_t streamBytes;
-    uint32_t writePos;
+    int64_t streamBytes;
+    int64_t writePos;
     uint32_t blockNum;
-    unsigned char *blockData = NULL;
+    unsigned char *blockData = nullptr;
+    unsigned char *stream = nullptr;
     int result = -1;
 
     if (bitsPerSampleType == WWBpsNone) {
         printf("E: device does not support DoP\n");
-        return NULL;
+        return nullptr;
     }
 
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     fopen_s(&fp, path, "rb");
-    if (NULL == fp) {
-        return NULL;
+    if (nullptr == fp) {
+        return nullptr;
     }
 
     if (fread(fourCC, 1, 4, fp) < 4 ||
@@ -174,30 +175,30 @@ WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     }
 
     pcmData = new WWPcmData();
-    if (NULL == pcmData) {
+    if (nullptr == pcmData) {
         goto end;
     }
-    pcmData->Init();
+    pcmData->Init(allocType);
 
     pcmData->bitsPerSample      = bitsPerSampleType == WWBps32v24 ? 32 : 24;
     pcmData->validBitsPerSample = 24;
     pcmData->nChannels          = fmtChunk.channelNum;
 
     // DSD 16bit == 1 frame
-    pcmData->nFrames        = (int)(fmtChunk.sampleCount/16);
+    pcmData->nFrames        = fmtChunk.sampleCount/16;
     pcmData->nSamplesPerSec = 176400;
     pcmData->posFrame       = 0;
 
     streamBytes = (pcmData->bitsPerSample/8) * pcmData->nFrames * pcmData->nChannels;
-    pcmData->stream = new unsigned char[streamBytes];
-    if (NULL == pcmData->stream) {
+    stream = new unsigned char[streamBytes];
+    if (nullptr == stream) {
         goto end;
     }
-    memset(pcmData->stream, 0, streamBytes);
+    memset(stream, 0, streamBytes);
 
     blockNum = (uint32_t)((dataChunk.chunkBytes-12)/fmtChunk.blockSizePerChannel);
     blockData = new unsigned char[fmtChunk.blockSizePerChannel * fmtChunk.channelNum];
-    if (NULL == blockData) {
+    if (nullptr == blockData) {
         goto end;
     }
 
@@ -215,10 +216,10 @@ WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
         case WWBps32v24:
             for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
                 for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
-                    pcmData->stream[writePos+0] = 0;
-                    pcmData->stream[writePos+1] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
-                    pcmData->stream[writePos+2] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
-                    pcmData->stream[writePos+3] = i & 1 ? 0xfa : 0x05;
+                    stream[writePos+0] = 0;
+                    stream[writePos+1] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
+                    stream[writePos+2] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
+                    stream[writePos+3] = i & 1 ? 0xfa : 0x05;
                     writePos += 4;
                     if (streamBytes <= writePos) {
                         // recorded sample is ended on part of the way of the block
@@ -231,9 +232,9 @@ WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
         case WWBps24:
             for (uint32_t i=0; i<fmtChunk.blockSizePerChannel/2; ++i) {
                 for (uint32_t ch=0; ch<fmtChunk.channelNum; ++ch) {
-                    pcmData->stream[writePos+0] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
-                    pcmData->stream[writePos+1] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
-                    pcmData->stream[writePos+2] = i & 1 ? 0xfa : 0x05;
+                    stream[writePos+0] = gBitReverse[blockData[i*2+1 + ch*fmtChunk.blockSizePerChannel]];
+                    stream[writePos+1] = gBitReverse[blockData[i*2+0 + ch*fmtChunk.blockSizePerChannel]];
+                    stream[writePos+2] = i & 1 ? 0xfa : 0x05;
                     writePos += 3;
                     if (streamBytes <= writePos) {
                         // recorded sample is ended on part of the way of the block
@@ -249,14 +250,22 @@ WWReadDsfFile(const char *path, WWBitsPerSampleType bitsPerSampleType)
     // coincidentally block size == recorded sample size
     result = 0;
 end:
+    if (result == 0) {
+        // succeeded
+        if (!pcmData->StoreStream(stream, streamBytes)) {
+            printf("pcmData->StoreStream() failed\n");
+            result = -1;
+        }
+    }
+
     delete [] blockData;
-    blockData = NULL;
+    blockData = nullptr;
 
     if (result < 0) {
         if (pcmData) {
             pcmData->Term();
             delete pcmData;
-            pcmData = NULL;
+            pcmData = nullptr;
         }
     }
 

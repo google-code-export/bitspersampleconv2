@@ -36,6 +36,9 @@
     <ClCompile Include="WWDsdiffReader.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="WWPrivilegeControl.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WWUtil.h">
@@ -54,6 +57,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="WWDsdiffReader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="WWPrivilegeControl.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

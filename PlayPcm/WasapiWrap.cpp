@@ -59,17 +59,17 @@ WWDeviceInfo::WWDeviceInfo(int id, const wchar_t * name)
 
 WasapiWrap::WasapiWrap(void)
 {
-    m_deviceCollection = NULL;
-    m_deviceToUse      = NULL;
-    m_shutdownEvent    = NULL;
-    m_audioSamplesReadyEvent = NULL;
-    m_audioClient      = NULL;
+    m_deviceCollection = nullptr;
+    m_deviceToUse      = nullptr;
+    m_shutdownEvent    = nullptr;
+    m_audioSamplesReadyEvent = nullptr;
+    m_audioClient      = nullptr;
     m_frameBytes       = 0;
     m_bufferFrameNum   = 0;
-    m_renderClient     = NULL;
-    m_renderThread     = NULL;
-    m_pcmData          = NULL;
-    m_mutex            = NULL;
+    m_renderClient     = nullptr;
+    m_renderThread     = nullptr;
+    m_pcmData          = nullptr;
+    m_mutex            = nullptr;
     m_footerCount      = 0;
     m_coInitializeSuccess = false;
 }
@@ -90,7 +90,7 @@ WasapiWrap::Init(void)
     assert(!m_deviceCollection);
     assert(!m_deviceToUse);
 
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (S_OK == hr) {
         m_coInitializeSuccess = true;
     } else {
@@ -100,7 +100,7 @@ WasapiWrap::Init(void)
 
     assert(!m_mutex);
     m_mutex = CreateMutex(
-        NULL, FALSE, NULL);
+        nullptr, FALSE, nullptr);
 
     return hr;
 }
@@ -114,7 +114,7 @@ WasapiWrap::Term(void)
 
     if (m_mutex) {
         CloseHandle(m_mutex);
-        m_mutex = NULL;
+        m_mutex = nullptr;
     }
 
     if (m_coInitializeSuccess) {
@@ -129,9 +129,9 @@ DeviceNameGet(
 {
     HRESULT hr = 0;
 
-    IMMDevice *device  = NULL;
-    LPWSTR deviceId    = NULL;
-    IPropertyStore *ps = NULL;
+    IMMDevice *device  = nullptr;
+    LPWSTR deviceId    = nullptr;
+    IPropertyStore *ps = nullptr;
     PROPVARIANT pv;
 
     assert(dc);
@@ -163,12 +163,12 @@ HRESULT
 WasapiWrap::DoDeviceEnumeration(void)
 {
     HRESULT hr = 0;
-    IMMDeviceEnumerator *deviceEnumerator = NULL;
+    IMMDeviceEnumerator *deviceEnumerator = nullptr;
 
     m_deviceInfo.clear();
 
     HRR(CoCreateInstance(__uuidof(MMDeviceEnumerator),
-        NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&deviceEnumerator)));
+        nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&deviceEnumerator)));
     
     HRR(deviceEnumerator->EnumAudioEndpoints(
         eRender, DEVICE_STATE_ACTIVE, &m_deviceCollection));
@@ -230,12 +230,12 @@ void
 WasapiWrap::PrintMixFormat(void)
 {
     HRESULT hr = 0;
-    WAVEFORMATEX *waveFormat = NULL;
+    WAVEFORMATEX *waveFormat = nullptr;
 
     assert(m_deviceToUse);
     assert(!m_audioClient);
     HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
     assert(m_audioClient);
 
     assert(!waveFormat);
@@ -253,8 +253,8 @@ WasapiWrap::PrintMixFormat(void)
 end:
     if (waveFormat) {
         CoTaskMemFree(waveFormat);
-        waveFormat = NULL;
-        wfext = NULL;
+        waveFormat = nullptr;
+        wfext = nullptr;
     }
     SafeRelease(&m_audioClient);
 }
@@ -269,7 +269,7 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
     assert(m_deviceToUse);
     assert(!m_audioClient);
     HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
     assert(m_audioClient);
 
     ZeroMemory(&wfext, sizeof wfext);
@@ -288,7 +288,7 @@ WasapiWrap::Inspect(const WWInspectArg & arg)
     printf("WAVEFORMATEXTENSIBLE KSFORMAT_SUBTYPE_PCM %dHz %dbit %dch: ",
         arg.nSamplesPerSec, arg.bitsPerSample, arg.nChannels);
 
-    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, pWfex, NULL); 
+    hr = m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE, pWfex, nullptr); 
     if (AUDCLNT_E_UNSUPPORTED_FORMAT == hr) {
         printf("not supported.\n");
     } else if (FAILED(hr)) {
@@ -306,20 +306,20 @@ HRESULT
 WasapiWrap::Setup(const WWSetupArg & arg)
 {
     HRESULT hr = 0;
-    WAVEFORMATEX *waveFormat = NULL;
+    WAVEFORMATEX *waveFormat = nullptr;
 
     m_sampleRate = arg.nSamplesPerSec;
     m_bitsPerSample = arg.bitsPerSample;
     m_validBitsPerSample = arg.validBitsPerSample;
 
     m_audioSamplesReadyEvent =
-        CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+        CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_audioSamplesReadyEvent);
 
     assert(m_deviceToUse);
     assert(!m_audioClient);
     HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
     assert(m_audioClient);
 
     assert(!waveFormat);
@@ -350,7 +350,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     WaveFormatDebug(waveFormat);
     WFExtensibleDebug(wfex);
     
-    HRG(m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE,waveFormat,NULL));
+    HRG(m_audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_EXCLUSIVE,waveFormat,nullptr));
 
     m_frameBytes = waveFormat->nBlockAlign;
     
@@ -359,7 +359,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
     hr = m_audioClient->Initialize(
         AUDCLNT_SHAREMODE_EXCLUSIVE,
         AUDCLNT_STREAMFLAGS_EVENTCALLBACK , 
-        bufferDuration, bufferDuration, waveFormat, NULL);
+        bufferDuration, bufferDuration, waveFormat, nullptr);
     if (hr == AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED) {
         HRG(m_audioClient->GetBufferSize(&m_bufferFrameNum));
 
@@ -373,7 +373,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
             0.5);
 
         HRG(m_deviceToUse->Activate(
-        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, NULL, (void**)&m_audioClient));
+        __uuidof(IAudioClient), CLSCTX_INPROC_SERVER, nullptr, (void**)&m_audioClient));
 
         hr = m_audioClient->Initialize(
             AUDCLNT_SHAREMODE_EXCLUSIVE, 
@@ -381,7 +381,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
             bufferDuration, 
             bufferDuration, 
             waveFormat, 
-            NULL);
+            nullptr);
     }
     if (FAILED(hr)) {
         printf("E: audioClient->Initialize failed 0x%08x\n", hr);
@@ -395,7 +395,7 @@ WasapiWrap::Setup(const WWSetupArg & arg)
 end:
     if (waveFormat) {
         CoTaskMemFree(waveFormat);
-        waveFormat = NULL;
+        waveFormat = nullptr;
     }
 
     return hr;
@@ -406,7 +406,7 @@ WasapiWrap::Unsetup(void)
 {
     if (m_audioSamplesReadyEvent) {
         CloseHandle(m_audioSamplesReadyEvent);
-        m_audioSamplesReadyEvent = NULL;
+        m_audioSamplesReadyEvent = nullptr;
     }
 
     SafeRelease(&m_deviceToUse);
@@ -423,16 +423,16 @@ WasapiWrap::SetOutputData(WWPcmData &pcmData)
 HRESULT
 WasapiWrap::Start(void)
 {
-    BYTE *pData = NULL;
+    BYTE *pData = nullptr;
     HRESULT hr = 0;
 
     assert(m_pcmData);
 
     assert(!m_shutdownEvent);
-    m_shutdownEvent = CreateEventEx(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
+    m_shutdownEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     CHK(m_shutdownEvent);
 
-    m_renderThread = CreateThread(NULL, 0, RenderEntry, this, 0, NULL);
+    m_renderThread = CreateThread(nullptr, 0, RenderEntry, this, 0, nullptr);
     assert(m_renderThread);
 
     assert(m_renderClient);
@@ -464,12 +464,12 @@ WasapiWrap::Stop(void)
         SetEvent(m_renderThread);
         WaitForSingleObject(m_renderThread, INFINITE);
         CloseHandle(m_renderThread);
-        m_renderThread = NULL;
+        m_renderThread = nullptr;
     }
 
     if (m_shutdownEvent) {
         CloseHandle(m_shutdownEvent);
-        m_shutdownEvent = NULL;
+        m_shutdownEvent = nullptr;
     }
 
     if (m_audioClient) {
@@ -480,7 +480,7 @@ WasapiWrap::Stop(void)
         WaitForSingleObject(m_renderThread, INFINITE);
 
         CloseHandle(m_renderThread);
-        m_renderThread = NULL;
+        m_renderThread = nullptr;
     }
 }
 
@@ -553,8 +553,8 @@ bool
 WasapiWrap::AudioSamplesReadyProc(void)
 {
     bool    result     = true;
-    BYTE    *pFrames   = NULL;
-    BYTE    *pData     = NULL;
+    BYTE    *pFrames   = nullptr;
+    BYTE    *pData     = nullptr;
     HRESULT hr         = 0;
     int     copyFrames = 0;
 
@@ -614,7 +614,7 @@ WasapiWrap::RenderMain(void)
     DWORD waitResult;
     HRESULT hr = 0;
     
-    HRG(CoInitializeEx(NULL, COINIT_MULTITHREADED));
+    HRG(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     while (stillPlaying) {
         waitResult = WaitForMultipleObjects(2, waitArray, FALSE, INFINITE);

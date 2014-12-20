@@ -3,11 +3,13 @@
 #include "WWWavReader.h"
 #include "WWDsfReader.h"
 #include "WWDsdiffReader.h"
+#include "WWPrivilegeControl.h"
 
 #include <stdio.h>
 #include <Windows.h>
 #include <stdlib.h>
 #include <crtdbg.h>
+#include <assert.h>
 
 #define LATENCY_MILLISEC_DEFAULT (100)
 #define READ_LINE_BYTES          (256)
@@ -24,7 +26,7 @@ PrintUsage(void)
         "    PlayPcm -d deviceId\n"
         "        Test specified device\n"
         "\n"
-        "    PlayPcm -d deviceId [-l latencyInMillisec] input_pcm_file_name\n"
+        "    PlayPcm -d deviceId [-l latencyInMillisec] [-uselargememory] input_pcm_file_name\n"
         "        Play pcm file on deviceId device\n"
         "        Example:\n"
         "            PlayPcm -d 1 C:\\audio\\music.wav\n"
@@ -43,11 +45,11 @@ GetIntValueFromConsole(const char *prompt, int from, int to, int *value_return)
 
     char s[READ_LINE_BYTES];
     char *result = fgets(s, READ_LINE_BYTES-1, stdin);
-    if (NULL == result) {
+    if (nullptr == result) {
         return E_INVALIDARG;
     }
 
-    char *p = NULL;
+    char *p = nullptr;
     errno = 0;
     int v = (int)strtol(s, &p, 10);
     if (errno != 0 || p == s) {
@@ -80,7 +82,7 @@ PrintDeviceList(void)
 
         char    namec[WW_DEVICE_NAME_COUNT];
         memset(namec, 0, sizeof namec);
-        WideCharToMultiByte(CP_ACP, 0, namew, -1, namec, sizeof namec-1, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, namew, -1, namec, sizeof namec-1, nullptr, nullptr);
         printf("    deviceId=%d: %s\n", i, namec);
     }
     printf("\n");
@@ -90,18 +92,28 @@ end:
     return hr;
 }
 
+struct Settings {
+    int deviceId;
+    int latencyMillisec;
+    const char *path;
+    WWPcmDataStreamAllocType allocType;
+
+    Settings(void) : deviceId(-1), latencyMillisec(LATENCY_MILLISEC_DEFAULT), path(nullptr), allocType(WWPDSA_Normal) {
+    }
+};
+
 static HRESULT
-Run(int deviceId, int latencyMillisec, WWPcmData &pcm)
+Run(const Settings &settings, WWPcmData &pcm)
 {
     HRESULT hr;
     WasapiWrap ww;
 
     HRR(ww.Init());
     HRG(ww.DoDeviceEnumeration());
-    HRG(ww.ChooseDevice(deviceId));
+    HRG(ww.ChooseDevice(settings.deviceId));
 
     WWSetupArg setupArg;
-    setupArg.Set(pcm.bitsPerSample,pcm.validBitsPerSample, pcm.nSamplesPerSec, pcm.nChannels, latencyMillisec);
+    setupArg.Set(pcm.bitsPerSample,pcm.validBitsPerSample, pcm.nSamplesPerSec, pcm.nChannels, settings.latencyMillisec);
     HRG(ww.Setup(setupArg));
     ww.SetOutputData(pcm);
     ww.Start();
@@ -178,65 +190,128 @@ end:
     return deviceBitsPerSample;
 }
 
+enum CommandlineOptionType {
+    COT_OTHER = -1,
+    COT_DEVICE,
+    COT_LATENCY,
+    COT_LARGEMEM,
+
+    COT_NUM
+};
+
+const char *gCommandLineStrArray[] = {
+    "-d",
+    "-l",
+    "-uselargememory",
+};
+
+static CommandlineOptionType
+StringToCommandlineOptionType(const char *s)
+{
+    for (int i=0; i<COT_NUM; ++i) {
+        if (0 == strcmp(s, gCommandLineStrArray[i])) {
+            return (CommandlineOptionType)i;
+        }
+    }
+    return COT_OTHER;
+}
+
+/// @return false: 続行不要。 true: 続行する。
+static bool
+ParseCommandline(int argc, char *argv[], Settings &settings_return)
+{
+    for (int i=1; i<argc; ++i) {
+        CommandlineOptionType cot = StringToCommandlineOptionType(argv[i]);
+        switch (cot) {
+        case COT_OTHER:
+            if (i != argc-1 || settings_return.deviceId < 0) {
+                // 最後にはファイル名がくるはず。
+                PrintUsage();
+                PrintDeviceList();
+                return false;
+            }
+            settings_return.path = argv[i];
+            return true;
+        case COT_DEVICE:
+            settings_return.deviceId = atoi(argv[i+1]);
+            ++i;
+            break;
+        case COT_LATENCY:
+            settings_return.latencyMillisec = atoi(argv[i+1]);
+            ++i;
+            break;
+        case COT_LARGEMEM:
+            settings_return.allocType = WWPDSA_LargeMemory;
+            break;
+        default:
+            assert(false);
+            break;
+        }
+    }
+
+    if (0 <= settings_return.deviceId && settings_return.path == nullptr) {
+        Test(settings_return.deviceId);
+        return false;
+    }
+
+    // エラー
+    PrintUsage();
+    PrintDeviceList();
+    return false;
+}
+
 int
 main(int argc, char *argv[])
 {
-    WWPcmData *pcmData = NULL;
-    int deviceId = -1;
-    int latencyInMillisec = LATENCY_MILLISEC_DEFAULT;
-    char *filePath = 0;
+    WWPcmData *pcmData = nullptr;
+    Settings settings;
     WWBitsPerSampleType bitsPerSampleType = WWBpsNone;
+    WWPrivilegeControl pc;
 
-    if (argc != 3 && argc != 4 && argc != 6) {
-        PrintUsage();
-        PrintDeviceList();
+    if (!ParseCommandline(argc, argv, settings)) {
         return 0;
     }
 
-    if (0 != strcmp("-d", argv[1])) {
-        PrintUsage();
-        return 1;
-    }
-    deviceId = atoi(argv[2]);
-
-    if (argc == 3) {
-        Test(deviceId);
-        return 0;
-    }
-
-    if (argc == 6) {
-        if (0 != strcmp("-l", argv[3])) {
-            PrintUsage();
+    if (settings.allocType == WWPDSA_LargeMemory) {
+        if (!pc.Init()) {
+            printf("Error: WWPrivilegeControl::Init()\n");
             return 1;
         }
-        latencyInMillisec = atoi(argv[4]);
+        if (!pc.SetPrivilege(TEXT("SeLockMemoryPrivilege"), TRUE)) {
+            printf("Error: Failed to acquire SeLockMemoryPrivilege. You need to assign <Lock pages in memory> privilege to your account first using secpol.msc and logoff/logon\n");
+            pc.Term();
+            return 1;
+        }
+        printf("use MEM_LARGE_PAGES. page size = %d bytes\n", (int)GetLargePageMinimum());
     }
 
-    bitsPerSampleType = InspectDeviceBitsPerSample(deviceId);
+    bitsPerSampleType = InspectDeviceBitsPerSample(settings.deviceId);
 
-    filePath = argv[argc-1];
-    pcmData = WWReadWavFile(filePath);
-    if (NULL == pcmData) {
-        pcmData = WWReadDsfFile(filePath, bitsPerSampleType);
-        if (NULL == pcmData) {
-            pcmData = WWReadDsdiffFile(filePath, bitsPerSampleType);
-            if (NULL == pcmData) {
+    settings.path = argv[argc-1];
+    pcmData = WWReadWavFile(settings.path, settings.allocType);
+    if (nullptr == pcmData) {
+        pcmData = WWReadDsfFile(settings.path, bitsPerSampleType, settings.allocType);
+        if (nullptr == pcmData) {
+            pcmData = WWReadDsdiffFile(settings.path, bitsPerSampleType, settings.allocType);
+            if (nullptr == pcmData) {
                 printf("E: read file failed %s\n", argv[3]);
                 return 1;
             }
         }
     }
 
-    HRESULT hr = Run(deviceId, latencyInMillisec, *pcmData);
+    HRESULT hr = Run(settings, *pcmData);
     if (FAILED(hr)) {
         printf("E: Run failed (%08x)\n", hr);
     }
 
-    if (NULL != pcmData) {
+    if (nullptr != pcmData) {
         pcmData->Term();
         delete pcmData;
-        pcmData = NULL;
+        pcmData = nullptr;
     }
+
+    pc.Term();
 
 #ifdef _DEBUG
     _CrtDumpMemoryLeaks();
