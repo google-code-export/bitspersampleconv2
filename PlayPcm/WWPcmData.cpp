@@ -66,16 +66,6 @@ AllocStreamMemory(WWPcmDataStreamAllocType t, int64_t bytes)
     }
 
     assert(result);
-
-    {
-        MEMORY_BASIC_INFORMATION mbi;
-        int64_t allocatedSize = VirtualQuery(result, &mbi, sizeof mbi);
-        if (allocatedSize !=0) {
-            // query succeeded
-            printf("allocated memory state=%x type=%x\n", mbi.State, mbi.Type);
-        }
-    }
-
     return result;
 }
 
