@@ -82,7 +82,7 @@ public:
     int Inspect(const WWInspectArg & arg);
 
     int GetPosFrame(void);
-    int GetTotalFrameNum(void);
+    int64_t GetTotalFrameNum(void);
     bool SetPosFrame(int v);
 
 private:

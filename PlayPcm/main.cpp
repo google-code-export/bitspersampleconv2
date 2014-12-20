@@ -299,6 +299,18 @@ main(int argc, char *argv[])
         }
     }
 
+    switch (settings.allocType) {
+    case WWPDSA_Normal:
+        printf("using normal memory...##############################\n");
+        break;
+    case WWPDSA_LargeMemory:
+        printf("using large memory...###############################\n");
+        break;
+    default:
+        assert(false);
+        break;
+    }
+
     HRESULT hr = Run(settings, *pcmData);
     if (FAILED(hr)) {
         printf("E: Run failed (%08x)\n", hr);

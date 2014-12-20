@@ -505,7 +505,7 @@ WasapiWrap::RenderEntry(LPVOID lpThreadParameter)
     return self->RenderMain();
 }
 
-int
+int64_t
 WasapiWrap::GetTotalFrameNum(void)
 {
     if (!m_pcmData) {
@@ -562,7 +562,7 @@ WasapiWrap::AudioSamplesReadyProc(void)
 
     copyFrames = m_bufferFrameNum;
     if (m_pcmData->nFrames < m_pcmData->posFrame + copyFrames) {
-        copyFrames = m_pcmData->nFrames - m_pcmData->posFrame;
+        copyFrames = (int)(m_pcmData->nFrames - m_pcmData->posFrame);
     }
 
     if (copyFrames <= 0) {
