@@ -70,6 +70,7 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
             printf("E: nChannels=%d is not supported\n", wfi.nChannels);
             goto end;
         }
+        result = true;
     } else if (0 == strncmp("data", (const char*)header, 4)) {
         int bytesPerFrame = wfi.nChannels * (wfi.bitsPerSample/8);
         if (bytesPerFrame == 0) {
@@ -80,11 +81,13 @@ ReadWaveChunk(FILE *fp, WaveFormatInfo &wfi)
         wfi.data = buff;
         wfi.nFrames = chunkSize / bytesPerFrame;
         buff = nullptr;
+        // data chunk found . no need to continue reading
+        result = false;
     } else {
+        // skip unknown chunk
         fseek(fp, chunkSize, SEEK_CUR);
+        result = true;
     }
-
-    result = true;
 
 end:
     delete [] buff;

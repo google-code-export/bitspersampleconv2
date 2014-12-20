@@ -275,12 +275,11 @@ main(int argc, char *argv[])
     if (settings.allocType == WWPDSA_LargeMemory) {
         if (!pc.Init()) {
             printf("Error: WWPrivilegeControl::Init()\n");
-            return 1;
+            goto end;
         }
         if (!pc.SetPrivilege(TEXT("SeLockMemoryPrivilege"), TRUE)) {
             printf("Error: Failed to acquire SeLockMemoryPrivilege. You need to assign <Lock pages in memory> privilege to your account first using secpol.msc and logoff/logon\n");
-            pc.Term();
-            return 1;
+            goto end;
         }
         printf("use MEM_LARGE_PAGES. page size = %d bytes\n", (int)GetLargePageMinimum());
     }
@@ -294,8 +293,8 @@ main(int argc, char *argv[])
         if (nullptr == pcmData) {
             pcmData = WWReadDsdiffFile(settings.path, bitsPerSampleType, settings.allocType);
             if (nullptr == pcmData) {
-                printf("E: read file failed %s\n", argv[3]);
-                return 1;
+                printf("E: read file failed %s\n", settings.path);
+                goto end;
             }
         }
     }
@@ -311,6 +310,7 @@ main(int argc, char *argv[])
         pcmData = nullptr;
     }
 
+end:
     pc.Term();
 
 #ifdef _DEBUG

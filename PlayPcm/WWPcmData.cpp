@@ -55,13 +55,27 @@ AllocStreamMemory(WWPcmDataStreamAllocType t, int64_t bytes)
             int64_t allocBytes = pageSize * pageCount;
 
             result = (unsigned char *)VirtualAlloc(nullptr, allocBytes, MEM_COMMIT | MEM_LARGE_PAGES, PAGE_READWRITE);
+            if (nullptr == result) {
+                printf("VirtualAlloc(%x) failed %x\n", allocBytes, GetLastError());
+            }
         }
         break;
     default:
         assert(0);
         break;
     }
+
     assert(result);
+
+    {
+        MEMORY_BASIC_INFORMATION mbi;
+        int64_t allocatedSize = VirtualQuery(result, &mbi, sizeof mbi);
+        if (allocatedSize !=0) {
+            // query succeeded
+            printf("allocated memory state=%x type=%x\n", mbi.State, mbi.Type);
+        }
+    }
+
     return result;
 }
 
