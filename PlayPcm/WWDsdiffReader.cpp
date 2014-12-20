@@ -460,6 +460,9 @@ end:
     delete [] dsdData;
     dsdData = nullptr;
 
+    delete [] stream;
+    stream = nullptr;
+
     if (result < 0) {
         if (pcmData) {
             pcmData->Term();

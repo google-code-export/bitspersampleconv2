@@ -10,6 +10,15 @@ struct WaveFormatInfo {
     int nSamplesPerSec;
     int nFrames;
     unsigned char *data;
+
+    WaveFormatInfo(void) {
+        data = nullptr;
+    }
+
+    ~WaveFormatInfo(void) {
+        delete [] data;
+        data = nullptr;
+    }
 };
 
 static bool

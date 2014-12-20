@@ -216,7 +216,7 @@ StringToCommandlineOptionType(const char *s)
     return COT_OTHER;
 }
 
-/// @return false: 続行不要。 true: 続行する。
+/// @return false: not need to continue program, true: continue program execution
 static bool
 ParseCommandline(int argc, char *argv[], Settings &settings_return)
 {
@@ -225,7 +225,7 @@ ParseCommandline(int argc, char *argv[], Settings &settings_return)
         switch (cot) {
         case COT_OTHER:
             if (i != argc-1 || settings_return.deviceId < 0) {
-                // 最後にはファイル名がくるはず。
+                // filepath must be the last argument
                 PrintUsage();
                 PrintDeviceList();
                 return false;
@@ -254,7 +254,7 @@ ParseCommandline(int argc, char *argv[], Settings &settings_return)
         return false;
     }
 
-    // エラー
+    // error
     PrintUsage();
     PrintDeviceList();
     return false;

@@ -261,6 +261,9 @@ end:
     delete [] blockData;
     blockData = nullptr;
 
+    delete [] stream;
+    stream = nullptr;
+
     if (result < 0) {
         if (pcmData) {
             pcmData->Term();
