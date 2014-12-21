@@ -1561,6 +1561,10 @@ namespace PlayPcmWin
             dlg.Filter = Properties.Resources.FilterSupportedFiles;
             dlg.Multiselect = true;
 
+            if (0 <= m_preference.OpenFileDialogFilterIndex) {
+                dlg.FilterIndex = m_preference.OpenFileDialogFilterIndex;
+            }
+
             var result = dlg.ShowDialog();
             if (result == true) {
                 // エラーメッセージを貯めて出す。
@@ -1582,6 +1586,9 @@ namespace PlayPcmWin
                     ChangeState(State.再生リストあり);
                 }
                 UpdateUIStatus();
+
+                // 最後に選択されていたフィルターをデフォルトとする
+                m_preference.OpenFileDialogFilterIndex = dlg.FilterIndex;
             }
 
         }
