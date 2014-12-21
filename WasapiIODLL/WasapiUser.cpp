@@ -34,7 +34,7 @@ WWShareModeToAudClientShareMode(WWShareMode sm)
 }
 
 static void
-PcmFormatToWfex(WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
+PcmFormatToWfex(const WWPcmFormat &pcmFormat, WAVEFORMATEXTENSIBLE *wfex)
 {
     if (WWPcmDataSampleFormatTypeIsInt(pcmFormat.sampleFormat)) {
         wfex->SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
@@ -141,7 +141,7 @@ WasapiUser::Term(void)
 }
 
 int
-WasapiUser::InspectDevice(IMMDevice *device, WWPcmFormat &pcmFormat)
+WasapiUser::InspectDevice(IMMDevice *device, const WWPcmFormat &pcmFormat)
 {
     HRESULT hr;
     WAVEFORMATEX *waveFormat = nullptr;
@@ -186,7 +186,7 @@ end:
 }
 
 HRESULT
-WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
+WasapiUser::Setup(IMMDevice *device, WWDeviceType deviceType, const WWPcmFormat &pcmFormat, WWShareMode sm, WWDataFeedMode dfm, int latencyMillisec)
 {
     HRESULT      hr          = 0;
     WAVEFORMATEX *waveFormat = nullptr;
@@ -369,7 +369,7 @@ WasapiUser::IsResampleNeeded(void) const
 }
 
 void
-WasapiUser::UpdatePcmDataFormat(WWPcmFormat &fmt)
+WasapiUser::UpdatePcmDataFormat(const WWPcmFormat &fmt)
 {
     assert(WWSMShared == m_shareMode);
     m_pcmFormat = fmt;
