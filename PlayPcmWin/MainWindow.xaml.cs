@@ -445,6 +445,8 @@ namespace PlayPcmWin
             m_groupIdNextAdd = 0;
 
             PreferenceUpdated();
+
+            AddKeyListener();
         }
 
         private void Window_Loaded(object wSender, RoutedEventArgs we) {
@@ -1117,6 +1119,8 @@ namespace PlayPcmWin
         }
 
         private void Term() {
+            DeleteKeyListener();
+
             if (wasapi != null) {
                 // バックグラウンドスレッドにjoinして、完全に止まるまで待ち合わせするブロッキング版のStopを呼ぶ。
                 // そうしないと、バックグラウンドスレッドによって使用中のオブジェクトが
@@ -3473,32 +3477,53 @@ namespace PlayPcmWin
             UpdateUIStatus();
         }
 
-        private void Window_KeyUp(object sender, KeyEventArgs e) {
-            // media keys
-            switch (e.Key) {
-            case Key.MediaPlayPause:
-                if (buttonPlay.IsEnabled) {
-                    ButtonPlayClicked();
-                } else if (buttonPause.IsEnabled) {
-                    ButtonPauseClicked();
-                }
-                break;
-            case Key.MediaStop:
-                if (buttonStop.IsEnabled) {
-                    ButtonStopClicked();
-                }
-                break;
-            case Key.MediaNextTrack:
-                if (buttonNext.IsEnabled) {
-                    buttonNextOrPrevClicked((x) => { return ++x; });
-                }
-                break;
-            case Key.MediaPreviousTrack:
-                if (buttonPrev.IsEnabled) {
-                    buttonNextOrPrevClicked((x) => { return --x; });
-                }
-                break;
+        private InterceptMediaKeys mKListener = null;
+
+        private void AddKeyListener() {
+            System.Diagnostics.Debug.Assert(mKListener == null);
+
+            mKListener = new InterceptMediaKeys();
+            mKListener.KeyUp += new InterceptMediaKeys.MediaKeyEventHandler(MediaKeyListener_KeyUp);
+        }
+
+        private void DeleteKeyListener() {
+            if (mKListener != null) {
+                mKListener.Dispose();
+                mKListener = null;
             }
+        }
+
+        private void MediaKeyListener_KeyUp(object sender, InterceptMediaKeys.MediaKeyEventArgs args) {
+            if (args == null) {
+                return;
+            }
+
+            Dispatcher.BeginInvoke(new Action(delegate() {
+                switch (args.Key) {
+                case Key.MediaPlayPause:
+                    if (buttonPlay.IsEnabled) {
+                        ButtonPlayClicked();
+                    } else if (buttonPause.IsEnabled) {
+                        ButtonPauseClicked();
+                    }
+                    break;
+                case Key.MediaStop:
+                    if (buttonStop.IsEnabled) {
+                        ButtonStopClicked();
+                    }
+                    break;
+                case Key.MediaNextTrack:
+                    if (buttonNext.IsEnabled) {
+                        buttonNextOrPrevClicked((x) => { return ++x; });
+                    }
+                    break;
+                case Key.MediaPreviousTrack:
+                    if (buttonPrev.IsEnabled) {
+                        buttonNextOrPrevClicked((x) => { return --x; });
+                    }
+                    break;
+                }
+            }));
         }
     }
 }
