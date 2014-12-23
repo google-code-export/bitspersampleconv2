@@ -171,7 +171,7 @@ namespace PlayPcmWin
         enum State {
             未初期化,
             再生リスト読み込み中,
-            初期化完了,
+            再生リストなし,
             再生リストあり,
 
             // これ以降の状態にいる場合、再生リストに新しいファイルを追加できない。
@@ -180,7 +180,7 @@ namespace PlayPcmWin
             再生中,
             再生一時停止中,
             再生停止開始,
-            再生グループ切り替え中,
+            再生グループ読み込み中,
         }
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
             UpdateUIStatus();
         }
@@ -467,7 +467,7 @@ namespace PlayPcmWin
             } else {
                 // Issue 130
                 EnableDataGridPlaylist();
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
                 UpdateUIStatus();
             }
         }
@@ -906,7 +906,7 @@ namespace PlayPcmWin
             }
 
             switch (m_state) {
-            case State.初期化完了:
+            case State.再生リストなし:
                 UpdateUIToInitialState();
                 statusBarText.Content = Properties.Resources.MainStatusPleaseCreatePlaylist;
                 break;
@@ -976,7 +976,7 @@ namespace PlayPcmWin
                 UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.MainStatusStopping;
                 break;
-            case State.再生グループ切り替え中:
+            case State.再生グループ読み込み中:
                 UpdateUIToNonEditableState();
                 statusBarText.Content = Properties.Resources.MainStatusChangingPlayGroup;
                 break;
@@ -1050,7 +1050,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
 
             UpdateUIStatus();
@@ -1113,7 +1113,7 @@ namespace PlayPcmWin
             if (0 < m_playListItems.Count) {
                 ChangeState(State.再生リストあり);
             } else {
-                ChangeState(State.初期化完了);
+                ChangeState(State.再生リストなし);
             }
             UpdateUIStatus();
         }
@@ -1344,7 +1344,7 @@ namespace PlayPcmWin
 
             GC.Collect();
 
-            ChangeState(State.初期化完了);
+            ChangeState(State.再生リストなし);
 
             if (mode == PlayListClearMode.ClearWithUpdateUI) {
                 //m_playListView.RefreshCollection();
@@ -2682,7 +2682,7 @@ namespace PlayPcmWin
             }
 
             // 再生状態→再生グループ切り替え中状態に遷移。
-            ChangeState(State.再生グループ切り替え中);
+            ChangeState(State.再生グループ読み込み中);
             UpdateUIStatus();
 
             StartReadFiles(m_task.GroupId);
@@ -3283,7 +3283,7 @@ namespace PlayPcmWin
                 {
                     case State.未初期化:
                         return;
-                    case State.初期化完了:
+                    case State.再生リストなし:
                     case State.再生リスト読み込み中:
                     case State.再生リストあり:
                         // 再生中ではない場合、デバイス一覧を更新する。
@@ -3292,7 +3292,7 @@ namespace PlayPcmWin
                         break;
                     case State.デバイスSetup完了:
                     case State.ファイル読み込み完了:
-                    case State.再生グループ切り替え中:
+                    case State.再生グループ読み込み中:
                     case State.再生一時停止中:
                     case State.再生中:
                     case State.再生停止開始:
