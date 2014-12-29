@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace JustReadAllFiles {
     class Program {
@@ -55,7 +56,13 @@ namespace JustReadAllFiles {
                 return;
             }
 
+            var sw = new Stopwatch();
+            sw.Start();
+
             DirectoryScanRecursive(di);
+
+            sw.Stop();
+            Console.WriteLine("Elapsed time: {0}", sw.Elapsed);
         }
     }
 }
