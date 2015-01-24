@@ -10,16 +10,16 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <RadioButton Content="Client (Sender)" Name="radioButtonClient" Margin="6" Grid.Row="0" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonClient_Checked" />
-                <RadioButton Content="Server (Receiver)" Name="radioButtonServer" Margin="6" Grid.Row="1" VerticalAlignment="Center" Checked="radioButtonServer_Checked" />
-            </Grid>
+                <RadioButton Content="Server (Receiver)" Name="radioButtonServer" Margin="6" Grid.Row="0" VerticalAlignment="Center" IsChecked="True" Checked="radioButtonServer_Checked" />
+                    <RadioButton Content="Client (Sender)" Name="radioButtonClient" Margin="6" Grid.Row="1" VerticalAlignment="Center" Checked="radioButtonClient_Checked" />
+                </Grid>
         </GroupBox>
-        <GroupBox Header="Server Settings" Height="100" x:Name="groupBoxServerSettings" Width="200" IsEnabled="False">
+        <GroupBox Header="Server Settings" Height="100" x:Name="groupBoxServerSettings" Width="200" >
             <Grid>
                 <Label Content="To be added" HorizontalAlignment="Left" Margin="6" VerticalAlignment="Center" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Client Settings" Height="150" x:Name="groupBoxClientSettings" Width="350">
+            <GroupBox Header="Client Settings" Height="150" x:Name="groupBoxClientSettings" Width="350" IsEnabled="False">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />
