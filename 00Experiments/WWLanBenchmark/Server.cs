@@ -104,7 +104,7 @@ namespace WWLanBenchmark {
 
                 int readBytes = 0;
                 do {
-                    readBytes += stream.Read(buff, 0, ONE_GIGA - readBytes);
+                    readBytes += stream.Read(buff, readBytes, ONE_GIGA - readBytes);
                 } while (readBytes < ONE_GIGA);
             }
 
