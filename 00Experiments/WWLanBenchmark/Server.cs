@@ -82,17 +82,24 @@ namespace WWLanBenchmark {
             return br.ReadInt32();
         }
 
+        private void TouchMemory(Byte[] buff) {
+            for (int i = 0; i < ONE_GIGA; ++i) {
+                buff[i] = 0;
+            }
+        }
+
         private void RecvData(NetworkStream stream, Settings settings, int idx) {
             var recvIdx = ReadInt(stream);
-
-            mBackgroundWorker.ReportProgress(1, string.Format("({0} / {1}) Receiving {2}GB stream...\n",
-                idx + 1, settings.testIterationCount, settings.continuousRecvGiB));
 
             var recvData = new List<byte[]>();
             for (int i = 0; i < settings.continuousRecvGiB; ++i) {
                 var buff = new byte[ONE_GIGA];
+                TouchMemory(buff);
                 recvData.Add(buff);
             }
+
+            mBackgroundWorker.ReportProgress(1, string.Format("({0} / {1}) Receiving {2}GB stream...\n",
+                idx + 1, settings.testIterationCount, settings.continuousRecvGiB));
 
             var sw = new Stopwatch();
             var recvHash = new byte[HASH_BYTES];
