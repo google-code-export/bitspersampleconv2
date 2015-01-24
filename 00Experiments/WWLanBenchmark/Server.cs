@@ -46,11 +46,21 @@ namespace WWLanBenchmark {
             public int testIterationCount;
         };
 
+        private int StreamRead(NetworkStream stream, out byte[] output, int bytes) {
+            output = new byte[bytes];
+            int readBytes = 0;
+            do {
+                readBytes += stream.Read(output, readBytes, bytes - readBytes);
+            } while (readBytes < bytes);
+
+            return readBytes;
+        }
+
         private void RecvSettings(NetworkStream stream, out Settings settings) {
             settings = new Settings();
 
-            var data = new byte[8];
-            stream.Read(data, 0, data.Count());
+            byte [] data;
+            StreamRead(stream, out data, 8);
             var ms = new MemoryStream(data);
             var br = new BinaryReader(ms);
             settings.continuousRecvGiB = br.ReadInt32();
@@ -82,6 +92,17 @@ namespace WWLanBenchmark {
             return br.ReadInt32();
         }
 
+        private void WriteInt64(NetworkStream stream, long v) {
+            var data = new byte[8];
+            using (var ms = new MemoryStream(data)) {
+                using (var bw = new BinaryWriter(ms)) {
+                    bw.Write(v);
+                    bw.Flush();
+                }
+            }
+            stream.Write(data, 0, 8);
+        }
+
         private void TouchMemory(Byte[] buff) {
             for (int i = 0; i < ONE_GIGA; ++i) {
                 buff[i] = 0;
@@ -102,8 +123,8 @@ namespace WWLanBenchmark {
                 idx + 1, settings.testIterationCount, settings.continuousRecvGiB));
 
             var sw = new Stopwatch();
-            var recvHash = new byte[HASH_BYTES];
-            stream.Read(recvHash, 0, HASH_BYTES);
+            byte[] recvHash;
+            StreamRead(stream, out recvHash, HASH_BYTES);
 
             sw.Start();
             for (int i = 0; i < settings.continuousRecvGiB; ++i) {
@@ -131,7 +152,7 @@ namespace WWLanBenchmark {
             recvData = null;
 
             // send done
-            stream.WriteByte(0);
+            WriteInt64(stream, sw.ElapsedMilliseconds);
         }
 
         private byte[] CalcHash(List<byte[]> data) {

@@ -46,6 +46,24 @@ namespace WWLanBenchmark {
             bw.Write(testIterationCount);
         }
 
+        private int StreamReadBytes(NetworkStream stream, out byte[] output, int bytes) {
+            output = new byte[bytes];
+            int readBytes = 0;
+            do {
+                readBytes += stream.Read(output, readBytes, bytes - readBytes);
+            } while (readBytes < bytes);
+
+            return readBytes;
+        }
+
+        private long StreamReadInt64(NetworkStream stream) {
+            byte [] data;
+            StreamReadBytes(stream, out data, 8);
+            var ms = new MemoryStream(data);
+            var br = new BinaryReader(ms);
+            return br.ReadInt64();
+        }
+
         private void PrepareSendData(int continuousSendGiB) {
             mSendData = new List<byte[]>();
             Parallel.For(0, continuousSendGiB, i => {
@@ -79,8 +97,14 @@ namespace WWLanBenchmark {
 
             bw.Flush();
 
-            mBackgroundWorker.ReportProgress(100, "    Waiting server...\n");
-            stream.ReadByte();
+            mBackgroundWorker.ReportProgress(100, "    Waiting server response...\n");
+            long elapsedMillisec = StreamReadInt64(stream);
+
+            int sendGB = mSendData.Count;
+
+            mBackgroundWorker.ReportProgress(1, string.Format("    Xmit {0}GB in {1} seconds. {2:0.###}Gbps\n",
+                sendGB, elapsedMillisec / 1000.0,
+                (double)sendGB * 8 / (elapsedMillisec / 1000.0)));
         }
     }
 }
