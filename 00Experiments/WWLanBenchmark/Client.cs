@@ -76,6 +76,9 @@ namespace WWLanBenchmark {
             foreach (var buff in mSendData) {
                 bw.Write(buff);
             }
+
+            bw.Flush();
+
             mBackgroundWorker.ReportProgress(100, "    Waiting server...\n");
             stream.ReadByte();
         }
