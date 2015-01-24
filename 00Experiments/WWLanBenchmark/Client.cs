@@ -28,9 +28,9 @@ namespace WWLanBenchmark {
                             mBackgroundWorker.ReportProgress(1, "done.\n");
 
                             for (int i = 0; i < testIterationCount; ++i) {
-                                SendData(bw, i, testIterationCount);
+                                SendData(stream, bw, i, testIterationCount);
                             }
-                            mBackgroundWorker.ReportProgress(100, "Done.");
+                            mBackgroundWorker.ReportProgress(100, "Done.\n");
                         }
                     }
                 }
@@ -67,15 +67,17 @@ namespace WWLanBenchmark {
             }
         }
 
-        private void SendData(BinaryWriter bw, int idx, int total) {
+        private void SendData(NetworkStream stream, BinaryWriter bw, int idx, int total) {
             mBackgroundWorker.ReportProgress(10, string.Format("({0} / {1}) Sending {2}GB stream...\n",
                 idx+1, total, mSendData.Count));
 
             bw.Write(idx);
             bw.Write(mSendDataHash);
-            foreach (var data in mSendData) {
-                bw.Write(data);
+            foreach (var buff in mSendData) {
+                bw.Write(buff);
             }
+            mBackgroundWorker.ReportProgress(100, "    Waiting server...\n");
+            stream.ReadByte();
         }
     }
 }
