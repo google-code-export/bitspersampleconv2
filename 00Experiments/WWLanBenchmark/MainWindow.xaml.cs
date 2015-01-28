@@ -1,12 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 
 namespace WWLanBenchmark {
     public partial class MainWindow : Window {
-        private const int PORT = 9880;
+        private const int CONTROL_PORT = 9880;
+        private const int DATA_PORT    = 9881;
+
+        private const long ONE_MEGA = 1000 * 1000;
+        private const long ONE_GIGA = 1000 * 1000 * 1000;
+
         private bool mWindowLoaded = false;
         private BackgroundWorker mBackgroundWorker;
+        private ServerController mServerController;
+        private ClientController mClientController;
+
 
         public MainWindow() {
             InitializeComponent();
@@ -30,19 +39,23 @@ namespace WWLanBenchmark {
 
         struct ClientArgs {
             public string serverIP;
+            public int xmitConnectionCount;
             public int continuousSendGB;
-            public int testIterationCount;
+            public int xmitFragmentMB;
         };
 
         private void StartClient() {
-            mBackgroundWorker = new BackgroundWorker();
-            mBackgroundWorker.DoWork += Client_DoWork;
-            mBackgroundWorker.WorkerReportsProgress = true;
-            mBackgroundWorker.ProgressChanged += Client_ProgressChanged;
-            mBackgroundWorker.RunWorkerCompleted += Client_RunWorkerCompleted;
-
             var args = new ClientArgs();
             args.serverIP = textBoxServerIP.Text;
+
+            if (!Int32.TryParse(textBoxXmitConnectionCount.Text, out args.xmitConnectionCount)) {
+                MessageBox.Show("Parse error of Xmit connection count");
+                return;
+            }
+            if (args.xmitConnectionCount < 1) {
+                MessageBox.Show("Xmit connection count must be integer value greater than 0");
+                return;
+            }
 
             if (!Int32.TryParse(textBoxContinuousSendSizeGB.Text, out args.continuousSendGB)) {
                 MessageBox.Show("Parse error of Contiunous send size");
@@ -53,14 +66,24 @@ namespace WWLanBenchmark {
                 return;
             }
 
-            if (!Int32.TryParse(textBoxIterationCount.Text, out args.testIterationCount)) {
-                MessageBox.Show("Parse error of Test iteration count");
+            if (!Int32.TryParse(textBoxXmitFragmentMB.Text, out args.xmitFragmentMB)) {
+                MessageBox.Show("Parse error of Xmit fragment size (MB)");
                 return;
             }
-            if (args.testIterationCount < 1) {
-                MessageBox.Show("Test iteration count must be integer value greater than 0");
+            if (args.xmitFragmentMB < 1) {
+                MessageBox.Show("Xmit fragment size (MB) must be integer value greater than 0");
                 return;
             }
+            if (1000 < args.xmitFragmentMB) {
+                MessageBox.Show("Xmit fragment size (MB) must be integer value smaller than 1000");
+                return;
+            }
+
+            mBackgroundWorker = new BackgroundWorker();
+            mBackgroundWorker.DoWork += Client_DoWork;
+            mBackgroundWorker.WorkerReportsProgress = true;
+            mBackgroundWorker.ProgressChanged += Client_ProgressChanged;
+            mBackgroundWorker.RunWorkerCompleted += Client_RunWorkerCompleted;
 
             textBoxLog.Clear();
             buttonStart.IsEnabled = false;
@@ -68,7 +91,24 @@ namespace WWLanBenchmark {
             mBackgroundWorker.RunWorkerAsync(args);
         }
 
+        struct ServerArgs {
+            public int timeoutSec;
+        };
+
         private void StartServer() {
+            var args = new ServerArgs();
+            if (!Int32.TryParse(textBoxRecvTimeoutSec.Text, out args.timeoutSec)) {
+                MessageBox.Show("Parse error of Recv timeout");
+                return;
+            }
+            if (args.timeoutSec < 1) {
+                MessageBox.Show("Recv timeout must be integer value greater than 0");
+                return;
+            }
+            if (1000 * 100 < args.timeoutSec) {
+                MessageBox.Show("Recv timeout (sec) must be smaller than 100000");
+                return;
+            }
             mBackgroundWorker = new BackgroundWorker();
             mBackgroundWorker.DoWork += Server_DoWork;
             mBackgroundWorker.WorkerReportsProgress = true;
@@ -78,22 +118,28 @@ namespace WWLanBenchmark {
             textBoxLog.Clear();
             buttonStart.IsEnabled = false;
 
-            mBackgroundWorker.RunWorkerAsync();
-        }
-
-        private void Server_DoWork(object sender, DoWorkEventArgs e) {
-            var server = new Server();
-            server.Run(mBackgroundWorker, PORT);
+            mBackgroundWorker.RunWorkerAsync(args);
         }
 
         private void Client_DoWork(object sender, DoWorkEventArgs e) {
             var args = (ClientArgs)e.Argument;
 
-            var client = new Client();
-            client.Run(mBackgroundWorker, args.serverIP, PORT, args.continuousSendGB, args.testIterationCount);
+            mClientController = new ClientController();
+            mClientController.Run(mBackgroundWorker, args.serverIP, CONTROL_PORT, DATA_PORT,
+                args.xmitConnectionCount, (int)(args.xmitFragmentMB * ONE_MEGA), args.continuousSendGB * ONE_GIGA);
+            mClientController = null;
         }
 
-        void Client_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+
+        private void Server_DoWork(object sender, DoWorkEventArgs e) {
+            var args = (ServerArgs)e.Argument;
+
+            mServerController = new ServerController();
+            mServerController.Run(mBackgroundWorker, CONTROL_PORT, DATA_PORT, args.timeoutSec * 1000);
+            mServerController = null;
+        }
+
+        private void Client_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             buttonStart.IsEnabled = true;
         }
 
@@ -101,13 +147,13 @@ namespace WWLanBenchmark {
             buttonStart.IsEnabled = true;
         }
 
-        void Client_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        private void Client_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             string s = e.UserState as string;
             textBoxLog.AppendText(s);
             textBoxLog.ScrollToEnd();
         }
 
-        void Server_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+        private void Server_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             string s = e.UserState as string;
             textBoxLog.AppendText(s);
             textBoxLog.ScrollToEnd();
@@ -129,6 +175,12 @@ namespace WWLanBenchmark {
 
             groupBoxClientSettings.IsEnabled = false;
             groupBoxServerSettings.IsEnabled = true;
+        }
+
+        private void Window_Closed(object sender, EventArgs e) {
+            if (mServerController != null) {
+                mServerController.Abort();
+            }
         }
     }
 }

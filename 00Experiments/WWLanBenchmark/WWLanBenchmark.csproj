@@ -55,8 +55,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Client.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="ClientController.cs" />
+    <Compile Include="ClientXmitter.cs" />
+    <Compile Include="RecvFragment.cs" />
+    <Compile Include="ServerController.cs" />
+    <Compile Include="ServerReceiver.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="XmitConnection.cs" />
+    <Compile Include="XmitTask.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
