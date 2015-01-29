@@ -137,6 +137,7 @@ namespace WWLanBenchmark {
             mServerController = new ServerController();
             mServerController.Run(mBackgroundWorker, CONTROL_PORT, DATA_PORT, args.timeoutSec * 1000);
             mServerController = null;
+            Console.WriteLine("Server_DoWork() end");
         }
 
         private void Client_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {

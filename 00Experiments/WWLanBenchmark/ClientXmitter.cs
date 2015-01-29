@@ -16,21 +16,9 @@ namespace WWLanBenchmark {
 
         private List<XmitConnection> mConnectionList = new List<XmitConnection>();
 
-        private XmitConnection GetAvailableConnection() {
-            lock (mConnectionList) {
-                foreach (var xc in mConnectionList) {
-                    if (!xc.bUse) {
-                        xc.bUse = true;
-                        return xc;
-                    }
-                }
-            }
-            return null;
-        }
-
         public void CloseConnections() {
             foreach (var xc in mConnectionList) {
-                xc.Close();
+                xc.Terminate();
             }
             mConnectionList.Clear();
         }
@@ -46,7 +34,7 @@ namespace WWLanBenchmark {
         private void EstablishConnections(string server, int xmitPort, int xmitConnectionCount) {
             for (int i = 0; i < xmitConnectionCount; ++i) {
                 var xc = new XmitConnection();
-                xc.Initialize(new TcpClient(server, xmitPort));
+                xc.Initialize(server, xmitPort, i);
                 mConnectionList.Add(xc);
             }
         }
@@ -94,16 +82,20 @@ namespace WWLanBenchmark {
         public bool Xmit() {
             bool result = true;
 
-            var doneEventArray = new ManualResetEvent[mXmitTaskList.Count];
-            for (int i = 0; i < mXmitTaskList.Count; ++i) {
-                doneEventArray[i] = mXmitTaskList[i].doneEvent;
+            var taskCompletedEventList = new AutoResetEvent[mConnectionList.Count];
+            for (int i = 0; i < mConnectionList.Count; ++i) {
+                taskCompletedEventList[i] = mConnectionList[i].taskCompleted;
             }
 
-            ThreadPool.SetMaxThreads(mConnectionList.Count, mConnectionList.Count);
             for (int i = 0; i < mXmitTaskList.Count; ++i) {
-                ThreadPool.QueueUserWorkItem(ThreadPoolCallback, mXmitTaskList[i]);
+                if (i < mConnectionList.Count) {
+                    mConnectionList[i].AssignTask(mXmitTaskList[i]);
+                } else {
+                    int availableConnectionIdx = WaitHandle.WaitAny(taskCompletedEventList);
+                    mConnectionList[availableConnectionIdx].AssignTask(mXmitTaskList[i]);
+                }
             }
-            WaitHandle.WaitAll(doneEventArray);
+            WaitHandle.WaitAll(taskCompletedEventList);
 
             for (int i = 0; i < mXmitTaskList.Count; ++i) {
                 if (!mXmitTaskList[i].result) {
@@ -112,24 +104,9 @@ namespace WWLanBenchmark {
                 mXmitTaskList[i].End();
             }
             mXmitTaskList.Clear();
-            doneEventArray = null;
+            taskCompletedEventList = null;
             return result;
         }
 
-        private void ThreadPoolCallback(Object threadContext) {
-            var xt = threadContext as XmitTask;
-            var xc = GetAvailableConnection();
-
-            xc.bw.Write(xt.startPos);
-            xc.bw.Write(xt.sizeBytes);
-            xc.bw.Write(xt.xmitData);
-            xc.bw.Flush();
-
-            xc.stream.ReadByte();
-
-            xc.Return();
-
-            xt.Done();
-        }
     }
 }

@@ -52,6 +52,7 @@ namespace WWLanBenchmark {
         }
 
         public void Terminate() {
+            Console.WriteLine("ServerReceiver.Terminate()");
             if (mListenStarted != null) {
                 mListenStarted.Dispose();
                 mListenStarted = null;
@@ -76,6 +77,7 @@ namespace WWLanBenchmark {
                 mListenThread.Join();
                 mListenThread = null;
             }
+            Console.WriteLine("ServerReceiver.Terminate() end");
         }
 
         private void ListenThreadEntry() {
@@ -101,6 +103,8 @@ namespace WWLanBenchmark {
                 mServer.Stop();
             }
             mServer = null;
+
+            Console.WriteLine("ListenThread() end.");
         }
 
         private void RecvThreadEntry(object param) {

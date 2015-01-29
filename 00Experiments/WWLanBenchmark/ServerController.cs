@@ -17,8 +17,6 @@ namespace WWLanBenchmark {
         private const long ONE_MEGA = 1000 * 1000;
         private const long ONE_GIGA = 1000 * 1000 * 1000;
 
-        private ServerReceiver mServerReceiver = new ServerReceiver();
-
         TcpListener mListener = null;
         private BackgroundWorker mBackgroundWorker;
 
@@ -63,12 +61,15 @@ namespace WWLanBenchmark {
 
         public void Abort() {
             if (mListener != null) {
+                Console.WriteLine("ServerController.Abort()");
                 mListener.Server.Close();
             }
         }
 
         public void Run(BackgroundWorker backgroundWorker, int controlPort, int dataPort, int recvTimeoutMillisec) {
             mBackgroundWorker = backgroundWorker;
+            var serverReceiver = new ServerReceiver();
+
             try {
                 // コントロールポートの待受を開始する。
                 IPAddress addr = IPAddress.Any;
@@ -88,7 +89,7 @@ namespace WWLanBenchmark {
                                 settings.totalBytes / ONE_GIGA, settings.xmitFragmentBytes / ONE_MEGA));
 
                             // データポートの待受を開始する。
-                            if (!mServerReceiver.Initialize(dataPort, settings.totalBytes)) {
+                            if (!serverReceiver.Initialize(dataPort, settings.totalBytes)) {
                                 mBackgroundWorker.ReportProgress(1, "Error: failed to listen data port!\n");
                                 // 失敗したので終了する。
                                 mListener.Stop();
@@ -103,7 +104,7 @@ namespace WWLanBenchmark {
                             var sw = new Stopwatch();
                             sw.Start();
 
-                            mServerReceiver.Wait(recvTimeoutMillisec);
+                            serverReceiver.Wait(recvTimeoutMillisec);
                             sw.Stop();
 
                             mBackgroundWorker.ReportProgress(1, string.Format("Received {0}GB in {1} seconds. {2:0.###}Gbps\n",
@@ -111,14 +112,15 @@ namespace WWLanBenchmark {
                                 (double)settings.totalBytes * 8 / ONE_GIGA / (sw.ElapsedMilliseconds / 1000.0)));
 
                             mBackgroundWorker.ReportProgress(1, string.Format("Checking consistency of received data...\n"));
-                            var calcHash = mServerReceiver.CalcHash();
+                            var calcHash = serverReceiver.CalcHash();
                             if (calcHash.SequenceEqual(recvHash)) {
                                 mBackgroundWorker.ReportProgress(1, string.Format("SHA256 hash consistency check succeeded.\n"));
                             } else {
                                 mBackgroundWorker.ReportProgress(1, string.Format("SHA256 hash consistency check FAILED !!\n"));
                             }
 
-                            mServerReceiver.Terminate();
+                            serverReceiver.Terminate();
+                            serverReceiver = null;
 
                             WriteInt64(stream, sw.ElapsedMilliseconds);
                         }
@@ -130,8 +132,14 @@ namespace WWLanBenchmark {
                 Console.WriteLine("IOException: {0}\n", e);
             } finally {
                 mListener.Stop();
+
+                if (serverReceiver != null) {
+                    serverReceiver.Terminate();
+                }
             }
             mListener = null;
+
+            Console.WriteLine("ServerController.Run() end");
         }
     }
 }
