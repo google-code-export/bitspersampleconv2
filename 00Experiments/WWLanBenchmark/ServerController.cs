@@ -120,9 +120,9 @@ namespace WWLanBenchmark {
                             }
 
                             serverReceiver.Terminate();
-                            serverReceiver = null;
 
                             WriteInt64(stream, sw.ElapsedMilliseconds);
+                            mBackgroundWorker.ReportProgress(1, string.Format("Connection closed.\n\n"));
                         }
                     }
                 }

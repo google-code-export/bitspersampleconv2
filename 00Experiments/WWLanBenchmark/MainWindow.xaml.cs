@@ -85,7 +85,6 @@ namespace WWLanBenchmark {
             mBackgroundWorker.ProgressChanged += Client_ProgressChanged;
             mBackgroundWorker.RunWorkerCompleted += Client_RunWorkerCompleted;
 
-            textBoxLog.Clear();
             buttonStart.IsEnabled = false;
 
             mBackgroundWorker.RunWorkerAsync(args);
@@ -115,7 +114,6 @@ namespace WWLanBenchmark {
             mBackgroundWorker.ProgressChanged += Server_ProgressChanged;
             mBackgroundWorker.RunWorkerCompleted += Server_RunWorkerCompleted;
 
-            textBoxLog.Clear();
             buttonStart.IsEnabled = false;
 
             mBackgroundWorker.RunWorkerAsync(args);
@@ -142,10 +140,12 @@ namespace WWLanBenchmark {
 
         private void Client_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             buttonStart.IsEnabled = true;
+            textBoxLog.AppendText("\n");
         }
 
         private void Server_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             buttonStart.IsEnabled = true;
+            textBoxLog.AppendText("\n");
         }
 
         private void Client_ProgressChanged(object sender, ProgressChangedEventArgs e) {
