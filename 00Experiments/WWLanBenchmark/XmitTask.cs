@@ -26,9 +26,10 @@ namespace WWLanBenchmark {
             GC.SuppressFinalize(this);
         }
 
-        public XmitTask(long startPos, int sizeBytes) {
+        public XmitTask(long startPos, int sizeBytes, byte [] xmitData) {
             this.startPos = startPos;
             this.sizeBytes = sizeBytes;
+            this.xmitData = xmitData;
             doneEvent = new ManualResetEvent(false);
             result = true;
         }

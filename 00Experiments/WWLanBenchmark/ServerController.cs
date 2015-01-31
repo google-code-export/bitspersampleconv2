@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace WWLanBenchmark {
     class ServerController {
-        private const int HASH_BYTES = 32;
+        private const int HASH_BYTES = 16;
         private const long ONE_MEGA = 1000 * 1000;
         private const long ONE_GIGA = 1000 * 1000 * 1000;
 
@@ -66,7 +66,7 @@ namespace WWLanBenchmark {
             }
         }
 
-        public void Run(BackgroundWorker backgroundWorker, int controlPort, int dataPort, int recvTimeoutMillisec) {
+        public void Run(BackgroundWorker backgroundWorker, int controlPort, int dataPort, int recvTimeoutMillisec, string recvFolder) {
             mBackgroundWorker = backgroundWorker;
             var serverReceiver = new ServerReceiver();
 
@@ -116,15 +116,20 @@ namespace WWLanBenchmark {
                             mBackgroundWorker.ReportProgress(1, string.Format("Checking consistency of received data...\n"));
                             var calcHash = serverReceiver.CalcHash();
                             if (calcHash.SequenceEqual(recvHash)) {
-                                mBackgroundWorker.ReportProgress(1, string.Format("SHA256 hash consistency check succeeded.\n"));
+                                mBackgroundWorker.ReportProgress(1, "MD5 hash consistency check succeeded.\n");
+                                string path = string.Format("{0}\\{1}", recvFolder, Guid.NewGuid());
+                                mBackgroundWorker.ReportProgress(1, string.Format("Saving received data as {0} ...", path));
+                                serverReceiver.SaveReceivedFileAs(path);
+                                mBackgroundWorker.ReportProgress(1, string.Format("done\n"));
                             } else {
-                                mBackgroundWorker.ReportProgress(1, string.Format("SHA256 hash consistency check FAILED !!\n"));
+                                mBackgroundWorker.ReportProgress(1, string.Format("MD5 hash consistency check FAILED !!\n"));
                             }
 
                             serverReceiver.Terminate();
 
                             WriteInt64(stream, sw.ElapsedMilliseconds);
                             mBackgroundWorker.ReportProgress(1, string.Format("Connection closed.\n\n"));
+
                         }
                     }
                 }

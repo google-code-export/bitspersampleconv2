@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
@@ -8,10 +9,10 @@ using System.Threading.Tasks;
 namespace WWLanBenchmark {
     class ClientXmitter {
         List<XmitTask> mXmitTaskList;
-        private byte[] mSendDataHash;
+        private byte[] mXmitDataHash;
 
-        public byte[] SendDataHash() {
-            return mSendDataHash;
+        public byte[] XmitDataHash() {
+            return mXmitDataHash;
         }
 
         private List<XmitConnection> mConnectionList = new List<XmitConnection>();
@@ -23,15 +24,7 @@ namespace WWLanBenchmark {
             mConnectionList.Clear();
         }
 
-        public void Prepare(string server, int xmitPort, int xmitConnectionCount, long continuousSendBytes, int xmitFragmentBytes) {
-            // Xmit用TCP接続を確立
-            EstablishConnections(server, xmitPort, xmitConnectionCount);
-
-            // XmitTaskのリストを準備。
-            SetupXmitTasks(continuousSendBytes, xmitFragmentBytes);
-        }
-
-        private void EstablishConnections(string server, int xmitPort, int xmitConnectionCount) {
+        public void EstablishConnections(string server, int xmitPort, int xmitConnectionCount) {
             for (int i = 0; i < xmitConnectionCount; ++i) {
                 var xc = new XmitConnection();
                 xc.Initialize(server, xmitPort, i);
@@ -39,44 +32,45 @@ namespace WWLanBenchmark {
             }
         }
 
-        /// <param name="totalBytes">総送出バイト数</param>
+        private static long FileSizeBytes(string path) {
+            return new System.IO.FileInfo(path).Length;
+        }
+
+        /// <summary>
+        /// ファイルをメモリに読み込んで送信の準備をする。
+        /// </summary>
         /// <param name="xmitFragmentBytes">各スレッドの送出バイト数</param>
-        private void SetupXmitTasks(long totalBytes, int xmitFragmentBytes) {
+        /// <returns>送出するファイルのバイト数</returns>
+        public long SetupXmitTasks(string path, int xmitFragmentBytes) {
             mXmitTaskList = new List<XmitTask>();
 
-            // XmitTaskのリストを作成。
-            long pos = 0;
-            do {
-                int bytes = xmitFragmentBytes;
-                if (totalBytes < pos + xmitFragmentBytes) {
-                    bytes = (int)(totalBytes - pos);
-                }
-
-                var xt = new XmitTask(pos, bytes);
-                mXmitTaskList.Add(xt);
-                pos += bytes;
-            } while (pos < totalBytes);
-
             // 送出データの準備。
-            Parallel.For(0, mXmitTaskList.Count, i => {
-                using (var rng = new RNGCryptoServiceProvider()) {
-                    XmitTask xt;
-                    lock (mXmitTaskList) {
-                        xt = mXmitTaskList[i];
+            long pos = 0;
+            using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
+                do {
+                    var buff = br.ReadBytes(xmitFragmentBytes);
+                    if (buff.Length == 0) {
+                        break;
                     }
-                    xt.xmitData = new byte[xt.sizeBytes];
-                    rng.GetBytes(xt.xmitData);
-                }
-            });
 
-            // SHA256を計算。
-            using (var hash = new SHA256CryptoServiceProvider()) {
+                    var xt = new XmitTask(pos, buff.Length, buff);
+                    mXmitTaskList.Add(xt);
+                    pos += buff.Length;
+                } while (true);
+            }
+
+            long totalBytes = pos;
+
+            // ハッシュ値の計算。
+            using (var hash = new MD5CryptoServiceProvider()) {
                 foreach (var xt in mXmitTaskList) {
                     hash.TransformBlock(xt.xmitData, 0, xt.xmitData.Length, xt.xmitData, 0);
                 }
                 hash.TransformFinalBlock(new byte[0], 0, 0);
-                mSendDataHash = hash.Hash;
+                mXmitDataHash = hash.Hash;
             }
+
+            return totalBytes;
         }
 
         public bool Xmit() {

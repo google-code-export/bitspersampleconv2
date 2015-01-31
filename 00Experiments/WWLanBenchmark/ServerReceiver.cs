@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WWLanBenchmark {
     class ServerReceiver {
-        private const int HASH_BYTES = 32;
+        private const int HASH_BYTES = 16;
         private const long ONE_MEGA = 1000 * 1000;
         private const long ONE_GIGA = 1000 * 1000 * 1000;
 
@@ -159,7 +159,7 @@ namespace WWLanBenchmark {
         public byte[] CalcHash() {
             mRecvFragmentList = mRecvFragmentList.OrderBy(o => o.StartPos).ToList();
 
-            using (var hash = new SHA256CryptoServiceProvider()) {
+            using (var hash = new MD5CryptoServiceProvider()) {
                 foreach (var f in mRecvFragmentList) {
                     hash.TransformBlock(f.Content, 0, f.Content.Length, f.Content, 0);
                 }
@@ -170,5 +170,14 @@ namespace WWLanBenchmark {
                 return result;
             }
         }
+
+        public void SaveReceivedFileAs(string path) {
+            using (var bw = new BinaryWriter(File.Open(path, FileMode.CreateNew, FileAccess.Write))) {
+                foreach (var f in mRecvFragmentList) {
+                    bw.Write(f.mContent);
+                }
+            }
+        }
+
     }
 }

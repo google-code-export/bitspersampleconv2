@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -38,9 +39,9 @@ namespace WWLanBenchmark {
         }
 
         struct ClientArgs {
+            public string sendFilePath;
             public string serverIP;
             public int xmitConnectionCount;
-            public int continuousSendGB;
             public int xmitFragmentMB;
         };
 
@@ -57,15 +58,6 @@ namespace WWLanBenchmark {
                 return;
             }
 
-            if (!Int32.TryParse(textBoxContinuousSendSizeGB.Text, out args.continuousSendGB)) {
-                MessageBox.Show("Parse error of Contiunous send size");
-                return;
-            }
-            if (args.continuousSendGB < 1) {
-                MessageBox.Show("Contiunous send size must be integer value greater than 0");
-                return;
-            }
-
             if (!Int32.TryParse(textBoxXmitFragmentMB.Text, out args.xmitFragmentMB)) {
                 MessageBox.Show("Parse error of Xmit fragment size (MB)");
                 return;
@@ -79,6 +71,8 @@ namespace WWLanBenchmark {
                 return;
             }
 
+            args.sendFilePath = textBoxSendFile.Text;
+
             mBackgroundWorker = new BackgroundWorker();
             mBackgroundWorker.DoWork += Client_DoWork;
             mBackgroundWorker.WorkerReportsProgress = true;
@@ -91,6 +85,7 @@ namespace WWLanBenchmark {
         }
 
         struct ServerArgs {
+            public string recvFolder;
             public int timeoutSec;
         };
 
@@ -108,6 +103,9 @@ namespace WWLanBenchmark {
                 MessageBox.Show("Recv timeout (sec) must be smaller than 100000");
                 return;
             }
+
+            args.recvFolder = textBoxRecvFolder.Text;
+
             mBackgroundWorker = new BackgroundWorker();
             mBackgroundWorker.DoWork += Server_DoWork;
             mBackgroundWorker.WorkerReportsProgress = true;
@@ -123,8 +121,8 @@ namespace WWLanBenchmark {
             var args = (ClientArgs)e.Argument;
 
             mClientController = new ClientController();
-            mClientController.Run(mBackgroundWorker, args.serverIP, CONTROL_PORT, DATA_PORT,
-                args.xmitConnectionCount, (int)(args.xmitFragmentMB * ONE_MEGA), args.continuousSendGB * ONE_GIGA);
+            mClientController.Run(mBackgroundWorker, args.sendFilePath, args.serverIP, CONTROL_PORT, DATA_PORT,
+                args.xmitConnectionCount, (int)(args.xmitFragmentMB * ONE_MEGA));
             mClientController = null;
         }
 
@@ -133,7 +131,7 @@ namespace WWLanBenchmark {
             var args = (ServerArgs)e.Argument;
 
             mServerController = new ServerController();
-            mServerController.Run(mBackgroundWorker, CONTROL_PORT, DATA_PORT, args.timeoutSec * 1000);
+            mServerController.Run(mBackgroundWorker, CONTROL_PORT, DATA_PORT, args.timeoutSec * 1000, args.recvFolder);
             mServerController = null;
             Console.WriteLine("Server_DoWork() end");
         }
@@ -181,6 +179,23 @@ namespace WWLanBenchmark {
         private void Window_Closed(object sender, EventArgs e) {
             if (mServerController != null) {
                 mServerController.Abort();
+            }
+        }
+
+        private void buttonBrowseServerRecvFolderBrowse_Click(object sender, RoutedEventArgs e) {
+            var dlg = new System.Windows.Forms.FolderBrowserDialog();
+            var result = dlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK) {
+                textBoxRecvFolder.Text = dlg.SelectedPath;
+            }
+        }
+
+        private void buttonClientSendFileBrowse_Click(object sender, RoutedEventArgs e) {
+            var dlg = new OpenFileDialog();
+            dlg.CheckFileExists = true;
+            var result = dlg.ShowDialog();
+            if (result == true) {
+                textBoxSendFile.Text = dlg.FileName;
             }
         }
     }
