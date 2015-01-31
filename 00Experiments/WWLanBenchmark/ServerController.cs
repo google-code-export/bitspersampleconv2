@@ -113,14 +113,20 @@ namespace WWLanBenchmark {
                                 settings.totalBytes / ONE_GIGA, sw.ElapsedMilliseconds / 1000.0,
                                 (double)settings.totalBytes * 8 / ONE_GIGA / (sw.ElapsedMilliseconds / 1000.0)));
 
+                            sw.Reset();
+                            sw.Start();
                             mBackgroundWorker.ReportProgress(1, string.Format("Checking consistency of received data...\n"));
                             var calcHash = serverReceiver.CalcHash();
+                            sw.Stop();
                             if (calcHash.SequenceEqual(recvHash)) {
-                                mBackgroundWorker.ReportProgress(1, "MD5 hash consistency check succeeded.\n");
+                                mBackgroundWorker.ReportProgress(1, string.Format("MD5 hash consistency check succeeded. {0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
                                 string path = string.Format("{0}\\{1}", recvFolder, Guid.NewGuid());
                                 mBackgroundWorker.ReportProgress(1, string.Format("Saving received data as {0} ...", path));
+                                sw.Reset();
+                                sw.Start();
                                 serverReceiver.SaveReceivedFileAs(path);
-                                mBackgroundWorker.ReportProgress(1, string.Format("done\n"));
+                                sw.Stop();
+                                mBackgroundWorker.ReportProgress(1, string.Format("done. {0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
                             } else {
                                 mBackgroundWorker.ReportProgress(1, string.Format("MD5 hash consistency check FAILED !!\n"));
                             }
