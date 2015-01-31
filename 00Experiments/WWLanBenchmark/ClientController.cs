@@ -23,16 +23,21 @@ namespace WWLanBenchmark {
                     using (var stream = client.GetStream()) {
                         using (var bw = new BinaryWriter(stream)) {
                             // 1. 設定情報を送出。
-                            mBackgroundWorker.ReportProgress(1, "Connected to Server.\nPreparing xmit data...");
+                            mBackgroundWorker.ReportProgress(1, "Connected to Server.\n");
 
                             // XmitTaskのリストを準備。
+                            mBackgroundWorker.ReportProgress(1, string.Format("Reading {0} onto memory... ", path));
                             Stopwatch sw = new Stopwatch();
                             sw.Start();
-
                             var totalBytes = mClientXmitter.SetupXmitTasks(path, xmitFragmentBytes);
-
                             sw.Stop();
+                            mBackgroundWorker.ReportProgress(1, string.Format("{0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
 
+                            mBackgroundWorker.ReportProgress(1, "Calculating MD5 hash... ");
+                            sw.Reset();
+                            sw.Start();
+                            mClientXmitter.CalcHash();
+                            sw.Stop();
                             mBackgroundWorker.ReportProgress(1, string.Format("{0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
 
                             if (!SendSettings(stream, bw, xmitFragmentBytes, totalBytes)) {
@@ -47,14 +52,10 @@ namespace WWLanBenchmark {
                             mBackgroundWorker.ReportProgress(1, string.Format("Data connection established. sending {0}MB stream...\n",
                                 totalBytes / ONE_MEGA));
 
-                            // 3. xmitConnectionCount個のTCP接続を使用してcontinuousSendGiB ギガバイト送出。
-                            long elapsedMillisec = Xmit(stream, bw);
+                            // 3. xmitConnectionCount個のTCP接続を使用して送出。
+                            Xmit(stream, bw);
 
                             mClientXmitter.CloseConnections();
-
-                            mBackgroundWorker.ReportProgress(1, string.Format("    Xmit {0}MB in {1} seconds. {2:0.###}Gbps\n",
-                                totalBytes / ONE_MEGA, elapsedMillisec / 1000.0,
-                                (double)totalBytes * 8 / ONE_GIGA / (elapsedMillisec / 1000.0)));
                         }
                     }
                 }
@@ -79,7 +80,7 @@ namespace WWLanBenchmark {
             return true;
         }
 
-        private long Xmit(NetworkStream stream, BinaryWriter bw) {
+        private void Xmit(NetworkStream stream, BinaryWriter bw) {
             bw.Write(mClientXmitter.XmitDataHash());
             bw.Flush();
 
@@ -88,9 +89,8 @@ namespace WWLanBenchmark {
                 mBackgroundWorker.ReportProgress(1, "Error: ClientXmitter.Xmit failed!\n");
             }
 
-            mBackgroundWorker.ReportProgress(100, "    Waiting server response...\n");
-            long elapsedMillisec = Utility.StreamReadInt64(stream);
-            return elapsedMillisec;
+            mBackgroundWorker.ReportProgress(100, "Waiting server...\n");
+            stream.ReadByte();
         }
 
     }

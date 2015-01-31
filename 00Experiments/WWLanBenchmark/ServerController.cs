@@ -87,7 +87,7 @@ namespace WWLanBenchmark {
 
                             GC.Collect();
 
-                            mBackgroundWorker.ReportProgress(1, string.Format("Settings: Recv {0}GB of data. data fragment size={1}Mbytes\n",
+                            mBackgroundWorker.ReportProgress(1, string.Format("Settings: To recv {0}GB of data. Fragment size={1}Mbytes\n",
                                 settings.totalBytes / ONE_GIGA, settings.xmitFragmentBytes / ONE_MEGA));
 
                             // データポートの待受を開始する。
@@ -109,31 +109,31 @@ namespace WWLanBenchmark {
                             serverReceiver.Wait(recvTimeoutMillisec);
                             sw.Stop();
 
-                            mBackgroundWorker.ReportProgress(1, string.Format("Received {0}GB in {1} seconds. {2:0.###}Gbps\n",
+                            mBackgroundWorker.ReportProgress(1, string.Format("Received {0}GB in {1} seconds. ({2:0.###}Gbps)\n",
                                 settings.totalBytes / ONE_GIGA, sw.ElapsedMilliseconds / 1000.0,
                                 (double)settings.totalBytes * 8 / ONE_GIGA / (sw.ElapsedMilliseconds / 1000.0)));
 
                             sw.Reset();
                             sw.Start();
-                            mBackgroundWorker.ReportProgress(1, string.Format("Checking consistency of received data...\n"));
+                            mBackgroundWorker.ReportProgress(1, string.Format("Checking consistency of received data... "));
                             var calcHash = serverReceiver.CalcHash();
                             sw.Stop();
                             if (calcHash.SequenceEqual(recvHash)) {
-                                mBackgroundWorker.ReportProgress(1, string.Format("MD5 hash consistency check succeeded. {0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
+                                mBackgroundWorker.ReportProgress(1, string.Format("Success! {0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
                                 string path = string.Format("{0}\\{1}", recvFolder, Guid.NewGuid());
-                                mBackgroundWorker.ReportProgress(1, string.Format("Saving received data as {0} ...", path));
+                                mBackgroundWorker.ReportProgress(1, string.Format("Saving received data as {0} ... ", path));
                                 sw.Reset();
                                 sw.Start();
                                 serverReceiver.SaveReceivedFileAs(path);
                                 sw.Stop();
-                                mBackgroundWorker.ReportProgress(1, string.Format("done. {0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
+                                mBackgroundWorker.ReportProgress(1, string.Format("{0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
                             } else {
-                                mBackgroundWorker.ReportProgress(1, string.Format("MD5 hash consistency check FAILED !!\n"));
+                                mBackgroundWorker.ReportProgress(1, string.Format("Error: MD5 hash consistency check FAILED !!\n"));
                             }
 
                             serverReceiver.Terminate();
 
-                            WriteInt64(stream, sw.ElapsedMilliseconds);
+                            stream.WriteByte(0);
                             mBackgroundWorker.ReportProgress(1, string.Format("Connection closed.\n\n"));
 
                         }

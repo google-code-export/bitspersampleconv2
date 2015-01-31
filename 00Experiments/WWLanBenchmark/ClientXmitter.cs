@@ -44,7 +44,6 @@ namespace WWLanBenchmark {
         public long SetupXmitTasks(string path, int xmitFragmentBytes) {
             mXmitTaskList = new List<XmitTask>();
 
-            // 送出データの準備。
             long pos = 0;
             using (var br = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
                 do {
@@ -59,9 +58,10 @@ namespace WWLanBenchmark {
                 } while (true);
             }
 
-            long totalBytes = pos;
+            return pos;
+        }
 
-            // ハッシュ値の計算。
+        public void CalcHash() {
             using (var hash = new MD5CryptoServiceProvider()) {
                 foreach (var xt in mXmitTaskList) {
                     hash.TransformBlock(xt.xmitData, 0, xt.xmitData.Length, xt.xmitData, 0);
@@ -69,8 +69,6 @@ namespace WWLanBenchmark {
                 hash.TransformFinalBlock(new byte[0], 0, 0);
                 mXmitDataHash = hash.Hash;
             }
-
-            return totalBytes;
         }
 
         public bool Xmit() {
