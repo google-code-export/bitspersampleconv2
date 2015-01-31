@@ -85,6 +85,8 @@ namespace WWLanBenchmark {
                             // 接続してきた。設定情報を受信する。
                             Settings settings = RecvSettings(stream);
 
+                            GC.Collect();
+
                             mBackgroundWorker.ReportProgress(1, string.Format("Settings: Recv {0}GB of data. data fragment size={1}Mbytes\n",
                                 settings.totalBytes / ONE_GIGA, settings.xmitFragmentBytes / ONE_MEGA));
 

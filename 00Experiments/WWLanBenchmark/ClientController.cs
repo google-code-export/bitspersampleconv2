@@ -13,6 +13,8 @@ namespace WWLanBenchmark {
                 int xmitConnectionCount, int xmitFragmentBytes, long totalBytes) {
             mBackgroundWorker = backgroundWorker;
 
+            GC.Collect();
+
             try {
                 using (var client = new TcpClient(server, controlPort)) {
                     using (var stream = client.GetStream()) {
