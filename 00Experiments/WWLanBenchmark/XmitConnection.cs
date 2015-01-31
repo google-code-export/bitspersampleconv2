@@ -105,7 +105,9 @@ namespace WWLanBenchmark {
             bw.Write(task.xmitData);
             bw.Flush();
 
+#if false
             stream.ReadByte();
+#endif
         }
     };
 }

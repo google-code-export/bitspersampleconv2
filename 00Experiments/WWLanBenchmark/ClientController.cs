@@ -22,7 +22,6 @@ namespace WWLanBenchmark {
                 using (var client = new TcpClient(server, controlPort)) {
                     using (var stream = client.GetStream()) {
                         using (var bw = new BinaryWriter(stream)) {
-                            // 1. 設定情報を送出。
                             mBackgroundWorker.ReportProgress(1, "Connected to Server.\n");
 
                             // XmitTaskのリストを準備。
@@ -40,7 +39,8 @@ namespace WWLanBenchmark {
                             sw.Stop();
                             mBackgroundWorker.ReportProgress(1, string.Format("{0} seconds\n", sw.ElapsedMilliseconds / 1000.0));
 
-                            if (!SendSettings(stream, bw, xmitFragmentBytes, totalBytes)) {
+                            // 設定情報を送出。
+                            if (!SendSettings(stream, bw, xmitConnectionCount, xmitFragmentBytes, totalBytes)) {
                                 mBackgroundWorker.ReportProgress(100, "Error: Unexpected server response. Exit.");
                                 return;
                             }
@@ -67,7 +67,8 @@ namespace WWLanBenchmark {
             mBackgroundWorker.ReportProgress(100, "Done.\n");
         }
 
-        private static bool SendSettings(NetworkStream stream, BinaryWriter bw, long xmitFragmentBytes, long totalBytes) {
+        private static bool SendSettings(NetworkStream stream, BinaryWriter bw, int xmitConnectionCount, long xmitFragmentBytes, long totalBytes) {
+            bw.Write(xmitConnectionCount);
             bw.Write(xmitFragmentBytes);
             bw.Write(totalBytes);
             bw.Flush();

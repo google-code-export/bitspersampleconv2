@@ -116,8 +116,10 @@ namespace WWLanBenchmark {
 
                         CheckIfRecvCompleted();
 
+#if false
                         // OKを戻す。
                         stream.WriteByte(0);
+#endif
                     }
                 }
             } catch (SocketException e) {

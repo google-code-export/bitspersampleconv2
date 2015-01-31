@@ -48,12 +48,14 @@ namespace WWLanBenchmark {
         }
 
         struct Settings {
+            public int xmitConnectionCount;
             public long xmitFragmentBytes;
             public long totalBytes;
         };
 
         private static Settings RecvSettings(NetworkStream stream) {
             var settings = new Settings();
+            settings.xmitConnectionCount = Utility.StreamReadInt32(stream);
             settings.xmitFragmentBytes = Utility.StreamReadInt64(stream);
             settings.totalBytes = Utility.StreamReadInt64(stream);
             return settings;
@@ -87,8 +89,10 @@ namespace WWLanBenchmark {
 
                             GC.Collect();
 
-                            mBackgroundWorker.ReportProgress(1, string.Format("Settings: To recv {0}GB of data. Fragment size={1}Mbytes\n",
-                                settings.totalBytes / ONE_GIGA, settings.xmitFragmentBytes / ONE_MEGA));
+                            mBackgroundWorker.ReportProgress(1, string.Format("Settings: To recv {0}GB of data. TCP connection count={1}. Fragment size={2}Mbytes\n",
+                                settings.totalBytes / ONE_GIGA,
+                                settings.xmitConnectionCount,
+                                settings.xmitFragmentBytes / ONE_MEGA));
 
                             // データポートの待受を開始する。
                             if (!serverReceiver.Initialize(dataPort, settings.totalBytes)) {
