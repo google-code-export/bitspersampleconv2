@@ -1,23 +1,33 @@
+// 日本語 UTF-8
+
 #include "WWPcmSampleManipulator.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdint.h>
 
+void
+WWPcmSampleManipulator::UpdateFormat(
+        WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+{
+    mFormat        = format;
+    mStreamType    = streamType;
+    mNumChannels   = numChannels;
+    mBitsPerSample = WWPcmDataSampleFormatTypeToBitsPerSample(format);
+}
+
 bool
 WWPcmSampleManipulator::GetFloatSample(
-        WWPcmDataSampleFormatType format, int numChannels, const unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float &value_return)
+        const unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float &value_return)
 {
-    int bitsPerSample = WWPcmDataSampleFormatTypeToBitsPerSample(format);
-
-    int64_t pos = (frameIdx * numChannels + ch) * bitsPerSample / 8;
-    if (pos < 0 || buffBytes < pos + (bitsPerSample/8)) {
+    int64_t pos = (frameIdx * mNumChannels + ch) * (mBitsPerSample / 8);
+    if (pos < 0 || buffBytes < pos + (mBitsPerSample / 8)) {
         printf("GetFloatSample() frameIdx is out of range\n");
         return false;
     }
 
-    if (WWPcmDataSampleFormatTypeIsFloat(format)) {
+    if (WWPcmDataSampleFormatTypeIsFloat(mFormat)) {
         // floating point
-        switch (bitsPerSample) {
+        switch (mBitsPerSample) {
         case 32:
             value_return = *((float *)(buff + pos));
             break;
@@ -34,7 +44,7 @@ WWPcmSampleManipulator::GetFloatSample(
         }
     } else {
         // integer
-        switch (bitsPerSample) {
+        switch (mBitsPerSample) {
         case 8:
             {
                 unsigned char v;
@@ -79,27 +89,39 @@ WWPcmSampleManipulator::GetFloatSample(
 
 bool
 WWPcmSampleManipulator::SetFloatSample(
-        WWPcmDataSampleFormatType format, int numChannels, unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float value)
+        unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float value)
 {
-    int bitsPerSample = WWPcmDataSampleFormatTypeToBitsPerSample(format);
-
-    int64_t pos = (frameIdx * numChannels + ch) * bitsPerSample / 8;
-    if (pos < 0 || buffBytes < pos + (bitsPerSample/8)) {
+    int64_t pos = (frameIdx * mNumChannels + ch) * (mBitsPerSample / 8);
+    if (pos < 0 || buffBytes < pos + (mBitsPerSample / 8)) {
         printf("SetFloatSample() frameIdx is out of range\n");
         return false;
     }
 
-    if (WWPcmDataSampleFormatTypeIsFloat(format)) {
+    if (WWPcmDataSampleFormatTypeIsFloat(mFormat)) {
         // floating point
-        switch (bitsPerSample) {
+        switch (mBitsPerSample) {
         case 32:
             {
+                if (value < -1.0f) {
+                    value = -1.0f;
+                }
+                if (((float)0x7fffff / 0x800000) < value) {
+                    value = (float)0x7fffff / 0x800000;
+                }
+
                 float *p = (float *)(buff + pos);
                 *p = value;
             }
             break;
         case 64:
             {
+                if (value < -1.0f) {
+                    value = -1.0f;
+                }
+                if (1.0f < value) {
+                    value = 1.0f;
+                }
+
                 double *p = (double *)(buff + pos);
                 *p = (double)value;
             }
@@ -110,7 +132,7 @@ WWPcmSampleManipulator::SetFloatSample(
         }
     } else {
         // integer
-        switch (bitsPerSample) {
+        switch (mBitsPerSample) {
         case 8:
             {
                 int v = (int)((value + 1.0f) * 256.0f);

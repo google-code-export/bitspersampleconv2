@@ -1,16 +1,20 @@
 #pragma once
 
-// “ú–{Œê UTF-8
+// æ—¥æœ¬èªž UTF-8
 
 #include "IWWAudioFilter.h"
+#include "WWPcmSampleManipulator.h"
 
 class WWAudioFilterPolarityInvert : public IWWAudioFilter {
 public:
     virtual ~WWAudioFilterPolarityInvert(void) {}
-    virtual void UpdateSampleFormat(WWPcmDataSampleFormatType &format);
+    virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
     virtual void Filter(unsigned char *buff, int bytes);
 
 private:
-    WWPcmDataSampleFormatType mFormat;
+    WWPcmSampleManipulator mManip;
+
+    void FilterDoP(unsigned char *buff, int bytes);
+    void FilterPcm(unsigned char *buff, int bytes);
 };
 

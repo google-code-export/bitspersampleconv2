@@ -1,11 +1,22 @@
 #pragma once
 
-// “ú–{Œê UTF-8
+// æ—¥æœ¬èªž UTF-8
 
 #include "WWPcmData.h"
 
 class WWPcmSampleManipulator {
 public:
-    bool GetFloatSample(WWPcmDataSampleFormatType format, int numChannels, const unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float &value_return);
-    bool SetFloatSample(WWPcmDataSampleFormatType format, int numChannels, unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float value);
+    void UpdateFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
+    bool GetFloatSample(const unsigned char *buff, int64_t buffBytes, int64_t frameIdx, int ch, float &value_return);
+    bool SetFloatSample(unsigned char *buff,       int64_t buffBytes, int64_t frameIdx, int ch, float value);
+
+    WWPcmDataSampleFormatType SampleFormat(void) const { return mFormat; }
+    WWStreamType StreamType(void) const { return mStreamType; }
+    int NumChannels(void) const { return mNumChannels; }
+    int BitsPerSample(void) const { return mBitsPerSample; }
+private:
+    WWPcmDataSampleFormatType mFormat;
+    WWStreamType mStreamType;
+    int mNumChannels;
+    int mBitsPerSample;
 };
