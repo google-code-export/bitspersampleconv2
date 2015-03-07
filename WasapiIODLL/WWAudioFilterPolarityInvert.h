@@ -2,10 +2,10 @@
 
 // 日本語 UTF-8
 
-#include "IWWAudioFilter.h"
+#include "WWAudioFilter.h"
 #include "WWPcmSampleManipulator.h"
 
-class WWAudioFilterPolarityInvert : public IWWAudioFilter {
+class WWAudioFilterPolarityInvert : public WWAudioFilter {
 public:
     virtual ~WWAudioFilterPolarityInvert(void) {}
     virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);

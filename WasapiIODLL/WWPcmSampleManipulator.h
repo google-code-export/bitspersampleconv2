@@ -14,6 +14,7 @@ public:
     WWStreamType StreamType(void) const { return mStreamType; }
     int NumChannels(void) const { return mNumChannels; }
     int BitsPerSample(void) const { return mBitsPerSample; }
+
 private:
     WWPcmDataSampleFormatType mFormat;
     WWStreamType mStreamType;

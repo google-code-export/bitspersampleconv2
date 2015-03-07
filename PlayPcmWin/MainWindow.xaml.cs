@@ -409,6 +409,10 @@ namespace PlayPcmWin
 
             textBoxLatency.Text = string.Format(CultureInfo.InvariantCulture, "{0}", m_preference.LatencyMillisec);
 
+            checkBoxSoundEffects.IsChecked = m_preference.SoundEffectsEnabled;
+            buttonSoundEffectsSettings.IsEnabled = m_preference.SoundEffectsEnabled;
+            UpdateSoundEffects(m_preference.SoundEffectsEnabled);
+
             switch (m_preference.WasapiSharedOrExclusive) {
             case WasapiSharedOrExclusiveType.Exclusive:
                 radioButtonExclusive.IsChecked = true;
@@ -784,7 +788,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled             = false;
             buttonPrev.IsEnabled             = false;
-            groupBoxWasapiSettings.IsEnabled = true;
+            groupBoxWasapiOperationMode.IsEnabled = true;
+            groupBoxWasapiDataFeedMode.IsEnabled = true;
+            groupBoxWasapiOutputLatency.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled    = false;
             buttonDelistSelected.IsEnabled = false;
@@ -821,7 +827,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = true;
             buttonPrev.IsEnabled = true;
-            groupBoxWasapiSettings.IsEnabled = true;
+            groupBoxWasapiOperationMode.IsEnabled = true;
+            groupBoxWasapiDataFeedMode.IsEnabled = true;
+            groupBoxWasapiOutputLatency.IsEnabled = true;
 
             buttonClearPlayList.IsEnabled = true;
             buttonDelistSelected.IsEnabled = (dataGridPlayList.SelectedIndex >= 0);
@@ -850,7 +858,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = false;
             buttonPrev.IsEnabled = false;
-            groupBoxWasapiSettings.IsEnabled = false;
+            groupBoxWasapiOperationMode.IsEnabled = false;
+            groupBoxWasapiDataFeedMode.IsEnabled = false;
+            groupBoxWasapiOutputLatency.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
             buttonDelistSelected.IsEnabled = false;
@@ -880,7 +890,9 @@ namespace PlayPcmWin
 
             buttonNext.IsEnabled = true;
             buttonPrev.IsEnabled = true;
-            groupBoxWasapiSettings.IsEnabled = false;
+            groupBoxWasapiOperationMode.IsEnabled = false;
+            groupBoxWasapiDataFeedMode.IsEnabled = false;
+            groupBoxWasapiOutputLatency.IsEnabled = false;
 
             buttonClearPlayList.IsEnabled = false;
             buttonDelistSelected.IsEnabled = false;
@@ -3531,6 +3543,40 @@ namespace PlayPcmWin
                     break;
                 }
             }));
+        }
+
+        private void checkBoxSoundEffects_Checked(object sender, RoutedEventArgs e) {
+            m_preference.SoundEffectsEnabled = true;
+            buttonSoundEffectsSettings.IsEnabled = true;
+
+            UpdateSoundEffects(true);
+        }
+
+        private void checkBoxSoundEffects_Unchecked(object sender, RoutedEventArgs e) {
+            m_preference.SoundEffectsEnabled = false;
+            buttonSoundEffectsSettings.IsEnabled = false;
+
+            UpdateSoundEffects(false);
+        }
+
+        private void buttonSoundEffectsSettings_Click(object sender, RoutedEventArgs e) {
+            var dialog = new SoundEffectsConfiguration();
+            dialog.SetPreference(m_preference);
+            var result = dialog.ShowDialog();
+
+            if (true == result) {
+                UpdateSoundEffects(true);
+            }
+        }
+
+        private void UpdateSoundEffects(bool bEnable) {
+            var sfu = new SoundEffectsUpdater();
+
+            if (bEnable) {
+                sfu.Update(wasapi, m_preference.audioFilterList);
+            } else {
+                sfu.Update(wasapi, new List<PreferenceAudioFilter>());
+            }
         }
     }
 }

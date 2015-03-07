@@ -158,9 +158,11 @@
     <ClInclude Include="WasapiIOIF.h" />
     <ClInclude Include="WasapiUser.h" />
     <ClInclude Include="WWAudioDeviceEnumerator.h" />
-    <ClInclude Include="IWWAudioFilter.h" />
+    <ClInclude Include="WWAudioFilter.h" />
+    <ClInclude Include="WWAudioFilterType.h" />
     <ClInclude Include="WWAudioFilterMonaural.h" />
     <ClInclude Include="WWAudioFilterPolarityInvert.h" />
+    <ClInclude Include="WWAudioFilterSequencer.h" />
     <ClInclude Include="WWMFResampler.h" />
     <ClInclude Include="WWMMNotificationClient.h" />
     <ClInclude Include="WWPcmData.h" />
@@ -179,6 +181,7 @@
     <ClCompile Include="WWAudioDeviceEnumerator.cpp" />
     <ClCompile Include="WWAudioFilterMonaural.cpp" />
     <ClCompile Include="WWAudioFilterPolarityInvert.cpp" />
+    <ClCompile Include="WWAudioFilterSequencer.cpp" />
     <ClCompile Include="WWMFResampler.cpp" />
     <ClCompile Include="WWMMNotificationClient.cpp" />
     <ClCompile Include="WWPcmData.cpp" />
