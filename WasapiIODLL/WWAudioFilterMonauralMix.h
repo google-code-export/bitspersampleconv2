@@ -5,9 +5,9 @@
 #include "WWAudioFilter.h"
 #include "WWPcmSampleManipulator.h"
 
-class WWAudioFilterMonaural : public WWAudioFilter {
+class WWAudioFilterMonauralMix : public WWAudioFilter {
 public:
-    virtual ~WWAudioFilterMonaural(void) {}
+    virtual ~WWAudioFilterMonauralMix(void) {}
     virtual void UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels);
     virtual void Filter(unsigned char *buff, int bytes);
 

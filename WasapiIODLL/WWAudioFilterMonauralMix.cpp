@@ -1,16 +1,16 @@
 // 日本語 UTF-8
 
-#include "WWAudioFilterMonaural.h"
+#include "WWAudioFilterMonauralMix.h"
 #include <assert.h>
 
 void
-WWAudioFilterMonaural::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+WWAudioFilterMonauralMix::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
 {
     mManip.UpdateFormat(format, streamType, numChannels);
 }
 
 void
-WWAudioFilterMonaural::Filter(unsigned char *buff, int bytes)
+WWAudioFilterMonauralMix::Filter(unsigned char *buff, int bytes)
 {
     if (mManip.StreamType() == WWStreamDop) {
         // 対応していない
@@ -20,7 +20,7 @@ WWAudioFilterMonaural::Filter(unsigned char *buff, int bytes)
 }
 
 void
-WWAudioFilterMonaural::FilterPcm(unsigned char *buff, int bytes)
+WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
 {
     bool rv;
 

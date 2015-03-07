@@ -38,13 +38,13 @@
     <ClCompile Include="WWAudioFilterPolarityInvert.cpp">
       <Filter>source files</Filter>
     </ClCompile>
-    <ClCompile Include="WWAudioFilterMonaural.cpp">
-      <Filter>source files</Filter>
-    </ClCompile>
     <ClCompile Include="WWPcmSampleManipulator.cpp">
       <Filter>source files</Filter>
     </ClCompile>
     <ClCompile Include="WWAudioFilterSequencer.cpp">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="WWAudioFilterMonauralMix.cpp">
       <Filter>source files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,9 +88,6 @@
     <ClInclude Include="WWAudioFilterPolarityInvert.h">
       <Filter>header files</Filter>
     </ClInclude>
-    <ClInclude Include="WWAudioFilterMonaural.h">
-      <Filter>header files</Filter>
-    </ClInclude>
     <ClInclude Include="WWPcmSampleManipulator.h">
       <Filter>header files</Filter>
     </ClInclude>
@@ -101,6 +98,9 @@
       <Filter>header files</Filter>
     </ClInclude>
     <ClInclude Include="WWAudioFilterType.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="WWAudioFilterMonauralMix.h">
       <Filter>header files</Filter>
     </ClInclude>
   </ItemGroup>

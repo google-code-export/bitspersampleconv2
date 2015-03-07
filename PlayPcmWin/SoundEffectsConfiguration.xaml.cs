@@ -16,27 +16,35 @@ namespace PlayPcmWin {
 
     public partial class SoundEffectsConfiguration : Window {
         List<PreferenceAudioFilter> mAudioFilterList = new List<PreferenceAudioFilter>();
-        Preference m_preference = null;
-        public void SetPreference(Preference preference) {
-            m_preference = preference;
+
+        public void SetAudioFilterList(List<PreferenceAudioFilter> audioFilterList) {
 
             mAudioFilterList = new List<PreferenceAudioFilter>();
-            foreach (var f in m_preference.audioFilterList) {
+            foreach (var f in audioFilterList) {
                 mAudioFilterList.Add(f.Copy());
             }
 
             AudioFilterListUpdated();
         }
 
+        public List<PreferenceAudioFilter> AudioFilterList {
+            get {
+                return mAudioFilterList;
+            }
+        }
+
         public SoundEffectsConfiguration() {
             InitializeComponent();
 
-            listBoxAvailableEffects.Items.Clear();
+            groupBoxActivated.Header = Properties.Resources.AudioFilterActivated;
+            groupBoxAvailable.Header = Properties.Resources.AudioFilterAvailable;
+            buttonCancel.Content = Properties.Resources.SettingsButtonCancel;
+            buttonClearAll.Content = Properties.Resources.AudioFilterClear;
 
-            for (int i=0; i < (int)PreferenceAudioFilterType.NUM; ++i) {
-                var t = (PreferenceAudioFilterType)i;
-                listBoxAvailableEffects.Items.Add(t);
-            }
+            listBoxAvailableEffects.Items.Clear();
+            // WWAudioFilterTypeと同じ順番にする
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterPolarityInvert);
+            listBoxAvailableEffects.Items.Add(Properties.Resources.AudioFilterMonauralMix);
 
             listBoxAvailableEffects.SelectedIndex = 0;
             buttonLeftArrow.IsEnabled = true;
@@ -49,7 +57,7 @@ namespace PlayPcmWin {
 
             listBoxActivatedEffects.Items.Clear();
             foreach (var item in mAudioFilterList) {
-                listBoxActivatedEffects.Items.Add(item);
+                listBoxActivatedEffects.Items.Add(item.ToDescriptionText());
             }
 
             // 選択位置を復旧する
@@ -81,8 +89,8 @@ namespace PlayPcmWin {
             case PreferenceAudioFilterType.PolarityInvert:
                 filter = new PreferenceAudioFilter(PreferenceAudioFilterType.PolarityInvert);
                 break;
-            case PreferenceAudioFilterType.Monaural:
-                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.Monaural);
+            case PreferenceAudioFilterType.MonauralMix:
+                filter = new PreferenceAudioFilter(PreferenceAudioFilterType.MonauralMix);
                 break;
             default:
                 System.Diagnostics.Debug.Assert(false);
@@ -114,7 +122,6 @@ namespace PlayPcmWin {
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e) {
-            m_preference.audioFilterList = mAudioFilterList;
             DialogResult = true;
             Close();
         }

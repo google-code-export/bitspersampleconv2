@@ -88,8 +88,6 @@ namespace PlayPcmWin {
 
         public bool SoundEffectsEnabled { get; set; }
 
-        public List<PreferenceAudioFilter> audioFilterList = new List<PreferenceAudioFilter>();
-
         public void PlayListColumnsOrderRemoveRange(int idx, int count) {
             playListColumnsOrder.RemoveRange(idx, count);
         }
@@ -171,7 +169,6 @@ namespace PlayPcmWin {
             GpuRendering = true;
             OpenFileDialogFilterIndex = -1;
             SoundEffectsEnabled = false;
-            audioFilterList.Clear();
         }
 
         /// <summary>

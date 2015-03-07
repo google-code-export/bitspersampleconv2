@@ -350,6 +350,8 @@ namespace PlayPcmWin
         /// </summary>
         private bool mSliderSliding = false;
 
+        List<PreferenceAudioFilter> mPreferenceAudioFilterList = new List<PreferenceAudioFilter>();
+
         /// ///////////////////////////////////////////////////////////////////////////////////////////////////
 
         public MainWindow()
@@ -411,6 +413,7 @@ namespace PlayPcmWin
 
             checkBoxSoundEffects.IsChecked = m_preference.SoundEffectsEnabled;
             buttonSoundEffectsSettings.IsEnabled = m_preference.SoundEffectsEnabled;
+            mPreferenceAudioFilterList = PreferenceAudioFilterStore.Load();
             UpdateSoundEffects(m_preference.SoundEffectsEnabled);
 
             switch (m_preference.WasapiSharedOrExclusive) {
@@ -560,6 +563,10 @@ namespace PlayPcmWin
             dataGridColumnTitle.Header = Properties.Resources.MainDataGridColumnTitle;
 
             labelLoadingPlaylist.Content = Properties.Resources.MainStatusReadingPlaylist;
+
+            groupBoxWasapiSoundEffects.Header = Properties.Resources.GroupBoxSoundEffects;
+            buttonSoundEffectsSettings.Content = Properties.Resources.ButtonSoundEffectsSettings;
+            checkBoxSoundEffects.Content = Properties.Resources.CheckBoxSoundEffects;
         }
 
         private bool IsPlayModeAllTracks() {
@@ -1159,6 +1166,8 @@ namespace PlayPcmWin
 
                 // 設定ファイルを書き出す。
                 PreferenceStore.Save(m_preference);
+
+                PreferenceAudioFilterStore.Save(mPreferenceAudioFilterList);
 
                 // 再生リストをIsolatedStorageに保存。
                 SavePpwPlaylist(string.Empty);
@@ -3561,11 +3570,21 @@ namespace PlayPcmWin
 
         private void buttonSoundEffectsSettings_Click(object sender, RoutedEventArgs e) {
             var dialog = new SoundEffectsConfiguration();
-            dialog.SetPreference(m_preference);
+            dialog.SetAudioFilterList(mPreferenceAudioFilterList);
             var result = dialog.ShowDialog();
 
             if (true == result) {
-                UpdateSoundEffects(true);
+                mPreferenceAudioFilterList = dialog.AudioFilterList;
+
+                if (mPreferenceAudioFilterList.Count == 0) {
+                    // 音声処理を無効にする。
+                    m_preference.SoundEffectsEnabled = false;
+                    checkBoxSoundEffects.IsChecked = false;
+                    buttonSoundEffectsSettings.IsEnabled = false;
+                    UpdateSoundEffects(false);
+                } else {
+                    UpdateSoundEffects(true);
+                }
             }
         }
 
@@ -3573,7 +3592,7 @@ namespace PlayPcmWin
             var sfu = new SoundEffectsUpdater();
 
             if (bEnable) {
-                sfu.Update(wasapi, m_preference.audioFilterList);
+                sfu.Update(wasapi, mPreferenceAudioFilterList);
             } else {
                 sfu.Update(wasapi, new List<PreferenceAudioFilter>());
             }

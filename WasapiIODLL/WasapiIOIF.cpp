@@ -6,7 +6,7 @@
 #include "WWAudioDeviceEnumerator.h"
 #include "WWAudioFilterType.h"
 #include "WWAudioFilterPolarityInvert.h"
-#include "WWAudioFilterMonaural.h"
+#include "WWAudioFilterMonauralMix.h"
 #include <assert.h>
 #include <map>
 
@@ -698,7 +698,7 @@ WasapiIO_AppendAudioFilter(int instanceId, int audioFilterType)
             self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterPolarityInvert());
             break;
         case WWAF_Monaural:
-            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMonaural());
+            self->wasapi.AudioFilterSequencer().Append(new WWAudioFilterMonauralMix());
             break;
         default:
             assert(0);
