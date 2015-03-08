@@ -1,4 +1,5 @@
 // 日本語 UTF-8
+
 #include "WWAudioFilterSequencer.h"
 #include "WWAudioFilter.h"
 #include <assert.h>
@@ -19,7 +20,7 @@ WWAudioFilterSequencer::~WWAudioFilterSequencer(void)
 void
 WWAudioFilterSequencer::Init(void)
 {
-    UnregisterAll();
+    assert(m_audioFilter == nullptr);
 }
 
 void
@@ -81,7 +82,9 @@ WWAudioFilterSequencer::UnregisterAll(void)
 }
 
 void
-WWAudioFilterSequencer::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+WWAudioFilterSequencer::UpdateSampleFormat(
+        WWPcmDataSampleFormatType format,
+        WWStreamType streamType, int numChannels)
 {
     m_format = format;
     m_streamType = streamType;
