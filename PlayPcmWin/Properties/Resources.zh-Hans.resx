@@ -570,13 +570,13 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>进入WASAPI的音频数据位深(载入文件时进行转换)</value>
   </data>
   <data name="AudioFilterActivated" xml:space="preserve">
-    <value>启用音效</value>
+    <value>已激活的音效</value>
   </data>
   <data name="AudioFilterAvailable" xml:space="preserve">
     <value>可用音效</value>
   </data>
   <data name="AudioFilterClear" xml:space="preserve">
-    <value>清除音效列表</value>
+    <value>清空已激活的音效</value>
   </data>
   <data name="AudioFilterMonauralMix" xml:space="preserve">
     <value>转换为单声道（PCM）</value>
@@ -588,7 +588,7 @@ Jcode.pm copyright is as follows: Copyright 1999-2005 Dan Kogai</value>
     <value>设置...</value>
   </data>
   <data name="CheckBoxSoundEffects" xml:space="preserve">
-    <value>音效</value>
+    <value>启用音效</value>
   </data>
   <data name="GroupBoxSoundEffects" xml:space="preserve">
     <value>音效</value>
