@@ -79,12 +79,16 @@ WWAudioFilterPolarityInvert::FilterPcm(unsigned char *buff, int bytes)
             float *p = (float *)buff;
             for (int idx=0; idx<bytes/4; ++idx) {
                 float v = -p[idx];
+
+                // FIXME: ここでクリップ処理するのは時期尚早だった。
+                // 信号処理終了時処理に移動するべし。
                 if (v < -1.0f) {
                     v = -1.0f;
                 }
                 if (((float)0x7fffff / 0x800000) < v) {
                     v = (float)0x7fffff / 0x800000;
                 }
+
                 p[idx] = v;
             }
         }
