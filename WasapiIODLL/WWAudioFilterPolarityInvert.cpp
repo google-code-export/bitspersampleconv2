@@ -5,7 +5,8 @@
 
 void
 WWAudioFilterPolarityInvert::UpdateSampleFormat(
-        WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+        WWPcmDataSampleFormatType format,
+        WWStreamType streamType, int numChannels)
 {
     mManip.UpdateFormat(format, streamType, numChannels);
 }
