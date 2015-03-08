@@ -24,8 +24,6 @@ WWAudioFilterMonauralMix::Filter(unsigned char *buff, int bytes)
 void
 WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
 {
-    bool rv;
-
     int nFrames = bytes / (mManip.NumChannels() * mManip.BitsPerSample() / 8);
 
     for (int i=0; i<nFrames; ++i) {
@@ -33,7 +31,7 @@ WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
         float vAcc = 0.0f;
         for (int ch=0; ch<mManip.NumChannels(); ++ch) {
             float v = 0.0f;
-            rv = mManip.GetFloatSample(buff, bytes, i, ch, v);
+            bool rv = mManip.GetFloatSample(buff, bytes, i, ch, v);
             assert(rv);
             vAcc += v;
         }
@@ -41,7 +39,7 @@ WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
         vAcc /= mManip.NumChannels();
 
         for (int ch=0; ch<mManip.NumChannels(); ++ch) {
-            rv = mManip.SetFloatSample(buff, bytes, i, ch, vAcc);
+            bool rv = mManip.SetFloatSample(buff, bytes, i, ch, vAcc);
             assert(rv);
         }
     }
