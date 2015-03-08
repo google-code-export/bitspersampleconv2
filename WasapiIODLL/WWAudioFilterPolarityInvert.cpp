@@ -4,7 +4,8 @@
 #include <assert.h>
 
 void
-WWAudioFilterPolarityInvert::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+WWAudioFilterPolarityInvert::UpdateSampleFormat(
+        WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
 {
     mManip.UpdateFormat(format, streamType, numChannels);
 }

@@ -4,7 +4,8 @@
 #include <assert.h>
 
 void
-WWAudioFilterMonauralMix::UpdateSampleFormat(WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
+WWAudioFilterMonauralMix::UpdateSampleFormat(
+        WWPcmDataSampleFormatType format, WWStreamType streamType, int numChannels)
 {
     mManip.UpdateFormat(format, streamType, numChannels);
 }
