@@ -29,6 +29,7 @@ WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
     int nFrames = bytes / (mManip.NumChannels() * mManip.BitsPerSample() / 8);
 
     for (int i=0; i<nFrames; ++i) {
+        // 全てのチャンネルのサンプル値を加算してチャンネル数で割る。
         float vAcc = 0.0f;
         for (int ch=0; ch<mManip.NumChannels(); ++ch) {
             float v = 0.0f;
@@ -38,6 +39,7 @@ WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
         }
 
         vAcc /= mManip.NumChannels();
+
         for (int ch=0; ch<mManip.NumChannels(); ++ch) {
             rv = mManip.SetFloatSample(buff, bytes, i, ch, vAcc);
             assert(rv);
