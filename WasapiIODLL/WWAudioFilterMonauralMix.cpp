@@ -26,7 +26,7 @@ WWAudioFilterMonauralMix::FilterPcm(unsigned char *buff, int bytes)
 {
     bool rv;
 
-    int nFrames = bytes / mManip.NumChannels() / (mManip.BitsPerSample() / 8);
+    int nFrames = bytes / (mManip.NumChannels() * mManip.BitsPerSample() / 8);
 
     for (int i=0; i<nFrames; ++i) {
         float vAcc = 0.0f;
