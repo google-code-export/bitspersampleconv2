@@ -336,7 +336,7 @@ namespace PlayPcmWin {
             {
                 double zeroFlushSeconds;
                 if (Double.TryParse(textBoxZeroFlushSeconds.Text, out zeroFlushSeconds)) {
-                    if (zeroFlushSeconds <= 0 || 1000 < zeroFlushSeconds) {
+                    if (zeroFlushSeconds < 0 || 1000 < zeroFlushSeconds) {
                         MessageBox.Show("再生前無音送信時間の大きさは 0.0～1000.0の範囲の数字を入力してください。");
                         return;
                     }

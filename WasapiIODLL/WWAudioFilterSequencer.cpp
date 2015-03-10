@@ -96,9 +96,41 @@ WWAudioFilterSequencer::UpdateSampleFormat(
 }
 
 void
+WWAudioFilterSequencer::SaturateSamples(unsigned char *buff, int bytes)
+{
+    switch (m_format) {
+    case WWPcmDataSampleFormatSfloat:
+        {
+            // [-1.0, 1.0)の範囲でSaturateする。
+
+            float *p = (float *)buff;
+            for (int idx=0; idx<bytes/4; ++idx) {
+                float v = p[idx];
+
+                if (v < -1.0f) {
+                    v = -1.0f;
+                }
+                if (((float)0x7fffff / 0x800000) < v) {
+                    v = (float)0x7fffff / 0x800000;
+                }
+
+                p[idx] = v;
+            }
+        }
+        break;
+    default:
+        // 整数値のときは処理の必要なし。
+        break;
+    }
+}
+
+void
 WWAudioFilterSequencer::ProcessSamples(unsigned char *buff, int bytes)
 {
     Loop([buff,bytes](WWAudioFilter*p) {
         p->Filter(buff, bytes);
     });
+
+    // 最後にSaturate処理する。
+    SaturateSamples(buff, bytes);
 }
